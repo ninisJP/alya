@@ -1,0 +1,106 @@
+{% extends 'follow_control_base.html' %}
+
+{% block title %}Crear Tarjeta de Técnico{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Crear Nueva Tarjeta de Técnico</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label for="id_technician">Técnico:</label>
+                            {{ form.technician }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_station">Estación:</label>
+                            {{ form.station }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_date">Fecha:</label>
+                            {{ form.date }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_tasks">Tareas:</label>
+                            <select name="tasks" id="id_tasks" class="form-control" size="15" multiple>
+                                {% for task in form.tasks.field.queryset %}
+                                <option value="{{ task.pk }}" data-time="{{ task.time }}">
+                                    {{ task.verb }} {{ task.object }} ({{ task.time }} {{ task.measurement }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <input type="hidden" name="orden_tareas" id="id_orden_tareas">
+
+                        <div class="task-list-container mt-3">
+                            <h4>Orden de Tareas</h4>
+                            <ul id="selected-tasks"></ul>
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <button type="submit" class="btn btn-primary">Guardar Tarjeta</button>
+                            <span id="total_time">Total Tiempo: 0 horas</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tasksSelect = document.getElementById('id_tasks');
+        const selectedTasksList = document.getElementById('selected-tasks');
+        const ordenTareasInput = document.getElementById('id_orden_tareas');
+        const totalTimeSpan = document.getElementById('total_time');
+        let selectedOrder = [];
+
+        tasksSelect.addEventListener('change', function() {
+            let options = this.options;
+            let totalMinutes = 0;
+            let currentSelection = [];
+
+            selectedTasksList.innerHTML = '';
+
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].selected) {
+                    totalMinutes += parseFloat(options[i].getAttribute('data-time'));
+                    currentSelection.push(options[i].value);
+                }
+            }
+
+            selectedOrder = selectedOrder.filter(value => currentSelection.includes(value));
+            currentSelection.forEach(value => {
+                if (!selectedOrder.includes(value)) {
+                    selectedOrder.push(value);
+                }
+            });
+
+            selectedOrder.forEach((value, index) => {
+                let option = Array.from(options).find(opt => opt.value === value);
+                let listItem = document.createElement('li');
+                listItem.textContent = `${index + 1}. ${option.text}`;
+                selectedTasksList.appendChild(listItem);
+            });
+
+            ordenTareasInput.value = selectedOrder.join(',');
+
+            let totalHours = (totalMinutes / 60).toFixed(2);
+            totalTimeSpan.textContent = 'Total Tiempo: ' + totalHours + ' horas';
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,315 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Tarjetas Control{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Bootstrap Icons CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Montserrat|Open+Sans|Roboto');
+
+        /* Estilos globales */
+        * {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+        body {
+            overflow: hidden;
+            background: url("{% static 'firewatch.png' %}") no-repeat center center/cover;
+        }
+
+        /* Estilos para el contenedor principal */
+        #wrapper {
+            height: 100vh;
+            display: flex;
+            padding: 10px; /* Padding alrededor del contenedor principal */
+            box-sizing: border-box;
+        }
+
+        /* Estilos para la barra lateral */
+        #sidebar-wrapper {
+            display: flex;
+            flex-direction: column;
+            width: 15%;
+            max-width: 90px;
+            height: calc(100vh - 20px); /* Restar el padding para evitar desbordamiento */
+            padding: 10px;
+            background-color: black;
+            border-right: 2px solid #05101e;
+            box-shadow: 3px 0px 15px rgba(255, 255, 0, 0.8); /* Ajustar el color de la sombra a amarillo intenso */
+            border-radius: 17px;
+            color: white;
+            overflow-y: auto; /* Permite el desplazamiento vertical si el contenido es demasiado grande */
+            box-sizing: border-box;
+        }
+
+        #sidebar-wrapper .list-group-item {
+            padding: 0.5rem 0.5rem;
+            border: none;
+            border-radius: 20px;
+            color: whitesmoke;
+            background-color: #000000;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #sidebar-wrapper .list-group-item i {
+            margin-bottom: 5px;
+            font-size: 1.9em;
+            color: white;
+        }
+        #sidebar-wrapper .list-group-item span {
+            font-size: 0.65em;
+        }
+        #sidebar-wrapper .list-group-item:hover,
+        #sidebar-wrapper .list-group-item:focus {
+            background-color: #1d1d42;
+            box-shadow: 0 2px 5px rgba(24, 4, 4, 0.687);
+        }
+
+        /* Estilos para el contenido principal */
+        #page-content-wrapper {
+            flex-grow: 1;
+            overflow: auto;
+            padding: 10px; /* Padding alrededor del contenido principal */
+            box-sizing: border-box;
+        }
+        .container-fluid {
+            padding: 0px;
+            height: 100%;
+        }
+
+        /* Estilos para la barra de navegación móvil */
+        .navbar-mobile {
+            display: none;
+            background-color: #16213E;
+            color: #fff;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .navbar-mobile a {
+            padding: 10px;
+            display: inline-block;
+            flex: 1;
+            text-align: center;
+            font-size: 1.2em;
+            color: white;
+        }
+        .navbar-mobile a.btn-primary {
+            background-color: #007bff;
+        }
+        .navbar-mobile a.btn-success {
+            background-color: #28a745;
+        }
+        .navbar-mobile a.btn-danger {
+            background-color: #dc3545;
+        }
+        .navbar-mobile a:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        /* Estilos específicos para la barra lateral en pantallas pequeñas */
+        @media (max-width: 768px) {
+            #sidebar-wrapper {
+                display: none;
+            }
+            .navbar-mobile {
+                display: flex;
+                justify-content: space-around;
+                background-color: #1A1A1A;
+                color: #fff;
+            }
+        }
+
+        /* Estilos adicionales */
+        .sidebar-heading {
+            font-size: 2.0em;
+            color: whitesmoke;
+            border-radius: 10px;
+        }
+        .logout-container {
+            margin-top: auto;
+        }
+        .content-area {
+            font-size: 1.5em;
+            padding-left: 35px;
+            padding-top: 2px;
+            padding-right: 20px;
+        }
+
+        /* Estilos personalizados para la barra de desplazamiento */
+        .task-list::-webkit-scrollbar {
+            width: 8px;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Barra lateral -->
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading text-center py-4 primary-text fs-8 fw-bold text-uppercase">
+                <a href="{% url 'hub' %}" ht-target="#main" class="nav-link" style="color: inherit;">
+                    <span>JP</span>
+                </a>
+            </div>
+            <div class="list-group list-group-flush">
+                <!-- Otros elementos de la lista aquí -->
+                <a href="{% url 'follow_control_home' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-home"></i><span>Home</span>
+                </a>
+                <a href="{% url 'tasks' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tasks"></i><span>Tareas</span>
+                </a>
+                <a href="{%  url 'backlog_default' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tasks-alt"></i><span>Backlog</span>
+                </a>
+                <a href="{% url 'valuations' year=2024 month=7 %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt"></i><span>Reportes</span>
+                </a>
+                <a href="{% url 'technicians_month' mes=7 anio=2024 %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt"></i><span>Tecnicos</span>
+                </a>
+
+
+            </div>
+
+            <!-- Contenedor específico para el botón de logout -->
+            <div class="logout-container">
+                {% if request.user.is_authenticated %}
+                <a href="javascript:{}" onclick="document.getElementById('logout-form').submit();" class="list-group-item list-group-item-action">
+                    <i class="fas fa-sign-out-alt" style="color: red;"></i><br>Logout
+                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                </a>
+                {% else %}
+                <a class="list-group-item list-group-item-action">
+                    <i class="fas fa-sign-in-alt" style="color: green;"></i><br>Login
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid content-area">
+                {% block content %}
+                <!-- Contenido de la página aquí -->
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.5"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script>
+        function updateTotal() {
+            let total = 0;
+            const selectedOptions = document.querySelectorAll('#id_tareas option:checked');
+            selectedOptions.forEach(option => {
+                total += parseFloat(option.getAttribute('data-time'));
+            });
+            document.getElementById('total_time').textContent = 'Total Tiempo: ' + total + ' minutos';
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectElement = document.getElementById('id_tareas');
+            if (selectElement) {
+                selectElement.onchange = updateTotal;
+            }
+        });
+
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        });
+
+        htmx.onLoad(function(content) {
+            var sortables = content.querySelectorAll(".sortable");
+            for (var i = 0; i < sortables.length; i++) {
+                var sortable = sortables[i];
+                new Sortable(sortable, {
+                    animation: 150,
+                    ghostClass: 'blue-background-class'
+                });
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+                function calculateStartTimes() {
+                    let startTime = 8 * 60; // 8:00 AM in minutes
+                    const tasks = document.querySelectorAll('.time');
+                    tasks.forEach(task => {
+                        const duration = parseInt(task.getAttribute('data-duration'));
+
+                        // Calcular la hora de inicio
+                        const startHours = Math.floor(startTime / 60).toString().padStart(2, '0');
+                        const startMinutes = (startTime % 60).toString().padStart(2, '0');
+                        const startTimeString = `${startHours}:${startMinutes}`;
+
+                        // Calcular la hora de finalización
+                        let endTime = startTime + duration;
+                        const endHours = Math.floor(endTime / 60).toString().padStart(2, '0');
+                        const endMinutes = (endTime % 60).toString().padStart(2, '0');
+                        const endTimeString = `${endHours}:${endMinutes}`;
+
+                        // Mostrar la hora de inicio y finalización
+                        task.querySelector('.start-time').textContent = startTimeString;
+                        task.querySelector('.end-time').textContent = endTimeString;
+
+                        // Actualizar la hora de inicio para la próxima tarea
+                        startTime += duration;
+                    });
+                }
+
+        calculateStartTimes();
+        document.body.addEventListener('htmx:afterOnLoad', calculateStartTimes);
+    });
+
+    </script>
+
+    {% block extra_js %}
+    {% endblock %}
+
+</body>
+</html>

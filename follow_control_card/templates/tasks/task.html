@@ -1,0 +1,80 @@
+{% extends "follow_control_base.html" %}
+{% block content %}
+<div class="container-fluid ">
+    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+        <div class="card-body text-center py-2">
+            <h1 class="mb-0">Añadir Tareas</h1>
+        </div>
+    </div>
+
+    <div id="tasks-forms" class="w-100">
+        {% include 'partials/task-form.html' %}
+    </div>
+
+    <div class="card shadow-sm mb-4 bg-dark text-white w-100">
+        <div class="card-body text-center py-2">
+            <button type="button" class="btn btn-dark text-white w-100" hx-get="{% url 'create-tasks' %}"
+            hx-target="#tasks-forms"
+            hx-swap="beforeend">Crear formulario</button>
+        </div>
+    </div>
+
+    <div id="task-list">
+        {% include 'partials/task-list.html' %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Función para realizar la petición a la API y mostrar la respuesta en los selects
+        function fetchAndPopulateData() {
+            fetch('https://seiren.awlmaquitec.com/api/ordenes-venta-simples/')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data); // Mostrar la respuesta en la consola
+
+                    const ordenesVentaSelect = document.querySelectorAll('select[name="orden_venta"]');
+                    const clientesSelect = document.querySelectorAll('select[name="client"]');
+
+                    const ordenesSet = new Set();
+                    const clientesSet = new Set();
+
+                    data.forEach(item => {
+                        // Agregar opciones únicas al set de ordenes de venta
+                        ordenesSet.add(item.observacion);
+
+                        // Agregar opciones únicas al set de clientes
+                        clientesSet.add(item.proyecto);
+                    });
+
+                    // Poblar los selects con valores únicos
+                    ordenesSet.forEach(observacion => {
+                        const optionOrden = document.createElement('option');
+                        optionOrden.value = observacion;
+                        optionOrden.textContent = observacion;
+                        ordenesVentaSelect.forEach(select => {
+                            select.appendChild(optionOrden.cloneNode(true));
+                        });
+                    });
+
+                    clientesSet.forEach(proyecto => {
+                        const optionCliente = document.createElement('option');
+                        optionCliente.value = proyecto;
+                        optionCliente.textContent = proyecto;
+                        clientesSelect.forEach(select => {
+                            select.appendChild(optionCliente.cloneNode(true));
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        // Llamar a la función para obtener y mostrar los datos en los selects cuando la página se haya cargado
+        fetchAndPopulateData();
+    });
+</script>
+{% endblock %}

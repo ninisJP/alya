@@ -1,0 +1,96 @@
+<div class="container-fluid">
+    <div class="row">
+        <section class="col-8 pr-3">
+            <button id="toggle-view-btn" class="btn btn-primary mb-3" onclick="toggleView()">Ver como Tabla</button>
+            <div id="list-view">
+                {% if daily_tasks %}
+                <form class="sortable list-group" hx-post="{% url 'sort-tasks' %}" hx-trigger="end" hx-target="#daily-task-list">
+                    <div class="htmx-indicator">Actualizando...</div>
+                    {% for task_order in daily_tasks %}
+                    <div>
+                        <input type="hidden" name="task_order" value="{{ task_order.pk }}" />
+                        <li id="task-{{ task_order.pk }}" class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex flex-wrap w-100 align-items-center">
+                                <div class="mr-3 mb-2 flex-fill">
+                                    <strong class="small">{{ task_order.task.verb }} - {{ task_order.task.object }} - 
+                                        <span class="d-inline-block text-truncate align-middle" style="max-width: 200px;" title="{{ task_order.task.orden_venta }}">
+                                            {{ task_order.task.orden_venta }}
+                                        </span> - {{ task_order.task.client }}
+                                    </strong>
+                                </div>
+                                <div class="time mr-3" data-duration="{{ task_order.task.task_time }}">
+                                    <span class="start-time">08:00 </span> - <span class="end-time"> </span>
+                                </div>
+                                <div class="form-check mr-3">
+                                    <input class="form-check-input" type="checkbox" hx-patch="{% url 'toggle-task-state' task_order.pk %}" hx-target="#task-{{ task_order.pk }}" hx-swap="outerHTML" {% if task_order.state %}checked{% endif %}>
+                                    <label class="form-check-label" for="customCheck{{ task_order.pk }}"></label>
+                                </div>
+                            </div>
+                            <button 
+                                hx-delete="{% url 'delete-daily-task' task_order.pk %}" 
+                                hx-target='#daily-task-list' 
+                                hx-swap="innerHTML"
+                                class="btn btn-outline-danger btn-circle"
+                                style="cursor: pointer;">
+                                X
+                            </button>
+                        </li>
+                    </div>
+                    {% endfor %}
+                </form>
+                {% else %}
+                    <p>No tienes tareas en tu lista</p>
+                {% endif %}
+            </div>
+            <div id="table-view" style="display: none;">
+                {% if daily_tasks %}
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Acción</th>
+                            <th scope="col">Objeto</th>
+                            <th scope="col">Orden de Venta</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Medición</th>
+                            <th scope="col">Hora</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task_order in daily_tasks %}
+                        <tr>
+                            <td>{{ task_order.task.verb }}</td>
+                            <td>{{ task_order.task.object }}</td>
+                            <td>
+                                <span class="d-inline-block text-truncate align-middle" style="max-width: 200px;" title="{{ task_order.task.orden_venta }}">
+                                    {{ task_order.task.orden_venta }}
+                                </span>
+                            </td>
+                            <td>{{ task_order.task.client }}</td>
+                            <td>{{ task_order.task.measurement }}</td>
+                            <td>
+                                <div class="time" data-duration="{{ task_order.task.task_time }}">
+                                    <span class="start-time">08:00</span> - <span class="end-time"></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" disabled {% if task_order.state %}checked{% endif %}>
+                                    <label class="form-check-label"></label>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                    <p>No tienes tareas en tu lista</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="col-3 offset-1 pl-3">
+            {% include 'partials/search-task.html' with card_id=card_id %}
+        </section>
+    </div>
+</div>
