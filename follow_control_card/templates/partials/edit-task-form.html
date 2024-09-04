@@ -1,0 +1,32 @@
+<form hx-post="{% url 'edit-task' task.id %}" hx-target="#task-list" hx-swap="innerHTML">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.verb.id_for_label }}">{{ form.verb.label }}</label>
+            {{ form.verb }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.object.id_for_label }}">{{ form.object.label }}</label>
+            {{ form.object }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.orden_venta.id_for_label }}">{{ form.orden_venta.label }}</label>
+            {{ form.orden_venta }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.client.id_for_label }}">{{ form.client.label }}</label>
+            {{ form.client }}
+        </div>
+        <div class="col-6 col-md-1 mb-3">
+            <label for="{{ form.measurement.id_for_label }}">{{ form.measurement.label }}</label>
+            {{ form.measurement }}
+        </div>
+        <div class="col-6 col-md-1 mb-3">
+            <label for="{{ form.task_time.id_for_label }}">{{ form.task_time.label }}</label>
+            {{ form.task_time }}
+        </div>
+        <div class="col-6 col-md-2 mb-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+    </div>
+</form>

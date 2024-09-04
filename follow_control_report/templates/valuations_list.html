@@ -1,0 +1,74 @@
+{% extends "follow_control_base.html" %}
+
+{% block content %}
+<style>
+    .btn-custom {
+        background-color: #000; /* Fondo negro */
+        color: #fff; /* Texto blanco */
+        border-radius: 20px; /* Bordes redondeados */
+        border: 2px solid #fff; /* Borde blanco */
+        font-size: 16px; /* Aumenta el tamaño de la letra */
+        padding: 8px 16px; /* Ajusta el padding para mejor visualización y espacio */
+        min-width: 50px;  /* Ancho mínimo para mantener la uniformidad */
+        max-width: 50px;  /* Ancho máximo para evitar desbordamiento */
+        white-space: nowrap;  /* Evita que el texto se divida en varias líneas */
+        overflow: hidden;  /* Oculta cualquier contenido que exceda el ancho máximo */
+        text-overflow: ellipsis;  /* Añade puntos suspensivos si el texto es demasiado largo */
+    }
+    .btn-custom:hover {
+        background-color: #333; /* Fondo gris oscuro para el hover */
+        border-color: #ccc; /* Borde gris claro para el hover */
+    }
+    .negative {
+        background-color: #ff0000; /* Rojo para valores negativos */
+    }
+    .positive {
+        background-color: #008000; /* Verde para valores positivos */
+    }
+    .table-dark th, .table-dark td {
+        vertical-align: middle; /* Alineación vertical de los contenidos en la tabla */
+        text-align: center; /* Alineación horizontal de los textos en la tabla */
+    }
+    .table-dark {
+        border-collapse: collapse; /* Elimina los espacios entre las celdas */
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+        <div class="card-body text-center py-2">
+            <h1 class="mb-0">Reporte de Tarjetas Diarias de Usuarios</h1>
+        </div>
+    </div>
+
+    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+        <div class="card-body">
+            <table class="table table-hover table-dark">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        {% for day in days %}
+                            <th>{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in valuations %}
+                    <tr>
+                        <td>{{ row.0 }}</td>
+                        {% for value in row|slice:"1:" %}
+                            <td>
+                                <!-- Aplicar clase basada en el valor -->
+                                <button class="btn btn-sm btn-custom {% if value == '-' %}negative{% else %}positive{% endif %}">
+                                    {{ value|safe }}
+                                </button>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

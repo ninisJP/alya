@@ -1,0 +1,67 @@
+{% extends "follow_control_base.html" %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css?family=Montserrat|Open+Sans|Roboto');
+    /* Aquí va todo el CSS que ya tienes definido */
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="calendar-container">
+    <div class="calendar-title">
+        Backlog {{ nombre_mes }} del {{ anio }}
+    </div>
+    <div class="calendar">
+        <!-- Headers for days of the week excluding Sunday -->
+        <div class="header">Lun</div>
+        <div class="header">Mar</div>
+        <div class="header">Mié</div>
+        <div class="header">Jue</div>
+        <div class="header">Vie</div>
+        <div class="header">Sáb</div>
+
+        <!-- Empty divs for days before the first day of the month -->
+        {% for _ in empty_days %}
+            <div></div>
+        {% endfor %}
+
+        <!-- Calendar days -->
+        {% for day in days_in_month %}
+            <div class="day" hx-get="{% url 'add_task' day %}" hx-target="#myModal .modal-content" hx-trigger="click">
+                <div class="date">{{ day }}</div>
+                <ul class="task-list">
+                    {% for card in cards %}
+                        {% if card.date.day == day %}
+                            {% for task in card.tasks.all %}
+                                <li>{{ task.verb }} {{ task.object }}</li>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                <button class="add-task-btn">+</button>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="myModal" class="modal" hx-trigger="close">
+    <div class="modal-content">
+        <span class="close" hx-trigger="click" hx-target="#myModal" hx-swap="none">&times;</span>
+        <!-- Content will be loaded here via htmx -->
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var modal = document.getElementById("myModal");
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+});
+</script>
+{% endblock %}
