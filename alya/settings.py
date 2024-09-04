@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'follow_control_report',
     'follow_control_technical',
     'hub',
+    'employee',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
