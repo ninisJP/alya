@@ -1,0 +1,346 @@
+{% extends "follow_control_base.html" %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css?family=Montserrat|Open+Sans|Roboto');
+
+    * {
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .calendar-title-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .calendar-title {
+        background-color: black;
+        color: white;
+        text-align: center;
+        padding: 10px;
+        border-radius: 0.5rem;
+        font-size: 1.2em;
+        font-weight: bold;
+        flex-grow: 1;
+    }
+
+    .calendar-selector {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .calendar-selector select {
+        font-size: 1em;
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        background-color: white;
+        color: black;
+        margin-left: 10px;
+    }
+
+    .calendar {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);  /* 6 columnas para Lunes a Sábado */
+        gap: 1px;
+        background-color: #ddd;
+        box-shadow: 0 2px 15px rgba(64, 64, 64, .7);
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .calendar div {
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #ddd;
+        min-height: 60px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Centra el contenido verticalmente */
+        align-items: center; /* Centra el contenido horizontalmente */
+    }
+
+    .calendar .header {
+        background-color: black;
+        color: #fafafa;
+        text-align: center;
+        font-weight: bold;
+        font-family: 'Montserrat', sans-serif;
+        text-transform: uppercase;
+        padding: 5px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8em;
+    }
+
+    .calendar .day {
+        cursor: pointer;
+        font-size: 0.8em;
+        position: relative;
+        padding-top: 25px;  /* Añadir espacio arriba para el número del día */
+    }
+    .task-list {
+        list-style: none;
+        padding-left: 0;
+        margin-top: 25px;  /* Margin-top aumentado para espacio entre fecha y tareas */
+        flex-grow: 1;
+        width: 100%; /* Asegura que la lista tome todo el ancho del contenedor */
+        text-align: center; /* Centra el texto de las tareas */
+    }
+
+    .task-list li {
+        font-size: 1em;  /* Tamaño de fuente aumentado */
+        margin-bottom: 3px;
+        padding: 5px;  /* Ajuste de padding para más espacio */
+        border-radius: 4px;
+    }
+
+    .add-task-btn {
+        background-color: #25D366;
+        color: white;
+        border: none;
+        padding: 5px 10px;  /* Tamaño del botón aumentado */
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.8em;  /* Tamaño de fuente del botón ajustado */
+        position: absolute;
+        top: 5px;
+        right: 5px;
+    }
+    .add-task-btn:hover {
+        background-color: #1EBE57;
+    }
+
+    .clear-tasks-btn {
+        background-color: transparent;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        font-size: 1.2em;
+        position: absolute;
+        top: 5px;
+        left: 5px;
+    }
+
+    .clear-tasks-btn i {
+        font-size: 1.2em;  /* Tamaño del ícono */
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-height: 80%; /* Para limitar la altura del modal */
+        overflow-y: auto; /* Para permitir el desplazamiento */
+    }
+
+    .modal .task-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Ajusta 200px según sea necesario */
+        gap: 10px;
+        list-style: none;
+        padding-left: 0;
+        margin-top: 10px;
+    }
+
+    .modal .task-list li {
+        margin-bottom: 3px;
+        padding: 5px;
+        border-radius: 4px;
+        cursor: pointer; /* Hace que el cursor cambie al puntero */
+        display: flex;
+        align-items: center; /* Centra verticalmente el contenido */
+        background-color: #e0e0e0; /* Fondo para notar las tareas en el modal */
+    }
+
+    .modal .task-list input[type="checkbox"] {
+        transform: scale(1.5); /* Hace el checkbox más grande */
+        margin-right: 10px; /* Espacio entre el checkbox y el texto */
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="calendar-container">
+    <div class="calendar-title-container">
+        <div class="calendar-title">
+            Listado de tareas pendientes para {{ nombre_mes }} del {{ anio }}
+        </div>
+        <div class="calendar-selector">
+            <form method="get" action="{% url 'backlog_default' %}">
+                <select name="month" onchange="this.form.submit()">
+                    {% for month in months %}
+                        <option value="{{ month.number }}" {% if month.number == mes %}selected{% endif %}>
+                            {{ month.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select name="year" onchange="this.form.submit()">
+                    {% for year_num in years %}
+                        <option value="{{ year_num }}" {% if year_num == anio %}selected{% endif %}>
+                            {{ year_num }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select name="user" onchange="this.form.submit()">
+                    {% for usr in all_users %}
+                        <option value="{{ usr.id }}" {% if usr.id == selected_user.id %}selected{% endif %}>
+                            {{ usr.username }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            <form method="post" action="{% url 'replicate_tasks_to_previous_week' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Replicar tareas para atras</button>
+            </form>
+            <form method="post" action="{% url 'replicate_last_week_tasks' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Replicar tareas de la semana pasada</button>
+            </form>
+            <form method="post" action="{% url 'replicate_this_week_tasks_to_next_week' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Replicar tareas para adelante</button>
+            </form>
+            <a href="{% url 'weekly_backlog' %}?year={{ current_year }}&week={{ current_week }}&user={{ selected_user.id }}" class="btn btn-info">Ir a la semana actual</a>
+
+        </div>
+    </div>
+    <div class="calendar">
+        <!-- Headers for days of the week excluding Sunday -->
+        <div class="header">Lun</div>
+        <div class="header">Mar</div>
+        <div class="header">Mié</div>
+        <div class="header">Jue</div>
+        <div class="header">Vie</div>
+        <div class="header">Sáb</div>
+
+        <!-- Empty divs for days before the first day of the month -->
+        {% for _ in empty_days %}
+            <div></div>
+        {% endfor %}
+
+        <!-- Calendar days -->
+        {% for day in days_in_month %}
+            <div class="day">
+                <ul class="task-list">
+                    {% for card in cards %}
+                        {% if card.date.day == day %}
+                            {% for task in card.tasks.all %}
+                                <li>{{ task.verb }} {{ task.object }}</li>
+                            {% endfor %}
+                            <!-- Aquí se añade el botón con el data-card-id correcto -->
+                            <button class="add-task-btn" data-card-id="{{ card.id }}">{{ day }}</button>
+                            <form method="post" action="{% url 'clear_tasks_from_card' card.id %}" onsubmit="return confirm('¿Estás seguro de que deseas eliminar todas las tareas de esta tarjeta?');">
+                                {% csrf_token %}
+                                <button type="submit" class="clear-tasks-btn"><i class="fas fa-trash-alt"></i></button>
+                              </form>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <form id="task-form" method="post">
+            {% csrf_token %}
+            <ul class="task-list">
+                {% for task in form.fields.tasks.queryset %}
+                    <li>
+                        <label>
+                            <input type="checkbox" name="tasks" value="{{ task.id }}">
+                            {{ task.verb }} {{ task.object }}
+                        </label>
+                    </li>
+                {% endfor %}
+            </ul>
+            <button type="submit" class="btn btn-primary mt-3">Agregar</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.add-task-btn').forEach(button => {
+            var cardId = button.getAttribute('data-card-id');
+            console.log("Card ID:", cardId);  // Esto imprimirá los IDs en la consola del navegador
+        });
+    });
+
+document.addEventListener('DOMContentLoaded', function() {
+    var modal = document.getElementById("myModal");
+    var span = document.getElementsByClassName("close")[0];
+    var taskForm = document.getElementById("task-form");
+
+    document.querySelectorAll('.add-task-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            var cardId = this.getAttribute('data-card-id');
+            console.log("Card ID:", cardId);  // Imprimir el cardId en la consola para depuración
+            taskForm.setAttribute('action', `{% url 'add_task' 0 %}`.replace('0', cardId));
+            modal.style.display = "block";
+        });
+    });
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    document.querySelectorAll('.modal .task-list li').forEach(item => {
+        item.addEventListener('click', function() {
+            var checkbox = this.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+        });
+    });
+});
+</script>
+
+{% endblock %}

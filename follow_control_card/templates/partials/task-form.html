@@ -1,0 +1,36 @@
+<form hx-post="{% url 'create-tasks' %}" hx-target="#task-list" hx-swap="innerHTML" class="w-100">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-6 col-md-1 mb-3">
+            <label for="{{ form.verb.id_for_label }}" class="visually-hidden">{{ form.verb.label }}</label>
+            {{ form.verb }}
+        </div>
+        <div class="col-6 col-md-3 mb-3">
+            <label for="{{ form.object.id_for_label }}" class="visually-hidden">{{ form.object.label }}</label>
+            {{ form.object }}
+        </div>
+        <div class="col-6 col-md-3 mb-3">
+            <label for="{{ form.orden_venta.id_for_label }}" class="visually-hidden">{{ form.orden_venta.label }}</label>
+            <select name="orden_venta" id="{{ form.orden_venta.id_for_label }}" class="form-control">
+                <option value="">Orden de venta</option>
+            </select>
+        </div>
+        <div class="col-6 col-md-1 mb-3">
+            <label for="{{ form.client.id_for_label }}" class="visually-hidden">{{ form.client.label }}</label>
+            <select name="client" id="{{ form.client.id_for_label }}" class="form-control">
+                <option value="">Cliente</option>
+            </select>
+        </div>
+        <div class="col-6 col-md-1 mb-3">
+            <label for="{{ form.measurement.id_for_label }}" class="visually-hidden">{{ form.measurement.label }}</label>
+            {{ form.measurement }}
+        </div>
+        <div class="col-6 col-md-1 mb-3">
+            <label for="{{ form.task_time.id_for_label }}" class="visually-hidden">{{ form.task_time.label }}</label>
+            {{ form.task_time }}
+        </div>
+        <div class="col-6 col-md-2 mb-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </div>
+    </div>
+</form>

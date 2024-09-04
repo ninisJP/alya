@@ -1,0 +1,138 @@
+{% extends 'follow_control_base.html' %}
+
+{% block title %}
+Home - Guía Rápida
+{% endblock %}
+
+{% block content %}
+<style>
+    .page-header h1, .page-header p {
+        text-align: center;
+    }
+
+    .flow-wrapper {
+        padding: 50px;
+        position: relative;
+        min-height: 700px;
+        width: 100%;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(6, 1fr); /* Cambiado a 6 columnas para excluir domingo */
+        grid-gap: 10px;
+    }
+
+    .flow-item, .empty-day {
+        text-align: center;
+        height: 150px;
+        transition: transform 0.3s ease;
+        border-radius: 15px;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .flow-item {
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .flow-item i {
+        font-size: 1.5em;
+        color: #6f42c1;
+    }
+
+    .flow-item h3 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1em;
+    }
+
+    .flow-item .valuation {
+        font-size: 2.1em;
+        color: #000;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .flow-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .fade-in {
+        animation: fadeInAnimation ease 0.5s;
+        animation-iteration-count: 1;
+        animation-fill-mode: forwards;
+    }
+
+    @keyframes fadeInAnimation {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .fade-out {
+        animation: fadeOutAnimation ease 0.5s;
+        animation-iteration-count: 1;
+        animation-fill-mode: forwards;
+    }
+
+    @keyframes fadeOutAnimation {
+        0% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
+
+    .day-header {
+        text-align: center;
+        font-weight: bold;
+        padding: 10px 0;
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="page-header">
+    <h1>Bienvenido al Sistema de Tarjetas de Control</h1>
+</div>
+
+<div class="flow-wrapper">
+    <!-- Encabezados de los días de la semana -->
+    <div class="day-header">Lunes</div>
+    <div class="day-header">Martes</div>
+    <div class="day-header">Miércoles</div>
+    <div class="day-header">Jueves</div>
+    <div class="day-header">Viernes</div>
+    <div class="day-header">Sábado</div>
+
+    <!-- Días vacíos al inicio del mes -->
+    {% for i in empty_days %}
+        <div class="empty-day"></div>
+    {% endfor %}
+
+    <!-- Tarjetas -->
+    {% for card in cards %}
+    <a href="{% url 'daily_card' card.pk %}" class="flow-item">
+        <h3>{{ card.date|date:"d F" }}</h3>
+        <p class="valuation">{{ card.valuation }}</p>
+    </a>
+    {% empty %}
+    <p>No hay tarjetas disponibles para este mes.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

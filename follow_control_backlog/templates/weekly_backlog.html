@@ -1,0 +1,96 @@
+{% extends "follow_control_base.html" %}
+
+{% block extra_css %}
+<style>
+  .calendar-table {
+      width: 100%;
+      table-layout: fixed;
+  }
+
+  .calendar-table th, .calendar-table td {
+      text-align: center;
+      vertical-align: top;
+      padding: 10px;
+      border: 1px solid #ddd;
+  }
+
+  .day-header {
+      background-color: #f7f7f7;
+      font-weight: bold;
+  }
+
+  .task-card {
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 8px;
+      text-align: left;
+  }
+
+  .task-item {
+      border: 1px solid #007bff;
+      border-radius: 4px;
+      padding: 5px;
+      margin-bottom: 5px;
+      background-color: #e9ecef;
+  }
+
+  .task-item h5 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: bold;
+  }
+
+  .task-item p {
+      margin: 5px 0 0 0;
+      font-size: 13px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <h2>Backlog Semanal (Semana {{ week }}, {{ year }})</h2>
+  <p>Del {{ days_of_week.0|date:"j M, Y" }} al {{ days_of_week.6|date:"j M, Y" }}</p>
+
+  <div class="week-navigation mb-4">
+    <a href="{% url 'weekly_backlog' %}?year={{ previous_year }}&week={{ previous_week }}&user={{ selected_user.id }}" class="btn btn-primary">Semana Anterior</a>
+    <a href="{% url 'weekly_backlog' %}?year={{ next_year }}&week={{ next_week }}&user={{ selected_user.id }}" class="btn btn-primary">Semana Siguiente</a>
+    <a href="{% url 'weekly_backlog' %}?year={{ current_year }}&week={{ current_week }}&user={{ user.id }}" class="btn btn-success">Ir a mi semana</a>
+</div>
+
+
+  <table class="calendar-table">
+    <thead>
+      <tr>
+        {% for day in days_of_week %}
+          <th class="day-header">
+            {{ day|date:"l" }}<br>
+            <small>{{ day|date:"j M, Y" }}</small>
+          </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        {% for day in days_of_week %}
+          <td>
+            {% for card in cards %}
+              {% if card.date == day %}
+                <div class="task-card">
+                  {% for task in card.tasks.all %}
+                    <div class="task-item">
+                      <h5>{{ task.verb }} - {{ task.object }}</h5>
+                      <p><strong>Orden de Venta:</strong> {{ task.orden_venta }}</p>
+                      <p><strong>Cliente:</strong> {{ task.client }}</p>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+{% endblock %}

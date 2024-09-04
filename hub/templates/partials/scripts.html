@@ -1,0 +1,92 @@
+
+    
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://unpkg.com/htmx.org"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        });
+        
+
+
+        $(document).ready(function() {
+            var stateKey = 'DataTables_' + window.location.pathname;
+            var state = localStorage.getItem(stateKey);
+
+            var table = $('#itemsTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/Spanish.json"
+                },
+                stateSave: true,
+                stateLoadParams: function(settings, data) {
+                    if (state) {
+                        var savedState = JSON.parse(state);
+                        $.extend(data, savedState);
+                    }
+                }
+            });
+
+            table.on('stateSaveParams.dt', function(e, settings, data) {
+                localStorage.setItem(stateKey, JSON.stringify(data));
+            });
+
+            // Función para mostrar toast
+            function showToast(type, message) {
+                var toastContainer = $('.toast-container');
+                var toastId = 'toast-' + Math.random().toString(36).substr(2, 9);
+                var toastHtml = `
+                    <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">${type === 'success' ? 'Éxito' : 'Error'}</strong>
+                            <small class="text-muted">just now</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                    </div>
+                `;
+                toastContainer.append(toastHtml);
+                var toastElement = document.getElementById(toastId);
+                var toast = new bootstrap.Toast(toastElement);
+                toast.show();
+            }
+
+            // Manejar el envío individual del formulario con AJAX
+            $(document).on('submit', 'form.item-form', function(event) {
+                event.preventDefault();
+                var form = $(this);
+                var itemId = form.find('input[name="item_id"]').val();
+                var cantidadPedida = form.find('input[name="cantidad_pedida"]').val();
+                var csrfToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: `/api/items/${itemId}/crear_orden_compra/`,
+                    contentType: 'application/json',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: JSON.stringify({
+                        'cantidad': cantidadPedida
+                    }),
+                    success: function(response) {
+                        console.log('Formulario enviado con éxito');
+                        showToast('success', 'Pedido realizado con éxito.');
+                    },
+                    error: function(response) {
+                        console.log('Error al enviar el formulario');
+                        showToast('error', 'Error al realizar el pedido.');
+                    }
+                });
+            });
+        });
+        
+    </script>

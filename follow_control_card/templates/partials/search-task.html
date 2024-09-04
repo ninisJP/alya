@@ -1,0 +1,52 @@
+<style>
+    .task-result {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+        padding: 5px;
+        font-size: 0.8em; /* Tamaño de fuente más pequeño para todos los componentes */
+    }
+
+    .task-result p {
+        margin: 0;
+    }
+
+    .task-result form {
+        margin: 0;
+    }
+
+    .task-result button {
+        padding: 3px 5px;
+        font-size: 0.8em; /* Tamaño de fuente más pequeño para el botón */
+    }
+
+    .search-input {
+        width: 100%;
+    }
+
+    .search-column {
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        font-size: 0.8em; /* Tamaño de fuente más pequeño para la columna de búsqueda */
+    }
+</style>
+
+<div class="search-column">
+    <div class="d-flex justify-content-end mb-2">
+        <input type="hidden" name="card_id" value="{{ card_id }}">
+        {% csrf_token %}
+        <input type="text"
+            hx-post="{% url 'search-task' %}" 
+            hx-target='#results'
+            hx-trigger="focus once, keyup changed delay:300ms"
+            name="search"
+            class="form-control form-control-sm search-input" 
+            placeholder="Buscar"
+            id="search-field"/>
+    </div>
+    <div id="results">
+
+    </div>
+</div>

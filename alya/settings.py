@@ -37,8 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #APP PARA TODOS LOS BASE
+    'follow_control_backlog',
+    'follow_control_card',
+    'follow_control_home',
+    'follow_control_report',
+    'follow_control_technical',
+    'hub',
     'employee',
-    #apps
     'widget_tweaks',
 ]
 

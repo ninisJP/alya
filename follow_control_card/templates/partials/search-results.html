@@ -1,0 +1,12 @@
+{% for task in results %}
+<div class="task-result">
+    <p>{{ task.verb }} - {{ task.object }}</p>
+    <form hx-post="{% url 'add-task-to-card' task.id %}" hx-target='#daily-task-list' hx-swap="innerHTML">
+        {% csrf_token %}
+        <input type="hidden" name="card_id" value="{{ card_id }}">
+        <button type="submit" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-kiwi-bird" style="color: #000000;"></i>
+        </button>
+    </form>
+</div>
+{% endfor %}
