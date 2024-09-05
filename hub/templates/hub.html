@@ -1,5 +1,6 @@
+{% load django_browser_reload static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,37 +12,38 @@
     <!-- Montserrat Font -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #f4f7fa;
-            padding: 2rem;
+            background: url("{% static 'alya.png' %}") no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            color: white;
         }
         h1 {
             text-align: center;
-            font-weight: 700;
+            font-weight: 1500;
             margin-bottom: 2rem;
-            color: #495057;
-        }
-        .category-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #343a40;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
+            color: #ffffff;
         }
         .app-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 0.5rem; /* Espacio reducido entre tarjetas */
+            padding: 0 1rem;
         }
         .app-card {
             text-align: center;
             text-decoration: none;
-            color: #495057;
-            padding: 1.5rem;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            background-color: #ffffff;
+            color: #000000; /* Color negro para el texto */
+            padding: 0.3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .app-card:hover {
@@ -50,36 +52,38 @@
         }
         .app-icon {
             background-color: #f8f9fa;
-            border-radius: 50%;
-            padding: 1.2rem;
-            display: inline-block;
-            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            padding: 0.3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.2rem;
+            width: 80px; /* Tamaño reducido para que todo sea más estrecho */
+            height: 80px;
             transition: background-color 0.3s ease;
         }
-        .app-icon:hover {
+        .app-card:hover .app-icon {
             background-color: #e0a800;
         }
         .app-icon i {
-            font-size: 2.5rem;
+            font-size: 2rem; /* Tamaño reducido del ícono */
             color: #343a40;
         }
         .app-card h2 {
-            font-size: 1rem;
+            font-size: 0.8rem; /* Tamaño reducido de la fuente */
             font-weight: 600;
-            margin-top: 0.5rem;
+            margin-top: 0.3rem;
         }
     </style>
 </head>
 <body>
-    <h1>JP INGENIERIA Y SERVICIOS</h1>
-
-    <h2 class="category-title">Finanzas</h2>
+    <h1>ALYA MEETS LILITH</h1>
     <div class="app-grid">
-        <a href="/contabilidad/" class="app-card">
+        <a href="/clientes/" class="app-card">
             <div class="app-icon">
-                <i class="fas fa-calculator"></i>
+                <i class="fas fa-users"></i>
             </div>
-            <h2>Contabilidad</h2>
+            <h2>Clientes</h2>
         </a>
         <a href="/presupuestos/" class="app-card">
             <div class="app-icon">
@@ -87,16 +91,6 @@
             </div>
             <h2>Presupuestos</h2>
         </a>
-        <a href="/conciliaciones/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-handshake"></i>
-            </div>
-            <h2>Conciliaciones</h2>
-        </a>
-    </div>
-
-    <h2 class="category-title">Gestión de Proyectos</h2>
-    <div class="app-grid">
         <a href="/proyectos/" class="app-card">
             <div class="app-icon">
                 <i class="fas fa-project-diagram"></i>
@@ -109,55 +103,17 @@
             </div>
             <h2>Planificaciones</h2>
         </a>
-    </div>
-
-    <h2 class="category-title">Recursos Humanos</h2>
-    <div class="app-grid">
-        <a href="/rrhh-jp/" class="app-card">
+        <a href="/contabilidad/" class="app-card">
             <div class="app-icon">
-                <i class="fas fa-user-tie"></i>
+                <i class="fas fa-calculator"></i>
             </div>
-            <h2>Recursos Humanos JP</h2>
+            <h2>Contabilidad</h2>
         </a>
-        <a ref="/rrhh-awl/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-user-tie"></i>
-            </div>
-            <h2>Recursos Humanos AWL</h2>
-        </a>
-        <a href="/mi-cuenta/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-user-cog"></i>
-            </div>
-            <h2>Mi cuenta</h2>
-        </a>
-    </div>
-
-    <h2 class="category-title">Otros</h2>
-    <div class="app-grid">
         <a href="{% url 'follow_control_home' %}" class="app-card">
             <div class="app-icon">
                 <i class="fas fa-id-card"></i>
             </div>
-            <h2>Tarjetas</h2>
-        </a>
-        <a class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-clipboard-list"></i>
-            </div>
-            <h2>Gestiones</h2>
-        </a>
-        <a href="/proveedores/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-truck"></i>
-            </div>
-            <h2>Proveedores</h2>
-        </a>
-        <a href="/clientes/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <h2>Clientes</h2>
+            <h2>Tarjetas de Control</h2>
         </a>
         <a href="/logistica/" class="app-card">
             <div class="app-icon">
@@ -165,17 +121,11 @@
             </div>
             <h2>Logística</h2>
         </a>
-        <a href="/sistema-jp-antiguo/" class="app-card">
+        <a href="/mi-cuenta/" class="app-card">
             <div class="app-icon">
-                <i class="fas fa-archive"></i>
+                <i class="fas fa-user-cog"></i>
             </div>
-            <h2>Sistema JP </h2>
-        </a>
-        <a href="/sistema-jp-nuevo/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-database"></i>
-            </div>
-            <h2>Sistema JP</h2>
+            <h2>Mi cuenta</h2>
         </a>
     </div>
 </body>
