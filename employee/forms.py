@@ -35,7 +35,7 @@ class UserRegistrationForm(UserCreationForm):
                     position=self.cleaned_data['position'],
                     email=self.cleaned_data['email'],
                 )
-            elif role == 'technical':
+            else:
                 Technical.objects.create(
                     user=user,
                     first_name=self.cleaned_data['first_name'],
