@@ -195,34 +195,32 @@
                 <a href="{% url 'tasks' %}" class="list-group-item list-group-item-action">
                     <i class="fas fa-tasks"></i><span>Tareas</span>
                 </a>
-                <a href="{%  url 'backlog_default' %}" class="list-group-item list-group-item-action">
+                <a href="{% url 'backlog_default' %}" class="list-group-item list-group-item-action">
                     <i class="fas fa-tasks-alt"></i><span>Backlog</span>
                 </a>
-                <a href="{% url 'valuations' year=2024 month=7 %}" class="list-group-item list-group-item-action">
+                <a href="{% url 'valuations' year=2024 month=9 %}" class="list-group-item list-group-item-action">
                     <i class="fas fa-file-alt"></i><span>Reportes</span>
                 </a>
-                <a href="{% url 'technicians_month' mes=7 anio=2024 %}" class="list-group-item list-group-item-action">
+                <a href="{% url 'technicians_month' mes=9 anio=2024 %}" class="list-group-item list-group-item-action">
                     <i class="fas fa-file-alt"></i><span>Tecnicos</span>
                 </a>
-
-
             </div>
-
             <!-- Contenedor específico para el botón de logout -->
-            <div class="logout-container">
-                {% if request.user.is_authenticated %}
-                <a href="javascript:{}" onclick="document.getElementById('logout-form').submit();" class="list-group-item list-group-item-action">
-                    <i class="fas fa-sign-out-alt" style="color: red;"></i><br>Logout
-                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
-                        {% csrf_token %}
-                    </form>
-                </a>
-                {% else %}
-                <a class="list-group-item list-group-item-action">
-                    <i class="fas fa-sign-in-alt" style="color: green;"></i><br>Login
-                </a>
-                {% endif %}
-            </div>
+             <div class="logout-container">
+                 {% if request.user.is_authenticated %}
+                 <a href="javascript:{}" onclick="document.getElementById('logout-form').submit();" class="list-group-item list-group-item-action">
+                     <i class="fas fa-sign-out-alt" style="color: red;"></i><br>Logout
+                     <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                         {% csrf_token %}
+                     </form>
+                 </a>
+                 {% else %}
+                 <a href="{% url 'login' %}" class="list-group-item list-group-item-action">
+                     <i class="fas fa-sign-in-alt" style="color: green;"></i><br>Login
+                 </a>
+                 {% endif %}
+             </div>
+
         </div>
 
         <!-- Contenido principal -->
