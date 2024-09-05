@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'employee',
     'widget_tweaks',
     'client',
+    'project',
 ]
 
 MIDDLEWARE = [
