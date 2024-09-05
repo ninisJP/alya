@@ -30,4 +30,6 @@ urlpatterns = [
     path('follow/control/technical/', include('follow_control_technical.urls')),
     # Employee
     path('employee/', include('employee.urls')),
+    # Client
+    path('clientes/', include('client.urls')),
 ]
