@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'hub',
     'employee',
     'widget_tweaks',
+    'client',
 ]
 
 MIDDLEWARE = [
