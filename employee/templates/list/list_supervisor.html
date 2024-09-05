@@ -1,0 +1,40 @@
+{% extends "base_employee.html" %}
+{% load widget_tweaks %}
+{% block title %}Lista de Supervisores{% endblock title %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Supervisores</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Lista de Supervisores</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Posición</th>
+                    <th>Status</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for supervisor in supervisors %}
+                <tr>
+                    <td>{{ supervisor.first_name }} {{ supervisor.last_name }}</td>
+                    <td>{{ supervisor.position }}</td>
+                    <td>{{ supervisor.get_status_display }}</td>
+                    <td>{{ supervisor.email }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+{% endblock content %}
