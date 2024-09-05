@@ -1,8 +1,9 @@
+{% extends "base_client.html" %}
 {% load widget_tweaks %}
 
 {% block content %}
 <div class="align-center col-8 offset-2">
-    <p class="lead mb-3 ml-0">Register</p>
+    <p class="lead mb-3 ml-0">Registro</p>
     <hr/>
     <form method="POST" action="{% url 'register' %}" autocomplete='off'>
         {% csrf_token %}
@@ -17,6 +18,22 @@
             {{ form.email.errors }}
             {% render_field form.email class="form-control" %}
 
+            <label>{{ form.first_name.label_tag }}</label>
+            {{ form.first_name.errors }}
+            {% render_field form.first_name class="form-control" %}
+
+            <label>{{ form.last_name.label_tag }}</label>
+            {{ form.last_name.errors }}
+            {% render_field form.last_name class="form-control" %}
+
+            <label>{{ form.position.label_tag }}</label>
+            {{ form.position.errors }}
+            {% render_field form.position class="form-control" %}
+
+            <label>{{ form.role.label_tag }}</label>
+            {{ form.role.errors }}
+            {% render_field form.role class="form-control" %}
+
             <label>{{ form.password1.label_tag }}</label>
             {{ form.password1.errors }}
             {% render_field form.password1 class="form-control" %}
@@ -26,7 +43,7 @@
             {% render_field form.password2 class="form-control" %}
         </div>
         
-        <button type="submit" class="btn btn-success mt-2">Register</button>
+        <button type="submit" class="btn btn-success mt-2">Registrar</button>
     </form>
 </div>
 {% endblock content %}
