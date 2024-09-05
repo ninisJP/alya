@@ -17,7 +17,7 @@ def HomeCC(request):
     for card in cards:
         card.update_card_values()
 
-    return render(request, 'home_cc.html', {
+    return render(request, 'follow_control_home.html', {
         'cards': cards,
         'empty_days': month_data['empty_days'],
         'days_in_month': month_data['days_in_month'],
