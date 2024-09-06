@@ -14,8 +14,8 @@ class Supervisor(models.Model):
         return f'{self.first_name} {self.last_name} - {self.position}'
 
 
-class Technical(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='technical_profile')
+class Technician(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='technician_profile')
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     position = models.CharField(max_length=100)

@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'follow_control_card',
     'follow_control_home',
     'follow_control_report',
-    'follow_control_technical',
+    'follow_control_technician',
     'hub',
     'employee',
     'widget_tweaks',

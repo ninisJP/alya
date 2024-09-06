@@ -29,7 +29,7 @@ urlpatterns = [
     path('follow/control/card/', include('follow_control_card.urls')),
     path('follow/control/backlog/', include('follow_control_backlog.urls')),
     path('follow/control/report/', include('follow_control_report.urls')),
-    path('follow/control/technical/', include('follow_control_technical.urls')),
+    path('follow/control/technician/', include('follow_control_technician.urls')),
     # Employee
     path('employee/', include('employee.urls')),
     # Client
