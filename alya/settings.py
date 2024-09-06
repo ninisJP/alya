@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'client',
     #DJANGO BROWSER RELOAD
     "django_browser_reload",
+    #Django htmx
+    'django_htmx'
 ]
 
 MIDDLEWARE = [
@@ -57,11 +59,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # add loginRequired Middleware
     "django.contrib.auth.middleware.LoginRequiredMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_browser_reload.middleware.BrowserReloadMiddleware',
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ROOT_URLCONF = 'alya.urls'
