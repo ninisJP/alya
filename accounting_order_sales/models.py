@@ -1,0 +1,22 @@
+from django.db import models
+from django.core.validators import FileExtensionValidator
+
+from decimal import Decimal
+
+
+class SalesOrder(models.Model):
+    sapcode = models.PositiveBigIntegerField()
+    project = models.CharField(max_length=255)
+    detail = models.CharField(max_length=255)
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.sapcode} - {self.project} - {self.detail}"
+
+class SalesOrderItem(models.Model):
+    salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE)
+    sap_code = models.CharField(max_length=50, default="")
+    description = models.CharField(max_length=50, default="")
+    amount = models.IntegerField(null=True, default=0)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
