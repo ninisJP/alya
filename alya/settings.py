@@ -48,6 +48,10 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'client',
     'project',
+    #DJANGO BROWSER RELOAD
+    "django_browser_reload",
+    #Django htmx
+    'django_htmx'
 ]
 
 MIDDLEWARE = [
@@ -56,8 +60,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "django.contrib.auth.middleware.LoginRequiredMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ROOT_URLCONF = 'alya.urls'
@@ -126,9 +133,21 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+#SETTINGS login accounts
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+LOGIN_URL = 'login' 
+LOGOUT_REDIRECT_URL = '/'
+
