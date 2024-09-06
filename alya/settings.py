@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'employee',
     'widget_tweaks',
     'client',
+    'project',
     #DJANGO BROWSER RELOAD
     "django_browser_reload",
     #Django htmx

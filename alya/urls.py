@@ -32,6 +32,8 @@ urlpatterns = [
     path('employee/', include('employee.urls')),
     # Client
     path('clientes/', include('client.urls')),
+    # Project
+    path('project/', include('project.urls')),
     # DJANGO BROWSER RELOAD
     path("__reload__/", include("django_browser_reload.urls")),
 ]
