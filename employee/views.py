@@ -29,12 +29,12 @@ class RegisterView(FormView):
         return super(RegisterView, self).form_valid(form)
     
     
-# Render supervisor & technical
+# Render supervisor & technician
 def supervisor_list_view(request):
     supervisors = Supervisor.objects.all()
     return render(request, 'list/list_supervisor.html', {'supervisors': supervisors})
 
-def technical_list_view(request):
-    technicals = Technical.objects.all()
-    return render(request, 'list/list_technical.html', {'technicals': technicals})
+def technician_list_view(request):
+    technicians = Technician.objects.all()
+    return render(request, 'list/list_technician.html', {'technicians': technicians})
 

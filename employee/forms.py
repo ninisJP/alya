@@ -1,12 +1,12 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Supervisor, Technical
+from .models import Supervisor, Technician
 
 class UserRegistrationForm(UserCreationForm):
     ROLE_CHOICES = [
         ('supervisor', 'Supervisor'),
-        ('technical', 'Técnico'),
+        ('technician', 'Técnico'),
     ]
     role = forms.ChoiceField(choices=ROLE_CHOICES, label='Cargo')
     first_name = forms.CharField(max_length=100, required=True, label='Nombre')
@@ -36,7 +36,7 @@ class UserRegistrationForm(UserCreationForm):
                     email=self.cleaned_data['email'],
                 )
             else:
-                Technical.objects.create(
+                Technician.objects.create(
                     user=user,
                     first_name=self.cleaned_data['first_name'],
                     last_name=self.cleaned_data['last_name'],
