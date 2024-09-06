@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'client',
     'project',
+    'budget',
     #DJANGO BROWSER RELOAD
     "django_browser_reload",
     #Django htmx
@@ -148,6 +149,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #SETTINGS login accounts
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-LOGIN_URL = 'login' 
+LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = '/'
 
