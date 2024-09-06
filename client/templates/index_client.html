@@ -3,10 +3,10 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="mx-auto max-w-7xl p-6" x-data="{ showModal: false }">
+<div class="w-full p-6" x-data="{ showModal: false }">
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Clientes</h1>
-        <button @click="showModal = true" class="inline-flex items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+        <h1 class="text-3xl font-bold text-gray-900">CLIENTES</h1>
+        <button @click="showModal = true" class="inline-flex items-center text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">
             <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -14,17 +14,17 @@
         </button>
     </div>
 
-    <div id="information" class="mt-4 text-lg text-gray-700 dark:text-gray-300"></div>
+    <div id="information" class="mt-4 text-lg text-gray-800"></div>
 
     <!-- Main modal -->
     <div x-show="showModal" id="client-modal" tabindex="-1" aria-hidden="true" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div @click.outside="showModal = false" class="relative p-6 w-full max-w-lg bg-white rounded-lg shadow-lg dark:bg-gray-800">
+        <div @click.outside="showModal = false" class="relative p-6 w-full max-w-lg bg-white rounded-lg shadow-lg">
             <!-- Modal header -->
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                <h2 class="text-xl font-semibold text-gray-900">
                     Agrega un nuevo cliente
                 </h2>
-                <button @click="showModal = false" type="button" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <button @click="showModal = false" type="button" class="text-gray-500 hover:text-gray-900">
                     <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -34,17 +34,17 @@
 
             <!-- Modal body -->
             <div>
-                <form method="POST" action="{% url 'index_client' %}" hx-post="{% url 'index_client' %}" hx-trigger="submit" hx-target="#client-list" hx-swap="beforeend" class="space-y-6">
+                <form method="POST" action="{% url 'index_client' %}" hx-post="{% url 'index_client' %}" hx-trigger="submit" hx-target="#client-list" hx-swap="afterbegin" class="space-y-6">
                     {% csrf_token %}
                     {% for field in form %}
                         <div>
-                            <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                            <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900">
                                 {{ field.label }}
                             </label>
-                            {% render_field field class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" %}
+                            {% render_field field class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5" %}
                         </div>
                     {% endfor %}
-                    <button type="submit" @click.debounce.1000ms="showModal = false" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar Cliente</button>
+                    <button type="submit" @click.debounce.1000ms="showModal = false" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Guardar Cliente</button>
                 </form>
             </div>
         </div>
