@@ -22,6 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Hub
     path('', include('hub.urls')),
+    # Accounting - Order
+    ##path('accounting_order_sales/', include('accounting_order_sales.urls')),
     # Follow
     path('follow/control/', include('follow_control_home.urls')),
     path('follow/control/card/', include('follow_control_card.urls')),

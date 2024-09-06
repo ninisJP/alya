@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #APP PARA TODOS LOS BASE
+    'accounting_order_sales',
     'follow_control_backlog',
     'follow_control_card',
     'follow_control_home',
@@ -147,6 +148,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #SETTINGS login accounts
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-LOGIN_URL = 'login' 
+LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = '/'
 
