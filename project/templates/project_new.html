@@ -33,7 +33,7 @@
                 </div>
                 <!-- Modal body -->
                 <div class="p-4 md:p-5">
-                    <form method="POST" action="{% url 'project_home' %}" hx-post="{% url 'project_home' %}" hx-trigger="submit" hx-target="#information" class="space-y-4">
+                    <form method="POST" action="{% url 'project_new' %}" hx-post="{% url 'project_new' %}" hx-trigger="submit" hx-target="#information" class="space-y-4">
                         {% csrf_token %}
                         {% for field in form %}
                             <div>

@@ -137,9 +137,13 @@
                 </a>
             </div>
             <div class="list-group list-group-flush">
-                <a hx-get="" hx-target="#main" class="list-group-item list-group-item-action">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Inicio</span>
+                <a href="{% url 'project_list' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-list"></i>
+                    <span>Lista</span>
+                </a>
+                <a href="{% url 'project_new' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Nuevo</span>
                 </a>
             </div>
 
@@ -168,5 +172,3 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
-
-
