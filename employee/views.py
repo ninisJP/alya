@@ -6,6 +6,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from follow_control_card.utils import create_monthly_cards_for_user
+from django.shortcuts import render
+
+
 
 class Login(LoginView):
     template_name = 'registration/login.html'
@@ -18,9 +21,20 @@ class Login(LoginView):
 class RegisterView(FormView):
     template_name = 'registration/register.html'
     form_class = UserRegistrationForm
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('register')
 
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
         return super(RegisterView, self).form_valid(form)
+    
+    
+# Render supervisor & technical
+def supervisor_list_view(request):
+    supervisors = Supervisor.objects.all()
+    return render(request, 'list/list_supervisor.html', {'supervisors': supervisors})
+
+def technical_list_view(request):
+    technicals = Technical.objects.all()
+    return render(request, 'list/list_technical.html', {'technicals': technicals})
+

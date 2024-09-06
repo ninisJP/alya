@@ -7,7 +7,7 @@ class Supervisor(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     position = models.CharField(max_length=100)
-    status = models.CharField(max_length=50, choices=[('active', 'Active'), ('medical_leave', 'Medical Leave'), ('retired', 'Retired')])
+    status = models.CharField(max_length=50, choices=[('active', 'Active'), ('medical_leave', 'Medical Leave'), ('retired', 'Retired')], default='active')
     email = models.EmailField(max_length=254)
 
     def __str__(self):
@@ -19,7 +19,7 @@ class Technical(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     position = models.CharField(max_length=100)
-    status = models.CharField(max_length=50, choices=[('active', 'Active'), ('medical_leave', 'Medical Leave'), ('retired', 'Retired')])
+    status = models.CharField(max_length=50, choices=[('active', 'Active'), ('medical_leave', 'Medical Leave'), ('retired', 'Retired')], default='active')
     email = models.EmailField(max_length=254)
 
     def __str__(self):
