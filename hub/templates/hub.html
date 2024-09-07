@@ -7,8 +7,6 @@
     <title>ALYA</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <!-- Montserrat Font -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <!-- HTMX -->
@@ -18,130 +16,125 @@
             height: 100%;
             margin: 0;
             padding: 0;
-        }
-        body {
             font-family: 'Montserrat', sans-serif;
-            background: url("{% static 'images/alya.png' %}") no-repeat center center fixed;
+            background: url("{% static 'icons/mountains-8314422.svg' %}") no-repeat center center fixed;
             background-size: cover;
-            min-height: 100vh;
             color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
         }
-        h1 {
-            text-align: center;
-            font-weight: 1500;
-            margin-bottom: 2rem;
-            color: #ffffff;
+        /* Posicionamiento y estilos para Lilith y JP */
+        h1.lilith {
+            position: absolute;
+            top: 100px;
+            left: 80px;
+            font-size: 5rem;
+            font-weight: 600;
+            margin: 0;
+            color: black;
         }
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 0.5rem; /* Espacio reducido entre tarjetas */
-            padding: 0 1rem;
+        h1.jp {
+            position: absolute;
+            top: 50px;
+            right: 180px;
+            font-size: 15rem;
+            font-weight: 800;
+            margin: 0;
+            color: black;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 
+                         0 0 40px rgba(255, 255, 255, 0.6), 
+                         0 0 60px rgba(255, 255, 255, 0.4); /* Sombra fluorescente */
         }
-        .app-card {
-            text-align: center;
-            text-decoration: none;
-            color: #000000; /* Color negro para el texto */
-            padding: 0.3rem;
+        /* Estilos para el footer de iconos */
+        .icon-footer {
+            background-color: #000; /* Fondo negro */
+            padding: 1rem;
+            margin: 0 1rem 1rem; /* Separación de las paredes y del fondo */
+            border-radius: 15px; /* Bordes redondeados */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Sombra para apariencia flotante */
+        }
+        .icon-footer .app-icon {
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .app-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        .icon-footer .app-icon img {
+            width: 50px; /* Ajusta el tamaño del icono */
+            height: 50px;
+            margin-bottom: 0.5rem; /* Espacio entre el icono y el texto */
         }
-        .app-icon {
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            padding: 0.3rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 0.2rem;
-            width: 80px; /* Tamaño reducido para que todo sea más estrecho */
-            height: 80px;
-            transition: background-color 0.3s ease;
+        .icon-footer .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 1rem;
+            justify-items: center;
+            padding: 0 1rem;
         }
-        .app-card:hover .app-icon {
-            background-color: #e0a800;
-        }
-        .app-icon i {
-            font-size: 2rem; /* Tamaño reducido del ícono */
-            color: #343a40;
-        }
-        .app-card h2 {
-            font-size: 0.8rem; /* Tamaño reducido de la fuente */
-            font-weight: 600;
-            margin-top: 0.3rem;
+        .icon-footer .app-icon h2 {
+            font-size: 0.75rem;
+            color: white;
+            margin: 0;
         }
     </style>
 </head>
 <body>
-    <h1>ALYA MEETS LILITH</h1>
-    <div class="app-grid">
-        <a hx-get="{% url 'hub' %}" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <h2>Clientes</h2>
-        </a>
-        <a href="/clientes/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <h2>Clientes</h2>
-        </a>
-        <a href="/presupuestos/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-file-invoice-dollar"></i>
-            </div>
-            <h2>Presupuestos</h2>
-        </a>
-        <a href="/project/list" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-project-diagram"></i>
-            </div>
-            <h2>Proyectos</h2>
-        </a>
-        <a class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-calendar-alt"></i>
-            </div>
-            <h2>Planificaciones</h2>
-        </a>
-        <a href="/contabilidad/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-calculator"></i>
-            </div>
-            <h2>Contabilidad</h2>
-        </a>
-        <a href="{% url 'follow_control_home' %}" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-id-card"></i>
-            </div>
-            <h2>Tarjetas de Control</h2>
-        </a>
-        <a href="/logistica/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-boxes"></i>
-            </div>
-            <h2>Logística</h2>
-        </a>
-        <a href="/mi-cuenta/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-user-cog"></i>
-            </div>
-            <h2>Mi cuenta</h2>
-        </a>
-
-        <a href="/employee/register/" class="app-card">
-            <div class="app-icon">
-                <i class="fa fa-archive" aria-hidden="true"></i>
-            </div>
-            <h2>Employee</h2>
-        </a>
+    <!-- Títulos Lilith y JP -->
+    <h1 class="lilith">lilith.v1</h1>
+    <h1 class="jp">JP</h1>
+    
+    <!-- Footer de iconos -->
+    <div class="icon-footer">
+        <div class="app-grid">
+            <a href="/clientes/" class="app-card">
+                <div class="app-icon">
+                    <img src="{% static 'icons/ai-generated-8654348.svg' %}" alt="Clientes Icono">
+                    <h2>Clientes</h2>
+                </div>
+            </a>
+            <a href="/presupuestos/" class="app-card">
+                <div class="app-icon">
+                    <img src="{% static 'icons/camp-4363073.svg' %}" alt="Presupuestos Icono">
+                    <h2>Presupuestos</h2>
+                </div>
+            </a>
+            <a href="/project/list" class="app-card">
+                <div class="app-icon">
+                    <img src="{% static 'icons/dog-8527651.svg' %}" alt="Proyectos Icono">
+                    <h2>Proyectos</h2>
+                </div>
+            </a>
+            <a href="/contabilidad/" class="app-card">
+                <div class="app-icon">
+                    <img src="{% static 'icons/traveling-4323759.svg' %}" alt="Contabilidad Icono">
+                    <h2>Contabilidad</h2>
+                </div>
+            </a>
+            <a href="{% url 'follow_control_home' %}" class="app-card">
+                <div class="app-icon">
+                    <img src="{% static 'icons/trees-8050454.svg' %}" alt="Tarjetas de Control Icono">
+                    <h2>Tarjetas de Control</h2>
+                </div>
+            </a>
+            <a href="/logistica/" class="app-card">
+                <div class="app-icon">
+                    <img src="{% static 'icons/mountains-8314422.svg' %}" alt="Logística Icono">
+                    <h2>Logística</h2>
+                </div>
+            </a>
+            <a href="/employee/register/" class="app-card">
+                <div class="app-icon">
+                    <img src="{% static 'icons/ai-generated-8654348.svg' %}" alt="Empleados Icono">
+                    <h2>Empleados</h2>
+                </div>
+            </a>
+            <a href="/mi-cuenta/" class="app-card">
+                <div class="app-icon">
+                    <img src="{% static 'icons/camp-4363073.svg' %}" alt="Mi Cuenta Icono">
+                    <h2>Mi Cuenta</h2>
+                </div>
+            </a>
+        </div>
     </div>
 </body>
 </html>
