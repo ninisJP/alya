@@ -1,10 +1,9 @@
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404, render, redirect
-
 from datetime import date, timedelta
-
-from .models import Technician, TechnicianCard, TechnicianCardTask, TechnicianTask
-from .forms import TechnicianCardForm, TechnicianForm, TechnicianTaskForm
+from employee.models import Technician
+from .models import TechnicianCard
+from .forms import TechnicianCardForm, TechnicianCardTaskFormSet, TechnicianCardTask
 
 class TechniciansMonth(TemplateView):
     template_name = 'technicians_month.html'
@@ -63,60 +62,37 @@ class TechniciansMonth(TemplateView):
             'informe_por_tecnico': informe
         }
 
-
-
-def create_technician(request):
+def create_technician_card(request):
     if request.method == 'POST':
-        form = TechnicianForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('create_technician')
+        card_form = TechnicianCardForm(request.POST)
+        task_formset = TechnicianCardTaskFormSet(request.POST)
+
+        if card_form.is_valid() and task_formset.is_valid():
+            technician_card = card_form.save()
+
+            # Guardar las tareas asociadas con la tarjeta del técnico
+            task_formset.instance = technician_card
+            task_formset.save()
+
+            return redirect('success_url')  # Redirige a una URL de éxito
+
     else:
-        form = TechnicianForm()
+        card_form = TechnicianCardForm()
+        task_formset = TechnicianCardTaskFormSet(queryset=TechnicianCardTask.objects.none())
 
-    return render(request, 'technician_form.html', {'form': form})
+    return render(request, 'create_technician_card.html', {
+        'card_form': card_form,
+        'task_formset': task_formset,
+    })
 
-def create_technician_task(request):
-    if request.method == 'POST':
-        form = TechnicianTaskForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('create_technician_task')
-    else:
-        form = TechnicianTaskForm()
+def add_task_form(request):
+    task_formset = TechnicianCardTaskFormSet(request.GET or None)
+    return render(request, 'partials/task_form.html', {
+        'task_formset': task_formset,
+    })
 
-    return render(request, 'create_technician_task.html', {'form': form})
 
-def create_technician_card(request, tecnico_id=None, dia=None, mes=None, anio=None):
-    if request.method == 'POST':
-        form = TechnicianCardForm(request.POST)
-        if form.is_valid():
-            technician_card = form.save(commit=False)
-            technician_card.save()
 
-            # Obtener el orden de las tareas
-            orden_tareas = request.POST.get('orden_tareas', '')
-            tarea_ids = orden_tareas.split(',')
-
-            # Crear las relaciones TechnicianCardTask con el orden correcto
-            for order, task_id in enumerate(tarea_ids, start=1):
-                task = TechnicianTask.objects.get(id=task_id)
-                TechnicianCardTask.objects.create(
-                    technician_card=technician_card,
-                    task=task,
-                    order=order
-                )
-
-            return redirect('create_technician_card')
-    else:
-        if tecnico_id and dia and mes and anio:
-            tecnico = get_object_or_404(Technician, id=tecnico_id)
-            fecha = date(anio, mes, dia)
-            form = TechnicianCardForm(initial={'technician': tecnico, 'date': fecha})
-        else:
-            form = TechnicianCardForm()
-
-    return render(request, 'create_technician_card.html', {'form': form})
 
 
 def view_technician_card(request, tecnico_id, dia, mes, anio):
@@ -135,3 +111,4 @@ def view_technician_card(request, tecnico_id, dia, mes, anio):
         'fecha': fecha
     }
     return render(request, 'view_technician_card.html', context)
+
