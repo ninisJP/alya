@@ -1,0 +1,114 @@
+<style>
+    .ordenventa-list {
+        border-radius: 0.5rem;
+        overflow: hidden;
+        padding: 1rem;
+    }
+    .ordenventa-item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    }
+    .ordenventa-item > span {
+        padding: 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ordenventa-item > span.codigo-sap,
+    .ordenventa-item > span.proyecto {
+        flex: 1 1 10%;
+    }
+    .ordenventa-item > span.detail {
+        flex: 1 1 30%;
+    }
+    .ordenventa-item > span.actions {
+        flex: 1 1 50%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+    .ordenventa-header {
+        font-weight: bold;
+        background-color: rgba(233, 236, 239, 0.8);
+        border-bottom: 2px solid #dee2e6;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+    .btn-icon i {
+        padding: 0.4rem;
+        border-radius: 0.2rem;
+        color: #fff;
+    }
+    .btn-icon {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    .bg-edit { background-color: #ffc107; }
+    .bg-create { background-color: #28a745; }
+    .bg-items { background-color: #007bff; }
+    .bg-shopping { background-color: #6f42c1; }
+    .bg-payment { background-color: #17a2b8; }
+    .bg-details { background-color: #20c997; }
+    .bg-receipt { background-color: #fd7e14; }
+    .bg-delete { background-color: #dc3545; }
+</style>
+
+<div class="container-fluid ordenventa-container">
+    <ul class="ordenventa-list">
+        <li class="ordenventa-item ordenventa-header d-flex justify-content-between align-items-center">
+            <span class="codigo-sap col-2 text-center">Código SAP</span>
+            <span class="proyecto col-3 text-center">Proyecto</span>
+            <span class="detail col-4 text-center">Detalle</span>
+            <div class="col-3 d-flex justify-content-around">
+                <span class="badge-custom badge-create"><i class="fa-solid fa-box-open"></i> ITEMS</span>
+                <span class="badge-custom badge-items"><i class="fa-solid fa-dolly"></i> PEDIDOS</span> 
+                <span class="badge-custom badge-shopping"><i class="fas fa-shopping-cart"></i> COMPRA</span> 
+                <span class="badge-custom badge-payment"><i class="fa-solid fa-cash-register"></i> PAGO</span> 
+                <span class="badge-custom badge-details"><i class="fa-solid fa-credit-card"></i> DETALLES</span> 
+                <span class="badge-custom badge-receipt"><i class="fa-solid fa-receipt"></i> COBROS</span>
+            </div>
+        </li>
+        {% for ordenventa in salesorders %}
+            <li id="ordenventa-{{ ordenventa.id }}" class="ordenventa-item d-flex justify-content-between align-items-center">
+                <span class="codigo-sap col-2 text-center"><strong>{{ ordenventa.sapcode }}</strong></span>
+                <span class="proyecto col-3 text-center">{{ ordenventa.project }}</span>
+                <span class="detail col-4 text-center"><strong>{{ ordenventa.detail }}</strong></span>
+                <div class="actions col-3 d-flex justify-content-around">
+                    {% comment %} <button class="btn btn-warning btn-sm btn-icon bg-edit" hx-get="{% url 'edit-salesorder' ordenventa.id %}" hx-target="#ordenventa-{{ ordenventa.id }}" hx-swap="outerHTML" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <a hx-get="{% url 'create-item-salesorder' ordenventa.id %}" hx-target="#ordenventa-forms" class="btn btn-success btn-sm btn-icon bg-create" title="Crear ítem">
+                        <i class="fa-solid fa-box-open"></i>
+                    </a>
+                    <a hx-get="{% url 'pedidos-salesorder' ordenventa.id %}" hx-target="#ordenventa-forms" class="btn btn-primary btn-sm btn-icon bg-items" title="Items de Orden Venta">
+                        <i class="fa-solid fa-dolly"></i>
+                    </a>
+                    <a hx-get="{% url 'items-purchaseorder' ordenventa.id %}" hx-target="#ordenventa-forms" class="btn btn-purple btn-sm btn-icon bg-shopping" title="Órdenes de Compra">
+                        <i class="fas fa-shopping-cart"></i>
+                    </a>
+                    <a hx-get="{% url 'payments-purchaseorder' ordenventa.id %}" hx-target="#ordenventa-forms" class="btn btn-info btn-sm btn-icon bg-payment" title="Órdenes de Pago">
+                        <i class="fa-solid fa-cash-register"></i>
+                    </a>
+                    <a hx-get="{% url 'details-purchaseorder' ordenventa.id %}" hx-target="#ordenventa-forms" class="btn btn-teal btn-sm btn-icon bg-details" title="Detalles de Pago">
+                        <i class="fa-solid fa-credit-card"></i>
+                    </a>
+                    <a hx-get="{% url 'invoices-purchaseorder' ordenventa.id %}" hx-target="#ordenventa-forms" class="btn btn-warning btn-sm btn-icon bg-receipt" title="Facturas">
+                        <i class="fa-solid fa-receipt"></i>
+                    </a>
+                    <button class="btn btn-danger btn-sm btn-icon bg-delete" hx-delete="{% url 'delete-salesorder' ordenventa.id %}" hx-target="#ordenventa-{{ ordenventa.id }}" hx-swap="outerHTML" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button> {% endcomment %}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
