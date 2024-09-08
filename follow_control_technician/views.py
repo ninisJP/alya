@@ -41,7 +41,7 @@ class TechniciansMonth(TemplateView):
         for tecnico in todos_los_tecnicos:
             tecnico_id = tecnico.id
             informe[tecnico_id] = {
-                'technician': f"{tecnico.name} {tecnico.lastname}",
+                'technician': f"{tecnico.first_name} {tecnico.last_name}",
                 'dias_con_tarjeta': set(),
                 'dias_sin_tarjeta': set(range(1, (ultimo_dia_mes - primer_dia_mes).days + 2))
             }
