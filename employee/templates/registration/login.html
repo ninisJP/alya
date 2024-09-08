@@ -24,12 +24,14 @@
             font-family: 'Montserrat', sans-serif;
             font-size: large;
         }
-
         body {
-            background: url("{% static 'tower.jpg' %}") no-repeat center center/cover;
+            background: url("{% static 'icons/mountains-8314422.svg' %}") no-repeat center center fixed;
+            background-size: cover; /* Esto asegura que la imagen cubra todo el fondo */
             color: var(--primary-color);
             display: flex;
             justify-content: right;
+            height: 100vh; /* Asegura que cubra toda la altura de la ventana */
+            margin: 0;
         }
 
         .full-width-container {

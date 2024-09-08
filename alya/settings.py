@@ -52,7 +52,10 @@ INSTALLED_APPS = [
     #DJANGO BROWSER RELOAD
     "django_browser_reload",
     #Django htmx
-    'django_htmx'
+    'django_htmx',
+    # DRF api
+    'rest_framework',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -152,3 +155,13 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = '/'
 
+# DRF config
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
