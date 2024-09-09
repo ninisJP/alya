@@ -8,8 +8,6 @@ from django.contrib.auth import login
 from follow_control_card.utils import create_monthly_cards_for_user
 from django.shortcuts import render
 
-
-
 class Login(LoginView):
     template_name = 'registration/login.html'
     
