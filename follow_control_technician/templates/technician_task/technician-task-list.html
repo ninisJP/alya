@@ -1,0 +1,13 @@
+<ul class="list-group">
+    {% for task in tasks %}
+        <li id="task-{{ task.id }}" class="list-group-item d-flex justify-content-between align-items-center">
+            <span>
+                <strong>{{ task.verb }}</strong> - {{ task.object }} - {{ task.measurement }} - {{ task.time }}
+            </span>
+            <span>
+                <button class="btn btn-warning btn-sm me-2" hx-get="{% url 'edit-technician-task' task.id %}" hx-target="#task-{{ task.id }}" hx-swap="outerHTML">Editar</button>
+                <button class="btn btn-danger btn-sm" hx-delete="{% url 'delete-technician-task' task.id %}" hx-target="#task-{{ task.id }}" hx-swap="outerHTML">Eliminar</button>
+            </span> 
+        </li>
+    {% endfor %}
+</ul>

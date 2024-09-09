@@ -1,27 +1,103 @@
 {% extends 'follow_control_base.html' %}
 
+{% load widget_tweaks %}
+
 {% block title %}Crear Tarjeta de Técnico{% endblock %}
 
 {% block content %}
-<h1>Crear Technician Card</h1>
+<h1>Crear tarjeta de Control - Técnicos</h1>
 
-<form method="post">
+<form method="post" id="technician-card-form">
     {% csrf_token %}
     {{ card_form.as_p }}
     
     <h3>Tareas</h3>
     <div id="task-formset">
+        {{ task_formset.management_form }}
         {% for form in task_formset %}
-            <div class="form-row">
-                {{ form.as_p }}
+            <div class="form-row row mb-3" id="form-{{ forloop.counter0 }}">
+                <!-- Campo "Tarea" ocupa más espacio -->
+                <div class="col-md-6">
+                    {{ form.task|add_class:"form-control"|attr:"placeholder=Task" }}
+                </div>
+                <!-- Otros campos ocupan menos espacio -->
+                <div class="col-md-1">
+                    {{ form.quantity|add_class:"form-control"|attr:"placeholder=Cantidad" }}
+                </div>
+                <div class="col-md-3">
+                    {{ form.saler_order|add_class:"form-control"|attr:"placeholder=Orden de Venta" }}
+                </div>
+                <div class="col-md-1">
+                    {{ form.order|add_class:"form-control"|attr:"placeholder=Orden" }}
+                </div>
+                <div class="col-md-1 d-flex align-items-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-form">Eliminar</button>
+                </div>
             </div>
         {% endfor %}
-        <div id="empty-form-container">
-            <!-- Aquí se insertarán los nuevos formularios -->
+        <div id="empty-form" style="display: none;">
+            <div class="form-row row mb-3 ">
+                <!-- Campo "Tarea" ocupa más espacio -->
+                <div class="col-md-6">
+                    {{ task_formset.empty_form.task|add_class:"form-control"|attr:"placeholder=Task" }}
+                </div>
+                <!-- Otros campos ocupan menos espacio -->
+                <div class="col-md-1">
+                    {{ task_formset.empty_form.quantity|add_class:"form-control"|attr:"placeholder=Cantidad" }}
+                </div>
+                <div class="col-md-3">
+                    {{ task_formset.empty_form.saler_order|add_class:"form-control"|attr:"placeholder=Orden de Venta" }}
+                </div>
+                <div class="col-md-1">
+                    {{ task_formset.empty_form.order|add_class:"form-control"|attr:"placeholder=Orden" }}
+                </div>
+                <div class="col-md-1 d-flex align-items-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-form">Eliminar</button>
+                </div>
+            </div>
         </div>
     </div>
     
-    <button type="button" hx-get="{% url 'add_task_form' %}" hx-target="#empty-form-container" hx-swap="beforeend">Agregar tarea</button>
-    <button type="submit">Guardar</button>
+    <button type="button" id="add-task" class="btn btn-secondary mt-3">Agregar tarea</button>
+    <button type="submit" class="btn btn-primary mt-3">Guardar</button>
 </form>
+
+<script>
+    document.getElementById('add-task').addEventListener('click', function() {
+        const totalForms = document.getElementById('id_tasks-TOTAL_FORMS');
+        if (!totalForms) {
+            console.error("El campo 'TOTAL_FORMS' no se encontró.");
+            return;
+        }
+        
+        const currentFormCount = parseInt(totalForms.value);
+    
+        const newForm = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, currentFormCount);
+        document.getElementById('task-formset').insertAdjacentHTML('beforeend', newForm);
+    
+        totalForms.value = currentFormCount + 1;
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-form')) {
+            e.preventDefault();
+            const formRow = e.target.closest('.form-row');
+            formRow.remove();
+
+            // Decrementar el número total de formularios
+            const totalForms = document.getElementById('id_tasks-TOTAL_FORMS');
+            totalForms.value = parseInt(totalForms.value) - 1;
+
+            // Reindexar los formularios para evitar conflictos en los nombres de los campos
+            const formRows = document.querySelectorAll('#task-formset .form-row');
+            formRows.forEach((row, index) => {
+                row.id = `form-${index}`;
+                row.querySelectorAll('input, select, textarea').forEach(input => {
+                    input.name = input.name.replace(/-\d+-/, `-${index}-`);
+                    input.id = input.id.replace(/_\d+_/, `_${index}_`);
+                });
+            });
+        }
+    });
+</script>
 {% endblock %}

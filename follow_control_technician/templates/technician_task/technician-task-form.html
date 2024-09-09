@@ -1,0 +1,24 @@
+<form hx-post="{% url 'create-technician-tasks' %}" hx-target="#task-list" hx-swap="innerHTML" class="w-100">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-6 col-md-1 mb-3">
+            <label for="{{ form.verb.id_for_label }}" class="visually-hidden">{{ form.verb.label }}</label>
+            {{ form.verb }}
+        </div>
+        <div class="col-6 col-md-3 mb-3">
+            <label for="{{ form.object.id_for_label }}" class="visually-hidden">{{ form.object.label }}</label>
+            {{ form.object }}
+        </div>
+        <div class="col-6 col-md-1 mb-3">
+            <label for="{{ form.measurement.id_for_label }}" class="visually-hidden">{{ form.measurement.label }}</label>
+            {{ form.measurement }}
+        </div>
+        <div class="col-6 col-md-1 mb-3">
+            <label for="{{ form.time.id_for_label }}" class="visually-hidden">{{ form.time.label }}</label>
+            {{ form.time }}
+        </div>
+        <div class="col-6 col-md-2 mb-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </div>
+    </div>
+</form>

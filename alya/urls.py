@@ -23,7 +23,7 @@ urlpatterns = [
     # Hub
     path('', include('hub.urls')),
     # Accounting - Order
-    ##path('accounting_order_sales/', include('accounting_order_sales.urls')),
+    path('accounting_order_sales/', include('accounting_order_sales.urls')),
     # Follow
     path('follow/control/', include('follow_control_home.urls')),
     path('follow/control/card/', include('follow_control_card.urls')),
@@ -38,4 +38,5 @@ urlpatterns = [
     path('project/', include('project.urls')),
     # DJANGO BROWSER RELOAD
     path("__reload__/", include("django_browser_reload.urls")),
+
 ]

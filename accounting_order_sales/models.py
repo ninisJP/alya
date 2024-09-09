@@ -8,7 +8,6 @@ from decimal import Decimal
 class SalesOrder(models.Model):
     sapcode = models.PositiveBigIntegerField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)
     detail = models.CharField(max_length=255)
     date = models.DateField()
 
