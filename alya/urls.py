@@ -32,6 +32,7 @@ urlpatterns = [
     path('follow/control/technician/', include('follow_control_technician.urls')),
     # Employee
     path('employee/', include('employee.urls')),
+    path('employee_api/', include('employee_api.urls')),
     # Client
     path('clientes/', include('client.urls')),
     # Project

@@ -46,13 +46,17 @@ INSTALLED_APPS = [
     'follow_control_technician',
     'hub',
     'employee',
+    'employee_api',
     'widget_tweaks',
     'client',
     'project',
     #DJANGO BROWSER RELOAD
     "django_browser_reload",
     #Django htmx
-    'django_htmx'
+    'django_htmx',
+    #Django restframwork
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
