@@ -3,19 +3,19 @@ from django.shortcuts import render
 from .forms import ProjectForm
 from .models import Project
 
-def new_project(request):
+import logging
+
+logger = logging.getLogger("atestsdf")
+
+def project_index(request):
     if request.method == 'POST':
         form = ProjectForm(request.POST)
         if form.is_valid():
-            form.save()
-            return render(request, 'partials/success_project.html')
-        return render(request, 'partials/failure_project.html')
+            project = form.save()
+            context = {'project': project}
+            return render(request, 'partials/project_list.html', context)
+        return render(request, 'partials/project_failure.html')
 
     form = ProjectForm()
-    context = {'form': form}
-    return render(request, 'project_new.html', context)
-
-def list_project(request):
-    all_project = Project.objects.all().order_by('name')
-    contex = {'projects': all_project}
-    return render(request, 'project_list.html', contex)
+    context = {'form': form, 'projects': Project.objects.all()}
+    return render(request, 'project_index.html', context)
