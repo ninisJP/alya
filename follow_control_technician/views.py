@@ -1,9 +1,10 @@
+from django.http import HttpResponse
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404, render, redirect
 from datetime import date, timedelta
 from employee.models import Technician
-from .models import TechnicianCard
-from .forms import TechnicianCardForm, TechnicianCardTaskFormSet, TechnicianCardTask
+from .models import TechnicianCard, TechnicianTask
+from .forms import TechnicianCardForm, TechnicianCardTaskFormSet, TechnicianCardTask, TechnicianTaskForm
 
 class TechniciansMonth(TemplateView):
     template_name = 'technicians_month.html'
@@ -11,14 +12,12 @@ class TechniciansMonth(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Obtener los parámetros del URL
         mes = self.kwargs.get('mes')
         anio = self.kwargs.get('anio')
 
-        # Obtener los datos del informe para el mes y año especificados
         datos_informe = self.informe_tarjetas_del_mes(mes, anio)
 
-        context['mes'] = mes  # Asegúrate de que mes sea un número
+        context['mes'] = mes 
         context['anio'] = anio
         context['informe'] = datos_informe['informe_por_tecnico']
 
@@ -29,24 +28,21 @@ class TechniciansMonth(TemplateView):
         ultimo_dia_mes = primer_dia_mes + timedelta(days=28) + timedelta(days=4)
         ultimo_dia_mes = ultimo_dia_mes - timedelta(days=ultimo_dia_mes.day)
 
-        # Obtener todas las tarjetas para el mes y año especificados
         tarjetas_del_mes = TechnicianCard.objects.filter(
             date__range=(primer_dia_mes, ultimo_dia_mes)
         ).order_by('technician', 'date')
 
-        # Obtener todos los técnicos
         todos_los_tecnicos = Technician.objects.all()
 
         informe = {}
         for tecnico in todos_los_tecnicos:
             tecnico_id = tecnico.id
             informe[tecnico_id] = {
-                'technician': f"{tecnico.name} {tecnico.lastname}",
+                'technician': f"{tecnico.first_name} {tecnico.last_name}",
                 'dias_con_tarjeta': set(),
                 'dias_sin_tarjeta': set(range(1, (ultimo_dia_mes - primer_dia_mes).days + 2))
             }
 
-        # Rellenar los días con tarjeta
         for tarjeta in tarjetas_del_mes:
             tecnico_id = tarjeta.technician.id
             informe[tecnico_id]['dias_con_tarjeta'].add(tarjeta.date.day)
@@ -70,11 +66,13 @@ def create_technician_card(request):
         if card_form.is_valid() and task_formset.is_valid():
             technician_card = card_form.save()
 
-            # Guardar las tareas asociadas con la tarjeta del técnico
             task_formset.instance = technician_card
             task_formset.save()
 
-            return redirect('success_url')  # Redirige a una URL de éxito
+            return redirect('success_url')
+        else:
+            print(card_form.errors)
+            print(task_formset.errors)
 
     else:
         card_form = TechnicianCardForm()
@@ -85,16 +83,13 @@ def create_technician_card(request):
         'task_formset': task_formset,
     })
 
+
 def add_task_form(request):
     task_formset = TechnicianCardTaskFormSet(request.GET or None)
     return render(request, 'partials/task_form.html', {
         'task_formset': task_formset,
     })
-
-
-
-
-
+    
 def view_technician_card(request, tecnico_id, dia, mes, anio):
     # Obtener el técnico
     tecnico = get_object_or_404(Technician, id=tecnico_id)
@@ -112,3 +107,44 @@ def view_technician_card(request, tecnico_id, dia, mes, anio):
     }
     return render(request, 'view_technician_card.html', context)
 
+
+#Technicians tasks HTMX
+def technician_task(request):
+    technicians_tasks = TechnicianTask.objects.all()
+    context = {'form': TechnicianTaskForm(), 'tasks': technicians_tasks}
+    return render(request, 'technician_task/technician-task.html', context)
+
+def create_technician_task(request):
+    if request.method == 'POST':
+        form = TechnicianTaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False) 
+            task.save()
+            technician_tasks = TechnicianTask.objects.all()
+            context = {'tasks': technician_tasks}
+            return render(request, 'technician_task/technician-task-list.html', context)
+    else:
+        form = TechnicianTaskForm()
+
+    return render(request, 'technician_task/technician-task-form.html', {'form': form})
+
+def edit_technician_task(request, task_id):
+    task = get_object_or_404(TechnicianTask, id=task_id)
+    if request.method == 'GET':
+        form = TechnicianTaskForm(instance=task)
+        return render(request, 'technician_task/technician-task-edit.html', {'form': form, 'task': task})
+    elif request.method == 'POST':
+        form = TechnicianTaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            technician_tasks = TechnicianTask.objects.all()
+            return render(request, 'technician_task/technician-task-list.html', {'tasks': technician_tasks})
+    return HttpResponse(status=405)
+
+
+def delete_technician_task(request, task_id):
+    task = get_object_or_404(TechnicianTask, id=task_id)  
+    if request.method == 'DELETE':
+        task.delete()
+        return render(request, 'technician_task/technician-task-list.html')
+    return HttpResponse(status=405)

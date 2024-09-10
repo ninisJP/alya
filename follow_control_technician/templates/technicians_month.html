@@ -116,6 +116,11 @@
                 <li class="breadcrumb-item">
                     <a href="{% url 'create_technician_card' %}">
                         <i class="fas fa-id-card"></i> Tarjeta
+                    </a>technician_task
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'technician_task' %}">
+                        <i class="fas fa-id-card"></i> Tareas
                     </a>
                 </li>
             </ol>
@@ -141,7 +146,7 @@
                     </td>
                     <td>
                         {% for dia in datos.dias_sin_tarjeta %}
-                        <a href="{% url 'create_technician_card' tecnico_id=tecnico_id dia=dia mes=mes anio=anio %}" class="badge bg-danger">{{ dia }}</a>
+                        <a href="{% url 'create_technician_card' %}" class="badge bg-danger">{{ dia }}</a>
 
                         {% endfor %}
                     </td>

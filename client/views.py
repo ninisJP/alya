@@ -11,7 +11,7 @@ def index_client(request):
             context = {'client': client}
             return render(request, 'partials/client_list.html', context)
         return render(request, 'partials/failure_client.html')
-            
+
     form = ClientForm()
     context = {'form': form, 'clients': Client.objects.all()}
     return render(request, 'index_client.html', context)

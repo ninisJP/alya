@@ -1,0 +1,25 @@
+<div class="w-full">
+    <h2 class="text-2xl font-bold mb-4">Supervisores</h2>
+    <ul>
+        {% for supervisor in supervisors %}
+            <li class="bg-white py-4 px-4 rounded-lg shadow-md mb-3 hover:shadow-xl transition-shadow duration-300">
+                <p><strong>Nombre:</strong> {{ supervisor.first_name }} {{ supervisor.last_name }}</p>
+                <p><strong>Cargo:</strong> {{ supervisor.position }}</p>
+                <p><strong>Estado:</strong> {{ supervisor.status }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="w-full mt-8">
+    <h2 class="text-2xl font-bold mb-4">Técnicos</h2>
+    <ul>
+        {% for technician in technicians %}
+            <li class="bg-white py-4 px-4 rounded-lg shadow-md mb-3 hover:shadow-xl transition-shadow duration-300">
+                <p><strong>Nombre:</strong> {{ technician.first_name }} {{ technician.last_name }}</p>
+                <p><strong>Cargo:</strong> {{ technician.position }}</p>
+                <p><strong>Estado:</strong> {{ technician.status }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

@@ -1,0 +1,31 @@
+<div class="p-4 bg-light rounded shadow-sm mb-2"> 
+    <h2 class="text-center text-uppercase mb-2">ORDENES DE VENTA</h2> 
+    <form hx-post="{% url 'create-salesorder' %}" hx-target="#salesorder-list" hx-swap="innerHTML" class="w-100">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-6 col-md-2 mb-1"> 
+                <label for="{{ form.sapcode.id_for_label }}" class="visually-hidden">{{ form.sapcode.label }}</label>
+                {{ form.sapcode }}
+            </div>
+            <div class="col-6 col-md-2 mb-1">
+                <label for="{{ form.project.id_for_label }}" class="visually-hidden">{{ form.project.label }}</label>
+                {{ form.project }}
+            </div>
+            <div class="col-6 col-md-2 mb-1"> 
+                <label for="{{ form.date.id_for_label }}" class="visually-hidden">{{ form.date.label }}</label>
+                {{ form.date }}
+            </div>
+            <div class="col-6 col-md-5 mb-1"> 
+                <label for="{{ form.detail.id_for_label }}" class="visually-hidden">{{ form.detail.label }}</label>
+                {{ form.detail }}
+            </div>
+            <div class="col-12 col-md-1 mb-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Crear</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="salesorder-list" class="mt-0">
+    {% include 'salesorder/salesorder-list.html' %}
+</div>

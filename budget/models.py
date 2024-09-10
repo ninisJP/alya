@@ -32,4 +32,5 @@ class BudgetItem(models.Model):
     daily_price = models.FloatField(default=0)
     final_price = models.FloatField(default=0)
 
+
   
