@@ -33,7 +33,7 @@
             overflow: hidden;
             background-color: #fdf8f2; /* Beige Claro */
         }
-        
+
 
         /* Estilos para el contenedor principal */
         #wrapper {
@@ -43,7 +43,7 @@
             box-sizing: border-box;
         }
 
-        /* Estilos para la barra lateral */ 
+        /* Estilos para la barra lateral */
         #sidebar-wrapper {
             display: flex;
             flex-direction: column;
@@ -131,7 +131,7 @@
                 <a href="{% url 'client_list' %}" class="list-group-item list-group-item-action">
                     <i class="fas fa-users"></i><span>Clientes</span>
                 </a>
-                <a href="{% url 'project_list' %}" class="list-group-item list-group-item-action">
+                <a href="{% url 'project_index' %}" class="list-group-item list-group-item-action">
                     <i class="fas fa-tasks"></i><span>Proyectos</span>
                 </a>
                 <a href="{% url 'planning_homepage' %}" class="list-group-item list-group-item-action">
@@ -139,7 +139,7 @@
                 </a>
             </div>
         </div>
-        
+
         <!-- Contenido principal -->
         <div id="page-content-wrapper">
             <div class="container-fluid content-area">
@@ -155,16 +155,16 @@
         <!-- Popper.js y Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
-    
+
         <!-- Select2 JS -->
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    
+
         <script>
             document.body.addEventListener('htmx:configRequest', (event) => {
                 event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
             });
         </script>
-    
+
         {% block extra_js %}
         {% endblock %}
 </body>
