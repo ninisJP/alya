@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'client',
     'project',
+    'logistic_inventory',
     #DJANGO BROWSER RELOAD
     "django_browser_reload",
     #Django htmx
