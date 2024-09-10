@@ -48,3 +48,18 @@ def technician_card(request):
     serializer = TechnicianCardSerializer(technician_cards, many=True)
 
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+ # Consumir api
+@login_not_required
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_technician_card(request):
+    technician = get_object_or_404(Technician, user=request.user)
+
+    technician_cards = TechnicianCard.objects.filter(technician=technician)
+
+    serializer = TechnicianCardSerializer(technician_cards, many=True)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)

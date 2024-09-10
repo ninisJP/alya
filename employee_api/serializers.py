@@ -5,7 +5,7 @@ from follow_control_technician.models import TechnicianCard, TechnicianCardTask
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password']
+        fields = ['id', 'username']
         
 class TechnicianCardTaskSerializer(serializers.ModelSerializer):
     class Meta:
