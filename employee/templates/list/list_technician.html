@@ -23,12 +23,12 @@
                 </tr>
             </thead>
             <tbody>
-                {% for technical in technicals %}
+                {% for technician in technicians %}
                 <tr>
-                    <td>{{ technical.first_name }} {{ supervisor.last_name }}</td>
-                    <td>{{ technical.position }}</td>
-                    <td>{{ technical.get_status_display }}</td>
-                    <td>{{ technical.email }}</td>
+                    <td>{{ technician.first_name }} {{ supervisor.last_name }}</td>
+                    <td>{{ technician.position }}</td>
+                    <td>{{ technician.get_status_display }}</td>
+                    <td>{{ technician.email }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
