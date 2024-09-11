@@ -1,15 +1,11 @@
 {% extends 'follow_control_base.html' %}
 
 {% block title %}
-Home - Guía Rápida
+Tarjetas de Control
 {% endblock %}
 
 {% block content %}
 <style>
-    .page-header h1, .page-header p {
-        text-align: center;
-    }
-
     .flow-wrapper {
         padding: 50px;
         position: relative;
@@ -17,16 +13,16 @@ Home - Guía Rápida
         width: 100%;
         margin: 0 auto;
         display: grid;
-        grid-template-columns: repeat(6, 1fr); /* Cambiado a 6 columnas para excluir domingo */
+        grid-template-columns: repeat(6, 1fr); /* 6 columnas para excluir domingo */
         grid-gap: 10px;
     }
 
     .flow-item, .empty-day {
         text-align: center;
-        height: 150px;
+        height: 100px; /* Altura reducida */
         transition: transform 0.3s ease;
         border-radius: 15px;
-        padding: 20px;
+        padding: 10px; /* Padding reducido */
         background-color: rgba(255, 255, 255, 1);
         display: flex;
         flex-direction: column;
@@ -34,25 +30,15 @@ Home - Guía Rápida
         align-items: center;
     }
 
-    .flow-item {
-        cursor: pointer;
-        text-decoration: none;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    .flow-item i {
-        font-size: 1.5em;
-        color: #6f42c1;
-    }
-
     .flow-item h3 {
+        margin: 0;
+        font-size: 1.2em;
         color: #333;
-        margin-bottom: 10px;
-        font-size: 1em;
+        font-weight: bold;
     }
 
     .flow-item .valuation {
-        font-size: 2.1em;
+        font-size: 2.5em;
         color: #000;
         font-weight: bold;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
@@ -63,36 +49,6 @@ Home - Guía Rápida
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
-    .fade-in {
-        animation: fadeInAnimation ease 0.5s;
-        animation-iteration-count: 1;
-        animation-fill-mode: forwards;
-    }
-
-    @keyframes fadeInAnimation {
-        0% {
-            opacity: 0;
-        }
-        100% {
-            opacity: 1;
-        }
-    }
-
-    .fade-out {
-        animation: fadeOutAnimation ease 0.5s;
-        animation-iteration-count: 1;
-        animation-fill-mode: forwards;
-    }
-
-    @keyframes fadeOutAnimation {
-        0% {
-            opacity: 1;
-        }
-        100% {
-            opacity: 0;
-        }
-    }
-
     .day-header {
         text-align: center;
         font-weight: bold;
@@ -101,11 +57,19 @@ Home - Guía Rápida
         border-radius: 15px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-</style>
 
-<div class="page-header">
-    <h1>Bienvenido al Sistema de Tarjetas de Control</h1>
-</div>
+    /* Estilo para el mes flotante */
+    .floating-month {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        font-size: 3em;
+        color: rgba(0, 0, 0, 0.1);
+        font-weight: bold;
+        z-index: 1000;
+        pointer-events: none; /* Para que no interfiera con otros elementos */
+    }
+</style>
 
 <div class="flow-wrapper">
     <!-- Encabezados de los días de la semana -->
@@ -124,12 +88,16 @@ Home - Guía Rápida
     <!-- Tarjetas -->
     {% for card in cards %}
     <a href="{% url 'daily_card' card.pk %}" class="flow-item">
-        <h3>{{ card.date|date:"d F" }}</h3>
+        <h3>{{ card.date|date:"d" }}</h3> <!-- Solo día -->
         <p class="valuation">{{ card.valuation }}</p>
     </a>
     {% empty %}
     <p>No hay tarjetas disponibles para este mes.</p>
     {% endfor %}
+</div>
+
+<div class="floating-month">
+    {{ current_month }} <!-- Asegúrate de que esté escrito exactamente así -->
 </div>
 
 {% endblock %}
