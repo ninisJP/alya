@@ -52,14 +52,19 @@ def technician_card(request):
 
  # Consumir api
 @login_not_required
+@csrf_exempt
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_technician_card(request):
+    # Obtener el técnico asociado al usuario autenticado
     technician = get_object_or_404(Technician, user=request.user)
 
+    # Filtrar las tarjetas del técnico
     technician_cards = TechnicianCard.objects.filter(technician=technician)
 
+    # Serializar los datos
     serializer = TechnicianCardSerializer(technician_cards, many=True)
 
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    # Retornar la respuesta con los datos serializados
+    return Response(serializer.data, status=200)
