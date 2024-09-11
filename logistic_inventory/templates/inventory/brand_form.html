@@ -1,0 +1,15 @@
+<form hx-post="{% url 'logistic_inventory_brand_new' %}" hx-target="#logistic_inventory_brand_list" hx-swap="innerHTML" class="w-100">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.name.id_for_label }}" class="visually-hidden">{{ form.name.label }}</label>
+            {{ form.name }}
+        </div>
+        <div class="col-6 col-md-2 mb-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </div>
+        <div id="logistic_inventory_brand_new_status" class="col-6 col-md-2 mb-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </div>
+    </div>
+</form>

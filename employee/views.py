@@ -10,22 +10,11 @@ from django.shortcuts import render
 
 class Login(LoginView):
     template_name = 'registration/login.html'
-    
+
     def form_valid(self, form):
         response = super().form_valid(form)
         create_monthly_cards_for_user(self.request.user)
         return response
-      
-# class RegisterView(FormView):
-#     template_name = 'index_employee.html'
-#     form_class = UserRegistrationForm
-#     success_url = reverse_lazy('register')
-
-#     def form_valid(self, form):
-#         user = form.save()
-#         login(self.request, user)
-#         return super(RegisterView, self).form_valid(form)
-    
 
 class RegisterView(FormView):
     template_name = 'index_employee.html'
@@ -52,7 +41,7 @@ class RegisterView(FormView):
         # Si el formulario no es válido, renderiza una página de fallo
         return render(self.request, 'partials/failure_user.html', {'form': form})
 
-        
+
 # Render supervisor & technician
 def supervisor_list_view(request):
     supervisors = Supervisor.objects.all()
