@@ -1,19 +1,28 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from follow_control_technician.models import TechnicianCard, TechnicianCardTask
+from follow_control_technician.models import TechnicianCard, TechnicianCardTask, TechnicianTask
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username']
-        
-class TechnicianCardTaskSerializer(serializers.ModelSerializer):
+
+class TechnicianCardTaskSimplifiedSerializer(serializers.ModelSerializer):
+    description = serializers.SerializerMethodField()
+
     class Meta:
         model = TechnicianCardTask
-        fields = ['id', 'task', 'quantity', 'total_time', 'saler_order', 'order', 'status']
+        fields = ['id', 'description']
+
+    def get_description(self, obj):
+        return (
+            f"{obj.task.verb} {obj.task.object} ({obj.task.time} {obj.task.measurement}) * "
+            f"{obj.quantity} - {obj.total_time} MIN - {obj.saler_order.detail} - ORDEN {obj.order}"
+        )
+
 
 class TechnicianCardSerializer(serializers.ModelSerializer):
-    tasks = TechnicianCardTaskSerializer(many=True, read_only=True)
+    tasks = TechnicianCardTaskSimplifiedSerializer(many=True, read_only=True)
 
     class Meta:
         model = TechnicianCard
