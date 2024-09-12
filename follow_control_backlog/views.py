@@ -4,12 +4,9 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from django.utils import timezone
-
 from datetime import datetime, timedelta
-
 from .utils import get_month_dates
 from .forms import CardTaskForm
-
 from follow_control_card.models import Card
 from follow_control_card.utils import CardTaskOrder
 

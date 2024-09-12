@@ -27,9 +27,11 @@ INSTALLED_APPS = [
     'hub',
     'employee',
     'employee_api',
+    'employee_portal',
     'widget_tweaks',
     'client',
     'project',
+    'budget',
     'logistic_inventory',
     #DJANGO BROWSER RELOAD
     "django_browser_reload",
