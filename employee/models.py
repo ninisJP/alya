@@ -15,7 +15,7 @@ class Supervisor(models.Model):
 
 
 class Technician(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='technician_profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='technician')
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     position = models.CharField(max_length=100)
