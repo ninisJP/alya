@@ -6,8 +6,8 @@ from django.shortcuts import redirect, render, get_object_or_404
 
 # Vista para listar y crear una orden de venta
 def salesorder(request):
-    salesorders = SalesOrder.objects.all().order_by("-id")  # Cambio a plural para ser más descriptivo
-    context = {'form': SalesOrderForm(), 'salesorders': salesorders}  # Cambié 'salesorder' a 'salesorders'
+    salesorders = SalesOrder.objects.all().order_by("-id")
+    context = {'form': SalesOrderForm(), 'salesorders': salesorders} 
     return render(request, 'salesorder/sales_index.html', context)
 
 # Vista para crear una nueva orden de venta
