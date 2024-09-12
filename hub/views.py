@@ -1,6 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django_htmx.http import HttpResponseLocation
 
 
 def hub(request):
-    return render(request, 'hub.html')
+    if request.htmx:
+        return HttpResponseLocation("/presupuestos/")
+    else:
+        return render(request, 'hub.html')
