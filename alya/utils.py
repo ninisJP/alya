@@ -12,13 +12,14 @@ def search_model(model_all, column, name):
     for element in model_list:
         model_list_str.append(element[0])
     # Regex
-    r = re.compile(name)
+    r = re.compile(".*"+str(name)+".*", re.IGNORECASE)
     list_new = list(filter(r.match, model_list_str))
 
     # Get model's element
     model_list = []
     for element in list_new :
-        model_list.append(model_all.get(name=element))
+        nani = {column:element}
+        model_list.append(model_all.get(**nani))
     if len(model_list) == 0:
         return -2, model_list
     return 0, model_list

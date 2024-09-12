@@ -1,7 +1,7 @@
-<form hx-post="{% url 'logistic_inventory_brand_search' %}" hx-target="#logistic_inventory_brand_list" hx-swap="innerHTML" class="w-100">
+<form hx-post="{% url 'logistic_inventory_subtype_search' %}" hx-target="#logistic_inventory_subtype_list" hx-swap="innerHTML" class="w-100">
     <div class="row">
         <div class="col-6 col-md-2 mb-3">
-            <label for="{{ search.name.id_for_label }}" >Por nombre:</label>
+            <label for="{{ search.name.id_for_label }}" >Por nombre: </label>
             {{ search.name }}
         </div>
 

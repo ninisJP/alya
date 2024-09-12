@@ -8,10 +8,10 @@
     </div>
 {% endif %}
 
-{% for brand in brands %}
+{% for type in types %}
     <div class="bg-white py-4 px-4 rounded-lg shadow-md mb-3 flex flex-wrap items-center hover:shadow-xl transition-shadow duration-300">
         <div class="w-full sm:w-1/2">
-            <p class="mb-2"><i class="fas fa-briefcase"></i> Marca: <span class="font-bold">{{ brand.name }}</span></p>
+            <p class="mb-2"><i class="fas fa-folder-open"></i> Tipo: <span class="font-bold">{{ type.name }}</span></p>
         </div>
     </div>
 {% endfor %}

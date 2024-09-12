@@ -7,12 +7,22 @@ urlpatterns = [
 ]
 
 htmxurlpatters = [
-    path('item/', views.item, name='logistic_inventory_item' ),
-    path('type/', views.type, name='logistic_inventory_type' ),
-    path('subtype/', views.subtype, name='logistic_inventory_subtype' ),
+    # Brand
     path('brand/', views.brand, name='logistic_inventory_brand' ),
     path('brand/new/', views.brand_new, name='logistic_inventory_brand_new' ),
     path('brand/search/', views.brand_search, name='logistic_inventory_brand_search' ),
+    # Item
+    path('item/', views.item, name='logistic_inventory_item' ),
+    path('item/new/', views.item_new, name='logistic_inventory_item_new' ),
+    path('item/search/', views.item_search, name='logistic_inventory_item_search' ),
+    # Subtype
+    path('subtype/', views.subtype, name='logistic_inventory_subtype' ),
+    path('subtype/new/', views.subtype_new, name='logistic_inventory_subtype_new' ),
+    path('subtype/search/', views.subtype_search, name='logistic_inventory_subtype_search' ),
+    # Type
+    path('type/', views.type, name='logistic_inventory_type' ),
+    path('type/new/', views.type_new, name='logistic_inventory_type_new' ),
+    path('type/search/', views.type_search, name='logistic_inventory_type_search' ),
 ]
 
 urlpatterns += htmxurlpatters

@@ -1,9 +1,13 @@
-<form hx-post="{% url 'logistic_inventory_brand_new' %}" class="w-100">
+<form hx-post="{% url 'logistic_inventory_subtype_new' %}" class="w-100">
     {% csrf_token %}
     <div class="row">
         <div class="col-6 col-md-2 mb-3">
             <label for="{{ form.name.id_for_label }}" >{{ form.name.label }}:</label>
             {{ form.name }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.type.id_for_label }}"> {{form.type.label}}:</label>
+            {{ form.type }}
         </div>
 
         <div class="col-6 col-md-2 mb-3 d-flex align-items-end">

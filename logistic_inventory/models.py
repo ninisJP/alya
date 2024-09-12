@@ -1,38 +1,39 @@
 from django.db import models
-from datetime import datetime
 
-class Category(models.Model):
-    CATEGORY_CHOICES = [
-        ('EQUIPOS', 'Equipos'),
-        ('EPPS', 'EPPS'),
-        ('MATERIALES', 'Materiales'),
-        ('CONSUMIBLES', 'Consumibles'),
-        ('HERRAMIENTAS', 'Herramientas'),
-    ]
-
-    name = models.CharField(max_length=100, choices=CATEGORY_CHOICES)
-
-    def __str__(self):
-        return self.get_name_display()
 
 class Brand(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
 
-class ProductType(models.Model):
-    name = models.CharField(max_length=100)
+class Type(models.Model):
+
+    class Category(models.TextChoices):
+        EQUIPO = 'Equipo'
+        EPPS = 'EPPS'
+        MATERIAL = 'Materiale'
+        CONSUMIBLE = 'Consumible'
+        HERRAMIENTA = 'Herramienta'
+
+    name = models.CharField(max_length=100, unique=True)
+    category = models.CharField(max_length=100, choices=Category.choices, default=Category.EQUIPO)
 
     def __str__(self):
         return self.name
 
-class Product(models.Model):
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    description = models.TextField(blank=True, null=True)
-    product_id = models.CharField(max_length=100)
+class Subtype(models.Model):
+    name = models.CharField(max_length=100)
+    type = models.ForeignKey(Type, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.name
+
+class Item(models.Model):
+
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, null=True)
+    description = models.CharField(max_length=100, null=True)
+    item_id = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=0)
-    type = models.ForeignKey(ProductType, on_delete=models.CASCADE)
-    unit = models.CharField(max_length=100)
-    unit_measure = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    subtype = models.ForeignKey(Subtype, on_delete=models.CASCADE, null=True)
+    unit = models.CharField(max_length=100, null=True, blank=True)
