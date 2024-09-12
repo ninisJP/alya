@@ -1,0 +1,90 @@
+{% extends "base_logistic.html" %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+<style>
+    .btn-outline-purple {
+        color: #6f42c1;
+        border-color: #6f42c1;
+    }
+    .btn-outline-purple:hover {
+        color: #fff;
+        background-color: #6f42c1;
+        border-color: #6f42c1;
+    }
+    .btn-outline-teal {
+        color: #20c997;
+        border-color: #20c997;
+    }
+    .btn-outline-teal:hover {
+        color: #fff;
+        background-color: #20c997;
+        border-color: #20c997;
+    }
+    .btn-outline-warning {
+        color: #fd7e14;
+        border-color: #fd7e14;
+    }
+    .btn-outline-warning:hover {
+        color: #fff;
+        background-color: #fd7e14;
+        border-color: #fd7e14;
+    }
+    .btn-custom {
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-custom i {
+        font-size: 2.25rem;
+        margin-right: 0.25rem;
+    }
+</style>
+
+<div class="row gx-0">
+    <div class="col-4 col-md-2">
+        <button class="btn btn-outline-success btn-custom w-100"
+            hx-get="{% url 'logistic_inventory_item' %}"
+            hx-target="#logistic_inventory_window"
+            data-bs-toggle="button"
+            aria-pressed="false">
+            <i class="fa-solid fa-box-open"></i> Items
+        </button>
+    </div>
+    <div class="col-4 col-md-2">
+        <button class="btn btn-outline-primary btn-custom w-100"
+            hx-get="{% url 'logistic_inventory_type' %}"
+            hx-target="#logistic_inventory_window"
+            data-bs-toggle="button"
+            aria-pressed="false">
+            <i class="fa-solid fa-layer-group"></i> Tipos
+        </button>
+    </div>
+    <div class="col-4 col-md-2">
+        <button class="btn btn-outline-purple btn-custom w-100"
+            hx-get="{% url 'logistic_inventory_subtype' %}"
+            hx-target="#logistic_inventory_window"
+            data-bs-toggle="button"
+            aria-pressed="false">
+            <i class="fas fa-tag"></i> Sub-tipo
+        </button>
+    </div>
+    <div class="col-4 col-md-2">
+        <button class="btn btn-outline-info btn-custom w-100"
+            hx-get="{% url 'logistic_inventory_brand' %}"
+            hx-target="#logistic_inventory_window"
+            data-bs-toggle="button"
+            aria-pressed="false">
+            <i class="fa-solid fa-barcode"></i> Marca
+        </button>
+    </div>
+</div>
+
+<div id="logistic_inventory_window">
+<!-- {% include "inventory/item.html" %} --!>
+</div>
+
+{% endblock %}

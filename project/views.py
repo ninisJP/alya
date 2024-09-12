@@ -3,9 +3,6 @@ from django.shortcuts import render
 from .forms import ProjectForm
 from .models import Project
 
-import logging
-
-logger = logging.getLogger("atestsdf")
 
 def project_index(request):
     if request.method == 'POST':

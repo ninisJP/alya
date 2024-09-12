@@ -36,13 +36,12 @@
 <div class="search-column">
     <div class="d-flex justify-content-end mb-2">
         <input type="hidden" name="card_id" value="{{ card_id }}">
-        {% csrf_token %}
         <input type="text"
-            hx-post="{% url 'search-task' %}" 
+            hx-post="{% url 'search-task' %}"
             hx-target='#results'
             hx-trigger="focus once, keyup changed delay:300ms"
             name="search"
-            class="form-control form-control-sm search-input" 
+            class="form-control form-control-sm search-input"
             placeholder="Buscar"
             id="search-field"/>
     </div>
