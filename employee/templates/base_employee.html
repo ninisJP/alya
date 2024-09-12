@@ -41,8 +41,7 @@
         }
         body {
             overflow: hidden;
-            background: linear-gradient(135deg, #E0F7FA, #B3E5FC);
-
+            background: linear-gradient(135deg, #D3D3D3, #FFFFFF);
         }
         #wrapper {
             height: 100vh;
@@ -59,7 +58,7 @@
             flex-direction: column;
             width: 100px; 
             height: calc(100vh - 20px);
-            background-color: crimson;
+            background-color: #2F4F4F;
             border-right: 2px solid #05101e;
             box-shadow: 3px 0px 15px rgba(0, 21, 112, 0.5);
             border-radius: 17px;
@@ -173,6 +172,31 @@
             {% block content %}{% endblock %}
         </div>
     </div>
-    {% block extra_js %}{% endblock %}
+    {% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('userSearch');
+            const userItems = document.querySelectorAll('.user-item');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+            
+                userItems.forEach(item => {
+                    const name = item.getAttribute('data-name').toLowerCase();
+                    const email = item.getAttribute('data-email').toLowerCase();
+                    const role = item.getAttribute('data-role').toLowerCase();
+                    const position = item.getAttribute('data-position').toLowerCase();
+            
+                    if (name.includes(searchTerm) || email.includes(searchTerm) || 
+                        role.includes(searchTerm) || position.includes(searchTerm)) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>    
+    {% endblock %}
 </body>
 </html>

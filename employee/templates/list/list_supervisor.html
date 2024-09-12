@@ -1,40 +1,61 @@
 {% extends "base_employee.html" %}
 {% load widget_tweaks %}
 {% block title %}Lista de Supervisores{% endblock title %}
-{% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Supervisores</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2 class="mb-4">Lista de Supervisores</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Posición</th>
-                    <th>Status</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for supervisor in supervisors %}
-                <tr>
-                    <td>{{ supervisor.first_name }} {{ supervisor.last_name }}</td>
-                    <td>{{ supervisor.position }}</td>
-                    <td>{{ supervisor.get_status_display }}</td>
-                    <td>{{ supervisor.email }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</body>
-</html>
 
+{% block content %}
+<div class="container mt-5" x-data="{ showModal: false }">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Supervisores</h1>
+    </div>
+    
+    <div class="mb-4">
+        <input type="text" id="supervisorSearch" placeholder="Buscar por nombre o posición" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+    </div>
+
+    <div id="supervisor-list" class="row mt-8">
+        {% for supervisor in supervisors %}
+        <div class="col-md-6">
+            <div class="bg-white py-4 px-4 rounded-lg shadow-md mb-3 flex flex-wrap items-center hover:shadow-xl transition-shadow duration-300 supervisor-item" 
+                data-name="{{ supervisor.first_name }} {{ supervisor.last_name }}" 
+                data-email="{{ supervisor.email }}" 
+                data-role="Supervisor" 
+                data-position="{{ supervisor.position }}">
+                <div class="w-full sm:w-1/2">
+                    <p class="mb-2"><i class="fas fa-user"></i> Nombre: <span class="font-bold">{{ supervisor.first_name }} {{ supervisor.last_name }}</span></p>
+                    <p class="mb-2"><i class="fas fa-envelope"></i> Correo: <span class="font-bold">{{ supervisor.email }}</span></p>
+                </div>
+                <div class="w-full sm:w-1/2">
+                    <p class="mb-2 font-semibold"><i class="fas fa-id-card"></i> Rol: <span class="font-bold">Supervisor</span></p>
+                    <p class="mb-2 font-semibold"><i class="fas fa-id-card"></i> Posición: <span class="font-bold">{{ supervisor.position }}</span></p>
+                    <p class="mb-2 font-semibold"><i class="fas fa-info-circle"></i> Status: <span class="font-bold">{{ supervisor.get_status_display }}</span></p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('supervisorSearch');
+        const supervisorItems = document.querySelectorAll('.supervisor-item');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+        
+            supervisorItems.forEach(item => {
+                const name = item.getAttribute('data-name').toLowerCase();
+                const email = item.getAttribute('data-email').toLowerCase();
+                const role = item.getAttribute('data-role').toLowerCase();
+                const position = item.getAttribute('data-position').toLowerCase();
+        
+                if (name.includes(searchTerm) || email.includes(searchTerm) || 
+                    role.includes(searchTerm) || position.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
 {% endblock content %}
