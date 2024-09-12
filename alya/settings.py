@@ -122,4 +122,8 @@ LOGOUT_REDIRECT_URL = '/'
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# ADD PHOTO FOLDER
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
