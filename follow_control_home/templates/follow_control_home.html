@@ -58,16 +58,38 @@ Tarjetas de Control
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
-    /* Estilo para el mes flotante */
     .floating-month {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
-        font-size: 3em;
-        color: rgba(0, 0, 0, 0.1);
+        bottom: 50px;
+        right: 50px;
+        font-size: 3em; /* Texto más grande */
+        color: #000; /* Letras negras */
         font-weight: bold;
+        background-color: rgba(255, 165, 0, 0.9); /* Fondo anaranjado con algo de transparencia */
+        padding: 20px 40px;
+        border-radius: 25px; /* Bordes redondeados */
         z-index: 1000;
-        pointer-events: none; /* Para que no interfiera con otros elementos */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Sombra para darle un poco de profundidad */
+        pointer-events: none; /* Permite hacer clic en los elementos debajo */
+    }
+
+    /* Responsividad */
+    @media (max-width: 768px) {
+        .floating-month {
+            font-size: 1.0em; /* Tamaño de texto reducido en pantallas más pequeñas */
+            padding: 10px 20px; /* Padding reducido */
+            bottom: 10px;
+            right: 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .floating-month {
+            font-size: 1.0em; /* Tamaño de texto aún más reducido */
+            padding: 5px 10px;
+            bottom: 5px;
+            right: 5px;
+        }
     }
 </style>
 
@@ -97,7 +119,7 @@ Tarjetas de Control
 </div>
 
 <div class="floating-month">
-    {{ current_month }} <!-- Asegúrate de que esté escrito exactamente así -->
+    {{ current_month }}
 </div>
 
 {% endblock %}

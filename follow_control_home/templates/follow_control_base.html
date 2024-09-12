@@ -119,9 +119,39 @@
             color: whitesmoke;
             border-radius: 10px;
         }
-        .task-list::-webkit-scrollbar {
-            width: 8px;
-        }   
+        /* Barra de desplazamiento personalizada */
+.custom-scrollbar {
+    position: relative;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #2c2c2c;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #888888;
+    border-radius: 10px;
+    border: 2px solid #2c2c2c;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #555555;
+}
+
+/* Firefox support */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #888888 #2c2c2c;
+}
+
+
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -130,7 +160,7 @@
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <div class="d-flex" id="wrapper">
         <!-- Barra lateral -->
-        <div id="sidebar-wrapper">
+        <div id="sidebar-wrapper" class="custom-scrollbar">
             <div class="sidebar-heading text-center py-4 primary-text fs-8 fw-bold text-uppercase">
                 <a href="{% url 'hub' %}" ht-target="#main" class="nav-link" style="color: inherit;">
                     <span>JP</span>
@@ -155,25 +185,24 @@
                 </a>
             </div>
             <!-- Contenedor específico para el botón de logout -->
-             <div class="logout-container">
-                 {% if request.user.is_authenticated %}
-                 <a href="javascript:{}" onclick="document.getElementById('logout-form').submit();" class="list-group-item list-group-item-action">
-                     <i class="fas fa-sign-out-alt" style="color: red;"></i><br>Logout
-                     <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
-                         {% csrf_token %}
-                     </form>
-                 </a>
-                 {% else %}
-                 <a href="{% url 'login' %}" class="list-group-item list-group-item-action">
-                     <i class="fas fa-sign-in-alt" style="color: green;"></i><br>Login
-                 </a>
-                 {% endif %}
-             </div>
-
+            <div class="logout-container">
+                {% if request.user.is_authenticated %}
+                <a href="javascript:{}" onclick="document.getElementById('logout-form').submit();" class="list-group-item list-group-item-action">
+                    <i class="fas fa-sign-out-alt" style="color: red;"></i><br>Logout
+                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-sign-in-alt" style="color: green;"></i><br>Login
+                </a>
+                {% endif %}
+            </div>
         </div>
-
+    
         <!-- Contenido principal -->
-        <div id="page-content-wrapper">
+        <div id="page-content-wrapper" class="custom-scrollbar">
             <div class="container-fluid content-area">
                 {% block content %}
                 <!-- Contenido de la página aquí -->
@@ -181,6 +210,7 @@
             </div>
         </div>
     </div>
+    
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -199,11 +229,6 @@
                 selectElement.onchange = updateTotal;
             }
         });
-
-        document.body.addEventListener('htmx:configRequest', (event) => {
-            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
-        });
-
         htmx.onLoad(function(content) {
             var sortables = content.querySelectorAll(".sortable");
             for (var i = 0; i < sortables.length; i++) {

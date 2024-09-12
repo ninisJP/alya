@@ -91,11 +91,11 @@
                 <input type="hidden" name="card_id" value="{{ card_id }}">
                 <input type="text" name="taskname" class="form-control-sm" placeholder="Agrega el verbo" />
                 <input type="text" name="object" class="form-control-sm" placeholder="Objeto" />
-                <select name="orden_venta" id="ordenes-venta" class="form-control-sm">
-                    <option value="">Selecciona una orden de venta</option>
+                <select name="sale_order" class="form-control-sm">
+                    {% for sale_order in sale_orders %}
+                        <option value="{{ sale_order.id }}">{{ sale_order.detail }} - {{ sale_order.project.client.legal_name }}</option>
+                    {% endfor %}
                 </select>
-                <input type="hidden" name="client" id="cliente" />
-                <input type="text" class="form-control-sm" placeholder="Cliente" id="cliente-mostrado" disabled />
                 <input type="text" name="measurement" class="form-control-sm" placeholder="Medición" value="minutos" />
                 <input type="number" name="task_time" class="form-control-sm" placeholder="Tiempo" step="0.01" />
                 <button type="submit" class="btn btn-success btn-sm">
@@ -104,6 +104,7 @@
             </form>
         {% endif %}
     </div>
+    
     <hr/>
 
     <div id="daily-task-list">
@@ -117,52 +118,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ordenesVentaSelect = document.getElementById('ordenes-venta');
-        const clienteInput = document.getElementById('cliente');
-        const clienteMostrado = document.getElementById('cliente-mostrado');
-
-        // Función para realizar la petición a la API y mostrar la respuesta en los selects
-        function fetchAndPopulateData() {
-            fetch('https://seiren.awlmaquitec.com/api/ordenes-venta-simples/')
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data); // Mostrar la respuesta en la consola
-
-                    const ordenesSet = new Set();
-
-                    data.forEach(item => {
-                        // Agregar opciones únicas al set de ordenes de venta
-                        ordenesSet.add(item);
-                    });
-
-                    // Poblar los selects con valores únicos
-                    ordenesSet.forEach(item => {
-                        const optionOrden = document.createElement('option');
-                        optionOrden.value = item.observacion;
-                        optionOrden.textContent = `${item.observacion} - ${item.proyecto}`; // Mostrar orden de venta y proyecto
-                        optionOrden.dataset.cliente = item.proyecto; // Guardar el cliente como un atributo de datos
-                        ordenesVentaSelect.appendChild(optionOrden);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-        }
-
-        // Llamar a la función para obtener y mostrar los datos en los selects cuando la página se haya cargado
-        fetchAndPopulateData();
-
-        // Evento para actualizar el cliente al seleccionar una orden de venta
-        ordenesVentaSelect.addEventListener('change', function() {
-            const selectedOption = ordenesVentaSelect.options[ordenesVentaSelect.selectedIndex];
-            const cliente = selectedOption.dataset.cliente || ''; // Obtener el cliente del atributo de datos
-            clienteInput.value = cliente; // Actualizar el campo oculto
-            clienteMostrado.value = cliente; // Actualizar el campo visible
-        });
-    });
-</script>
 <script>
     function toggleView() {
         var listView = document.getElementById("list-view");
