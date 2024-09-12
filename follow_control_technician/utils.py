@@ -36,4 +36,3 @@ def informe_tarjetas_del_mes(mes, anio):
         'informe_por_tecnico': informe
     }
 
-
