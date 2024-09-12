@@ -9,3 +9,6 @@ class BrandForm(forms.ModelForm):
         labels = {
             'name': 'Marca',
         }
+
+class SearchForm(forms.Form):
+    name = forms.CharField(label="name", max_length=100)

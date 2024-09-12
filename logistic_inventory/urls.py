@@ -11,7 +11,8 @@ htmxurlpatters = [
     path('type/', views.type, name='logistic_inventory_type' ),
     path('subtype/', views.subtype, name='logistic_inventory_subtype' ),
     path('brand/', views.brand, name='logistic_inventory_brand' ),
-    path('brand/new', views.brand_new, name='logistic_inventory_brand_new' ),
+    path('brand/new/', views.brand_new, name='logistic_inventory_brand_new' ),
+    path('brand/search/', views.brand_search, name='logistic_inventory_brand_search' ),
 ]
 
 urlpatterns += htmxurlpatters

@@ -19,13 +19,13 @@ class Brand(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.nombre
+        return self.name
 
 class ProductType(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.nombre
+        return self.name
 
 class Product(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
