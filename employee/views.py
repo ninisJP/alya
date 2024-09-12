@@ -52,14 +52,11 @@ class RegisterView(FormView):
 
     def form_valid(self, form):
         user = form.save()
+        print(form)
         login(self.request, user)
         users = User.objects.exclude(username='admin')
         context = {'user': user, 'users': users}
         return render(self.request, 'partials/user_list.html', context)
-
-    # def form_invalid(self, form):
-    #     users = User.objects.exclude(username='admin')
-    #     return render(self.request, 'partials/failure_user.html', {'form': form, 'users': users})
     
     def form_invalid(self, form):
         print(form.errors) 
