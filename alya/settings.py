@@ -27,9 +27,11 @@ INSTALLED_APPS = [
     'hub',
     'employee',
     'employee_api',
+    'employee_portal',
     'widget_tweaks',
     'client',
     'project',
+    'budget',
     'logistic_inventory',
     #DJANGO BROWSER RELOAD
     "django_browser_reload",
@@ -119,5 +121,9 @@ LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = '/'
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# ADD PHOTO FOLDER
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 

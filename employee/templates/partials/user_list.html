@@ -1,25 +1,53 @@
-<div class="w-full">
-    <h2 class="text-2xl font-bold mb-4">Supervisores</h2>
-    <ul>
-        {% for supervisor in supervisors %}
-            <li class="bg-white py-4 px-4 rounded-lg shadow-md mb-3 hover:shadow-xl transition-shadow duration-300">
-                <p><strong>Nombre:</strong> {{ supervisor.first_name }} {{ supervisor.last_name }}</p>
-                <p><strong>Cargo:</strong> {{ supervisor.position }}</p>
-                <p><strong>Estado:</strong> {{ supervisor.status }}</p>
-            </li>
-        {% endfor %}
-    </ul>
+<div id="userList" class="container mx-auto mt-10">
+    <!-- Encabezado de la Tabla (Solo una vez) -->
+    <div class="bg-white py-6 px-8 rounded-lg shadow-md mb-4 w-full hover:shadow-xl transition-shadow duration-300">
+        <div class="grid grid-cols-4 gap-4">
+            <div>
+                <p class="text-gray-500 font-semibold">Nombre</p>
+            </div>
+            <div>
+                <p class="text-gray-500 font-semibold">Correo</p>
+            </div>
+            <div>
+                <p class="text-gray-500 font-semibold">Rol</p>
+            </div>
+            <div>
+                <p class="text-gray-500 font-semibold">Posición</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Iteración sobre Usuarios -->
+    {% for user in users %}
+    <div class="bg-white py-6 px-8 rounded-lg shadow-md mb-4 w-full hover:shadow-xl transition-shadow duration-300 user-item" 
+        data-name="{{ user.first_name }} {{ user.last_name }}" 
+        data-email="{{ user.email }}" 
+        data-role="{% if user.supervisors %}Supervisor{% elif user.technician %}Técnico{% endif %}" 
+        data-position="{% if user.supervisors %}{{ user.supervisors.position }}{% elif user.technician %}{{ user.technician.position }}{% endif %}">
+        <div class="grid grid-cols-4 gap-4">
+            <div>
+                <p class="font-bold">{{ user.first_name }} {{ user.last_name }}</p>
+            </div>
+            <div>
+                <p class="font-bold">{{ user.email }}</p>
+            </div>
+            <div>
+                {% if user.supervisors %}
+                    <p class="font-semibold">Supervisor</p>
+                {% elif user.technician %}
+                    <p class="font-semibold">Técnico</p>
+                {% endif %}
+            </div>
+            <div>
+                {% if user.supervisors %}
+                    <p class="font-semibold">{{ user.supervisors.position }}</p>
+                {% elif user.technician %}
+                    <p class="font-semibold">{{ user.technician.position }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </div>
 
-<div class="w-full mt-8">
-    <h2 class="text-2xl font-bold mb-4">Técnicos</h2>
-    <ul>
-        {% for technician in technicians %}
-            <li class="bg-white py-4 px-4 rounded-lg shadow-md mb-3 hover:shadow-xl transition-shadow duration-300">
-                <p><strong>Nombre:</strong> {{ technician.first_name }} {{ technician.last_name }}</p>
-                <p><strong>Cargo:</strong> {{ technician.position }}</p>
-                <p><strong>Estado:</strong> {{ technician.status }}</p>
-            </li>
-        {% endfor %}
-    </ul>
-</div>
+

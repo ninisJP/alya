@@ -92,12 +92,13 @@
                     <h2>Clientes</h2>
                 </div>
             </a>
-            <a href="/presupuestos/" class="app-card">
-                <div class="app-icon">
-                    <img src="{% static 'icons/camp-4363073.svg' %}" alt="Presupuestos Icono">
-                    <h2>Presupuestos</h2>
-                </div>
-            </a>
+        <a href="{% url 'index_budget' %}" hx-boost="true" class="app-card">
+            <div class="app-icon">
+                <img src="{% static 'icons/camp-4363073.svg' %}" alt="Presupuestos Icono">
+                <h2>Presupuestos</h2>
+            </div>
+        </a>
+
             <a href="/project/" class="app-card">
                 <div class="app-icon">
                     <img src="{% static 'icons/dog-8527651.svg' %}" alt="Proyectos Icono">
@@ -122,13 +123,13 @@
                     <h2>Logística</h2>
                 </div>
             </a>
-            <a href="/employee/register/" class="app-card">
+            <a href="/employee/register_employee/" class="app-card">
                 <div class="app-icon">
                     <img src="{% static 'icons/ai-generated-8654348.svg' %}" alt="Empleados Icono">
                     <h2>Empleados</h2>
                 </div>
             </a>
-            <a href="/mi-cuenta/" class="app-card">
+            <a href="{% url 'index_portal' %}" class="app-card">
                 <div class="app-icon">
                     <img src="{% static 'icons/camp-4363073.svg' %}" alt="Mi Cuenta Icono">
                     <h2>Mi Cuenta</h2>

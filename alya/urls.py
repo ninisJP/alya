@@ -33,12 +33,21 @@ urlpatterns = [
     # Employee
     path('employee/', include('employee.urls')),
     path('employee_api/', include('employee_api.urls')),
+    path('empleado_portal/', include('employee_portal.urls')),
     # Client
     path('clientes/', include('client.urls')),
     # Project
     path('project/', include('project.urls')),
+    # Budget
+    path('presupuestos/', include('budget.urls')),
     # DJANGO BROWSER RELOAD
     path("__reload__/", include("django_browser_reload.urls")),
     # LOGISTIC
     path('logistic/inventory/', include('logistic_inventory.urls'))
 ]
+
+from django.conf.urls.static import static
+from django.conf import settings
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

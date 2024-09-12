@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from django.utils.timezone import now
 from follow_control_backlog.utils import get_current_month_dates
 from follow_control_card.models import Card
 
@@ -17,8 +17,13 @@ def HomeCC(request):
     for card in cards:
         card.update_card_values()
 
+    # Obtener el mes y año actuales
+    current_month = now().strftime('%B %Y')  # Ejemplo: "September 2024"
+    print(f"Current Month: {current_month}")  # Depuración
+
     return render(request, 'follow_control_home.html', {
         'cards': cards,
         'empty_days': month_data['empty_days'],
         'days_in_month': month_data['days_in_month'],
+        'current_month': current_month,  # Pasar el mes a la plantilla
     })

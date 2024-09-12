@@ -16,7 +16,7 @@ class UserRegistrationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'role']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'role', 'position']
 
     def save(self, commit=True):
         user = super(UserRegistrationForm, self).save(commit=False)
@@ -35,7 +35,7 @@ class UserRegistrationForm(UserCreationForm):
                     position=self.cleaned_data['position'],
                     email=self.cleaned_data['email'],
                 )
-            else:
+            elif role == 'technician':
                 Technician.objects.create(
                     user=user,
                     first_name=self.cleaned_data['first_name'],

@@ -99,11 +99,14 @@ def view_technician_card(request, tecnico_id, dia, mes, anio):
 
     # Obtener la tarjeta del técnico para esa fecha específica
     tarjeta = get_object_or_404(TechnicianCard, technician=tecnico, date=fecha)
+    tareas_con_foto = tarjeta.tasks.filter(photo__isnull=False)
+
 
     context = {
         'tarjeta': tarjeta,
         'tecnico': tecnico,
-        'fecha': fecha
+        'fecha': fecha,
+        'tareas_con_foto': tareas_con_foto,
     }
     return render(request, 'view_technician_card.html', context)
 
