@@ -1,10 +1,12 @@
 import re
 
 # Example: search_model(Brand.objects.all(), 'name', form.cleaned_data['name'])
-def search_model(model_all, column, name):
+# Return status, list_model
+def search_model(model_all, column, name, accept_all=False):
     # Minimal word's length is 4
-    if len(name) < 4 :
-        return -1, {}
+    if not accept_all :
+        if len(name) < 4 :
+            return -1, {}
     # Get all element
     model_list = list(model_all.values_list(column))
     # Convert to str list
@@ -18,8 +20,17 @@ def search_model(model_all, column, name):
     # Get model's element
     model_list = []
     for element in list_new :
-        nani = {column:element}
-        model_list.append(model_all.get(**nani))
+        parameter = {column:element}
+        model_list.append(model_all.get(**parameter))
+
+    # Get model id
+    list_id = []
+    for element in model_list :
+        list_id.append(element.id)
+
+    # Get model
+    model_list = model_all.filter(pk__in=list_id)
+
     if len(model_list) == 0:
         return -2, model_list
     return 0, model_list

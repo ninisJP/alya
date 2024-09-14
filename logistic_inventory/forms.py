@@ -2,6 +2,7 @@ from django import forms
 
 from .models import Brand, Type, Subtype, Item
 
+
 class BrandForm(forms.ModelForm):
     class Meta:
         model = Brand
@@ -39,3 +40,8 @@ class ItemForm(forms.ModelForm):
             'quantity': 'Cantidad',
             'unit': 'Unidad de medida',
         }
+
+class SearchItemForm(forms.Form):
+    type = forms.CharField(label="type", max_length=100, required=False)
+    description = forms.CharField(label="description", max_length=100, required=False)
+    item_id = forms.CharField(label="item_id", max_length=100, required=False)
