@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'employee_portal',
     'widget_tweaks',
     'client',
+    'client_crm',
     'project',
     'budget',
     'logistic_inventory',
