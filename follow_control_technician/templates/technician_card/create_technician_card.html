@@ -5,61 +5,79 @@
 {% block title %}Crear Tarjeta de Técnico{% endblock %}
 
 {% block content %}
-<h1>Crear tarjeta de Control - Técnicos</h1>
 
-<form method="post" id="technician-card-form">
+
+
+
+<form method="post" id="technician-card-form" class="p-4 bg-light shadow-sm rounded" style="background-color: #f8f9fa;">
     {% csrf_token %}
-    {{ card_form.as_p }}
-    
-    <h3>Tareas</h3>
+    <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-2"> CREAR TARJETA CONTROL TÉCNICOS </h1>
+
+
+    <div class="mb-4">
+        {{ card_form.technician|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Seleccionar Técnico" }}
+        {{ card_form.date|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Seleccionar Fecha" }}
+    </div>
+
+    <!-- Encabezados de la "tabla" -->
+    <div class="row text-uppercase font-weight-bold text-dark border-bottom pb-2 mb-3">
+        <div class="col-md-6">Tarea</div>
+        <div class="col-md-1 text-center">Cantidad</div>
+        <div class="col-md-3">Orden de Venta</div>
+        <div class="col-md-1 text-center">Orden</div>
+        <div class="col-md-1 text-center">Acción</div>
+    </div>
+
     <div id="task-formset">
         {{ task_formset.management_form }}
         {% for form in task_formset %}
-            <div class="form-row row mb-3" id="form-{{ forloop.counter0 }}">
+            <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
                 <!-- Campo "Tarea" ocupa más espacio -->
                 <div class="col-md-6">
-                    {{ form.task|add_class:"form-control"|attr:"placeholder=Task" }}
+                    {{ form.task|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Tarea" }}
                 </div>
                 <!-- Otros campos ocupan menos espacio -->
                 <div class="col-md-1">
-                    {{ form.quantity|add_class:"form-control"|attr:"placeholder=Cantidad" }}
+                    {{ form.quantity|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Cantidad" }}
                 </div>
                 <div class="col-md-3">
-                    {{ form.saler_order|add_class:"form-control"|attr:"placeholder=Orden de Venta" }}
+                    {{ form.saler_order|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Orden de Venta" }}
                 </div>
                 <div class="col-md-1">
-                    {{ form.order|add_class:"form-control"|attr:"placeholder=Orden" }}
+                    {{ form.order|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Orden" }}
                 </div>
-                <div class="col-md-1 d-flex align-items-center">
-                    <button type="button" class="btn btn-danger btn-sm remove-form">Eliminar</button>
+                <div class="col-md-1 text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
                 </div>
             </div>
         {% endfor %}
         <div id="empty-form" style="display: none;">
-            <div class="form-row row mb-3 ">
+            <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
                 <!-- Campo "Tarea" ocupa más espacio -->
                 <div class="col-md-6">
-                    {{ task_formset.empty_form.task|add_class:"form-control"|attr:"placeholder=Task" }}
+                    {{ task_formset.empty_form.task|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Tarea" }}
                 </div>
                 <!-- Otros campos ocupan menos espacio -->
                 <div class="col-md-1">
-                    {{ task_formset.empty_form.quantity|add_class:"form-control"|attr:"placeholder=Cantidad" }}
+                    {{ task_formset.empty_form.quantity|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Cantidad" }}
                 </div>
                 <div class="col-md-3">
-                    {{ task_formset.empty_form.saler_order|add_class:"form-control"|attr:"placeholder=Orden de Venta" }}
+                    {{ task_formset.empty_form.saler_order|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Orden de Venta" }}
                 </div>
                 <div class="col-md-1">
-                    {{ task_formset.empty_form.order|add_class:"form-control"|attr:"placeholder=Orden" }}
+                    {{ task_formset.empty_form.order|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Orden" }}
                 </div>
-                <div class="col-md-1 d-flex align-items-center">
-                    <button type="button" class="btn btn-danger btn-sm remove-form">Eliminar</button>
+                <div class="col-md-1 text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
                 </div>
             </div>
         </div>
     </div>
-    
-    <button type="button" id="add-task" class="btn btn-secondary mt-3">Agregar tarea</button>
-    <button type="submit" class="btn btn-primary mt-3">Guardar</button>
+
+    <div class="d-flex justify-content-between mt-4">
+        <button type="button" id="add-task" class="btn btn-secondary"><i class="fas fa-plus-circle"></i> Agregar Tarea</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+    </div>
 </form>
 
 <script>

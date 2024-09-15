@@ -1,8 +1,6 @@
 from django.shortcuts import render
-
 from .forms import BrandForm, TypeForm, SubtypeForm, ItemForm
 from .models import Brand, Type, Subtype, Item
-
 from alya import utils
 from alya.forms import SearchForm
 
