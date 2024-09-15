@@ -111,21 +111,23 @@
         <div class="col">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item active" aria-current="page">
-                    <i class="fas fa-file-alt"></i> Informe de Técnicos para {{ mes }} {{ anio }}
+                    <i class="fas fa-file-alt"></i> Informe de Técnicos
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="{% url 'create_technician_card' %}">
+                    <a href="{% url 'create_technician_card' mes=mes anio=anio %}">
                         <i class="fas fa-id-card"></i> Tarjeta
-                    </a>technician_task
+                    </a>
                 </li>
                 <li class="breadcrumb-item">
                     <a href="{% url 'technician_task' %}">
-                        <i class="fas fa-id-card"></i> Tareas
+                        <i class="fas fa-tasks"></i> Tareas
                     </a>
                 </li>
+
             </ol>
         </div>
     </div>
+    
     <div class="table-container">
         <table class="table table-hover">
             <thead class="table-dark">
@@ -146,7 +148,7 @@
                     </td>
                     <td>
                         {% for dia in datos.dias_sin_tarjeta %}
-                        <a href="{% url 'create_technician_card' %}" class="badge bg-danger">{{ dia }}</a>
+                        <a href="{% url 'create_technician_card' mes=mes anio=anio %}" class="badge bg-danger">{{ dia }}</a>
 
                         {% endfor %}
                     </td>

@@ -1,10 +1,12 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.urls import reverse
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404, render, redirect
 from datetime import date, timedelta
 from employee.models import Technician
 from .models import TechnicianCard, TechnicianTask
 from .forms import TechnicianCardForm, TechnicianCardTaskFormSet, TechnicianCardTask, TechnicianTaskForm
+from django.views.decorators.http import require_http_methods
 
 class TechniciansMonth(TemplateView):
     template_name = 'technicians_month.html'
@@ -58,7 +60,7 @@ class TechniciansMonth(TemplateView):
             'informe_por_tecnico': informe
         }
 
-def create_technician_card(request):
+def create_technician_card(request, mes, anio):
     if request.method == 'POST':
         card_form = TechnicianCardForm(request.POST)
         task_formset = TechnicianCardTaskFormSet(request.POST)
@@ -69,7 +71,7 @@ def create_technician_card(request):
             task_formset.instance = technician_card
             task_formset.save()
 
-            return redirect('success_url')
+            return redirect(reverse('technicians_month', kwargs={'mes': mes, 'anio': anio}))
         else:
             print(card_form.errors)
             print(task_formset.errors)
@@ -78,26 +80,41 @@ def create_technician_card(request):
         card_form = TechnicianCardForm()
         task_formset = TechnicianCardTaskFormSet(queryset=TechnicianCardTask.objects.none())
 
-    return render(request, 'create_technician_card.html', {
+    return render(request, 'technician_card/create_technician_card.html', {
         'card_form': card_form,
         'task_formset': task_formset,
+        'mes': mes,
+        'anio': anio,
     })
 
+def edit_technician_card(request, card_id, mes, anio):
+    technician_card = get_object_or_404(TechnicianCard, id=card_id)
+    
+    if request.method == 'POST':
+        card_form = TechnicianCardForm(request.POST, instance=technician_card)
+        task_formset = TechnicianCardTaskFormSet(request.POST, instance=technician_card)
 
-def add_task_form(request):
-    task_formset = TechnicianCardTaskFormSet(request.GET or None)
-    return render(request, 'partials/task_form.html', {
+        if card_form.is_valid() and task_formset.is_valid():
+            card_form.save()
+            task_formset.save()
+            return redirect(reverse('technicians_month', kwargs={'mes': mes, 'anio': anio}))
+        else:
+            print(card_form.errors)
+            print(task_formset.errors)
+    else:
+        card_form = TechnicianCardForm(instance=technician_card)
+        task_formset = TechnicianCardTaskFormSet(instance=technician_card)
+
+    return render(request, 'technician_card/edit_technician_card.html', {
+        'card_form': card_form,
         'task_formset': task_formset,
+        'mes': mes,
+        'anio': anio,
     })
     
 def view_technician_card(request, tecnico_id, dia, mes, anio):
-    # Obtener el técnico
     tecnico = get_object_or_404(Technician, id=tecnico_id)
-
-    # Crear la fecha específica para buscar la tarjeta
     fecha = date(anio, mes, dia)
-
-    # Obtener la tarjeta del técnico para esa fecha específica
     tarjeta = get_object_or_404(TechnicianCard, technician=tecnico, date=fecha)
     tareas_con_foto = tarjeta.tasks.filter(photo__isnull=False)
 
@@ -108,7 +125,30 @@ def view_technician_card(request, tecnico_id, dia, mes, anio):
         'fecha': fecha,
         'tareas_con_foto': tareas_con_foto,
     }
-    return render(request, 'view_technician_card.html', context)
+    return render(request, 'technician_card/view_technician_card.html', context)
+
+def delete_technician_card(request, card_id):
+    technician_card = get_object_or_404(TechnicianCard, id=card_id)
+    if request.method == 'POST':
+        technician_card.delete()
+        return redirect(reverse('technicians_month', kwargs={'mes': technician_card.date.month, 'anio': technician_card.date.year}))
+
+    return redirect(reverse('technicians_month', kwargs={'mes': technician_card.date.month, 'anio': technician_card.date.year}))
+
+@require_http_methods(["PATCH"])
+def technician_task_state(request, pk):
+    task = get_object_or_404(TechnicianCardTask, pk=pk)
+    if task.status == 'not_done':
+        task.status = 'incomplete'
+    elif task.status == 'incomplete':
+        task.status = 'completed'
+    else:
+        task.status = 'not_done'
+
+    task.save()
+
+    return JsonResponse({"message": "Estado de la tarea actualizado correctamente."})
+
 
 
 #Technicians tasks HTMX
