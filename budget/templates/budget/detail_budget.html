@@ -1,0 +1,42 @@
+{% extends "base_budget.html" %}
+
+{% block title %}Detalle del Presupuesto{% endblock %}
+
+{% block content %}
+
+<h1>Detalle del Presupuesto: {{ budget.budget_name }}</h1>
+
+<p><strong>Días del Presupuesto:</strong> {{ budget.budget_days }}</p>
+<p><strong>Precio:</strong> {{ budget.budget_price }}</p>
+<p><strong>Precio Final:</strong> {{ budget.budget_final_price }}</p>
+<p><strong>Fecha:</strong> {{ budget.budget_date }}</p>
+
+<h3>Ítems del Presupuesto</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Ítem</th>
+            <th>Cantidad</th>
+            <th>Medida</th>
+            <th>Precio Final</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in budget_items %}
+        <tr>
+            <td>{{ item.item.description }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.measurement }}</td>
+            <td>{{ item.final_price }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="button-container mt-4">
+    <a href="" class="btn btn-warning">Editar Presupuesto</a>
+    <a href="" class="btn btn-danger">Eliminar Presupuesto</a>
+    <a href="{% url 'index_budget' %}" class="btn btn-secondary">Volver a la Lista de Presupuestos</a>
+</div>
+
+{% endblock %}
