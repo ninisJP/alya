@@ -1,83 +1,46 @@
 {% extends "base_budget.html" %}
 
-{% load widget_tweaks %}
+{% block title %}Presupuestos{% endblock %}
 
 {% block content %}
-<div class="w-full p-6" x-data="{ showModal: false }">
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Presupuestos</h1>
-        <button @click="showModal = true" class="inline-flex items-center text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">
-            <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Agregar Presupuesto
-        </button>
-    </div>
 
-    <div id="information" class="mt-4 text-lg text-gray-800"></div>
+<h1 class="mb-4">PRESUPUESTOS</h1>
 
-    <!-- Main modal -->
-    <div x-show="showModal" id="employee-modal" tabindex="-1" aria-hidden="true" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div @click.outside="showModal = false" class="relative p-6 w-full max-w-lg bg-white rounded-lg shadow-lg">
-            <!-- Modal header -->
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-gray-900">
-                    Agregar un nuevo empleado
-                </h2>
-                <button @click="showModal = false" type="button" class="text-gray-500 hover:text-gray-900">
-                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                    <span class="sr-only">Cerrar formulario</span>
-                </button>
-            </div>
-
-            <!-- Modal body -->
-            <div>
-                <form method="POST" action="{% url 'register' %}" hx-post="{% url 'register' %}" hx-trigger="submit" hx-target="#employee-list" hx-swap="afterbegin" class="space-y-6">
-                    {% csrf_token %}
-                    {% for field in form %}
-                        <div>
-                            <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900">
-                                {{ field.label }}
-                            </label>
-                            {% render_field field class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5" %}
-                        </div>
-                    {% endfor %}
-                    <button type="submit" @click.debounce.1000ms="showModal = false" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Guardar Empleado</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Listado de Supervisores -->
-    <div class="mt-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Supervisores</h2>
-        <ul id="supervisor-list" class="space-y-4">
-            {% for supervisor in supervisors %}
-                <li class="bg-white py-4 px-4 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-                    <p><strong>Nombre:</strong> {{ supervisor.first_name }} {{ supervisor.last_name }}</p>
-                    <p><strong>Cargo:</strong> {{ supervisor.position }}</p>
-                    <p><strong>Estado:</strong> {{ supervisor.status }}</p>
-                    <p><strong>Correo Electrónico:</strong> {{ supervisor.email }}</p>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <!-- Listado de Técnicos -->
-    <div class="mt-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Técnicos</h2>
-        <ul id="technician-list" class="space-y-4">
-            {% for technician in technicians %}
-                <li class="bg-white py-4 px-4 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-                    <p><strong>Nombre:</strong> {{ technician.first_name }} {{ technician.last_name }}</p>
-                    <p><strong>Cargo:</strong> {{ technician.position }}</p>
-                    <p><strong>Estado:</strong> {{ technician.status }}</p>
-                    <p><strong>Correo Electrónico:</strong> {{ technician.email }}</p>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
+<div class="button-container mb-4">
+    <a href="{% url 'create_budget' %}" class="btn btn-primary">Crear Nuevo Presupuesto</a>
 </div>
+
+{% if budgets %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Días</th>
+                <th>Precio</th>
+                <th>Precio Final</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for budget in budgets %}
+                <tr>
+                    <td>{{ budget.budget_name }}</td>
+                    <td>{{ budget.budget_days }}</td>
+                    <td>{{ budget.budget_price }}</td>
+                    <td>{{ budget.budget_final_price }}</td>
+                    <td>{{ budget.budget_date }}</td>
+                    <td>
+                        <a href="{% url 'detail_budget' budget.id %}" class="btn btn-info btn-sm">Ver</a>
+                        <a href="" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="" class="btn btn-danger btn-sm">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No hay presupuestos disponibles.</p>
+{% endif %}
+
 {% endblock %}
