@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from .forms import BrandForm, TypeForm, SubtypeForm, ItemForm
+from .forms import BrandForm, TypeForm, SubtypeForm, ItemForm, SearchItemForm
 from .models import Brand, Type, Subtype, Item
+from .utils import sort_item, search_item
 from alya import utils
 from alya.forms import SearchForm
 
@@ -32,6 +33,7 @@ def brand_search(request):
         form = SearchForm(request.POST)
         if form.is_valid():
             status, brands = utils.search_model(Brand.objects.all(), 'name', form.cleaned_data['name'])
+            brands = brands.order_by('name')
             context['brands'] = brands
             context['search_status'] = status
 
@@ -39,7 +41,7 @@ def brand_search(request):
     return render(request, 'inventory/brand_list.html', context)
 
 def item(request):
-    context = {'form': ItemForm(), 'search': SearchForm()}
+    context = {'form': ItemForm(), 'search': SearchItemForm()}
     return render(request, 'inventory/item.html', context)
 
 def item_new(request):
@@ -59,13 +61,19 @@ def item_new(request):
 def item_search(request):
     context = {}
     if request.method == 'POST':
-        form = SearchForm(request.POST)
+        form = SearchItemForm(request.POST)
         if form.is_valid():
-            status, items = utils.search_model(Item.objects.all(), 'description', form.cleaned_data['name'])
+
+            # Search items
+            status, items = search_item(Item.objects.all(), form)
+
+            # Sort
+            items = sort_item(items)
+
             context['items'] = items
             context['search_status'] = status
 
-    context['search'] = SearchForm()
+    context['search'] = SearchItemForm()
     return render(request, 'inventory/item_list.html', context)
 
 def subtype(request):
@@ -92,6 +100,7 @@ def subtype_search(request):
         form = SearchForm(request.POST)
         if form.is_valid():
             status, subtypes = utils.search_model(Subtype.objects.all(), 'name', form.cleaned_data['name'])
+            subtypes = subtypes.order_by('name')
             context['subtypes'] = subtypes
             context['search_status'] = status
 
@@ -122,6 +131,7 @@ def type_search(request):
         form = SearchForm(request.POST)
         if form.is_valid():
             status, types = utils.search_model(Type.objects.all(), 'name', form.cleaned_data['name'])
+            types = types.order_by('name')
             context['types'] = types
             context['search_status'] = status
 
