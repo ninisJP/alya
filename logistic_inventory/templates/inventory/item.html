@@ -1,26 +1,27 @@
 <div class="container-fluid ">
-    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
-        <div class="card-body text-center py-2">
-            <h1 class="mb-0">Añadir Item</h1>
+    <div id="logistic_inventory_item_window">
+        <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+            <div class="card-body text-center py-2">
+                <h1 class="mb-0">Añadir Item</h1>
+            </div>
         </div>
-    </div>
 
-    <div id="tasks-forms" class="w-100">
-        {% include 'inventory/item_form.html' %}
-    </div>
-
-    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
-        <div class="card-body text-center py-2">
-            <h1 class="mb-0">Búsqueda de Items</h1>
+        <div id="tasks-forms" class="w-100">
+            {% include 'inventory/item_form.html' %}
         </div>
+
+        <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+            <div class="card-body text-center py-2">
+                <h1 class="mb-0">Búsqueda de Items</h1>
+            </div>
+        </div>
+
+        <ul id="logistic_inventory_item_search" class="mt-8 space-y-4">
+            {% include 'inventory/item_search.html' %}
+        </ul>
+
+        <ul id="logistic_inventory_item_list" class="mt-8 space-y-4">
+            {% include 'inventory/item_list.html' %}
+        </ul>
     </div>
-
-    <ul id="logistic_inventory_item_search" class="mt-8 space-y-4">
-        {% include 'inventory/item_search.html' %}
-    </ul>
-
-    <ul id="logistic_inventory_item_list" class="mt-8 space-y-4">
-        {% include 'inventory/item_list.html' %}
-    </ul>
-
 </div>

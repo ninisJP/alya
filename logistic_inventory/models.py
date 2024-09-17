@@ -12,7 +12,7 @@ class Type(models.Model):
     class Category(models.TextChoices):
         EQUIPO = 'Equipo'
         EPPS = 'EPPS'
-        MATERIAL = 'Materiale'
+        MATERIAL = 'Material'
         CONSUMIBLE = 'Consumible'
         HERRAMIENTA = 'Herramienta'
 
@@ -30,10 +30,12 @@ class Subtype(models.Model):
         return self.name
 
 class Item(models.Model):
-
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, null=True)
     description = models.CharField(max_length=100, null=True)
     item_id = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=0)
     subtype = models.ForeignKey(Subtype, on_delete=models.CASCADE, null=True)
     unit = models.CharField(max_length=100, null=True, blank=True)
+    price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    life_time = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)

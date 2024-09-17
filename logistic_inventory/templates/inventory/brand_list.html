@@ -13,5 +13,14 @@
         <div class="w-full sm:w-1/2">
             <p class="mb-2"><i class="fas fa-briefcase"></i> Marca: <span class="font-bold">{{ brand.name }}</span></p>
         </div>
+
+        <button class="btn btn-warning btn-sm btn-icon bg-edit"
+                hx-get="{% url 'logistic_inventory_brand_edit' brand.id %}"
+                hx-target="#logistic_inventory_brand_window"
+                hx-swap="outerHTML"
+                title="Editar">
+            <i class="fas fa-edit"></i>
+        </button>
+
     </div>
 {% endfor %}

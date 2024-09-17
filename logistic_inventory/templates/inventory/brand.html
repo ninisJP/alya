@@ -1,26 +1,27 @@
 <div class="container-fluid ">
-    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
-        <div class="card-body text-center py-2">
-            <h1 class="mb-0">Añadir Marca</h1>
+    <div id="logistic_inventory_brand_window">
+        <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+            <div class="card-body text-center py-2">
+                <h1 class="mb-0">Añadir Marca</h1>
+            </div>
         </div>
-    </div>
 
-    <div id="tasks-forms" class="w-100">
-        {% include 'inventory/brand_form.html' %}
-    </div>
-
-    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
-        <div class="card-body text-center py-2">
-            <h1 class="mb-0">Búsqueda de Marcas</h1>
+        <div id="tasks-forms" class="w-100">
+            {% include 'inventory/brand_form.html' %}
         </div>
+
+        <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+            <div class="card-body text-center py-2">
+                <h1 class="mb-0">Búsqueda de Marcas</h1>
+            </div>
+        </div>
+
+        <ul id="logistic_inventory_brand_search" class="mt-8 space-y-4">
+            {% include 'inventory/brand_search.html' %}
+        </ul>
+
+        <ul id="logistic_inventory_brand_list" class="mt-8 space-y-4">
+            {% include 'inventory/brand_list.html' %}
+        </ul>
     </div>
-
-    <ul id="logistic_inventory_brand_search" class="mt-8 space-y-4">
-        {% include 'inventory/brand_search.html' %}
-    </ul>
-
-    <ul id="logistic_inventory_brand_list" class="mt-8 space-y-4">
-        {% include 'inventory/brand_list.html' %}
-    </ul>
-
 </div>
