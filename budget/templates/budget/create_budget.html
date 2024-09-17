@@ -22,7 +22,6 @@
     <div class="row text-uppercase font-weight-bold text-dark border-bottom pb-2 mb-3">
         <div class="col-md-4">Ítem</div>
         <div class="col-md-2 text-center">Cantidad</div>
-        <div class="col-md-4">Medida</div>
         <div class="col-md-2 text-center">Acción</div>
     </div>
 
@@ -35,9 +34,6 @@
                 </div>
                 <div class="col-md-2">
                     {{ form.quantity|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Cantidad" }}
-                </div>
-                <div class="col-md-4">
-                    {{ form.measurement|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Medida" }}
                 </div>
                 <div class="col-md-2 text-center">
                     <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>

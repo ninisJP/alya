@@ -6,7 +6,7 @@ from django.db.models import Sum
 from django.contrib import messages
 
 
- 
+
 def index_budget(request):
     budgets = Budget.objects.all()  # Recupera todos los presupuestos
     return render(request, 'index_budget.html', {'budgets': budgets})
@@ -23,7 +23,7 @@ def create_budget(request):
                 item.budget = budget
                 # Asegúrate de que item.item y item.quantity están disponibles y son válidos
                 if item.item and item.quantity:
-                    item.final_price = item.quantity * item.item.unit_price
+                    item.final_price = item.quantity * item.item.price
                 item.save()
             formset.save_m2m()
             return redirect('detail_budget', pk=budget.pk)
@@ -38,11 +38,11 @@ def create_budget(request):
 
 def edit_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
-    
+
     if request.method == 'POST':
         form = BudgetForm(request.POST, instance=budget)
         formset = BudgetItemFormSet(request.POST, instance=budget)
-        
+
         if form.is_valid() and formset.is_valid():
             budget = form.save()
             items = formset.save(commit=False)
@@ -51,15 +51,15 @@ def edit_budget(request, pk):
                 if item.item and item.quantity:
                     item.final_price = item.quantity * item.item.unit_price
                 item.save()
-            
+
             for obj in formset.deleted_objects:
                 obj.delete()
-            
+
             # Calcular el precio final total
             total_final_price = budget.items.aggregate(total=Sum('final_price'))['total'] or 0
             budget.budget_final_price = total_final_price
             budget.save()
-            
+
             return redirect('detail_budget', pk=budget.pk)
         else:
             # Imprimir errores en la consola para depuracións
@@ -68,7 +68,7 @@ def edit_budget(request, pk):
     else:
         form = BudgetForm(instance=budget)
         formset = BudgetItemFormSet(instance=budget)
-    
+
     return render(request, 'budget/edit_budget.html', {
         'form': form,
         'formset': formset,

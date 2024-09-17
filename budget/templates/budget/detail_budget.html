@@ -8,7 +8,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-info text-white p-2">
-                    <h2 class="m-0">Detalle del Presupuesto</h2>
+                    <h1>Detalle del Presupuesto: {{ budget.budget_name }}</h1>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -49,6 +49,11 @@
                 <a href="{% url 'edit_budget' budget.id %}" class="btn btn-warning mx-2">Editar Presupuesto</a>
                 <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger mx-2">Eliminar Presupuesto</a>
             </div>
+          
+<p><strong>Días del Presupuesto:</strong> {{ budget.budget_days }}</p>
+<p><strong>Precio:</strong> {{ budget.budget_price }}</p>
+<p><strong>Precio Final:</strong> {{ budget.budget_final_price }}</p>
+<p><strong>Fecha:</strong> {{ budget.budget_date }}</p>
 
             <div class="card mt-4 shadow-sm">
                 <div class="card-header bg-secondary text-white">
@@ -69,8 +74,9 @@
                             <tr>
                                 <td>{{ item.item.description }}</td>
                                 <td>{{ item.quantity }}</td>
-                                <td>{{ item.measurement }}</td>
-                                <td>S/. {{ item.final_price }}</td>
+                                <td>{{ item.item.price }}</td>
+                                <td>{{ item.item.price_per_day }}</td>
+                                <td>{{ item.final_price }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
