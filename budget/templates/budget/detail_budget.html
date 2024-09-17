@@ -17,7 +17,8 @@
         <tr>
             <th>Ítem</th>
             <th>Cantidad</th>
-            <th>Medida</th>
+            <th>Price</th>
+            <th>Precio diario</th>
             <th>Precio Final</th>
         </tr>
     </thead>
@@ -26,7 +27,8 @@
         <tr>
             <td>{{ item.item.description }}</td>
             <td>{{ item.quantity }}</td>
-            <td>{{ item.measurement }}</td>
+            <td>{{ item.item.price }}</td>
+            <td>{{ item.item.price_per_day }}</td>
             <td>{{ item.final_price }}</td>
         </tr>
         {% endfor %}

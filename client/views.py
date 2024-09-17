@@ -7,9 +7,12 @@ from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect
 
 # Create your views here.
 def index_client(request):
+    print("nono")
     if request.method == 'POST':
+        print("nani")
         form = ClientForm(request.POST)
         if form.is_valid():
+            print("asdf")
             client = form.save()
             context = {'client': client}
             return render(request, 'partials/client_list.html', context)
