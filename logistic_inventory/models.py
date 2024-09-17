@@ -12,7 +12,7 @@ class Type(models.Model):
     class Category(models.TextChoices):
         EQUIPO = 'Equipo'
         EPPS = 'EPPS'
-        MATERIAL = 'Materiale'
+        MATERIAL = 'Material'
         CONSUMIBLE = 'Consumible'
         HERRAMIENTA = 'Herramienta'
 

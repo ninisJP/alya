@@ -13,5 +13,17 @@
         <div class="w-full sm:w-1/2">
             <p class="mb-2"><i class="fas fa-folder-open"></i> Tipo: <span class="font-bold">{{ type.name }}</span></p>
         </div>
+        <div class="w-full sm:w-1/2">
+            <p class="mb-2 font-semibold"><i class="fas fa-folder-open"></i> Categoría: <span class="font-bold">{{ type.category }}</span></p>
+        </div>
+
+        <button class="btn btn-warning btn-sm btn-icon bg-edit"
+                hx-get="{% url 'logistic_inventory_type_edit' type.id %}"
+                hx-target="#logistic_inventory_type_window"
+                hx-swap="outerHTML"
+                title="Editar">
+            <i class="fas fa-edit"></i>
+        </button>
+
     </div>
 {% endfor %}
