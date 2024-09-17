@@ -1,0 +1,97 @@
+{% extends 'follow_control_base.html' %}
+
+{% block title %}Tarjeta de Técnico{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="p-4 bg-light shadow-sm rounded" style="background-color: #f8f9fa;">
+                <div class="row text-center mb-4 border-bottom pb-2">
+                    <div class="col">
+                        <h1 class="display-6 text-dark fw-bold mb-0">TC - {{ tecnico.first_name }} {{ tecnico.last_name }}</h1>
+                    </div>
+                    <div class="col">
+                        <p class="form-control-lg text-dark fw-bold mb-0">{{ fecha }}</p>
+                    </div>
+                </div>
+                
+                <!-- Contenedor de notificaciones -->
+                <div id="notification-container" class="alert alert-success d-none"></div>
+                
+                <div class="row text-uppercase fw-bold text-dark border-bottom pb-2 mb-3">
+                    <div class="col-md-5">Tarea</div>
+                    <div class="col-md-1 text-center">Cantidad</div>
+                    <div class="col-md-3">Orden de Venta</div>
+                    <div class="col-md-1 text-center">Foto</div>
+                    <div class="col-md-2 text-center">Estado</div>
+                </div>
+
+                <div class="list-group">
+                    {% for tarea in tareas_con_foto %}
+                    <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
+                        <div class="col-md-5">
+                            <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.task.verb }} {{ tarea.task.object }}</p>
+                        </div>
+                        <div class="col-md-1 text-center">
+                            <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.quantity }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.saler_order }}</p>
+                        </div>
+                        <div class="col-md-1 text-center">
+                            {% if tarea.photo %}
+                            <a href="{{ tarea.photo.url }}" target="_blank" class="btn btn-outline-primary btn-sm">Ver Foto</a>
+                            {% else %}
+                            <span class="text-muted fw-bold">(No hay foto disponible)</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <input 
+                                class="form-check-input" 
+                                type="checkbox" 
+                                hx-patch="{% url 'technician-task-state' tarea.pk %}" 
+                                hx-trigger="change"
+                                hx-swap="none"
+                                hx-on="htmx:afterOnLoad: showNotification('{{ tarea.pk }}')"
+                                {% if tarea.status == 'completed' %}checked{% endif %}
+                            >
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'technicians_month' mes=fecha.month anio=fecha.year %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver al Informe
+                    </a>
+                    <div>
+                        <a href="{% url 'edit_technician_card' card_id=tecnico.id mes=fecha.month anio=fecha.year %}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <form action="{% url 'delete_technician_card' card_id=tecnico.id %}" method="post" class="d-inline-block ml-2" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta tarjeta?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para manejar notificaciones -->
+<script>
+    function showNotification(taskId) {
+        const container = document.getElementById('notification-container');
+        container.classList.remove('d-none');
+        container.textContent = `El estado de la tarea ${taskId} se ha actualizado correctamente.`;
+        
+        setTimeout(() => {
+            container.classList.add('d-none');
+        }, 3000); // Oculta la notificación después de 3 segundos
+    }
+</script>
+{% endblock %}

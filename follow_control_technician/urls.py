@@ -1,13 +1,15 @@
 from django.urls import path
 
-from .views import TechniciansMonth, create_technician_card, view_technician_card, add_task_form, technician_task, create_technician_task, delete_technician_task, edit_technician_task
+from .views import technician_task_state, TechniciansMonth, create_technician_card, view_technician_card, edit_technician_card, technician_task, create_technician_task, delete_technician_task, edit_technician_task, delete_technician_card
 
 urlpatterns = [
     path('informe-tecnicos/<int:mes>/<int:anio>/', TechniciansMonth.as_view(), name='technicians_month'),
     path('ver-tarjeta-tecnico/<int:tecnico_id>/<int:dia>/<int:mes>/<int:anio>/', view_technician_card, name='view_technician_card'),
-    path('crear-tarjeta-tecnico/', create_technician_card, name='create_technician_card'),
-    path('add-task-form/', add_task_form, name='add_task_form'),
-    path('technician-tasks/', technician_task, name='technician_task')
+    path('create-technician-card/<int:mes>/<int:anio>/', create_technician_card, name='create_technician_card'),
+    path('edit-technician-card/<int:card_id>/<int:mes>/<int:anio>/', edit_technician_card, name='edit_technician_card'),
+    path('delete-technician-card/<int:card_id>/', delete_technician_card, name='delete_technician_card'),
+    path('technician-tasks/', technician_task, name='technician_task'),
+    path('technician-task-state/<int:pk>/', technician_task_state, name='technician-task-state'),
 ]
 
 htmxurlpatters = [

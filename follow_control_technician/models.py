@@ -3,6 +3,7 @@ from employee.models import Technician
 from accounting_order_sales.models import SalesOrder
 import os
 from datetime import datetime
+
 class TechnicianTask(models.Model):
     verb = models.CharField(max_length=50)
     object = models.CharField(max_length=100)
