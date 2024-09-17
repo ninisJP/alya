@@ -41,17 +41,8 @@ class TechnicianCardTask(models.Model):
     total_time = models.DecimalField(max_digits=7, decimal_places=2, editable=False)
     saler_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE)
     order = models.PositiveIntegerField()
-    
-    # Campo de foto que no se incluirá en el formulario
     photo = models.ImageField(upload_to=rename_file, null=True, blank=True)
-
-    # Campo de estado
-    STATUS_CHOICES = [
-        ('not_done', 'No Hecha'),
-        ('incomplete', 'Incompleta'),
-        ('completed', 'Completada'),
-    ]
-    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='not_done')
+    status = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.task.verb} {self.task.object} (Order: {self.order})"

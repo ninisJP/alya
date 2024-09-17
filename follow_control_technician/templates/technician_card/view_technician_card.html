@@ -54,9 +54,9 @@
                                 hx-trigger="change"
                                 hx-swap="none"
                                 hx-on="htmx:afterOnLoad: showNotification('{{ tarea.pk }}')"
-                                {% if tarea.status == 'completed' %}checked{% endif %}
+                                {% if tarea.status %}checked{% endif %}
                             >
-                        </div>
+                        </div>                        
                     </div>
                     {% endfor %}
                 </div>
