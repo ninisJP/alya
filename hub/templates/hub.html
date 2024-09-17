@@ -45,6 +45,10 @@
                    0 0 40px rgba(255, 255, 255, 0.6),
                    0 0 60px rgba(255, 255, 255, 0.4);
     }
+
+    h1.jp:hover {
+      color: red;
+    }
     /* Estilos para el contenedor de las tarjetas */
     .footer-cards {
       position: fixed;
@@ -56,23 +60,32 @@
       margin: 5px;
       border-radius: 20px;
       color: white;
-      background-color: #000; /* Fondo negro */
+      background-color: transparent; /* Fondo transparente */
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para el card */
     }
     .footer-cards .card img {
       width: 100%;
       height: 170px; /* Altura fija para las imágenes */
       object-fit: cover; /* Las imágenes llenan el contenedor sin distorsión */
-      border-top-left-radius: 20px; /* Bordes redondeados en la imagen */
-      border-top-right-radius: 20px;
+      background-color: rgba(255, 255, 255, 0); /* Fondo casi transparente para la imagen */
+      padding: 10px;
     }
+    .footer-cards .card-body {
+      background-color: black; /* Fondo negro para el texto */
+      padding: 15px;
+      text-align: center;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      color: white; /* Asegura que el texto sea blanco para un buen contraste */
+    }
+    
     .footer-cards .card-title {
       font-size: 1.3rem;
-      text-align: center;
       margin-top: 5px;
     }
     .footer-cards .card-text {
       font-size: 0.8rem;
-      text-align: center;
       margin-top: 5px;
     }
     .footer-cards a {
@@ -102,7 +115,13 @@
 <body>
   <!-- Títulos Lilith y JP -->
   <h1 class="lilith">lilith.v1</h1>
-  <h1 class="jp">JP</h1>
+  <h1 class="jp" style="cursor: pointer;" onclick="document.getElementById('logout-form').submit();"  title="Haz clic para cerrar sesión">
+    JP
+  </h1>
+
+  <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+      {% csrf_token %}
+  </form>
 
   <!-- Contenedor de Tarjetas -->
   <div class="footer-cards container-fluid">
@@ -195,7 +214,7 @@
       <div class="col-custom">
         <div class="card">
           <a href="{% url 'index_portal' %}">
-            <img src="{% static 'icons/camp-4363073.svg' %}" alt="Mi Cuenta Icono">
+            <img src="static/contabilidad.png" alt="Mi Cuenta Icono">
             <div class="card-body p-2">
               <h5 class="card-title">Mi Cuenta</h5>
               <p class="card-text">Configura tu perfil.</p>
