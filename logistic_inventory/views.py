@@ -1,9 +1,7 @@
 from django.shortcuts import redirect, render, get_object_or_404
-
 from .forms import BrandForm, TypeForm, SubtypeForm, ItemForm, SearchItemForm
 from .models import Brand, Type, Subtype, Item
 from .utils import sort_item, search_item
-
 from alya import utils
 from alya.forms import SearchForm
 
@@ -60,6 +58,7 @@ def brand_search(request):
             status, brands = utils.search_model(Brand.objects.all(), 'name', form.cleaned_data['name'])
             if brands != {} :
                 brands = brands.order_by('name')
+
             context['brands'] = brands
             context['search_status'] = status
 
@@ -175,6 +174,7 @@ def subtype_search(request):
             status, subtypes = utils.search_model(Subtype.objects.all(), 'name', form.cleaned_data['name'])
             if subtypes != {} :
                 subtypes = subtypes.order_by('name')
+
             context['subtypes'] = subtypes
             context['search_status'] = status
 
@@ -230,6 +230,7 @@ def type_search(request):
             status, types = utils.search_model(Type.objects.all(), 'name', form.cleaned_data['name'])
             if types != {} :
                 types = types.order_by('name')
+
             context['types'] = types
             context['search_status'] = status
 

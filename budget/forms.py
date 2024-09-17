@@ -1,15 +1,20 @@
 from django import forms
-from .models import BudgetPrueba
+from .models import Budget, BudgetItem
+from django.forms import inlineformset_factory
 
-class BudgetPruebaForm(forms.ModelForm):
+
+class BudgetForm(forms.ModelForm):
     class Meta:
-        model = Client
-        fields = ('legal_name', 'tax_id', 'phone', 'email', 'website', 'primary_contact')
-        labels = {
-            'legal_name': 'Empresa',
-            'tax_id':'Ruc',
-            'phone':'Telefono',
-            'email':'Correo electronico',
-            'website':'Pagina Web',
-            'primary_contact':'Contacto'
+        model = Budget
+        fields = [ 'client','budget_name', 'budget_days', 'budget_date', ]
+        widgets = {
+            'budget_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
+
+BudgetItemFormSet = inlineformset_factory(
+    Budget,
+    BudgetItem,
+    fields=['item', 'quantity'],
+    extra=1,
+    can_delete=True
+)

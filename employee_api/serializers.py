@@ -26,10 +26,11 @@ class TechnicianCardTaskSimplifiedSerializer(serializers.ModelSerializer):
             return self.context['request'].build_absolute_uri(obj.photo.url)
         return None
 
-
 class TechnicianCardSerializer(serializers.ModelSerializer):
     tasks = TechnicianCardTaskSimplifiedSerializer(many=True, read_only=True)
 
     class Meta:
         model = TechnicianCard
         fields = ['id', 'date', 'tasks']
+        
+        

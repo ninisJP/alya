@@ -1,0 +1,77 @@
+<!-- templates/budget/edit_budget.html -->
+{% extends 'base_budget.html' %}
+
+{% block content %}
+  <h2>Editar Presupuesto: {{ budget.budget_name }}</h2>
+  
+  <form method="post">
+    {% csrf_token %}
+    
+    <!-- Mostrar errores del formulario principal -->
+    {% if form.errors %}
+      <div class="alert alert-danger">
+        <strong>Por favor corrige los errores abajo:</strong>
+        {{ form.errors }}
+      </div>
+    {% endif %}
+    
+    <!-- Renderizar campos visibles y ocultos del formulario principal -->
+    {{ form.as_p }}
+    
+    <h3>Elementos del Presupuesto</h3>
+    
+    <!-- Mostrar errores del formset -->
+    {% if formset.non_form_errors %}
+      <div class="alert alert-danger">
+        {{ formset.non_form_errors }}
+      </div>
+    {% endif %}
+    
+    <!-- Management form del formset -->
+    {{ formset.management_form }}
+    
+    <table class="table">
+      <thead>
+        <tr>
+          {% for form in formset.forms %}
+            {% if forloop.first %}
+              {% for field in form.visible_fields %}
+                <th>{{ field.label }}</th>
+              {% endfor %}
+              <th>Eliminar</th>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for form in formset.forms %}
+          <tr>
+            <!-- Renderizar campos ocultos (incluyendo 'id') -->
+            {% for hidden in form.hidden_fields %}
+              {{ hidden }}
+            {% endfor %}
+            
+            <!-- Renderizar campos visibles -->
+            {% for field in form.visible_fields %}
+              <td>
+                {% if field.errors %}
+                  <div class="text-danger">{{ field.errors }}</div>
+                {% endif %}
+                {{ field }}
+              </td>
+            {% endfor %}
+            
+            <!-- Campo para eliminar -->
+            <td>
+              {{ form.DELETE }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+  </form>
+  
+  <a href="{% url 'detail_budget' budget.pk %}" class="btn btn-secondary mt-3">Cancelar</a>
+{% endblock %}

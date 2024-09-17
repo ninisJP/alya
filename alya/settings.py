@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     #Django restframwork
     'rest_framework',
     'rest_framework.authtoken',
+    'formtools',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [

@@ -19,8 +19,8 @@ class TechnicianTaskForm(forms.ModelForm):
         widgets = {
             'verb': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Verbo'}),
             'object': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Objeto'}),
-            'measurement': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Medida'}),
-            'task_time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Tiempo'}),
+            'measurement': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'unidad de medida'}),
+            'time': forms.TimeInput(attrs={'class': 'form-control', 'placeholder': 'tiempo'}),
         }
 
 class TechnicianCardForm(forms.ModelForm):
@@ -46,9 +46,9 @@ TechnicianCardTaskFormSet = inlineformset_factory(
     fields=('task', 'quantity', 'saler_order', 'order'), 
     extra=5,
     widgets={
-        'task': forms.Select(attrs={'class': 'form-control'}),
+        'task': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Tarea'}),
         'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad'}),
-        'saler_order': forms.Select(attrs={'class': 'form-control'}),  
+        'saler_order': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Orden de Venta'}),
         'order': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Orden'}),
     }
 )
