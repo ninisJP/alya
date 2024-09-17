@@ -1,5 +1,4 @@
 from django.db import models
-from logistic_inventory.models import Item
 from client.models import Client
 
 class Budget(models.Model):
@@ -52,20 +51,6 @@ class Budget(models.Model):
         return self.budget_name
 
 
-class BudgetItem(models.Model):
-    budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='items')
-    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='budget_items')
-    quantity = models.PositiveIntegerField()
-    total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
-
-    def save(self, *args, **kwargs):
-        self.total_price = self.item.price * self.quantity
-        super().save(*args, **kwargs)
-        self.budget.save()
-
-    def __str__(self):
-        return f'{self.item.description} - {self.quantity} unidades'
-      
 class CatalogItem(models.Model):
     class Category(models.TextChoices):
         EQUIPO = 'Equipo'
@@ -79,3 +64,20 @@ class CatalogItem(models.Model):
     name = models.CharField(max_length=100, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    def __str__(self):
+        return f'{self.name} <{self.description}> precio: {self.price} precio por dia: {self.price_per_day}'
+
+class BudgetItem(models.Model):
+    budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='items')
+    item = models.ForeignKey(CatalogItem, on_delete=models.CASCADE, related_name='budget_items')
+    quantity = models.PositiveIntegerField()
+    total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.total_price = self.item.price * self.quantity
+        super().save(*args, **kwargs)
+        self.budget.save()
+
+    def __str__(self):
+        return f'{self.item} ----- {self.quantity} unidades'

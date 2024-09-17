@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import Budget, Item, BudgetItem
+from .models import Budget, CatalogItem, BudgetItem
 
 # Registrar el modelo Item
-admin.site.register(Item)
+admin.site.register(CatalogItem)
 
 # Registrar el modelo BudgetItem
 admin.site.register(BudgetItem)
