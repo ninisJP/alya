@@ -122,9 +122,6 @@
         }
     </style>
     
-
-    
-
     {% block extra_css %}{% endblock %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
@@ -136,10 +133,16 @@
                 </a>
             </div>
             <div class="list-group list-group-flush">
-                <a class="list-group-item list-group-item-action">
+                <a href="{% url 'index_budget' %}" class="list-group-item list-group-item-action">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Presupuestos</span>
                 </a>
+
+                <a href="{% url 'create_budget' %}" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-cart-plus"></i>                    
+                    <span>Crear Presupuestos</span>
+                </a>
+
             </div>
             
             <!-- Contenedor específico para el botón de logout -->

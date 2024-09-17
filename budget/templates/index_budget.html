@@ -4,10 +4,8 @@
 
 {% block content %}
 
-<h1 class="mb-4">PRESUPUESTOS</h1>
-
-<div class="button-container mb-4">
-    <a href="{% url 'create_budget' %}" class="btn btn-primary">Crear Nuevo Presupuesto</a>
+<div class="mt-3 mb-3 text-center">
+    <h1><strong>PRESUPUESTOS</strong></h1>
 </div>
 
 {% if budgets %}
@@ -15,6 +13,7 @@
         <thead>
             <tr>
                 <th>Nombre</th>
+                <th>Cliente</th>
                 <th>Días</th>
                 <th>Precio</th>
                 <th>Precio Final</th>
@@ -26,14 +25,15 @@
             {% for budget in budgets %}
                 <tr>
                     <td>{{ budget.budget_name }}</td>
+                    <td>{{ budget.client }}</td>
                     <td>{{ budget.budget_days }}</td>
                     <td>{{ budget.budget_price }}</td>
                     <td>{{ budget.budget_final_price }}</td>
                     <td>{{ budget.budget_date }}</td>
                     <td>
                         <a href="{% url 'detail_budget' budget.id %}" class="btn btn-info btn-sm">Ver</a>
-                        <a href="" class="btn btn-warning btn-sm">Editar</a>
-                        <a href="" class="btn btn-danger btn-sm">Eliminar</a>
+                        <a href="{% url 'edit_budget' budget.id  %}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{% url 'delete_budget' budget.id  %}" class="btn btn-danger btn-sm">Eliminar</a>
                     </td>
                 </tr>
             {% endfor %}
