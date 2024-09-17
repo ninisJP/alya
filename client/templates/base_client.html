@@ -54,7 +54,7 @@
         #sidebar-wrapper {
             display: flex;
             flex-direction: column;
-            width: 100px; 
+            width: 100px;
             height: calc(100vh - 20px);
             background-color: #ECEFF1; /* Beige claro */
             border-right: 2px solid #CFD8DC; /* Borde gris claro */
@@ -66,14 +66,14 @@
             margin-right: 10px;
         }
         #sidebar-wrapper {
-            overflow-y: scroll; 
-            scrollbar-width: none; 
+            overflow-y: scroll;
+            scrollbar-width: none;
         }
-    
+
         #sidebar-wrapper::-webkit-scrollbar {
             display: none;
         }
-    
+
         #sidebar-wrapper .list-group-item {
             padding: 0.5rem;
             border: none;
@@ -109,7 +109,7 @@
             padding: 0px;
             height: 100%;
         }
-    
+
         .logout-container {
             margin-top: auto;
         }
@@ -121,46 +121,19 @@
             overflow: auto;
         }
     </style>
-    
 
-    
+
+
 
     {% block extra_css %}{% endblock %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <div class="d-flex" id="wrapper">
-        <div id="sidebar-wrapper">
-            <div class="sidebar-heading text-center py-4 primary-text fs-8 fw-bold text-uppercase">
-                <a href="{% url 'hub' %}" ht-target="#main" class="nav-link" style="color: inherit;">
-                    <span>JP</span>
-                </a>
-            </div>
-            <div class="list-group list-group-flush">
-                <a hx-get="" hx-target="#main" class="list-group-item list-group-item-action">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Clientes</span>
-                </a>
-            </div>
-            
-            <!-- Contenedor específico para el botón de logout -->
-            <div id="" class="logout-container">
-                {% if request.user.is_authenticated %}
-                <a href="javascript:{}" onclick="document.getElementById('logout-form').submit();" class="list-group-item list-group-item-action">
-                    <i class="fas fa-sign-out-alt" style="color: red;"></i><br>Logout
-                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
-                        {% csrf_token %}
-                    </form>
-                </a>
-                {% else %}
-                <a href="{% url 'login' %}" class="list-group-item list-group-item-action">
-                    <i class="fas fa-sign-in-alt" style="color: green;"></i><br>Login
-                </a>
-                {% endif %}
-            </div>
-        </div>
+        {%  include 'nav_client.html'  %}
+
 
         <!-- Contenido Principal -->
-        <div id="main" class="content">
+        <div id="client-main" class="content">
             {% block content %}{% endblock %}
         </div>
     </div>

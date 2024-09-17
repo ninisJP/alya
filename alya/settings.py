@@ -57,9 +57,12 @@ INSTALLED_APPS = [
     'hub',
     'employee',
     'employee_api',
+    'employee_portal',
     'widget_tweaks',
     'client',
+    'client_crm',
     'project',
+    'budget',
     'logistic_inventory',
     #DJANGO BROWSER RELOAD
     "django_browser_reload",
@@ -68,6 +71,8 @@ INSTALLED_APPS = [
     #Django restframwork
     'rest_framework',
     'rest_framework.authtoken',
+    'formtools',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [

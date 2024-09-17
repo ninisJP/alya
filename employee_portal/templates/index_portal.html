@@ -1,16 +1,16 @@
-{% extends "base_employee.html" %}
+{% extends "base_budget.html" %}
 
 {% load widget_tweaks %}
 
 {% block content %}
 <div class="w-full p-6" x-data="{ showModal: false }">
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Lista de Empleados</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Mi Portal</h1>
         <button @click="showModal = true" class="inline-flex items-center text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">
             <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Agregar Empleado
+            Agregar Presupuesto
         </button>
     </div>
 

@@ -2,139 +2,211 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALYA</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Montserrat Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <!-- HTMX -->
-    <script src="{% static 'js/htmx.min.js' %}" defer></script>
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: 'Montserrat', sans-serif;
-            background: url("{% static 'icons/mountains-8314422.svg' %}") no-repeat center center fixed;
-            background-size: cover;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-        /* Posicionamiento y estilos para Lilith y JP */
-        h1.lilith {
-            position: absolute;
-            top: 100px;
-            left: 80px;
-            font-size: 5rem;
-            font-weight: 600;
-            margin: 0;
-            color: black;
-        }
-        h1.jp {
-            position: absolute;
-            top: 50px;
-            right: 180px;
-            font-size: 15rem;
-            font-weight: 800;
-            margin: 0;
-            color: black;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
-                         0 0 40px rgba(255, 255, 255, 0.6),
-                         0 0 60px rgba(255, 255, 255, 0.4); /* Sombra fluorescente */
-        }
-        /* Estilos para el footer de iconos */
-        .icon-footer {
-            background-color: #000; /* Fondo negro */
-            padding: 1rem;
-            margin: 0 1rem 1rem; /* Separación de las paredes y del fondo */
-            border-radius: 15px; /* Bordes redondeados */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Sombra para apariencia flotante */
-        }
-        .icon-footer .app-icon {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .icon-footer .app-icon img {
-            width: 50px; /* Ajusta el tamaño del icono */
-            height: 50px;
-            margin-bottom: 0.5rem; /* Espacio entre el icono y el texto */
-        }
-        .icon-footer .app-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 1rem;
-            justify-items: center;
-            padding: 0 1rem;
-        }
-        .icon-footer .app-icon h2 {
-            font-size: 0.75rem;
-            color: white;
-            margin: 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALYA</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Montserrat Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <!-- HTMX -->
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: url("{% static 'icons/mountains-8314422.svg' %}") no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Estilos para los títulos */
+    h1.lilith {
+      position: absolute;
+      top: 100px;
+      left: 80px;
+      font-size: 5rem;
+      font-weight: 600;
+      margin: 0;
+      color: black;
+    }
+    h1.jp {
+      position: absolute;
+      top: 50px;
+      right: 180px;
+      font-size: 15rem;
+      font-weight: 800;
+      margin: 0;
+      color: black;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+                   0 0 40px rgba(255, 255, 255, 0.6),
+                   0 0 60px rgba(255, 255, 255, 0.4);
+    }
+    /* Estilos para el contenedor de las tarjetas */
+    .footer-cards {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      padding: 10px;
+    }
+    .footer-cards .card {
+      margin: 5px;
+      border-radius: 20px;
+      color: white;
+      background-color: #000; /* Fondo negro */
+    }
+    .footer-cards .card img {
+      width: 100%;
+      height: 170px; /* Altura fija para las imágenes */
+      object-fit: cover; /* Las imágenes llenan el contenedor sin distorsión */
+      border-top-left-radius: 20px; /* Bordes redondeados en la imagen */
+      border-top-right-radius: 20px;
+    }
+    .footer-cards .card-title {
+      font-size: 1.3rem;
+      text-align: center;
+      margin-top: 5px;
+    }
+    .footer-cards .card-text {
+      font-size: 0.8rem;
+      text-align: center;
+      margin-top: 5px;
+    }
+    .footer-cards a {
+      text-decoration: none;
+      color: inherit;
+    }
+    /* Ajustamos el ancho de las columnas para que haya 8 en una fila */
+    .col-custom {
+      flex: 0 0 calc(100% / 8);
+      max-width: calc(100% / 8);
+    }
+    /* Ajustes responsivos */
+    @media (max-width: 768px) {
+      .col-custom {
+        flex: 0 0 calc(100% / 4);
+        max-width: calc(100% / 4);
+      }
+    }
+    @media (max-width: 576px) {
+      .col-custom {
+        flex: 0 0 calc(100% / 2);
+        max-width: calc(100% / 2);
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Títulos Lilith y JP -->
-    <h1 class="lilith">lilith.v1</h1>
-    <h1 class="jp">JP</h1>
+  <!-- Títulos Lilith y JP -->
+  <h1 class="lilith">lilith.v1</h1>
+  <h1 class="jp">JP</h1>
 
-    <!-- Footer de iconos -->
-    <div class="icon-footer">
-        <div class="app-grid">
-            <a href="/clientes/" class="app-card">
-                <div class="app-icon">
-                    <img src="{% static 'icons/ai-generated-8654348.svg' %}" alt="Clientes Icono">
-                    <h2>Clientes</h2>
-                </div>
-            </a>
-            <a href="/presupuestos/" class="app-card">
-                <div class="app-icon">
-                    <img src="{% static 'icons/camp-4363073.svg' %}" alt="Presupuestos Icono">
-                    <h2>Presupuestos</h2>
-                </div>
-            </a>
-            <a href="/project/" class="app-card">
-                <div class="app-icon">
-                    <img src="{% static 'icons/dog-8527651.svg' %}" alt="Proyectos Icono">
-                    <h2>Proyectos</h2>
-                </div>
-            </a>
-            <a href="{% url 'salesorder'%}" class="app-card">
-                <div class="app-icon">
-                    <img src="{% static 'icons/traveling-4323759.svg' %}" alt="Contabilidad Icono">
-                    <h2>Contabilidad</h2>
-                </div>
-            </a>
-            <a href="{% url 'follow_control_home' %}" class="app-card">
-                <div class="app-icon">
-                    <img src="{% static 'icons/trees-8050454.svg' %}" alt="Tarjetas de Control Icono">
-                    <h2>Tarjetas de Control</h2>
-                </div>
-            </a>
-            <a href="{% url 'index_logistic' %}" class="app-card">
-                <div class="app-icon">
-                    <img src="{% static 'icons/mountains-8314422.svg' %}" alt="Logística Icono">
-                    <h2>Logística</h2>
-                </div>
-            </a>
-            <a href="/employee/register/" class="app-card">
-                <div class="app-icon">
-                    <img src="{% static 'icons/ai-generated-8654348.svg' %}" alt="Empleados Icono">
-                    <h2>Empleados</h2>
-                </div>
-            </a>
-            <a href="/mi-cuenta/" class="app-card">
-                <div class="app-icon">
-                    <img src="{% static 'icons/camp-4363073.svg' %}" alt="Mi Cuenta Icono">
-                    <h2>Mi Cuenta</h2>
-                </div>
-            </a>
+  <!-- Contenedor de Tarjetas -->
+  <div class="footer-cards container-fluid">
+    <div class="row d-flex justify-content-center">
+      <!-- Tarjeta 1 -->
+      <div class="col-custom">
+        <div class="card">
+          <a href="{% url 'hub' %}?destiny=clientes" hx-boost="true" hx-target="body">
+            <img src="{% static 'icons/ai-generated-8654348.svg' %}" alt="Clientes Icono">
+            <div class="card-body p-2">
+              <h5 class="card-title">Clientes</h5>
+              <p class="card-text">Gestiona tus clientes aquí.</p>
+            </div>
+          </a>
         </div>
+      </div>
+      <!-- Tarjeta 2 -->
+      <div class="col-custom">
+        <div class="card">
+          <a href="{% url 'hub' %}?destiny=presupuestos" hx-boost="true" hx-target="body">
+            <img src="{% static 'icons/camp-4363073.svg' %}" alt="Presupuestos Icono">
+            <div class="card-body p-2">
+              <h5 class="card-title">Presupuestos</h5>
+              <p class="card-text">Crea y revisa presupuestos.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+      <!-- Tarjeta 3 -->
+      <div class="col-custom">
+        <div class="card">
+          <a href="{% url 'hub' %}?destiny=proyectos" hx-boost="true" hx-target="body">
+            <img src="{% static 'icons/dog-8527651.svg' %}" alt="Proyectos Icono">
+            <div class="card-body p-2">
+              <h5 class="card-title">Proyectos</h5>
+              <p class="card-text">Administra tus proyectos.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+      <!-- Tarjeta 4 -->
+      <div class="col-custom">
+        <div class="card">
+          <a href="{% url 'salesorder' %}?destiny=contabilidad">
+            <img src="{% static 'icons/traveling-4323759.svg' %}" alt="Contabilidad Icono">
+            <div class="card-body p-2">
+              <h5 class="card-title">Contabilidad</h5>
+              <p class="card-text">Revisa tus finanzas.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+      <!-- Tarjeta 5 -->
+      <div class="col-custom">
+        <div class="card">
+          <a href="{% url 'hub' %}?destiny=tarjeta-control" hx-boost="true" hx-target="body">
+            <img src="{% static 'icons/trees-8050454.svg' %}" alt="Tarjetas de Control Icono">
+            <div class="card-body p-2">
+              <h5 class="card-title">Tarjetas</h5>
+              <p class="card-text">Monitorea actividades.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+      <!-- Tarjeta 6 -->
+      <div class="col-custom">
+        <div class="card">
+          <a href="{% url 'logistic_inventory_index' %}">
+            <img src="{% static 'icons/mountains-8314422.svg' %}" alt="Logística Icono">
+            <div class="card-body p-2">
+              <h5 class="card-title">Logística</h5>
+              <p class="card-text">Gestiona inventarios.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+      <!-- Tarjeta 7 -->
+      <div class="col-custom">
+        <div class="card">
+          <a href="{% url 'register'%}">
+            <img src="{% static 'icons/ai-generated-8654348.svg' %}" alt="Empleados Icono">
+            <div class="card-body p-2">
+              <h5 class="card-title">Empleados</h5>
+              <p class="card-text">Registra empleados.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+      <!-- Tarjeta 8 -->
+      <div class="col-custom">
+        <div class="card">
+          <a href="{% url 'index_portal' %}">
+            <img src="{% static 'icons/camp-4363073.svg' %}" alt="Mi Cuenta Icono">
+            <div class="card-body p-2">
+              <h5 class="card-title">Mi Cuenta</h5>
+              <p class="card-text">Configura tu perfil.</p>
+            </div>
+          </a>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Bootstrap JS (opcional si utilizas componentes interactivos) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
