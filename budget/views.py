@@ -3,6 +3,7 @@ from .forms import BudgetForm, BudgetItemFormSet
 from .models import Budget, BudgetItem
 from django.db import models
 from django.db.models import Sum
+from django.contrib import messages
 
 
 
@@ -79,3 +80,13 @@ def detail_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
     budget_items = budget.items.all()  # Recupera todos los ítems asociados a este presupuesto
     return render(request, 'budget/detail_budget.html', {'budget': budget, 'budget_items': budget_items})
+
+def delete_budget(request, pk):
+    budget = get_object_or_404(Budget, pk=pk)
+
+    if request.method == 'POST':
+        budget.delete()
+        messages.success(request, 'El presupuesto ha sido eliminado exitosamente.')
+        return redirect('index_budget')  # Redirigir a la lista de presupuestos
+
+    return render(request, 'budget/delete_budget.html', {'budget': budget})

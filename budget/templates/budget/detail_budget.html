@@ -3,42 +3,87 @@
 {% block title %}Detalle del Presupuesto{% endblock %}
 
 {% block content %}
-
-<h1>Detalle del Presupuesto: {{ budget.budget_name }}</h1>
-
+<div class="container-fluid mt-2">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white p-2">
+                    <h1>Detalle del Presupuesto: {{ budget.budget_name }}</h1>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm mb-0" style="table-layout: fixed; width: 100%;">
+                            <tbody>
+                                <tr>
+                                    <th class="bg-light p-1" style="width: 15%;">Cliente</th>
+                                    <td class="p-1" style="width: 85%;">{{ budget.client }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light p-1" style="width: 30%;">Nombre del Presupuesto</th>
+                                    <td class="p-1" style="width: 70%;">{{ budget.budget_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light p-1" style="width: 30%;">Días del Presupuesto</th>
+                                    <td class="p-1" style="width: 70%;">{{ budget.budget_days }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light p-1" style="width: 30%;">Precio Inicial (S/.)</th>
+                                    <td class="p-1" style="width: 70%;">{{ budget.budget_price }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light p-1" style="width: 30%;">Precio Final (S/.)</th>
+                                    <td class="p-1" style="width: 70%;">{{ budget.budget_final_price }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light p-1" style="width: 30%;">Fecha</th>
+                                    <td class="p-1" style="width: 70%;">{{ budget.budget_date }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-container text-left mt-4">
+                <a href="{% url 'index_budget' %}" class="btn btn-success mx-2">Volver a la Lista de Presupuestos</a>
+                <a href="{% url 'edit_budget' budget.id %}" class="btn btn-warning mx-2">Editar Presupuesto</a>
+                <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger mx-2">Eliminar Presupuesto</a>
+            </div>
+          
 <p><strong>Días del Presupuesto:</strong> {{ budget.budget_days }}</p>
 <p><strong>Precio:</strong> {{ budget.budget_price }}</p>
 <p><strong>Precio Final:</strong> {{ budget.budget_final_price }}</p>
 <p><strong>Fecha:</strong> {{ budget.budget_date }}</p>
 
-<h3>Ítems del Presupuesto</h3>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Ítem</th>
-            <th>Cantidad</th>
-            <th>Price</th>
-            <th>Precio diario</th>
-            <th>Precio Final</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in budget_items %}
-        <tr>
-            <td>{{ item.item.description }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ item.item.price }}</td>
-            <td>{{ item.item.price_per_day }}</td>
-            <td>{{ item.final_price }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<div class="button-container mt-4">
-    <a href="{% url 'edit_budget' budget.id %}" class="btn btn-warning">Editar Presupuesto</a>
-    <a href="{% url 'edit_budget' budget.id %}" class="btn btn-danger">Eliminar Presupuesto</a>
-    <a href="{% url 'index_budget' %}" class="btn btn-secondary">Volver a la Lista de Presupuestos</a>
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h3>Ítems del Presupuesto</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Ítem</th>
+                                <th>Cantidad</th>
+                                <th>Medida</th>
+                                <th>Precio Final (S/.)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in budget_items %}
+                            <tr>
+                                <td>{{ item.item.description }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.item.price }}</td>
+                                <td>{{ item.item.price_per_day }}</td>
+                                <td>{{ item.final_price }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}
