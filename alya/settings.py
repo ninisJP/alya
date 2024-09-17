@@ -115,7 +115,7 @@ WSGI_APPLICATION = 'alya.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://adso:ceLkGFRJmxOnDfIivBeGGl0y7HCK3ICX@dpg-crdn0hlsvqrc73f8jgo0-a/alyadb_1ogo',
+        default='postgresql://lilith:nRKVOd3gv5xHHWpveRG2dhqz5Ukxd9EJ@dpg-crku865umphs73argql0-a/lilith',
         conn_max_age=600,
     )     
 }
