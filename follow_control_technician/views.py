@@ -138,13 +138,7 @@ def delete_technician_card(request, card_id):
 @require_http_methods(["PATCH"])
 def technician_task_state(request, pk):
     task = get_object_or_404(TechnicianCardTask, pk=pk)
-    if task.status == 'not_done':
-        task.status = 'incomplete'
-    elif task.status == 'incomplete':
-        task.status = 'completed'
-    else:
-        task.status = 'not_done'
-
+    task.status = not task.status
     task.save()
 
     return JsonResponse({"message": "Estado de la tarea actualizado correctamente."})
