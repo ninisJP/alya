@@ -1,0 +1,43 @@
+<form hx-post="{% url 'logistic_inventory_item_new' %}" class="w-100">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.subtype.id_for_label }}" >{{ form.subtype.label }}: </label>
+            {{ form.subtype }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.description.id_for_label }}" >{{ form.description.label }}: </label>
+            {{ form.description }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.item_id.id_for_label }}" >{{ form.item_id.label }}: </label>
+            {{ form.item_id }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.brand.id_for_label }}" >{{ form.brand.label }}: </label>
+            {{ form.brand }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.quantity.id_for_label }}" >{{ form.quantity.label }}: </label>
+            {{ form.quantity }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.unit.id_for_label }}" >{{ form.unit.label }}: </label>
+            {{ form.unit }}
+        </div>
+
+        <div class="col-6 col-md-2 mb-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </div>
+
+        {% if status == "yes" %}
+            <div class="inline bg-green-200 p-2 border border-green-400 text-green-700 px-4 py-3 rounded">
+                ¡Operación exitosa! :)
+            </div>
+        {% elif status == "no" %}
+            <div class="inline bg-red-200 p-2 border border-red-400 text-red-700 px-4 py-3 rounded">
+                Algo falló :P
+            </div>
+        {% endif %}
+    </div>
+</form>

@@ -1,7 +1,6 @@
 from datetime import date, timedelta
 from .models import TechnicianCard
 
-
 def informe_tarjetas_del_mes(mes, anio):
     primer_dia_mes = date(anio, mes, 1)
     ultimo_dia_mes = primer_dia_mes + timedelta(days=28) + timedelta(days=4)
@@ -36,3 +35,4 @@ def informe_tarjetas_del_mes(mes, anio):
         'anio': primer_dia_mes.year,
         'informe_por_tecnico': informe
     }
+

@@ -129,38 +129,11 @@
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <div class="d-flex" id="wrapper">
-        <div id="sidebar-wrapper">
-            <div class="sidebar-heading text-center py-4 primary-text fs-8 fw-bold text-uppercase">
-                <a href="{% url 'hub' %}" ht-target="#main" class="nav-link" style="color: inherit;">
-                    <span>JP</span>
-                </a>
-            </div>
-            <div class="list-group list-group-flush">
-                <a hx-get="" hx-target="#main" class="list-group-item list-group-item-action">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Clientes</span>
-                </a>
-            </div>
-            
-            <!-- Contenedor específico para el botón de logout -->
-            <div id="" class="logout-container">
-                {% if request.user.is_authenticated %}
-                <a href="javascript:{}" onclick="document.getElementById('logout-form').submit();" class="list-group-item list-group-item-action">
-                    <i class="fas fa-sign-out-alt" style="color: red;"></i><br>Logout
-                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
-                        {% csrf_token %}
-                    </form>
-                </a>
-                {% else %}
-                <a href="{% url 'login' %}" class="list-group-item list-group-item-action">
-                    <i class="fas fa-sign-in-alt" style="color: green;"></i><br>Login
-                </a>
-                {% endif %}
-            </div>
-        </div>
+        {%  include 'nav_client.html'  %}
+
 
         <!-- Contenido Principal -->
-        <div id="main" class="content">
+        <div id="client-main" class="content">
             {% block content %}{% endblock %}
         </div>
     </div>

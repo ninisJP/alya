@@ -64,7 +64,7 @@ def get_technician_card(request):
     technician_cards = TechnicianCard.objects.filter(technician=technician)
 
     # Serializar los datos
-    serializer = TechnicianCardSerializer(technician_cards, many=True)
+    serializer = TechnicianCardSerializer(technician_cards, many=True, context={'request': request})
 
     # Retornar la respuesta con los datos serializados
     return Response(serializer.data, status=200)

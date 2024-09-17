@@ -1,6 +1,8 @@
 from django.db import models
 from employee.models import Technician
 from accounting_order_sales.models import SalesOrder
+import os
+from datetime import datetime
 
 class TechnicianTask(models.Model):
     verb = models.CharField(max_length=50)
@@ -17,8 +19,21 @@ class TechnicianCard(models.Model):
     date = models.DateField()
 
     def __str__(self):
-        return f"{self.technician.name} - ({self.date})"
+        return f"{self.technician.first_name} - ({self.date})"
 
+def rename_file(instance, filename):
+    # Extraer información relevante del modelo TechnicianCardTask
+    technician_name = instance.technician_card.technician.first_name.replace(' ', '_')
+    task_description = instance.task.verb.replace(' ', '_')
+    order = instance.order
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    current_time = datetime.now().strftime("%H-%M-%S")
+    
+    # Generar el nuevo nombre del archivo
+    base_name, extension = os.path.splitext(filename)
+    new_filename = f"{technician_name}_{task_description}_order{order}_{current_date}_{current_time}{extension}"
+    
+    return os.path.join('technician_tasks_photos', new_filename)
 
 class TechnicianCardTask(models.Model):
     technician_card = models.ForeignKey(TechnicianCard, on_delete=models.CASCADE, related_name='tasks')
@@ -29,7 +44,7 @@ class TechnicianCardTask(models.Model):
     order = models.PositiveIntegerField()
     
     # Campo de foto que no se incluirá en el formulario
-    photo = models.ImageField(upload_to='technician_tasks_photos/', null=True, blank=True)
+    photo = models.ImageField(upload_to=rename_file, null=True, blank=True)
 
     # Campo de estado
     STATUS_CHOICES = [

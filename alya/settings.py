@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'employee_portal',
     'widget_tweaks',
     'client',
+    'client_crm',
     'project',
     'budget',
     'logistic_inventory',
@@ -40,6 +41,8 @@ INSTALLED_APPS = [
     #Django restframwork
     'rest_framework',
     'rest_framework.authtoken',
+    'formtools',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -121,5 +124,9 @@ LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = '/'
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# ADD PHOTO FOLDER
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
