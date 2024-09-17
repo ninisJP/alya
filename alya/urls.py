@@ -17,7 +17,7 @@ urlpatterns = [
     path('follow/control/report/', include('follow_control_report.urls')),
     path('follow/control/technician/', include('follow_control_technician.urls')),
     # Employee
-    path('empleado', include('employee.urls')),
+    path('employee/', include('employee.urls')),
     path('employee_api/', include('employee_api.urls')),
     path('empleado_portal/', include('employee_portal.urls')),
     # Client

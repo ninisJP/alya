@@ -1,77 +1,89 @@
-<!-- templates/budget/edit_budget.html -->
 {% extends 'base_budget.html' %}
 
 {% block content %}
-  <h2>Editar Presupuesto: {{ budget.budget_name }}</h2>
-  
-  <form method="post">
-    {% csrf_token %}
-    
-    <!-- Mostrar errores del formulario principal -->
-    {% if form.errors %}
-      <div class="alert alert-danger">
-        <strong>Por favor corrige los errores abajo:</strong>
-        {{ form.errors }}
-      </div>
-    {% endif %}
-    
-    <!-- Renderizar campos visibles y ocultos del formulario principal -->
-    {{ form.as_p }}
-    
-    <h3>Elementos del Presupuesto</h3>
-    
-    <!-- Mostrar errores del formset -->
-    {% if formset.non_form_errors %}
-      <div class="alert alert-danger">
-        {{ formset.non_form_errors }}
-      </div>
-    {% endif %}
-    
-    <!-- Management form del formset -->
-    {{ formset.management_form }}
-    
-    <table class="table">
-      <thead>
-        <tr>
-          {% for form in formset.forms %}
-            {% if forloop.first %}
-              {% for field in form.visible_fields %}
-                <th>{{ field.label }}</th>
-              {% endfor %}
-              <th>Eliminar</th>
-            {% endif %}
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for form in formset.forms %}
-          <tr>
-            <!-- Renderizar campos ocultos (incluyendo 'id') -->
-            {% for hidden in form.hidden_fields %}
-              {{ hidden }}
-            {% endfor %}
-            
-            <!-- Renderizar campos visibles -->
-            {% for field in form.visible_fields %}
-              <td>
-                {% if field.errors %}
-                  <div class="text-danger">{{ field.errors }}</div>
-                {% endif %}
-                {{ field }}
-              </td>
-            {% endfor %}
-            
-            <!-- Campo para eliminar -->
-            <td>
-              {{ form.DELETE }}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    
-    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-  </form>
-  
-  <a href="{% url 'detail_budget' budget.pk %}" class="btn btn-secondary mt-3">Cancelar</a>
+<div class="container-fluid mt-2">
+    <h1><strong>Editar Presupuesto: {{ budget.budget_name }}</strong></h1>  
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Mostrar errores del formulario principal -->
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Por favor corrige los errores abajo:</strong>
+                {{ form.errors }}
+            </div>
+        {% endif %}
+        
+        <!-- Renderizar campos visibles y ocultos del formulario principal -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm mb-0" style="table-layout: fixed; width: 100%;">
+            <tbody>
+                  {% for field in form.visible_fields %}
+                  <tr>
+                      <th class="bg-warning p-1" style="width: 35%;">{{ field.label }}</th>
+                      <td class="p-1" style="width: 65%;">{{ field }}</td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+      </div>      
+        
+        <h3 class="mt-4">Elementos del Presupuesto</h3>
+        
+        <!-- Mostrar errores del formset -->
+        {% if formset.non_form_errors %}
+            <div class="alert alert-danger">
+                {{ formset.non_form_errors }}
+            </div>
+        {% endif %}
+        
+        <!-- Management form del formset -->
+        {{ formset.management_form }}
+        
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm mb-0">
+                <thead class="thead-dark">
+                    <tr>
+                        {% for form in formset.forms %}
+                            {% if forloop.first %}
+                                {% for field in form.visible_fields %}
+                                    <th class="p-1">{{ field.label }}</th>
+                                {% endfor %}
+                                <th class="p-1">Eliminar</th>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in formset.forms %}
+                    <tr>
+                        <!-- Renderizar campos ocultos (incluyendo 'id') -->
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                        
+                        <!-- Renderizar campos visibles -->
+                        {% for field in form.visible_fields %}
+                        <td class="p-1">
+                            {% if field.errors %}
+                                <div class="text-danger">{{ field.errors }}</div>
+                            {% endif %}
+                            {{ field }}
+                        </td>
+                        {% endfor %}
+                        
+                        <!-- Campo para eliminar -->
+                        <td class="p-1">
+                            {{ form.DELETE }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <button type="submit" class="btn btn-success mt-3">Guardar Cambios</button>
+    </form>    
+    <a href="{% url 'detail_budget' budget.pk %}" class="btn btn-danger mt-3">Cancelar</a>
+</div>
 {% endblock %}
