@@ -5,7 +5,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm
 from .models import Budget, BudgetItem, CatalogItem
-#from .utils import sort_catalog, search_catalog
 from alya import utils
 
 
