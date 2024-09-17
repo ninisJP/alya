@@ -6,7 +6,7 @@ from django.forms import inlineformset_factory
 class BudgetForm(forms.ModelForm):
     class Meta:
         model = Budget
-        fields = ['budget_name', 'budget_days', 'budget_price', 'budget_final_price', 'budget_date']
+        fields = [ 'client','budget_name', 'budget_days', 'budget_date', ]
         widgets = {
             'budget_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
@@ -14,7 +14,7 @@ class BudgetForm(forms.ModelForm):
 BudgetItemFormSet = inlineformset_factory(
     Budget,
     BudgetItem,
-    fields=['item', 'quantity', 'measurement', 'final_price'],
+    fields=['item', 'quantity'],
     extra=1,
     can_delete=True
 )

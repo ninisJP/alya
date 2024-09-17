@@ -9,9 +9,8 @@
 <form method="post" id="budget-form" class="p-4 bg-light shadow-sm rounded">
     {% csrf_token %}
     <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-2">CREAR PRESUPUESTO</h1>
-
-    k perfecto
     <div class="mb-4">
+        {{ form.client|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Cliente asociado" }}
         {{ form.budget_name|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Nombre del Presupuesto" }}
         {{ form.budget_days|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Días del Presupuesto" }}
         {{ form.budget_price|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Precio" }}

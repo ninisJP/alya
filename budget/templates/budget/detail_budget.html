@@ -34,8 +34,8 @@
 </table>
 
 <div class="button-container mt-4">
-    <a href="" class="btn btn-warning">Editar Presupuesto</a>
-    <a href="" class="btn btn-danger">Eliminar Presupuesto</a>
+    <a href="{% url 'edit_budget' budget.id %}" class="btn btn-warning">Editar Presupuesto</a>
+    <a href="{% url 'edit_budget' budget.id %}" class="btn btn-danger">Eliminar Presupuesto</a>
     <a href="{% url 'index_budget' %}" class="btn btn-secondary">Volver a la Lista de Presupuestos</a>
 </div>
 
