@@ -65,4 +65,17 @@ class BudgetItem(models.Model):
 
     def __str__(self):
         return f'{self.item.description} - {self.quantity} unidades'
+      
+class CatalogItem(models.Model):
+    class Category(models.TextChoices):
+        EQUIPO = 'Equipo'
+        EPPS = 'EPPS'
+        MATERIAL = 'Material'
+        CONSUMIBLE = 'Consumible'
+        HERRAMIENTA = 'Herramienta'
 
+    category = models.CharField(max_length=100, choices=Category.choices, default=Category.EQUIPO)
+    description = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)

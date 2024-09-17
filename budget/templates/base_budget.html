@@ -54,7 +54,7 @@
         #sidebar-wrapper {
             display: flex;
             flex-direction: column;
-            width: 100px; 
+            width: 100px;
             height: calc(100vh - 20px);
             background-color: #ECEFF1; /* Beige claro */
             border-right: 2px solid #CFD8DC; /* Borde gris claro */
@@ -66,14 +66,14 @@
             margin-right: 10px;
         }
         #sidebar-wrapper {
-            overflow-y: scroll; 
-            scrollbar-width: none; 
+            overflow-y: scroll;
+            scrollbar-width: none;
         }
-    
+
         #sidebar-wrapper::-webkit-scrollbar {
             display: none;
         }
-    
+
         #sidebar-wrapper .list-group-item {
             padding: 0.5rem;
             border: none;
@@ -109,7 +109,7 @@
             padding: 0px;
             height: 100%;
         }
-    
+
         .logout-container {
             margin-top: auto;
         }
@@ -121,7 +121,7 @@
             overflow: auto;
         }
     </style>
-    
+
     {% block extra_css %}{% endblock %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
@@ -139,12 +139,17 @@
                 </a>
 
                 <a href="{% url 'create_budget' %}" class="list-group-item list-group-item-action">
-                    <i class="fa-solid fa-cart-plus"></i>                    
+                    <i class="fa-solid fa-cart-plus"></i>
                     <span>Crear Presupuestos</span>
                 </a>
 
+                <a href="{% url 'budget_catalog' %}" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-cart-plus"></i>
+                    <span>Catalogo</span>
+                </a>
+
             </div>
-            
+
             <!-- Contenedor específico para el botón de logout -->
             <div id="" class="logout-container">
                 {% if request.user.is_authenticated %}

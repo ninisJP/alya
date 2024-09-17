@@ -1,5 +1,5 @@
 from django import forms
-from .models import Budget, BudgetItem
+from .models import Budget, BudgetItem, CatalogItem
 from django.forms import inlineformset_factory
 
 class BudgetForm(forms.ModelForm):
@@ -72,3 +72,19 @@ BudgetItemFormSet = inlineformset_factory(
         'quantity': 'Cantidad',
     }
 )
+
+class CatalogItemForm(forms.ModelForm):
+    class Meta:
+        model = CatalogItem
+        fields = ('name', 'description', 'category', 'price', 'price_per_day')
+        labels = {
+            'name': 'Nombre del Item',
+            'description': 'Descripcion',
+            'category': 'Categoria',
+            'price': 'Precio',
+            'price_per_day': 'Precio por dia',
+        }
+
+class SearchCatalogItemForm(forms.Form):
+    name = forms.CharField(label="name", max_length=100, required=False)
+    description = forms.CharField(label="description", max_length=100, required=False)

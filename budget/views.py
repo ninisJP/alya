@@ -1,10 +1,12 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import BudgetForm, BudgetItemFormSet
-from .models import Budget, BudgetItem
+from django.contrib import messages
 from django.db import models
 from django.db.models import Sum
-from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
 
+from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm
+from .models import Budget, BudgetItem, CatalogItem
+#from .utils import sort_catalog, search_catalog
+from alya import utils
 
 
 def index_budget(request):
@@ -90,3 +92,70 @@ def delete_budget(request, pk):
         return redirect('index_budget')  # Redirigir a la lista de presupuestos
 
     return render(request, 'budget/delete_budget.html', {'budget': budget})
+
+def catalog(request):
+    user_tasks = Catalog.objects.all()
+    context = {'form': TaskForm(), 'tasks': user_tasks}
+    return render(request, '', context)
+
+# CATALOG
+def catalog(request):
+    context = {'form': CatalogItemForm(), 'search': SearchCatalogItemForm()}
+    return render(request, 'catalog/catalog.html', context)
+
+def catalog_edit(request, catalog_id):
+    catalog = get_object_or_404(Catalog, id=catalog_id)
+    if request.method == 'GET':
+        form = CatalogItemForm(instance=catalog)
+        context = {
+                'form': form,
+                'catalog': catalog,
+                }
+        return render(request, 'catalog/catalog_edit.html', context)
+    elif request.method == 'POST':
+        form = CatalogItemForm(request.POST, instance=catalog)
+        status = "no"
+        if form.is_valid():
+            status = "yes"
+            form.save()
+            context = {
+                    'form': form,
+                    'catalog': catalog,
+                    }
+        context['status'] = status
+        return render(request, 'catalog/catalog_edit.html', context)
+    return HttpResponse(status=405)
+
+def catalog_new(request):
+    context = {}
+    if request.method == 'POST':
+        form = CatalogItemForm(request.POST)
+        status = "no"
+        if form.is_valid():
+            status = "yes"
+            form.save()
+        context['status'] = status
+
+    context['form'] = CatalogItemForm()
+
+    return render(request, 'catalog/catalog_form.html', context)
+
+def catalog_search(request):
+    context = {}
+    if request.method == 'POST':
+        form = SearchCatalogItemForm(request.POST)
+        if form.is_valid():
+
+            # Search catalogs
+            #status, catalogs = search_catalog(CatalogItem.objects.all(), form)
+            status, catalogs = utils.search_model(CatalogItem.objects.all(), 'name', form.cleaned_data['name'], accept_all=True)
+            if catalogs != {} :
+                catalogs = catalogs.order_by('name')
+
+            # Sort
+            #catalogs = sort_catalog(catalogs)
+
+            context['catalogs'] = catalogs
+            context['search_status'] = status
+    context['search'] = SearchCatalogItemForm()
+    return render(request, 'catalog/catalog_list.html', context)

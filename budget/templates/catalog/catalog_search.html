@@ -1,0 +1,16 @@
+<form hx-post="{% url 'budget_catalog_search' %}" hx-target="#budget_catalog_list" hx-swap="innerHTML" class="w-100">
+    <div class="row">
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ search.name.id_for_label }}" > Por nombre: </label>
+            {{ search.name }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ search.description.id_for_label }}" > Por descripción: </label>
+            {{ search.description }}
+        </div>
+
+        <div class="col-6 col-md-2 mb-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </div>
+</form>
