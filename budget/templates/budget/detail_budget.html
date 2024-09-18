@@ -38,6 +38,18 @@
                                     <th class="bg-light p-1" style="width: 30%;">Fecha</th>
                                     <td class="p-1" style="width: 70%;">{{ budget.budget_date }}</td>
                                 </tr>
+                                <tr>
+                                    <th class="bg-light p-1" style="width: 30%;">Tiempo de Entrega	</th>
+                                    <td class="p-1" style="width: 70%;">{{ budget.budget_deliverytime }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light p-1" style="width: 30%;">Tiempo de Servicio	</th>
+                                    <td class="p-1" style="width: 70%;">{{ budget.budget_servicetime}}</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light p-1" style="width: 30%;">Tiempo de Garantía	</th>
+                                    <td class="p-1" style="width: 70%;">{{ budget.budget_warrantytime}}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -49,11 +61,6 @@
                 <a href="{% url 'edit_budget' budget.id %}" class="btn btn-warning mx-2">Editar Presupuesto</a>
                 <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger mx-2">Eliminar Presupuesto</a>
             </div>
-          
-<p><strong>Días del Presupuesto:</strong> {{ budget.budget_days }}</p>
-<p><strong>Precio:</strong> {{ budget.budget_price }}</p>
-<p><strong>Precio Final:</strong> {{ budget.budget_final_price }}</p>
-<p><strong>Fecha:</strong> {{ budget.budget_date }}</p>
 
             <div class="card mt-4 shadow-sm">
                 <div class="card-header bg-secondary text-white">
@@ -65,7 +72,7 @@
                             <tr>
                                 <th>Ítem</th>
                                 <th>Cantidad</th>
-                                <th>Medida</th>
+                                <th>PU</th>
                                 <th>Precio Final (S/.)</th>
                             </tr>
                         </thead>
@@ -75,8 +82,8 @@
                                 <td>{{ item.item.description }}</td>
                                 <td>{{ item.quantity }}</td>
                                 <td>{{ item.item.price }}</td>
-                                <td>{{ item.item.price_per_day }}</td>
-                                <td>{{ item.final_price }}</td>
+                                <td>{{ item.total_price }}</td>
+                                {% comment %} <td>{{ item.item.price_per_day }}</td> {% endcomment %}
                             </tr>
                             {% endfor %}
                         </tbody>

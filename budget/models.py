@@ -40,7 +40,8 @@ class Budget(models.Model):
         price = self.budget_price
         expenses = price * (self.budget_expenses / 100)
         utility = price * (self.budget_utility / 100)
-        return price + expenses + utility
+        total = price + expenses + utility
+        return total
         
     def save(self, *args, **kwargs):
         # Primero guarda el presupuesto sin calcular los valores, para asegurarse de que el ID esté disponible.

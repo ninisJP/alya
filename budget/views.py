@@ -42,14 +42,14 @@ def edit_budget(request, pk):
             for item in items:
                 item.budget = budget
                 if item.item and item.quantity:
-                    item.final_price = item.quantity * item.item.unit_price
+                    item.final_price = item.quantity * item.item.price #unit_price
                 item.save()
 
             for obj in formset.deleted_objects:
                 obj.delete()
 
             # Calcular el precio final total
-            total_final_price = budget.items.aggregate(total=Sum('final_price'))['total'] or 0
+            total_final_price = budget.items.aggregate(total=Sum('total_price'))['total'] or 0
             budget.budget_final_price = total_final_price
             budget.save()
 
@@ -99,16 +99,6 @@ def duplicate_budget(request, pk):
         item.save()
     
     return redirect('detail_budget', pk=original_budget.pk)
-
-
-
-
-
-
-
-
-
-
 
 def catalog(request):
     user_tasks = Catalog.objects.all()
