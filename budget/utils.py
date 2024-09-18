@@ -104,7 +104,6 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
         adjusted_width = max_length + 2
         ws.column_dimensions[column[0].column_letter].width = adjusted_width
 
-
 def _create_quote(plantilla, budget):
 
     sheet = plantilla['COTIZACION']
