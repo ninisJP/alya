@@ -65,9 +65,10 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
     for items in items_by_category.values():
         for item in items:
             subtotal = item.total_price
+            print(item)
 
             row = [
-                item.item.name,
+                item.item.sap,
                 item.item.description,
                 item.item.category,
                 item.quantity,
