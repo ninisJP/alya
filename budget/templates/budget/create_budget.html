@@ -4,55 +4,139 @@
 
 {% block title %}Crear Presupuesto{% endblock %}
 
+{% block extra_css %}
+<style>
+    .custom-form-control {
+        border: 2px solid #007bff; /* Borde azul fuerte */
+        background-color: #f0f8ff; /* Fondo azul claro */
+        transition: all 0.2s ease-in-out;
+    }
+
+    .custom-form-control:focus {
+        border-color: #ff5722; /* Borde naranja en foco */
+        background-color: #fff7f0; /* Fondo naranja claro en foco */
+    }
+
+    .form-container {
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra ligera para el contenedor */
+    }
+
+    .custom-form-row {
+        margin-bottom: 5px; /* Menos espacio entre filas */
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<form method="post" id="budget-form" class="p-4 bg-light shadow-sm rounded">
+<form method="post" id="budget-form" class="p-4 shadow-sm rounded form-container">
     {% csrf_token %}
     <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-2">CREAR PRESUPUESTO</h1>
-    <div class="mb-4">
-        {{ form.client|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Cliente asociado" }}
-        {{ form.budget_name|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Nombre del Presupuesto" }}
-        {{ form.budget_days|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Días del Presupuesto" }}
-        {{ form.budget_price|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Precio" }}
-        {{ form.budget_final_price|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Precio Final" }}
-        {{ form.budget_date|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Fecha del Presupuesto" }}
+
+    <!-- Campo Fecha del Presupuesto fuera de las columnas -->
+    <div class="mb-3">
+        {{ form.budget_date.label_tag }}
+        {{ form.budget_date|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Fecha del Presupuesto" }}
     </div>
 
-    <!-- Encabezados de la "tabla" de ítems -->
+    <div class="mb-4">
+        <div class="row">
+            <!-- Primera columna: Cliente, Presupuesto, Número de Cotización -->
+            <div class="col-md-4 d-flex flex-column">
+                <!-- Campo Cliente -->
+                <div class="mb-3 flex-grow-1">
+                    {{ form.client.label_tag }}
+                    {{ form.client|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Cliente" }}
+                </div>
+                <!-- Campo Presupuesto -->
+                <div class="mb-3 flex-grow-1">
+                    {{ form.budget_name.label_tag }}
+                    {{ form.budget_name|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Presupuesto" }}
+                </div>
+                <!-- Campo Número de Cotización -->
+                <div class="mb-3 flex-grow-1">
+                    {{ form.budget_number.label_tag }}
+                    {{ form.budget_number|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=COT-00" }}
+                </div>
+            </div>
+
+            <!-- Segunda columna: Días del Presupuesto, Utilidad, Gastos Administrativos -->
+            <div class="col-md-4 d-flex flex-column">
+                <!-- Campo Días del Presupuesto -->
+                <div class="mb-3 flex-grow-1">
+                    {{ form.budget_days.label_tag }}
+                    {{ form.budget_days|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Días del Presupuesto" }}
+                </div>
+                <!-- Campo Utilidad -->
+                <div class="mb-3 flex-grow-1">
+                    {{ form.budget_utility.label_tag }}
+                    {{ form.budget_utility|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Utilidad" }}
+                </div>
+                <!-- Campo Gastos Administrativos -->
+                <div class="mb-3 flex-grow-1">
+                    {{ form.budget_expenses.label_tag }}
+                    {{ form.budget_expenses|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Gastos Administrativos" }}
+                </div>
+            </div>
+
+            <!-- Tercera columna: Tiempo de Entrega, Tiempo de Servicio, Tiempo de Garantía -->
+            <div class="col-md-4 d-flex flex-column">
+                <!-- Campo Tiempo de Entrega -->
+                <div class="mb-3 flex-grow-1">
+                    {{ form.budget_deliverytime.label_tag }}
+                    {{ form.budget_deliverytime|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Tiempo de Entrega" }}
+                </div>
+                <!-- Campo Tiempo de Servicio -->
+                <div class="mb-3 flex-grow-1">
+                    {{ form.budget_servicetime.label_tag }}
+                    {{ form.budget_servicetime|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Tiempo de Servicio" }}
+                </div>
+                <!-- Campo Tiempo de Garantía -->
+                <div class="mb-3 flex-grow-1">
+                    {{ form.budget_warrantytime.label_tag }}
+                    {{ form.budget_warrantytime|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Tiempo de Garantía" }}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row text-uppercase font-weight-bold text-dark border-bottom pb-2 mb-3">
-        <div class="col-md-4">Ítem</div>
-        <div class="col-md-2 text-center">Cantidad</div>
-        <div class="col-md-2 text-center">Acción</div>
+        <div class="col-md-5">Lista de Items</div>
     </div>
 
     <div id="item-formset">
         {{ formset.management_form }}
         {% for form in formset %}
-            <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
-                <div class="col-md-4">
-                    {{ form.item|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Ítem" }}
-                </div>
-                <div class="col-md-2">
-                    {{ form.quantity|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Cantidad" }}
-                </div>
-                <div class="col-md-2 text-center">
-                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+            <div class="custom-form-row" id="form-{{ forloop.counter0 }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.item|add_class:"form-control form-control-sm select2 custom-form-control"|attr:"placeholder=Ítem" }}
+                    </div>
+                    <div class="col-md-2 text-center">
+                        {{ form.quantity|add_class:"form-control form-control-sm text-center custom-form-control"|attr:"placeholder=Cantidad" }}
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </div>
             </div>
         {% endfor %}
+
+        <!-- Formulario vacío para agregar nuevos ítems -->
         <div id="empty-form" style="display: none;">
-            <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
-                <div class="col-md-4">
-                    {{ formset.empty_form.item|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Ítem" }}
-                </div>
-                <div class="col-md-2">
-                    {{ formset.empty_form.quantity|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Cantidad" }}
-                </div>
-                <div class="col-md-4">
-                    {{ formset.empty_form.measurement|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Medida" }}
-                </div>
-                <div class="col-md-2 text-center">
-                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+            <div class="custom-form-row">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ formset.empty_form.item|add_class:"form-control form-control-sm select2 custom-form-control"|attr:"placeholder=Ítem" }}
+                    </div>
+                    <div class="col-md-2 text-center">
+                        {{ formset.empty_form.quantity|add_class:"form-control form-control-sm text-center custom-form-control"|attr:"placeholder=Cantidad" }}
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -64,37 +148,75 @@
     </div>
 </form>
 
+<!-- Asegúrate de incluir jQuery y Select2 antes de este script -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Incluye el CSS y JS de Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Opcional: Tema de Bootstrap para Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+
+
 <script>
-    document.getElementById('add-item').addEventListener('click', function() {
-        const totalForms = document.getElementById('id_items-TOTAL_FORMS');
-        const currentFormCount = parseInt(totalForms.value);
-
-        const newForm = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, currentFormCount);
-        document.getElementById('item-formset').insertAdjacentHTML('beforeend', newForm);
-
-        totalForms.value = currentFormCount + 1;
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.classList.contains('remove-form')) {
-            e.preventDefault();
-            const formRow = e.target.closest('.form-row');
-            formRow.remove();
-
-            // Decrementar el número total de formularios
+    function initializeSelect2(selector) {
+        $(selector).select2({
+            theme: 'bootstrap4', // Usa 'bootstrap4' si estás utilizando ese tema
+            width: '100%'
+        }).on('select2:open', function() {
+            const target = $(this);
+            const select2SearchField = target.data('select2').dropdown.$search || target.data('select2').selection.$search;
+            
+            if (select2SearchField.length) {
+                setTimeout(function() {
+                    select2SearchField.focus();
+                }, 0);
+            }
+        });
+    }
+    
+    $(document).ready(function() {
+        
+        document.getElementById('add-item').addEventListener('click', function() {
             const totalForms = document.getElementById('id_items-TOTAL_FORMS');
-            totalForms.value = parseInt(totalForms.value) - 1;
-
-            // Reindexar los formularios para evitar conflictos en los nombres de los campos
-            const formRows = document.querySelectorAll('#item-formset .form-row');
-            formRows.forEach((row, index) => {
-                row.id = `form-${index}`;
-                row.querySelectorAll('input, select, textarea').forEach(input => {
-                    input.name = input.name.replace(/-\d+-/, `-${index}-`);
-                    input.id = input.id.replace(/_\d+_/, `_${index}_`);
+            const currentFormCount = parseInt(totalForms.value);
+    
+            const newFormHtml = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, currentFormCount);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = newFormHtml.trim();  // Recortar los espacios innecesarios
+            
+            const newForm = tempDiv.firstChild;
+            document.getElementById('item-formset').appendChild(newForm);
+    
+            totalForms.value = currentFormCount + 1;
+    
+            // Inicializar Select2 en el nuevo campo agregado
+            initializeSelect2($(newForm).find('select.select2'));
+        });
+    
+        // Remover ítem existente
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('remove-form')) {
+                e.preventDefault();
+                const formRow = e.target.closest('.form-row');
+                formRow.remove();
+    
+                // Decrementar el número total de formularios
+                const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+                totalForms.value = parseInt(totalForms.value) - 1;
+    
+                // Reindexar los formularios para evitar conflictos en los nombres de los campos
+                const formRows = document.querySelectorAll('#item-formset .form-row');
+                formRows.forEach((row, index) => {
+                    row.id = `form-${index}`;
+                    row.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.name = input.name.replace(/-\d+-/, `-${index}-`);
+                        input.id = input.id.replace(/_\d+_/, `_${index}_`);
+                    });
                 });
-            });
-        }
+            }
+        });
     });
+    
 </script>
+
 {% endblock %}

@@ -21,31 +21,25 @@ class BudgetForm(forms.ModelForm):
             'budget_date': forms.DateInput(attrs={
                 'type': 'date',
                 'class': 'form-control',
-                'style': 'max-width: 200px;'
             }),
             'budget_expenses': forms.Select(attrs={
                 'class': 'form-select',
-                'style': 'max-width: 150px;'
             }),
             'budget_utility': forms.Select(attrs={
                 'class': 'form-select',
-                'style': 'max-width: 150px;'
             }),
             'budget_deliverytime': forms.Select(attrs={
                 'class': 'form-select',
-                'style': 'max-width: 200px;'
             }),
             'budget_servicetime': forms.Select(attrs={
                 'class': 'form-select',
-                'style': 'max-width: 200px;'
             }),
             'budget_warrantytime': forms.Select(attrs={
                 'class': 'form-select',
-                'style': 'max-width: 200px;'
             }),
         }
         labels = {
-            'client': 'Cliente',
+            'client': 'Nombre de Cliente',
             'budget_name': 'Nombre del Presupuesto',
             'budget_number': 'Número de Cotización',
             'budget_days': 'Días del Presupuesto',
@@ -61,11 +55,11 @@ BudgetItemFormSet = inlineformset_factory(
     Budget,
     BudgetItem,
     fields=['item', 'quantity'],
-    extra=1,
+    extra=0,
     can_delete=True,
     widgets={
         'item': forms.Select(attrs={'class': 'form-select'}),
-        'quantity': forms.NumberInput(attrs={'class': 'form-control', 'style': 'max-width: 100px;'}),
+        'quantity': forms.NumberInput(attrs={'class': 'form-control', 'style': 'max-width: 80px;'}),
     },
     labels={
         'item': 'Ítem',
@@ -76,9 +70,9 @@ BudgetItemFormSet = inlineformset_factory(
 class CatalogItemForm(forms.ModelForm):
     class Meta:
         model = CatalogItem
-        fields = ('name', 'description', 'category', 'price', 'price_per_day')
+        fields = ('sap', 'description', 'category', 'price', 'price_per_day')
         labels = {
-            'name': 'Nombre del Item',
+            'sap': 'Nombre del Item',
             'description': 'Descripcion',
             'category': 'Categoria',
             'price': 'Precio',
@@ -86,5 +80,5 @@ class CatalogItemForm(forms.ModelForm):
         }
 
 class SearchCatalogItemForm(forms.Form):
-    name = forms.CharField(label="name", max_length=100, required=False)
+    sap = forms.CharField(label="sap", max_length=100, required=False)
     description = forms.CharField(label="description", max_length=100, required=False)
