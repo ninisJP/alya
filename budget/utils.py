@@ -29,6 +29,8 @@ def export_budget_report_to_excel(request, pk):
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename="cotizacion_{budget.budget_name}.xlsx"'
     plantilla.save(response)
+
+    _create_quote(plantilla, budget)
     return response
 
 def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
@@ -100,3 +102,12 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
         max_length = max(len(str(cell.value)) for cell in column if cell.value)  # Evitar valores vacíos
         adjusted_width = max_length + 2
         ws.column_dimensions[column[0].column_letter].width = adjusted_width
+
+
+def _create_quote(ws, budget):
+    sheet = ws.active
+    print(str(sheet['B18']))
+
+    # Datos
+    sheet['C18'] = f'{budget.client}'
+    sheet['C19'] = 'spurdo'

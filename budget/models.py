@@ -42,7 +42,7 @@ class Budget(models.Model):
         utility = price * (self.budget_utility / 100)
         total = price + expenses + utility
         return total
-        
+
     def save(self, *args, **kwargs):
         # Primero guarda el presupuesto sin calcular los valores, para asegurarse de que el ID esté disponible.
         if not self.pk:  # Si la instancia aún no tiene un primary key
@@ -53,8 +53,8 @@ class Budget(models.Model):
         self.budget_final_price = self.calculate_final_price()
 
         # Finalmente, guarda los cambios
-        super().save(*args, **kwargs) 
-        
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return self.budget_name
@@ -69,13 +69,13 @@ class CatalogItem(models.Model):
         HERRAMIENTA = 'Herramienta'
 
     category = models.CharField(max_length=100, choices=Category.choices, default=Category.EQUIPO)
-    description = models.CharField(max_length=100)
-    name = models.CharField(max_length=100, unique=True)
+    description = models.CharField(max_length=256)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    sap = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
-        return f'{self.name} <{self.description}> precio: {self.price} precio por dia: {self.price_per_day}'
+        return f'{self.sap} <{self.description}> precio: {self.price} precio por dia: {self.price_per_day}'
 
 class BudgetItem(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='items')

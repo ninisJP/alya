@@ -43,7 +43,7 @@ def edit_budget(request, pk):
         if form.is_valid() and formset.is_valid():
             budget = form.save()
             items = formset.save(commit=False)
-            
+
             for item in items:
                 item.budget = budget
                 item.save()
@@ -168,9 +168,9 @@ def catalog_search(request):
         if form.is_valid():
 
             # Search catalogs
-            status, catalogs = utils.search_model(CatalogItem.objects.all(), 'name', form.cleaned_data['name'], accept_all=True)
+            status, catalogs = utils.search_model(CatalogItem.objects.all(), 'sap', form.cleaned_data['sap'], accept_all=True)
             if catalogs != {} :
-                catalogs = catalogs.order_by('name')
+                catalogs = catalogs.order_by('sap')
 
             context['catalogs'] = catalogs
             context['search_status'] = status
