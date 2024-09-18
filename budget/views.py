@@ -2,8 +2,11 @@ from django.contrib import messages
 from django.db import models
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
+
 from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm
 from .models import Budget, BudgetItem, CatalogItem
+
+from alya import utils
 
 
 def index_budget(request):
@@ -86,18 +89,18 @@ def delete_budget(request, pk):
 
 def duplicate_budget(request, pk):
     original_budget = get_object_or_404(Budget, pk=pk)
-    
+
     # Copiar el presupuesto original sin guardar inmediatamente
     original_budget.pk = None  # Esto asegura que se asigne un nuevo ID
     original_budget.budget_name = f'Copia de {original_budget.budget_name}'
     original_budget.save()  # Ahora guardamos el presupuesto duplicado, se asigna un nuevo ID
-    
+
     # Duplicar cada ítem asociado al presupuesto original
     for item in original_budget.items.all():
         item.pk = None  # Esto asegura que se asigne un nuevo ID al item duplicado
         item.budget = original_budget  # Reasignamos el nuevo budget
         item.save()
-    
+
     return redirect('detail_budget', pk=original_budget.pk)
 
 
@@ -118,6 +121,9 @@ def catalog(request):
 # CATALOG
 def catalog(request):
     context = {'form': CatalogItemForm(), 'search': SearchCatalogItemForm()}
+    catalogs = CatalogItem.objects.all()
+    context['catalogs'] = catalogs
+
     return render(request, 'catalog/catalog.html', context)
 
 def catalog_edit(request, catalog_id):
@@ -164,13 +170,9 @@ def catalog_search(request):
         if form.is_valid():
 
             # Search catalogs
-            #status, catalogs = search_catalog(CatalogItem.objects.all(), form)
             status, catalogs = utils.search_model(CatalogItem.objects.all(), 'name', form.cleaned_data['name'], accept_all=True)
             if catalogs != {} :
                 catalogs = catalogs.order_by('name')
-
-            # Sort
-            #catalogs = sort_catalog(catalogs)
 
             context['catalogs'] = catalogs
             context['search_status'] = status
