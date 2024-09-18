@@ -4,6 +4,7 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm
 from .models import Budget, BudgetItem, CatalogItem
+from .utils import export_budget_report_to_excel
 
 
 def index_budget(request):
@@ -39,18 +40,11 @@ def edit_budget(request, pk):
         if form.is_valid() and formset.is_valid():
             budget = form.save()
             items = formset.save(commit=False)
-            for item in items:
-                item.budget = budget
-                if item.item and item.quantity:
-                    item.final_price = item.quantity * item.item.unit_price
-                item.save()
+
 
             for obj in formset.deleted_objects:
                 obj.delete()
 
-            # Calcular el precio final total
-            total_final_price = budget.items.aggregate(total=Sum('final_price'))['total'] or 0
-            budget.budget_final_price = total_final_price
             budget.save()
 
             return redirect('detail_budget', pk=budget.pk)
@@ -100,7 +94,8 @@ def duplicate_budget(request, pk):
     
     return redirect('detail_budget', pk=original_budget.pk)
 
-
+def export_budget_report(request, pk):
+    return export_budget_report_to_excel(request, pk)
 
 
 
