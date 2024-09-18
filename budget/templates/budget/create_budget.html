@@ -34,52 +34,67 @@
 <form method="post" id="budget-form" class="p-4 shadow-sm rounded form-container">
     {% csrf_token %}
     <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-2">CREAR PRESUPUESTO</h1>
+
+    <!-- Campo Fecha del Presupuesto fuera de las columnas -->
+    <div class="mb-3">
+        {{ form.budget_date.label_tag }}
+        {{ form.budget_date|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Fecha del Presupuesto" }}
+    </div>
+
     <div class="mb-4">
         <div class="row">
             <!-- Primera columna: Cliente, Presupuesto, Número de Cotización -->
-            <div class="col-md-4">
-                <div class="mb-3">
+            <div class="col-md-4 d-flex flex-column">
+                <!-- Campo Cliente -->
+                <div class="mb-3 flex-grow-1">
                     {{ form.client.label_tag }}
-                    {{ form.client|add_class:"form-control-lg mb-3 select2 custom-form-control"|attr:"placeholder=Cliente" }}
+                    {{ form.client|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Cliente" }}
                 </div>
-                <div class="mb-3">
+                <!-- Campo Presupuesto -->
+                <div class="mb-3 flex-grow-1">
+                    {{ form.budget_name.label_tag }}
                     {{ form.budget_name|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Presupuesto" }}
                 </div>
-                <div class="mb-3">
+                <!-- Campo Número de Cotización -->
+                <div class="mb-3 flex-grow-1">
+                    {{ form.budget_number.label_tag }}
                     {{ form.budget_number|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=COT-00" }}
-                </div>
-                <div class="mb-3">
-                    {{ form.budget_date|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Fecha del Presupuesto" }}
                 </div>
             </div>
 
             <!-- Segunda columna: Días del Presupuesto, Utilidad, Gastos Administrativos -->
-            <div class="col-md-4">
-                <div class="mb-3">
+            <div class="col-md-4 d-flex flex-column">
+                <!-- Campo Días del Presupuesto -->
+                <div class="mb-3 flex-grow-1">
                     {{ form.budget_days.label_tag }}
                     {{ form.budget_days|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Días del Presupuesto" }}
                 </div>
-                <div class="mb-3">
+                <!-- Campo Utilidad -->
+                <div class="mb-3 flex-grow-1">
                     {{ form.budget_utility.label_tag }}
                     {{ form.budget_utility|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Utilidad" }}
                 </div>
-                <div class="mb-3">
+                <!-- Campo Gastos Administrativos -->
+                <div class="mb-3 flex-grow-1">
                     {{ form.budget_expenses.label_tag }}
                     {{ form.budget_expenses|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Gastos Administrativos" }}
                 </div>
             </div>
 
             <!-- Tercera columna: Tiempo de Entrega, Tiempo de Servicio, Tiempo de Garantía -->
-            <div class="col-md-4">
-                <div class="mb-3">
+            <div class="col-md-4 d-flex flex-column">
+                <!-- Campo Tiempo de Entrega -->
+                <div class="mb-3 flex-grow-1">
                     {{ form.budget_deliverytime.label_tag }}
                     {{ form.budget_deliverytime|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Tiempo de Entrega" }}
                 </div>
-                <div class="mb-3">
+                <!-- Campo Tiempo de Servicio -->
+                <div class="mb-3 flex-grow-1">
                     {{ form.budget_servicetime.label_tag }}
                     {{ form.budget_servicetime|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Tiempo de Servicio" }}
                 </div>
-                <div class="mb-3">
+                <!-- Campo Tiempo de Garantía -->
+                <div class="mb-3 flex-grow-1">
                     {{ form.budget_warrantytime.label_tag }}
                     {{ form.budget_warrantytime|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Tiempo de Garantía" }}
                 </div>
@@ -90,7 +105,7 @@
     <div class="row text-uppercase font-weight-bold text-dark border-bottom pb-2 mb-3">
         <div class="col-md-5">Lista de Items</div>
     </div>
-    
+
     <div id="item-formset">
         {{ formset.management_form }}
         {% for form in formset %}
@@ -108,7 +123,7 @@
                 </div>
             </div>
         {% endfor %}
-    
+
         <!-- Formulario vacío para agregar nuevos ítems -->
         <div id="empty-form" style="display: none;">
             <div class="custom-form-row">
@@ -140,6 +155,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <!-- Opcional: Tema de Bootstrap para Select2 -->
 <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+
 
 <script>
     function initializeSelect2(selector) {

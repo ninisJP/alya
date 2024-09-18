@@ -2,8 +2,12 @@ from django.contrib import messages
 from django.db import models
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
+from collections import defaultdict
 from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm
 from .models import Budget, BudgetItem, CatalogItem
+from .utils import export_budget_report_to_excel
+
+from alya import utils
 
 
 def index_budget(request):
@@ -39,18 +43,14 @@ def edit_budget(request, pk):
         if form.is_valid() and formset.is_valid():
             budget = form.save()
             items = formset.save(commit=False)
+            
             for item in items:
                 item.budget = budget
-                if item.item and item.quantity:
-                    item.final_price = item.quantity * item.item.price #unit_price
                 item.save()
 
             for obj in formset.deleted_objects:
                 obj.delete()
 
-            # Calcular el precio final total
-            total_final_price = budget.items.aggregate(total=Sum('total_price'))['total'] or 0
-            budget.budget_final_price = total_final_price
             budget.save()
 
             return redirect('detail_budget', pk=budget.pk)
@@ -71,8 +71,16 @@ def edit_budget(request, pk):
 
 def detail_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
-    budget_items = budget.items.all()  # Recupera todos los ítems asociados a este presupuesto
-    return render(request, 'budget/detail_budget.html', {'budget': budget, 'budget_items': budget_items})
+    items_by_category = defaultdict(list)
+
+    # Agrupar ítems por categoría
+    for item in budget.items.all():
+        items_by_category[item.item.category].append(item)
+
+    return render(request, 'budget/detail_budget.html', {
+        'budget': budget,
+        'items_by_category': dict(items_by_category),  # Pasamos el diccionario a la plantilla
+    })
 
 def delete_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
@@ -86,19 +94,22 @@ def delete_budget(request, pk):
 
 def duplicate_budget(request, pk):
     original_budget = get_object_or_404(Budget, pk=pk)
-    
+
     # Copiar el presupuesto original sin guardar inmediatamente
     original_budget.pk = None  # Esto asegura que se asigne un nuevo ID
     original_budget.budget_name = f'Copia de {original_budget.budget_name}'
     original_budget.save()  # Ahora guardamos el presupuesto duplicado, se asigna un nuevo ID
-    
+
     # Duplicar cada ítem asociado al presupuesto original
     for item in original_budget.items.all():
         item.pk = None  # Esto asegura que se asigne un nuevo ID al item duplicado
         item.budget = original_budget  # Reasignamos el nuevo budget
         item.save()
-    
+
     return redirect('detail_budget', pk=original_budget.pk)
+
+def export_budget_report(request, pk):
+    return export_budget_report_to_excel(request, pk)
 
 def catalog(request):
     user_tasks = Catalog.objects.all()
@@ -108,6 +119,9 @@ def catalog(request):
 # CATALOG
 def catalog(request):
     context = {'form': CatalogItemForm(), 'search': SearchCatalogItemForm()}
+    catalogs = CatalogItem.objects.all()
+    context['catalogs'] = catalogs
+
     return render(request, 'catalog/catalog.html', context)
 
 def catalog_edit(request, catalog_id):
@@ -154,13 +168,9 @@ def catalog_search(request):
         if form.is_valid():
 
             # Search catalogs
-            #status, catalogs = search_catalog(CatalogItem.objects.all(), form)
             status, catalogs = utils.search_model(CatalogItem.objects.all(), 'name', form.cleaned_data['name'], accept_all=True)
             if catalogs != {} :
                 catalogs = catalogs.order_by('name')
-
-            # Sort
-            #catalogs = sort_catalog(catalogs)
 
             context['catalogs'] = catalogs
             context['search_status'] = status
