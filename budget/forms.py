@@ -61,7 +61,7 @@ BudgetItemFormSet = inlineformset_factory(
     Budget,
     BudgetItem,
     fields=['item', 'quantity'],
-    extra=1,
+    extra=0,
     can_delete=True,
     widgets={
         'item': forms.Select(attrs={'class': 'form-select'}),

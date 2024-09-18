@@ -30,7 +30,7 @@ urlpatterns = [
     # DJANGO BROWSER RELOAD
     path("__reload__/", include("django_browser_reload.urls")),
     # LOGISTIC
-    path('logistic/inventory/', include('logistic_inventory.urls'))
+    path('logistic/inventory/', include('logistic_inventory.urls')),
 ]
 
 if settings.DEBUG:

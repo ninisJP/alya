@@ -2,10 +2,8 @@ from django.contrib import messages
 from django.db import models
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
-
 from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm
 from .models import Budget, BudgetItem, CatalogItem
-from alya import utils
 
 
 def index_budget(request):
@@ -19,14 +17,8 @@ def create_budget(request):
 
         if form.is_valid() and formset.is_valid():
             budget = form.save()
-            items = formset.save(commit=False)
-            for item in items:
-                item.budget = budget
-                # Asegúrate de que item.item y item.quantity están disponibles y son válidos
-                if item.item and item.quantity:
-                    item.final_price = item.quantity * item.item.price
-                item.save()
-            formset.save_m2m()
+            formset.instance = budget  # Vincula el formset al budget
+            formset.save()  # Guardar el formset directamente, sin preocuparse por `final_price`
             return redirect('detail_budget', pk=budget.pk)
     else:
         form = BudgetForm()
@@ -91,6 +83,32 @@ def delete_budget(request, pk):
         return redirect('index_budget')  # Redirigir a la lista de presupuestos
 
     return render(request, 'budget/delete_budget.html', {'budget': budget})
+
+def duplicate_budget(request, pk):
+    original_budget = get_object_or_404(Budget, pk=pk)
+    
+    # Copiar el presupuesto original sin guardar inmediatamente
+    original_budget.pk = None  # Esto asegura que se asigne un nuevo ID
+    original_budget.budget_name = f'Copia de {original_budget.budget_name}'
+    original_budget.save()  # Ahora guardamos el presupuesto duplicado, se asigna un nuevo ID
+    
+    # Duplicar cada ítem asociado al presupuesto original
+    for item in original_budget.items.all():
+        item.pk = None  # Esto asegura que se asigne un nuevo ID al item duplicado
+        item.budget = original_budget  # Reasignamos el nuevo budget
+        item.save()
+    
+    return redirect('detail_budget', pk=original_budget.pk)
+
+
+
+
+
+
+
+
+
+
 
 def catalog(request):
     user_tasks = Catalog.objects.all()

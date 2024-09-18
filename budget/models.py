@@ -41,11 +41,19 @@ class Budget(models.Model):
         expenses = price * (self.budget_expenses / 100)
         utility = price * (self.budget_utility / 100)
         return price + expenses + utility
-
+        
     def save(self, *args, **kwargs):
+        # Primero guarda el presupuesto sin calcular los valores, para asegurarse de que el ID esté disponible.
+        if not self.pk:  # Si la instancia aún no tiene un primary key
+            super().save(*args, **kwargs)  # Guardar para obtener un ID
+
+        # Luego realiza los cálculos que dependen del ID
         self.budget_price = self.calculate_budget_price()
         self.budget_final_price = self.calculate_final_price()
-        super().save(*args, **kwargs)
+
+        # Finalmente, guarda los cambios
+        super().save(*args, **kwargs) 
+        
 
     def __str__(self):
         return self.budget_name
