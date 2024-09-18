@@ -83,9 +83,9 @@ class BudgetItem(models.Model):
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
 
     def save(self, *args, **kwargs):
-        self.total_price = self.item.price * self.quantity
+        # Calcular el precio total como: precio por día * cantidad * días del presupuesto
+        self.total_price = self.item.price_per_day * self.quantity * self.budget.budget_days
         super().save(*args, **kwargs)
+        # Guardar el presupuesto para que sus valores también se actualicen
         self.budget.save()
 
-    def __str__(self):
-        return f'{self.item} ----- {self.quantity} unidades'

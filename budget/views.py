@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.db import models
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
-
+from collections import defaultdict
 from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm
 from .models import Budget, BudgetItem, CatalogItem
 from .utils import export_budget_report_to_excel
@@ -68,8 +68,16 @@ def edit_budget(request, pk):
 
 def detail_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
-    budget_items = budget.items.all()  # Recupera todos los ítems asociados a este presupuesto
-    return render(request, 'budget/detail_budget.html', {'budget': budget, 'budget_items': budget_items})
+    items_by_category = defaultdict(list)
+
+    # Agrupar ítems por categoría
+    for item in budget.items.all():
+        items_by_category[item.item.category].append(item)
+
+    return render(request, 'budget/detail_budget.html', {
+        'budget': budget,
+        'items_by_category': dict(items_by_category),  # Pasamos el diccionario a la plantilla
+    })
 
 def delete_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
