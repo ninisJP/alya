@@ -1,89 +1,285 @@
 {% extends 'base_budget.html' %}
 
+{% load widget_tweaks %}
+
+{% block title %}Editar Presupuesto{% endblock %}
+
+{% block extra_css %}
+<style>
+    .custom-form-control {
+        border: 2px solid #007bff; /* Borde azul fuerte */
+        background-color: #f0f8ff; /* Fondo azul claro */
+        border-radius: 5px; /* Bordes redondeados */
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        transition: all 0.3s ease-in-out;
+        width: 100%; /* Asegurar que los campos ocupen todo el ancho disponible */
+        padding: 10px; /* Espaciado interno para mejorar legibilidad */
+        font-size: 1rem; /* Tamaño de fuente uniforme */
+    }
+
+    .custom-form-control:focus {
+        border-color: #28a745; /* Borde verde en foco */
+        background-color: #fff7f0; /* Fondo naranja claro en foco */
+        box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); /* Sombra verde suave */
+    }
+
+    .form-container {
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra ligera para el contenedor */
+        background-color: #e0f7fa; /* Fondo suave */
+    }
+
+    .form-container .row {
+        margin-bottom: 20px; /* Más espacio entre filas */
+    }
+
+    .col-md-4 {
+        padding-left: 15px; /* Espaciado entre columnas */
+        padding-right: 15px;
+    }
+
+    .custom-form-row {
+        margin-bottom: 20px; /* Más espacio entre filas */
+    }
+
+    h1.text-center {
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: #343a40; /* Color gris oscuro */
+        margin-bottom: 2rem;
+        text-transform: uppercase;
+    }
+
+    h1::after {
+        content: '';
+        display: block;
+        width: 50px;
+        height: 3px;
+        background-color: #007bff; /* Línea azul debajo del título */
+        margin: 10px auto 0;
+    }
+
+    .btn {
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .btn:hover {
+        transform: scale(1.05); /* Aumenta ligeramente el tamaño */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    }
+
+    .btn-primary {
+        background-color: #6c757d; /* Gris oscuro */
+        border-color: #6c757d;
+    }
+
+    .btn-primary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+
+    .btn-danger {
+        background-color: #dc3545; /* Rojo */
+        border-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
+    /* Alinear los campos de los formularios para que ocupen el mismo tamaño */
+    .form-control-lg, .form-select-lg {
+        padding: 10px 15px; /* Ajustar el padding interno */
+    }
+
+    @media (min-width: 768px) {
+        .col-md-4 {
+            margin-bottom: 20px; /* Aumentar espacio entre columnas */
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid mt-2">
-    <h1><strong>Editar Presupuesto: {{ budget.budget_name }}</strong></h1>
-    <form method="post">
-        {% csrf_token %}
-
-        <!-- Mostrar errores del formulario principal -->
-        {% if form.errors %}
-            <div class="alert alert-danger">
-                <strong>Por favor corrige los errores abajo:</strong>
-                {{ form.errors }}
+<form method="post" id="budget-form" class="p-4 shadow-sm rounded form-container">
+    {% csrf_token %}
+    <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-2">EDITAR PRESUPUESTO</h1>
+    <div class="mb-4">
+        <div class="row">
+            <!-- Primera columna: Cliente, Presupuesto, Número de Cotización -->
+            <div class="col-md-4">
+                <div class="mb-3">
+                    {{ form.client.label_tag }}
+                    {{ form.client|add_class:"form-control-lg mb-3 select2 custom-form-control"|attr:"placeholder=Cliente" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.budget_name.label_tag }}
+                    {{ form.budget_name|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Presupuesto" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.budget_number.label_tag }}
+                    {{ form.budget_number|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=COT-00" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.budget_date.label_tag }}
+                    {{ form.budget_date|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Fecha del Presupuesto" }}
+                </div>
             </div>
-        {% endif %}
 
-        <!-- Renderizar campos visibles y ocultos del formulario principal -->
-        <div class="table-responsive">
-          <table class="table table-bordered table-sm mb-0" style="table-layout: fixed; width: 100%;">
-            <tbody>
-                  {% for field in form.visible_fields %}
-                  <tr>
-                      <th class="bg-warning p-1" style="width: 35%;">{{ field.label }}</th>
-                      <td class="p-1" style="width: 65%;">{{ field }}</td>
-                  </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-      </div>
-
-        <h3 class="mt-4">Elementos del Presupuesto</h3>
-
-        <!-- Mostrar errores del formset -->
-        {% if formset.non_form_errors %}
-            <div class="alert alert-danger">
-                {{ formset.non_form_errors }}
+            <!-- Segunda columna: Días del Presupuesto, Utilidad, Gastos Administrativos -->
+            <div class="col-md-4">
+                <div class="mb-3">
+                    {{ form.budget_days.label_tag }}
+                    {{ form.budget_days|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Días del Presupuesto" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.budget_utility.label_tag }}
+                    {{ form.budget_utility|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Utilidad" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.budget_expenses.label_tag }}
+                    {{ form.budget_expenses|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Gastos Administrativos" }}
+                </div>
             </div>
-        {% endif %}
 
-        <!-- Management form del formset -->
-        {{ formset.management_form }}
-
-        <div class="table-responsive">
-            <table class="table table-bordered table-sm mb-0">
-                <thead class="thead-dark">
-                    <tr>
-                        {% for form in formset.forms %}
-                            {% if forloop.first %}
-                                {% for field in form.visible_fields %}
-                                    <th class="p-1">{{ field.label }}</th>
-                                {% endfor %}
-                                <th class="p-1">Eliminar</th>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for form in formset.forms %}
-                    <tr>
-                        <!-- Renderizar campos ocultos (incluyendo 'id') -->
-                        {% for hidden in form.hidden_fields %}
-                            {{ hidden }}
-                        {% endfor %}
-
-                        <!-- Renderizar campos visibles -->
-                        {% for field in form.visible_fields %}
-                        <td class="p-1">
-                            {% if field.errors %}
-                                <div class="text-danger">{{ field.errors }}</div>
-                            {% endif %}
-                            {{ field }}
-                        </td>
-                        {% endfor %}
-
-                        <!-- Campo para eliminar -->
-                        <td class="p-1">
-                            {{ form.DELETE }}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <!-- Tercera columna: Tiempo de Entrega, Tiempo de Servicio, Tiempo de Garantía -->
+            <div class="col-md-4">
+                <div class="mb-3">
+                    {{ form.budget_deliverytime.label_tag }}
+                    {{ form.budget_deliverytime|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Tiempo de Entrega" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.budget_servicetime.label_tag }}
+                    {{ form.budget_servicetime|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Tiempo de Servicio" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.budget_warrantytime.label_tag }}
+                    {{ form.budget_warrantytime|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Tiempo de Garantía" }}
+                </div>
+            </div>
         </div>
+    </div>
 
-        <button type="submit" class="btn btn-success mt-3">Guardar Cambios</button>
-    </form>
-    <a href="{% url 'detail_budget' budget.pk %}" class="btn btn-danger mt-3">Cancelar</a>
-</div>
+    <div class="row text-uppercase font-weight-bold text-dark border-bottom pb-2 mb-3">
+        <div class="col-md-5">Lista de Items</div>
+    </div>
+    
+    <div id="item-formset">
+        {{ formset.management_form }}
+        {% for form in formset %}
+            <div class="custom-form-row" id="form-{{ forloop.counter0 }}">
+                <div class="row">
+                    <!-- Renderizar campos ocultos (incluyendo el campo "id" y "DELETE") -->
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    
+                    <div class="col-md-6">
+                        {{ form.item|add_class:"form-control form-control-sm select2 custom-form-control"|attr:"placeholder=Ítem" }}
+                    </div>
+                    <div class="col-md-2 text-center">
+                        {{ form.quantity|add_class:"form-control form-control-sm text-center custom-form-control"|attr:"placeholder=Cantidad" }}
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <!-- Campo para marcar el ítem para eliminar -->
+                        {{ form.DELETE }}
+                        <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Formulario vacío para agregar nuevos ítems -->
+    <div id="empty-form" style="display: none;">
+        <div class="custom-form-row">
+            <div class="row">
+                <!-- Renderizar campos ocultos del formulario vacío -->
+                {% for hidden in formset.empty_form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                
+                <div class="col-md-6">
+                    {{ formset.empty_form.item|add_class:"form-control form-control-sm select2 custom-form-control"|attr:"placeholder=Ítem" }}
+                </div>
+                <div class="col-md-2 text-center">
+                    {{ formset.empty_form.quantity|add_class:"form-control form-control-sm text-center custom-form-control"|attr:"placeholder=Cantidad" }}
+                </div>
+                <div class="col-md-2 text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-start mt-4 gap-2">
+        <button type="button" id="add-item" class="btn btn-success me-2"><i class="fas fa-plus-circle"></i> Agregar Ítem</button>
+        <a href="{% url 'detail_budget' budget.pk %}" class="btn btn-danger me-2"><i class="fa fa-trash-o" aria-hidden="true"></i>
+            Cancelar</a>
+        <button type="submit" class="btn btn-info"><i class="fas fa-save"></i> Guardar Presupuesto</button>
+    </div>    
+</form>
+
+<!-- Asegúrate de incluir jQuery y Select2 antes de este script -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Incluye el CSS y JS de Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Opcional: Tema de Bootstrap para Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+
+<script>
+    function initializeSelect2(selector) {
+        $(selector).select2({
+            theme: 'bootstrap4', // Usa 'bootstrap4' si estás utilizando ese tema
+            width: '100%'
+        }).on('select2:open', function() {
+            const target = $(this);
+            const select2SearchField = target.data('select2').dropdown.$search || target.data('select2').selection.$search;
+            
+            if (select2SearchField.length) {
+                setTimeout(function() {
+                    select2SearchField.focus();
+                }, 0);
+            }
+        });
+    }
+    
+    $(document).ready(function() {
+        document.getElementById('add-item').addEventListener('click', function() {
+            const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+            const currentFormCount = parseInt(totalForms.value);
+    
+            const newFormHtml = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, currentFormCount);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = newFormHtml.trim();
+            
+            const newForm = tempDiv.firstChild;
+            document.getElementById('item-formset').appendChild(newForm);
+    
+            totalForms.value = currentFormCount + 1;
+    
+            // Inicializar Select2 en el nuevo campo agregado
+            initializeSelect2($(newForm).find('select.select2'));
+        });
+    
+        // Marcar un ítem para eliminar
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('remove-form')) {
+                e.preventDefault();
+                const formRow = e.target.closest('.custom-form-row');
+                
+                // Buscar el campo DELETE dentro de esta fila y marcarlo como true
+                const deleteField = formRow.querySelector('input[type="checkbox"][name$="-DELETE"]');
+                if (deleteField) {
+                    deleteField.checked = true;
+                }
+
+                // Ocultar visualmente el formulario
+                formRow.style.display = 'none';
+            }
+        });
+    });
+</script>
 {% endblock %}

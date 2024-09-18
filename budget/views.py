@@ -43,7 +43,10 @@ def edit_budget(request, pk):
         if form.is_valid() and formset.is_valid():
             budget = form.save()
             items = formset.save(commit=False)
-
+            
+            for item in items:
+                item.budget = budget
+                item.save()
 
             for obj in formset.deleted_objects:
                 obj.delete()
@@ -107,14 +110,6 @@ def duplicate_budget(request, pk):
 
 def export_budget_report(request, pk):
     return export_budget_report_to_excel(request, pk)
-
-
-
-
-
-
-
-
 
 def catalog(request):
     user_tasks = Catalog.objects.all()
