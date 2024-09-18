@@ -70,9 +70,9 @@ BudgetItemFormSet = inlineformset_factory(
 class CatalogItemForm(forms.ModelForm):
     class Meta:
         model = CatalogItem
-        fields = ('name', 'description', 'category', 'price', 'price_per_day')
+        fields = ('sap', 'description', 'category', 'price', 'price_per_day')
         labels = {
-            'name': 'Nombre del Item',
+            'sap': 'Nombre del Item',
             'description': 'Descripcion',
             'category': 'Categoria',
             'price': 'Precio',
@@ -80,5 +80,5 @@ class CatalogItemForm(forms.ModelForm):
         }
 
 class SearchCatalogItemForm(forms.Form):
-    name = forms.CharField(label="name", max_length=100, required=False)
+    sap = forms.CharField(label="sap", max_length=100, required=False)
     description = forms.CharField(label="description", max_length=100, required=False)
