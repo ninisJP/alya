@@ -73,6 +73,7 @@ class CatalogItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     sap = models.CharField(max_length=100, unique=True)
+    unit = models.CharField(max_length=100, default='UND')
 
     def __str__(self):
         return f'{self.sap} <{self.description}> precio: {self.price} precio por dia: {self.price_per_day}'
@@ -89,4 +90,3 @@ class BudgetItem(models.Model):
         super().save(*args, **kwargs)
         # Guardar el presupuesto para que sus valores también se actualicen
         self.budget.save()
-

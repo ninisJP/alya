@@ -136,6 +136,7 @@ def catalog_edit(request, catalog_id):
     elif request.method == 'POST':
         form = CatalogItemForm(request.POST, instance=catalog)
         status = "no"
+        context = {}
         if form.is_valid():
             status = "yes"
             form.save()

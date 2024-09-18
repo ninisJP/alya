@@ -6,7 +6,8 @@
         </div>
     </div>
 
-    <form hx-post="{% url 'budget_catalog_new' %}" class="w-100">
+    <form hx-post="{% url 'budget_catalog_edit' catalog.id %}" class="w-100">
+    <form hx-post="{% url 'budget_catalog_edit' catalog.id %}" hx-target="#budget_catalog_edit" hx-swap="innerHTML" class="w-100">
         {% csrf_token %}
         <div class="row">
             <div class="col-6 col-md-2 mb-3">
@@ -28,6 +29,10 @@
             <div class="col-6 col-md-2 mb-3">
                 <label for="{{ form.price_per_day.id_for_label }}" >{{ form.price_per_day.label }}: </label>
                 {{ form.price_per_day }}
+            </div>
+            <div class="col-6 col-md-2 mb-3">
+                <label for="{{ form.unit.id_for_label }}" >{{ form.unit.label }}: </label>
+                {{ form.unit }}
             </div>
 
             <div class="col-6 col-md-2 mb-3 d-flex align-items-end">
