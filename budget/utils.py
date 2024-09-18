@@ -25,12 +25,13 @@ def export_budget_report_to_excel(request, pk):
     ws_soles = plantilla.create_sheet(title="Valores en Soles")
     _crear_hoja_presupuesto(ws_soles, budget, items_by_category, simbolo='S/')
 
+    _create_quote(plantilla, budget)
+
     # Crear la respuesta HTTP con el nombre del archivo según el nombre del presupuesto
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename="cotizacion_{budget.budget_name}.xlsx"'
     plantilla.save(response)
 
-    _create_quote(plantilla, budget)
     return response
 
 def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
@@ -104,10 +105,25 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
         ws.column_dimensions[column[0].column_letter].width = adjusted_width
 
 
-def _create_quote(ws, budget):
-    sheet = ws.active
-    print(str(sheet['B18']))
+def _create_quote(plantilla, budget):
 
+    sheet = plantilla['COTIZACION']
     # Datos
     sheet['C18'] = f'{budget.client}'
-    sheet['C19'] = 'spurdo'
+    sheet['C19'] = f'{budget.client.primary_contact}'
+    sheet['C20'] = f'{budget.client.email}'
+    sheet['C21'] = f'{budget.client.phone}'
+
+    sheet['G20'] = f'{budget.budget_number}'
+    sheet['G21'] = f'{budget.budget_date}'
+
+    # Quote
+    sheet['C27'] = f'{budget.budget_name}'
+
+    # Total
+    sheet['G30'] = f'{budget.budget_final_price}'
+
+    # Time
+    sheet['D35'] = f'{budget.budget_deliverytime}'
+    sheet['D36'] = f'{budget.budget_servicetime}'
+    sheet['D38'] = f'{budget.budget_warrantytime}'
