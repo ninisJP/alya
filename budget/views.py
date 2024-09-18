@@ -112,7 +112,7 @@ def export_budget_report(request, pk):
     return export_budget_report_to_excel(request, pk)
 
 def catalog(request):
-    user_tasks = Catalog.objects.all()
+    user_tasks = CatalogItem.objects.all()
     context = {'form': TaskForm(), 'tasks': user_tasks}
     return render(request, '', context)
 
@@ -125,7 +125,7 @@ def catalog(request):
     return render(request, 'catalog/catalog.html', context)
 
 def catalog_edit(request, catalog_id):
-    catalog = get_object_or_404(Catalog, id=catalog_id)
+    catalog = get_object_or_404(CatalogItem, id=catalog_id)
     if request.method == 'GET':
         form = CatalogItemForm(instance=catalog)
         context = {
