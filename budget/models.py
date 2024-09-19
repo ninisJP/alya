@@ -67,6 +67,7 @@ class CatalogItem(models.Model):
         MATERIAL = 'Material'
         CONSUMIBLE = 'Consumible'
         HERRAMIENTA = 'Herramienta'
+        MANODEOBRA = 'Mano de obra'
 
     category = models.CharField(max_length=100, choices=Category.choices, default=Category.EQUIPO)
     description = models.CharField(max_length=256)

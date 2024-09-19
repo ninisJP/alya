@@ -124,35 +124,39 @@ def catalog(request):
 
 # CATALOG
 def catalog(request):
-    context = {'form': CatalogItemForm(), 'search': SearchCatalogItemForm()}
+    # Formularios de creación y búsqueda
+    form = CatalogItemForm()
+    search_form = SearchCatalogItemForm()
+
+    # Listado de ítems de catálogo
     catalogs = CatalogItem.objects.all()
-    context['catalogs'] = catalogs
+
+    context = {
+        'form': form,
+        'search': search_form,
+        'catalogs': catalogs,
+    }
 
     return render(request, 'catalog/catalog.html', context)
 
 def catalog_edit(request, catalog_id):
     catalog = get_object_or_404(CatalogItem, id=catalog_id)
-    if request.method == 'GET':
-        form = CatalogItemForm(instance=catalog)
-        context = {
-                'form': form,
-                'catalog': catalog,
-                }
-        return render(request, 'catalog/catalog_edit.html', context)
-    elif request.method == 'POST':
+
+    if request.method == 'POST':
         form = CatalogItemForm(request.POST, instance=catalog)
-        status = "no"
-        context = {}
         if form.is_valid():
-            status = "yes"
             form.save()
-            context = {
-                    'form': form,
-                    'catalog': catalog,
-                    }
-        context['status'] = status
-        return render(request, 'catalog/catalog_edit.html', context)
-    return HttpResponse(status=405)
+            # Después de guardar, renderizar la lista completa de ítems
+            catalogs = CatalogItem.objects.all()
+            return render(request, 'catalog/catalog_list.html', {'catalogs': catalogs})
+
+    else:
+        form = CatalogItemForm(instance=catalog)
+
+    return render(request, 'catalog/catalog_edit.html', {'form': form, 'catalog': catalog})
+
+
+
 
 def catalog_new(request):
     context = {}

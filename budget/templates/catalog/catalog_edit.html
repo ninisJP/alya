@@ -6,32 +6,31 @@
         </div>
     </div>
 
-    <form hx-post="{% url 'budget_catalog_edit' catalog.id %}" class="w-100">
-    <form hx-post="{% url 'budget_catalog_edit' catalog.id %}" hx-target="#budget_catalog_edit" hx-swap="innerHTML" class="w-100">
+    <form hx-post="{% url 'catalog_edit' catalog.id %}" hx-target="#budget_catalog_list" hx-swap="outerHTML" class="w-100">
         {% csrf_token %}
         <div class="row">
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.sap.id_for_label }}" >{{ form.sap.label }}</label>
+                <label for="{{ form.sap.id_for_label }}">{{ form.sap.label }}</label>
                 {{ form.sap }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.description.id_for_label }}" >{{ form.description.label }}: </label>
+                <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
                 {{ form.description }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.category.id_for_label }}" >{{ form.category.label }}: </label>
+                <label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
                 {{ form.category }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.price.id_for_label }}" >{{ form.price.label }}: </label>
+                <label for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
                 {{ form.price }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.price_per_day.id_for_label }}" >{{ form.price_per_day.label }}: </label>
+                <label for="{{ form.price_per_day.id_for_label }}">{{ form.price_per_day.label }}</label>
                 {{ form.price_per_day }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.unit.id_for_label }}" >{{ form.unit.label }}: </label>
+                <label for="{{ form.unit.id_for_label }}">{{ form.unit.label }}</label>
                 {{ form.unit }}
             </div>
 

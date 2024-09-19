@@ -15,7 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    
+
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -27,103 +27,112 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 
-    <style>
-        @import url('https://fonts.googleapis.com/css?family=Montserrat|Open+Sans|Roboto');
-        * {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html, body {
-            width: 100%;
-            height: 100%;
-        }
-        body {
-            overflow: hidden;
-            background: linear-gradient(135deg, #D3D3D3, #FFFFFF);
-        }
-        #wrapper {
-            height: 100vh;
-            display: flex;
-            padding: 10px;
-        }
-        .sidebar-heading {
-            font-size: 2em;
-            color: whitesmoke;
-            border-radius: 10px;
-        }
-        #sidebar-wrapper {
-            display: flex;
-            flex-direction: column;
-            width: 100px; 
-            height: calc(100vh - 20px);
-            background-color: #2F4F4F;
-            border-right: 2px solid #05101e;
-            box-shadow: 3px 0px 15px rgba(0, 21, 112, 0.5);
-            border-radius: 17px;
-            color: white;
-            overflow-y: auto;
-            flex-shrink: 0;
-            margin-right: 10px;
-        }
-        #sidebar-wrapper {
-            overflow-y: scroll; 
-            scrollbar-width: none; 
-        }
+<style>
+    * {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    html, body {
+        width: 100%;
+        height: 100%;
+    }
+    body {
+        overflow: hidden;
+        background: #F5F5F5; /* Blanco humo */
+    }
+    #wrapper {
+        height: 100vh;
+        display: flex;
+        padding: 10px;
+    }
+    .sidebar-heading {
+        font-size: 2em;
+        color: #FFFFFF; /* Texto blanco */
+        background-color: #0D47A1; /* Azul oscuro */
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+    #sidebar-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100px;
+        height: calc(100vh - 20px);
+        background-color: #0D47A1; /* Azul oscuro */
+        border-right: 2px solid #1E88E5; /* Borde azul claro */
+        box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5); /* Sombra fuerte */
+        border-radius: 17px;
+        color: #FFFFFF; /* Texto blanco */
+        overflow-y: auto;
+        flex-shrink: 0;
+        margin-right: 10px;
+    }
 
-        #sidebar-wrapper::-webkit-scrollbar {
-            display: none;
-        }
+    #sidebar-wrapper::-webkit-scrollbar {
+        display: none;
+    }
 
+    #sidebar-wrapper .list-group-item {
+        padding: 0.5rem;
+        border: none;
+        border-radius: 20px;
+        color: #FFFFFF;
+        background-color: #0D47A1; /* Azul oscuro */
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
 
-        #sidebar-wrapper .list-group-item {
-            padding: 0.5rem;
-            border: none;
-            border-radius: 20px;
-            color: whitesmoke;
-            background-color: #000000;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        #sidebar-wrapper .list-group-item i {
-            margin-bottom: 5px;
-            font-size: 1.9em;
-            color: white;
-        }
-        #sidebar-wrapper .list-group-item span {
-            font-size: 0.65em;
-        }
-        #sidebar-wrapper .list-group-item:hover,
-        #sidebar-wrapper .list-group-item:focus {
-            background-color: #1d1d42;
-            box-shadow: 0 2px 5px rgba(24, 4, 4, 0.687);
-        }
-        #page-content-wrapper {
-            flex-grow: 1;
-            overflow: auto;
-            padding: 10px;
-        }
-        .container-fluid {
-            padding: 0px;
-            height: 100%;
-        }
+    #sidebar-wrapper .list-group-item i {
+        margin-bottom: 5px;
+        font-size: 1.9em;
+        color: #FFFFFF; /* Íconos en blanco */
+    }
 
-        .logout-container {
-            margin-top: auto;
-        }
-        .task-list::-webkit-scrollbar {
-            width: 8px;
-        }
-        .content {
-            flex-grow: 1;
-            overflow: auto;
-        }
-    </style>
+    #sidebar-wrapper .list-group-item:hover,
+    #sidebar-wrapper .list-group-item:focus {
+        background-color: #1E88E5; /* Azul más claro al hacer hover */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Sombra más intensa */
+    }
+
+    #sidebar-wrapper .list-group-item span {
+        font-size: 0.65em;
+        font-weight: bold;
+    }
+
+    #page-content-wrapper {
+        flex-grow: 1;
+        overflow: auto;
+        padding: 10px;
+        background-color: #F5F5F5; /* Blanco humo */
+    }
+
+    .container-fluid {
+        padding: 0px;
+        height: 100%;
+    }
+
+    .logout-container {
+        margin-top: auto;
+    }
+
+    .task-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .content {
+        flex-grow: 1;
+        overflow: auto;
+    }
+</style>
+
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -149,7 +158,7 @@
                     <span>Técnicos</span>
                 </a>
             </div>
-            
+
             <!-- Contenedor específico para el botón de logout -->
             <div id="" class="logout-container">
                 {% if request.user.is_authenticated %}
@@ -177,17 +186,17 @@
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('userSearch');
             const userItems = document.querySelectorAll('.user-item');
-            
+
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase();
-            
+
                 userItems.forEach(item => {
                     const name = item.getAttribute('data-name').toLowerCase();
                     const email = item.getAttribute('data-email').toLowerCase();
                     const role = item.getAttribute('data-role').toLowerCase();
                     const position = item.getAttribute('data-position').toLowerCase();
-            
-                    if (name.includes(searchTerm) || email.includes(searchTerm) || 
+
+                    if (name.includes(searchTerm) || email.includes(searchTerm) ||
                         role.includes(searchTerm) || position.includes(searchTerm)) {
                         item.style.display = '';
                     } else {
@@ -196,7 +205,7 @@
                 });
             });
         });
-    </script>    
+    </script>
     {% endblock %}
 </body>
 </html>

@@ -15,5 +15,5 @@ urlpatterns = [
     path('catalog/', views.catalog, name='budget_catalog'),
     path('catalog/new/', views.catalog_new, name='budget_catalog_new'),
     path('catalog/search/', views.catalog_search, name='budget_catalog_search'),
-    path('catalog/edit/<int:catalog_id>/', views.catalog_edit, name='budget_catalog_edit'),
+    path('catalog/edit/<int:catalog_id>/', views.catalog_edit, name='catalog_edit'),
 ]
