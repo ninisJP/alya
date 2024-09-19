@@ -9,6 +9,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_GET
 from django.db.models import Q
+from django.http import JsonResponse
 
 class Login(LoginView):
     template_name = 'registration/login.html'

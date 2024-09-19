@@ -6,14 +6,14 @@
         </a>
     </div>
     <div class="list-group list-group-flush">
-        <a hx-get="" hx-target="#main" class="list-group-item list-group-item-action">
-            <i class="fas fa-shopping-cart"></i>
+        <a  href="{% url 'index_client'%}" class="list-group-item list-group-item-action">
+            <i class="fa fa-handshake"></i>
             <span>Clientes</span>
         </a>
     </div>
     <div class="list-group list-group-flush">
-        <a href="{% url 'nav-client'%}?destiny=contrato" hx-boost="true" hx-target="body" class="list-group-item list-group-item-action">
-            <i class="fas fa-shopping-cart"></i>
+        <a href="{% url 'index_contract' %}" class="list-group-item list-group-item-action {% if pagina_activa == 'contratos' %}active{% endif %}">
+            <i class="fas fa-file-contract"></i>
             <span>Contratos</span>
         </a>
     </div>
