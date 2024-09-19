@@ -70,15 +70,17 @@ BudgetItemFormSet = inlineformset_factory(
 class CatalogItemForm(forms.ModelForm):
     class Meta:
         model = CatalogItem
-        fields = ('sap', 'description', 'category', 'price', 'price_per_day', 'unit')
+        fields = ('sap', 'description', 'category', 'price', 'price_per_day', 'unit', 'apply_price_per_day')  # Añadir el campo 'apply_price_per_day'
         labels = {
             'sap': 'SAP',
             'description': 'Nombre',
             'category': 'Categoria',
             'price': 'Precio',
-            'price_per_day': 'Precio por dia',
+            'price_per_day': 'Precio por día',
             'unit': 'Unidad de medida',
+            'apply_price_per_day': 'Aplicar precio por día',  # Etiqueta para el nuevo campo
         }
+
 
 class SearchCatalogItemForm(forms.Form):
     sap = forms.CharField(label="sap", max_length=100, required=False)

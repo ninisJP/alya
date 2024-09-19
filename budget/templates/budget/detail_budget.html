@@ -27,11 +27,11 @@
                                     <td class="p-1" style="width: 70%;">{{ budget.budget_days }}</td>
                                 </tr>
                                 <tr>
-                                    <th class="bg-light p-1" style="width: 30%;">Precio Inicial (S/.)</th>
+                                    <th class="bg-light p-1" style="width: 30%;">Precio parcial (S/.)</th>
                                     <td class="p-1" style="width: 70%;">{{ budget.budget_price }}</td>
                                 </tr>
                                 <tr>
-                                    <th class="bg-light p-1" style="width: 30%;">Precio Final (S/.)</th>
+                                    <th class="bg-light p-1" style="width: 30%;">Precio completo sin IGV (S/.)</th>
                                     <td class="p-1" style="width: 70%;">{{ budget.budget_final_price }}</td>
                                 </tr>
                                 <tr>
@@ -79,7 +79,7 @@
                                 <th>Cantidad</th>
                                 <th>Precio Diario (S/.)</th>
                                 <th>Precio Unitario (S/.)</th>
-                                <th>Precio Final (S/.)</th>
+                                <th>Precio Proyecto (S/.)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,7 +87,13 @@
                             <tr>
                                 <td>{{ item.item.description }}</td>
                                 <td>{{ item.quantity }}</td>
-                                <td>{{ item.item.price_per_day }}</td>
+                                <td>
+                                    {% if item.item.apply_price_per_day %}
+                                        {{ item.item.price_per_day }}
+                                    {% else %}
+                                        No aplica
+                                    {% endif %}
+                                </td>
                                 <td>{{ item.item.price }}</td>
                                 <td>{{ item.total_price }}</td>
                             </tr>

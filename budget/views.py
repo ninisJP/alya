@@ -68,7 +68,6 @@ def edit_budget(request, pk):
         'budget': budget,
     })
 
-
 def detail_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
     items_by_category = defaultdict(list)
@@ -92,8 +91,6 @@ def delete_budget(request, pk):
 
     return render(request, 'budget/delete_budget.html', {'budget': budget})
 
-from django.shortcuts import get_object_or_404, redirect
-from .models import Budget
 
 def duplicate_budget(request, pk):
     # Obtener el presupuesto original utilizando el 'pk'
