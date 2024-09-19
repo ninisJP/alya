@@ -1,0 +1,36 @@
+<div id="contract-{{ contract.id }}" class="bg-white py-4 px-4 rounded-lg shadow-md mb-3 flex flex-wrap items-center hover:shadow-xl transition-shadow duration-300">
+    <div class="w-full sm:w-1/3">
+        <p class="mb-2"><i class="fas fa-building"></i> N° de Contrato: <span class="font-bold">{{ contract.contract_number }}</span></p>
+        <p class="mb-2"><i class="fas fa-calendar-alt"></i> Fecha de Inicio: <span class="font-bold">{{ contract.start_date }}</span></p>
+        <p class="mb-2"><i class="fas fa-calendar-alt"></i> Fecha de Caducidad: <span class="font-bold">{{ contract.end_date }}</span></p>
+    </div>
+    <div class="w-full sm:w-1/3">
+        <p class="mb-2 font-semibold"><i class="fas fa-dollar-sign"></i> Valor del Contrato: <span class="font-bold">{{ contract.value }}</span></p>
+        <p class="mb-2"><i class="fas fa-building"></i> Cliente: <span class="font-bold">{{ contract.client.legal_name }}</span></p>
+    </div>
+    <div class="w-full sm:w-1/3">
+        <p class="mb-2"><i class="fas fa-file-alt"></i> Términos del Contrato: <span class="font-bold">{{ contract.terms }}</span></p>
+        {% if contract.contract_pdf %}
+            <p class="mb-2">
+                <i class="fas fa-file-pdf"></i> 
+                Archivo PDF: 
+                <a href="{{ contract.contract_pdf.url }}" class="font-bold text-blue-600 hover:underline" target="_blank">Ver PDF</a>
+            </p>
+        {% else %}
+            <p class="mb-2">
+                <i class="fas fa-file-pdf"></i> 
+                No hay PDF disponible.
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- Botones de Editar y Eliminar -->
+    <div class="w-full mt-4 flex justify-end space-x-2">
+        <a href="{% url 'edit_contract' contract.id %}" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+            <i class="fas fa-edit mr-2"></i> Editar
+        </a>
+        <a href="{% url 'delete_contract' contract.id %}" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+            <i class="fas fa-trash mr-2"></i> Eliminar
+        </a>
+    </div>
+</div>

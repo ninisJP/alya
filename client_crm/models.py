@@ -1,6 +1,18 @@
 from django.db import models
 from client.models import Client
+from django.db import models
+import os
+from datetime import datetime
 
+
+def rename_file(instance, filename):
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    current_time = datetime.now().strftime("%H-%M-%S")
+    
+    base_name, extension = os.path.splitext(filename)
+    new_filename = f"{current_date}_{current_time}{extension}"
+    
+    return os.path.join('contract_pdf', new_filename)
 
 # Create your models here.
 class Contract(models.Model):
@@ -10,6 +22,7 @@ class Contract(models.Model):
     end_date = models.DateField()
     value = models.DecimalField(max_digits=10, decimal_places=2)
     terms = models.TextField()
+    contract_pdf = models.FileField(upload_to=rename_file, blank=True, null=True)
 
     def __str__(self):
         return f"Contract {self.contract_number} - {self.client.legal_name}"
