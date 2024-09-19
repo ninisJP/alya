@@ -92,21 +92,30 @@ def delete_budget(request, pk):
 
     return render(request, 'budget/delete_budget.html', {'budget': budget})
 
+from django.shortcuts import get_object_or_404, redirect
+from .models import Budget
+
 def duplicate_budget(request, pk):
+    # Obtener el presupuesto original utilizando el 'pk'
     original_budget = get_object_or_404(Budget, pk=pk)
 
-    # Copiar el presupuesto original sin guardar inmediatamente
-    original_budget.pk = None  # Esto asegura que se asigne un nuevo ID
-    original_budget.budget_name = f'Copia de {original_budget.budget_name}'
-    original_budget.save()  # Ahora guardamos el presupuesto duplicado, se asigna un nuevo ID
+    # Duplicar el presupuesto
+    duplicated_budget = Budget.objects.get(pk=original_budget.pk)
+    duplicated_budget.pk = None  # Esto asegura que se cree un nuevo presupuesto
+    duplicated_budget.budget_name = f"{original_budget.budget_name} (Duplicado)"
+    duplicated_budget.save()
 
-    # Duplicar cada ítem asociado al presupuesto original
+    # Duplicar los ítems asociados
     for item in original_budget.items.all():
-        item.pk = None  # Esto asegura que se asigne un nuevo ID al item duplicado
-        item.budget = original_budget  # Reasignamos el nuevo budget
-        item.save()
+        duplicated_item = BudgetItem.objects.get(pk=item.pk)
+        duplicated_item.pk = None  # Asegura que se cree un nuevo BudgetItem
+        duplicated_item.budget = duplicated_budget  # Asigna el nuevo presupuesto
+        duplicated_item.save()
 
-    return redirect('detail_budget', pk=original_budget.pk)
+    # Redirigir a la vista de detalle del nuevo presupuesto
+    return redirect('detail_budget', pk=duplicated_budget.pk)
+
+
 
 def export_budget_report(request, pk):
     return export_budget_report_to_excel(request, pk)
