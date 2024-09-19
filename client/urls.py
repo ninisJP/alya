@@ -11,7 +11,6 @@ htmxurlpatters = [
     path('delete-client/<int:client_id>/', delete_client, name='delete-client'),
     path('edit-client/<int:client_id>/', edit_client, name='edit-client'),
 
-
 ]
 
 urlpatterns += htmxurlpatters

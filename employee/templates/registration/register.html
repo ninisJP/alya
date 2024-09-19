@@ -38,7 +38,7 @@
             <!-- Modal body -->
             <div>
                 <form method="POST" action="{% url 'register' %}" hx-post="{% url 'register' %}" hx-trigger="submit" hx-target="#user-list" hx-swap="outerHTML" class="space-y-6">
-                    {% csrf_token %} <!-- Asegúrate de incluir el token CSRF aquí -->
+                    {% csrf_token %}
                     {% for field in form %}
                         <div>
                             <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900">
@@ -48,7 +48,7 @@
                         </div>
                     {% endfor %}
                     <button type="submit" @click.debounce.1000ms="showModal = false" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Guardar Usuario</button>
-                </form>
+                </form>                
             </div>
         </div>
     </div>
@@ -57,4 +57,10 @@
         {% include 'partials/user_list.html' %} <!-- Asegúrate de que esta ruta sea correcta -->
     </ul>
 </div>
+<script>
+    document.addEventListener("htmx:configRequest", (event) => {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        event.detail.headers['X-CSRFToken'] = csrfToken;
+    });
+</script>  
 {% endblock %}
