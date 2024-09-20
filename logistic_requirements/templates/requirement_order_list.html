@@ -1,0 +1,40 @@
+{% extends 'base_logistic.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Órdenes de Requerimiento</h1>
+    
+    <!-- Botón para crear una nueva orden de requerimiento -->
+    <a href="{% url 'create_requirement_order' %}" class="btn btn-primary mb-3">Crear Nueva Orden de Requerimiento</a>
+
+    <!-- Lista de Órdenes de Requerimiento -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Orden de Venta</th>
+                <th>Fecha Solicitada</th>
+                <th>Fecha Creada</th>
+                <th>Notas</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in requirement_orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.sales_order.sapcode }}</td>
+                <td>{{ order.requested_date }}</td>
+                <td>{{ order.created_at }}</td>
+                <td>{{ order.notes }}</td>
+                <td>
+                    <!-- Puedes añadir más acciones aquí, como ver o editar la orden -->
+                    <a href="{% url 'requirement_order_detail' order.id %}" class="btn btn-info btn-sm">Ver</a>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -27,10 +27,13 @@ urlpatterns = [
     path('proyectos/', include('project.urls')),
     # Budget
     path('presupuestos/', include('budget.urls')),
+    
     # DJANGO BROWSER RELOAD
     path("__reload__/", include("django_browser_reload.urls")),
     # LOGISTIC
     path('logistic/inventory/', include('logistic_inventory.urls')),
+    path('logistic/requirements/', include('logistic_requirements.urls')),
+
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,36 @@
+{% extends 'base_logistic.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Detalles de la Orden de Requerimiento</h1>
+
+    <div class="mb-3">
+        <h3>Orden de Venta: {{ order.sales_order.sapcode }}</h3>
+        <p><strong>Fecha Solicitada:</strong> {{ order.requested_date }}</p>
+        <p><strong>Fecha Creada:</strong> {{ order.created_at }}</p>
+        <p><strong>Notas:</strong> {{ order.notes }}</p>
+    </div>
+
+    <h3>Ítems de la Orden</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Cantidad</th>
+                <th>Notas</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.sales_order_item.description }}</td>
+                <td>{{ item.quantity_requested }}</td>
+                <td>{{ item.notes }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'requirement_order_list' %}" class="btn btn-secondary">Volver a la lista</a>
+</div>
+{% endblock %}
