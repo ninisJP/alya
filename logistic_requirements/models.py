@@ -7,9 +7,22 @@ class RequirementOrder(models.Model):
     requested_date = models.DateField()  # Fecha en la que necesitas los ítems
     notes = models.TextField(blank=True, null=True)  # Campo opcional para agregar notas
     created_at = models.DateTimeField(auto_now_add=True)  # Fecha de creación automática
+    order_number = models.CharField(max_length=20, unique=True, blank=True)  # Número de la orden autogenerado
 
     def __str__(self):
-        return f"Requirement Order for {self.sales_order.sapcode} on {self.requested_date}"
+        return f"Requirement Order {self.order_number} for {self.sales_order.sapcode} on {self.requested_date}"
+
+    def save(self, *args, **kwargs):
+        # Si el order_number no existe, generarlo basado en el id
+        if not self.order_number:
+            super().save(*args, **kwargs)  # Guarda inicialmente para obtener el id
+            self.order_number = f"OR-{self.id}"  # Genera el número de orden con el id autogenerado
+
+        # Asegurarse de que se llame a super().save() después de generar el order_number
+        super().save(*args, **kwargs)
+
+
+
 
 class RequirementOrderItem(models.Model):
     requirement_order = models.ForeignKey(RequirementOrder, on_delete=models.CASCADE, related_name="items")

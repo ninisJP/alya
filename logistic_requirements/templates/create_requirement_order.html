@@ -3,74 +3,89 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="container">
-    <h1>Crear Nueva Orden de Requerimiento</h1>
+<div class="container-fluid">
+    <div class="p-4 bg-white rounded shadow">
+        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">CREAR NUEVA ORDEN DE REQUERIMIENTO</h1>
 
-    <form method="post">
-        {% csrf_token %}
+        <form method="post">
+            {% csrf_token %}
 
-        <!-- Formulario para RequirementOrder -->
-        <div class="mb-3">
-            <h3>Detalles de la Orden</h3>
-            <div class="form-group">
-                <label for="id_sales_order">Orden de Venta</label>
-                {{ order_form.sales_order|add_class:"form-control" }}
+            <!-- Formulario para RequirementOrder -->
+            <div class="p-3 mb-4">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="id_sales_order">Orden de Venta</label>
+                            {{ order_form.sales_order|add_class:"form-control" }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="id_requested_date">Fecha Solicitada</label>
+                            {{ order_form.requested_date|add_class:"form-control" |attr:"type:date" }}
+                        </div>
+                    </div>
+                </div>
+                <!-- Reducción del tamaño del campo de detalles -->
+                <div class="form-group">
+                    {{ order_form.notes|add_class:"form-control form-control-sm" |attr:"placeholder=Detalles notas (opcional)" |attr:"rows:2" }}
+                </div>
             </div>
-            <div class="form-group">
-                <label for="id_requested_date">Fecha Solicitada</label>
-                {{ order_form.requested_date|add_class:"form-control" |attr:"type:date" }}
+
+            <!-- Tabla de Ítems -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped table-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Item</th>
+                            <th>Cantidad</th>
+                            <th>Notas</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                        <tr>
+                            <td>{{ form.sales_order_item|add_class:"form-control" }}</td>
+                            <td>{{ form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}</td>
+                            <td>{{ form.notes|add_class:"form-control" |attr:"placeholder=Añadir notas del ítem (opcional)" }}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeForm(this)">
+                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <div class="form-group">
-                <label for="id_notes">Notas</label>
-                {{ order_form.notes|add_class:"form-control" |attr:"placeholder:Añadir notas (opcional)" }}
+
+            <!-- Botones al final en una sola fila -->
+            <div class="d-flex justify-content-between mt-4">
+                <!-- Botón para agregar más ítems -->
+                <button type="button" class="btn btn-secondary" id="add-item-btn">
+                    <i class="fas fa-plus-circle"></i> Agregar Ítem
+                </button>
+
+                <!-- Botones de acción -->
+                <div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar Orden de Requerimiento
+                    </button>
+                    <a href="{% url 'requirement_order_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Cancelar
+                    </a>
+                </div>
             </div>
-        </div>
-
-        <!-- Formset para los ítems de la orden -->
-        <h3>Ítems de la Orden</h3>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Cantidad</th>
-                    <th>Notas</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{ formset.management_form }}
-                {% for form in formset %}
-                <tr>
-                    <td>{{ form.sales_order_item|add_class:"form-control" }}</td>
-                    <td>{{ form.quantity_requested|add_class:"form-control" |attr:"min:1" }}</td>
-                    <td>{{ form.notes|add_class:"form-control" |attr:"placeholder:Añadir notas del ítem (opcional)" }}</td>
-                    <td>
-                        <button type="button" class="btn btn-danger" onclick="removeForm(this)">Eliminar</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <!-- Botón para agregar más ítems -->
-        <button type="button" class="btn btn-secondary" id="add-item-btn">Agregar Ítem</button>
-
-        <!-- Botones de acción -->
-        <div class="mt-3">
-            <button type="submit" class="btn btn-primary">Guardar Orden de Requerimiento</button>
-            <a href="{% url 'requirement_order_list' %}" class="btn btn-secondary">Cancelar</a>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 
 <script>
 // Script para agregar un nuevo formulario de ítem dinámicamente
-// Script para agregar un nuevo formulario de ítem dinámicamente
 document.getElementById('add-item-btn').addEventListener('click', function() {
-    // Contar los formularios actuales en el tbody
     var formIdx = document.querySelectorAll('tbody tr').length;
-
-    // Clonar el formulario vacío y reemplazar el prefijo con el nuevo índice
     var emptyFormHtml = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, formIdx);
     var newRow = document.createElement('tr');
     newRow.innerHTML = emptyFormHtml;
@@ -80,7 +95,6 @@ document.getElementById('add-item-btn').addEventListener('click', function() {
     var totalForms = document.getElementById('id_items-TOTAL_FORMS');
     totalForms.value = formIdx + 1;  // Aumenta el total de formularios
 });
-
 
 // Script para eliminar un formulario de ítem
 function removeForm(btn) {
@@ -92,10 +106,12 @@ function removeForm(btn) {
 <template id="empty-form">
     <tr>
         <td>{{ formset.empty_form.sales_order_item|add_class:"form-control" }}</td>
-        <td>{{ formset.empty_form.quantity_requested|add_class:"form-control" |attr:"min:1" }}</td>
-        <td>{{ formset.empty_form.notes|add_class:"form-control" |attr:"maxlength:255" |attr:"placeholder:Añadir notas del ítem (opcional)" }}</td>
-        <td>
-            <button type="button" class="btn btn-danger" onclick="removeForm(this)">Eliminar</button>
+        <td>{{ formset.empty_form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}</td>
+        <td>{{ formset.empty_form.notes|add_class:"form-control" |attr:"maxlength:255" |attr:"placeholder=Añadir notas del ítem (opcional)" }}</td>
+        <td class="text-center">
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeForm(this)">
+                <i class="fas fa-trash-alt"></i> Eliminar
+            </button>
         </td>
     </tr>
 </template>

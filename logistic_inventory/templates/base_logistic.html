@@ -152,10 +152,15 @@
             <div class="list-group list-group-flush">
                 <a href="{% url 'requirement_order_list' %}"class="list-group-item list-group-item-action">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Orden de requerimiento</span>
+                    <span>Ordenes de requerimiento</span>
                 </a>
             </div>
-
+            <div class="list-group list-group-flush">
+                <a href="{% url 'create_requirement_order' %}"class="list-group-item list-group-item-action">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Crear orden de requerimiento</span>
+                </a>
+            </div>
             <!-- Contenedor específico para el botón de logout -->
             <div id="" class="logout-container">
                 {% if request.user.is_authenticated %}
