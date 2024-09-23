@@ -30,7 +30,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 DEBUG = 'RENDER' not in os.environ
 
 # Define ALLOWED_HOSTS primero
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Luego agrega RENDER_EXTERNAL_HOSTNAME si está definido
 # Application definition
