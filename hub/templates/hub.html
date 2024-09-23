@@ -8,7 +8,9 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Montserrat Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+  <!-- Font Awesome for professional icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <!-- HTMX -->
   <script src="{% static 'js/htmx.min.js' %}" defer></script>
   <style>
@@ -17,30 +19,29 @@
       margin: 0;
       padding: 0;
       font-family: 'Montserrat', sans-serif;
-      background: url("{% static 'icons/mountains-8314422.svg' %}") no-repeat center center fixed;
-      background-size: cover;
-      color: white;
+      background-color: #e3f2fd; /* Fondo azul claro */
+      color: #333; /* Color oscuro para el texto */
       display: flex;
       flex-direction: column;
     }
-    /* Estilos para los títulos */
+
     h1.lilith {
-      position: absolute;
-      top: 100px;
-      left: 80px;
-      font-size: 5rem;
+      font-size: 3rem;
       font-weight: 600;
-      margin: 0;
-      color: black;
+      color: #333; /* Texto oscuro */
+      margin-top: 20px;
     }
+
     h1.jp {
       position: absolute;
       top: 50px;
       right: 180px;
-      font-size: 15rem;
+      font-size: 10rem;
       font-weight: 800;
       margin: 0;
-      color: black;
+      color: #333; /* Texto oscuro */
+      cursor: pointer;
+      transition: color 0.3s ease, transform 0.3s ease;
       text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
                    0 0 40px rgba(255, 255, 255, 0.6),
                    0 0 60px rgba(255, 255, 255, 0.4);
@@ -48,74 +49,86 @@
 
     h1.jp:hover {
       color: red;
+      transform: scale(1.05);
     }
-    /* Estilos para el contenedor de las tarjetas */
+
     .footer-cards {
-      position: fixed;
-      bottom: 0;
+      padding: 20px;
+      margin-top: auto;
       width: 100%;
-      padding: 10px;
+      background-color: #e3f2fd; /* Fondo azul claro para las tarjetas */
+      box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1); /* Sombra suave */
     }
+
     .footer-cards .card {
-      margin: 5px;
-      border-radius: 20px;
-      color: white;
-      background-color: transparent; /* Fondo transparente */
-      overflow: hidden;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para el card */
+      margin: 10px;
+      border: none;
+      background-color: transparent; /* Fondo transparente para cada tarjeta */
+      color: #333; /* Texto oscuro */
+      transition: transform 0.3s ease-in-out;
     }
-    .footer-cards .card img {
-      width: 100%;
-      height: 170px; /* Altura fija para las imágenes */
-      object-fit: cover; /* Las imágenes llenan el contenedor sin distorsión */
-      background-color: rgba(255, 255, 255, 0); /* Fondo casi transparente para la imagen */
-      padding: 10px;
+
+    .footer-cards .card:hover {
+      transform: scale(1.05);
     }
+
+    .footer-cards .card i {
+      font-size: 3rem;
+      color: #555; /* Iconos en gris medio */
+    }
+
     .footer-cards .card-body {
-      background-color: black; /* Fondo negro para el texto */
-      padding: 15px;
+      padding: 20px;
       text-align: center;
-      border-bottom-left-radius: 20px;
-      border-bottom-right-radius: 20px;
-      color: white; /* Asegura que el texto sea blanco para un buen contraste */
+      background-color: transparent; /* Fondo transparente para el cuerpo de la tarjeta */
     }
-    
+
     .footer-cards .card-title {
-      font-size: 1.3rem;
-      margin-top: 5px;
+      font-size: 1.1rem;
+      color: #333; /* Texto en gris oscuro */
+      font-weight: 600;
+      margin-bottom: 10px;
     }
+
     .footer-cards .card-text {
-      font-size: 0.8rem;
-      margin-top: 5px;
+      font-size: 0.9rem;
+      color: #666; /* Texto más claro */
     }
+
     .footer-cards a {
       text-decoration: none;
       color: inherit;
     }
-    /* Ajustamos el ancho de las columnas para que haya 8 en una fila */
+
+    /* Diseño responsivo de las tarjetas */
     .col-custom {
-      flex: 0 0 calc(100% / 8);
-      max-width: calc(100% / 8);
+      flex: 0 0 calc(100% / 4);
+      max-width: calc(100% / 4);
     }
-    /* Ajustes responsivos */
+
     @media (max-width: 768px) {
-      .col-custom {
-        flex: 0 0 calc(100% / 4);
-        max-width: calc(100% / 4);
-      }
-    }
-    @media (max-width: 576px) {
       .col-custom {
         flex: 0 0 calc(100% / 2);
         max-width: calc(100% / 2);
       }
     }
+
+    @media (max-width: 576px) {
+      .col-custom {
+        flex: 0 0 calc(100%);
+        max-width: calc(100%);
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- Títulos Lilith y JP -->
-  <h1 class="lilith">lilith.v1</h1>
-  <h1 class="jp" style="cursor: pointer;" onclick="document.getElementById('logout-form').submit();"  title="Haz clic para cerrar sesión">
+  <!-- Título principal -->
+  <div class="container text-center mt-5">
+    <h1 class="lilith">ERP</h1>
+  </div>
+
+  <!-- JP grande como botón de logout -->
+  <h1 class="jp" onclick="document.getElementById('logout-form').submit();" title="Haz clic para cerrar sesión">
     JP
   </h1>
 
@@ -125,107 +138,10 @@
 
   <!-- Contenedor de Tarjetas -->
   <div class="footer-cards container-fluid">
-    <div class="row d-flex justify-content-center">
-      <!-- Tarjeta 1 -->
-      <div class="col-custom">
-        <div class="card">
-          <a href="{% url 'index_client' %}">
-            <img src="{% static 'icons/ai-generated-8654348.svg' %}" alt="Clientes Icono">
-            <div class="card-body p-2">
-              <h5 class="card-title">Clientes</h5>
-              <p class="card-text">Gestiona tus clientes aquí.</p>
-            </div>
-          </a>
-        </div>
-      </div>
-      <!-- Tarjeta 2 -->
-      <div class="col-custom">
-        <div class="card">
-          <a href="{% url 'index_budget' %}">
-            <img src="{% static 'icons/camp-4363073.svg' %}" alt="Presupuestos Icono">
-            <div class="card-body p-2">
-              <h5 class="card-title">Presupuestos</h5>
-              <p class="card-text">Crea y revisa presupuestos.</p>
-            </div>
-          </a>
-        </div>
-      </div>
-      <!-- Tarjeta 3 -->
-      <div class="col-custom">
-        <div class="card">
-          <a href="{% url 'project_index' %}">
-            <img src="{% static 'icons/dog-8527651.svg' %}" alt="Proyectos Icono">
-            <div class="card-body p-2">
-              <h5 class="card-title">Proyectos</h5>
-              <p class="card-text">Administra tus proyectos.</p>
-            </div>
-          </a>
-        </div>
-      </div>
-      <!-- Tarjeta 4 -->
-      <div class="col-custom">
-        <div class="card">
-          <a href="{% url 'salesorder' %}">
-            <img src="{% static 'icons/traveling-4323759.svg' %}" alt="Contabilidad Icono">
-            <div class="card-body p-2">
-              <h5 class="card-title">Contabilidad</h5>
-              <p class="card-text">Revisa tus finanzas.</p>
-            </div>
-          </a>
-        </div>
-      </div>
-      <!-- Tarjeta 5 -->
-      <div class="col-custom">
-        <div class="card">
-          <a href="{% url 'follow_control_home' %}">
-            <img src="{% static 'icons/trees-8050454.svg' %}" alt="Tarjetas de Control Icono">
-            <div class="card-body p-2">
-              <h5 class="card-title">Tarjetas</h5>
-              <p class="card-text">Monitorea actividades.</p>
-            </div>
-          </a>
-        </div>
-      </div>
-      <!-- Tarjeta 6 -->
-      <div class="col-custom">
-        <div class="card">
-          <a href="{% url 'logistic_inventory_index' %}">
-            <img src="{% static 'icons/mountains-8314422.svg' %}" alt="Logística Icono">
-            <div class="card-body p-2">
-              <h5 class="card-title">Logística</h5>
-              <p class="card-text">Gestiona inventarios.</p>
-            </div>
-          </a>
-        </div>
-      </div>
-      <!-- Tarjeta 7 -->
-      <div class="col-custom">
-        <div class="card">
-          <a href="{% url 'register'%}">
-            <img src="{% static 'icons/ai-generated-8654348.svg' %}" alt="Empleados Icono">
-            <div class="card-body p-2">
-              <h5 class="card-title">Empleados</h5>
-              <p class="card-text">Registra empleados.</p>
-            </div>
-          </a>
-        </div>
-      </div>
-      <!-- Tarjeta 8 -->
-      <div class="col-custom">
-        <div class="card">
-          <a href="{% url 'index_portal' %}">
-            <img src="static/contabilidad.png" alt="Mi Cuenta Icono">
-            <div class="card-body p-2">
-              <h5 class="card-title">Mi Cuenta</h5>
-              <p class="card-text">Configura tu perfil.</p>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
+    {% include 'partials/cards.html' %}
   </div>
 
-  <!-- Bootstrap JS (opcional si utilizas componentes interactivos) -->
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

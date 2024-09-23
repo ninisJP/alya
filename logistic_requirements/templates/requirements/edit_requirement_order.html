@@ -1,0 +1,99 @@
+{% extends 'base_requests.html' %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+<style>
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+    }
+</style>
+<div class="container-fluid">
+    <div class="p-4 bg-white rounded shadow">
+        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">ALISTAR PEDIDO</h1>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Formulario para RequirementOrder -->
+            <div class="p-3 mb-4">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="id_sales_order">Orden de Venta</label>
+                            <!-- Campo oculto que envía el valor al guardar -->
+                            {{ order_form.sales_order|add_class:"form-control d-none" }}  <!-- Usamos d-none para ocultarlo -->
+                            <!-- Mostrar el valor como texto solo de lectura -->
+                            <input type="text" readonly class="form-control" value="{{ requirement_order.sales_order }}" />
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="id_requested_date">Fecha Solicitada</label>
+                            {{ order_form.requested_date|add_class:"form-control" |attr:"type:date" }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campo de estado de la orden -->
+                <div class="form-group">
+                    <label for="id_estado">Estado de la Orden</label>
+                    {{ order_form.estado|add_class:"form-check-input" }}
+                </div>
+
+                <!-- Reducción del tamaño del campo de detalles -->
+                <div class="form-group">
+                    {{ order_form.notes|add_class:"form-control form-control-sm" |attr:"placeholder=Detalles notas (opcional)" |attr:"rows:2" }}
+                </div>
+            </div>
+
+            <!-- Tabla de Ítems con Estado -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped table-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Item</th>
+                            <th>Cantidad</th>
+                            <th>Notas</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                        <tr>
+                            {{ form.id }}  <!-- Campo oculto para el ID del formset -->
+                            <td>{{ form.sales_order_item|add_class:"form-control" }}</td>
+                            <td>{{ form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}</td>
+                            <td>{{ form.notes|add_class:"form-control" }}</td>
+                            <td>{{ form.estado|add_class:"form-control" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Botones al final en una sola fila -->
+            <div class="d-flex justify-content-between mt-4">
+                <div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                    <a href="{% url 'index_requests' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Script para eliminar un formulario de ítem
+function removeForm(btn) {
+    btn.closest('tr').remove();
+}
+</script>
+
+{% endblock %}
