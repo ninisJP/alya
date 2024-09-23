@@ -1,0 +1,63 @@
+{% extends 'base_requests.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="p-4 bg-white rounded shadow">
+        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">Detalle del Pedido</h1>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Orden de Venta:</strong> {{ order.sales_order }}
+            </div>
+            <div class="col-md-6">
+                <strong>Fecha Solicitada:</strong> {{ order.requested_date }}
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Estado:</strong> 
+                {% if order.estado %}
+                    <span class="badge bg-success">Listo</span>
+                {% else %}
+                    <span class="badge bg-warning">Pendiente</span>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <strong>Fecha de Creación:</strong> {{ order.created_at|date:"d/m/Y" }}
+            </div>
+        </div>
+
+        <h3>Items</h3>
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Item</th>
+                    <th>Cantidad</th>
+                    <th>Notas</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.sales_order_item.description }}</td>
+                    <td>{{ item.quantity_requested }}</td>
+                    <td>{{ item.notes }}</td>
+                    <td>
+                        {% if item.estado == 'L' %}
+                            <span class="badge bg-success">Listo</span>
+                        {% elif item.estado == 'P' %}
+                            <span class="badge bg-warning">Pendiente</span>
+                        {% elif item.estado == 'C' %}
+                            <span class="badge bg-info">Comprando</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{% url 'my_requests' %}" class="btn btn-secondary">Regresar a Mis Pedidos</a>
+    </div>
+</div>
+{% endblock %}

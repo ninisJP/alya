@@ -27,7 +27,8 @@ urlpatterns = [
     path('proyectos/', include('project.urls')),
     # Budget
     path('presupuestos/', include('budget.urls')),
-    
+    # Requests
+    path('pedidos/', include('requests.urls')),
     # DJANGO BROWSER RELOAD
     path("__reload__/", include("django_browser_reload.urls")),
     # LOGISTIC

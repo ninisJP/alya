@@ -21,6 +21,8 @@ class SalesOrderItem(models.Model):
     amount = models.IntegerField(null=True, default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    unit_of_measurement = models.CharField(max_length=10, default="UND") 
+
 
     def __str__(self):
         return f"{self.description} - {self.amount} unidades"

@@ -1,0 +1,51 @@
+{% extends 'base_requests.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="p-4 bg-white rounded shadow">
+        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">Mis Pedidos</h1>
+
+        {% if my_orders %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped table-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Orden de Venta</th>
+                        <th>Fecha Solicitada</th>
+                        <th>Fecha de Creación</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in my_orders %}
+                    <tr>
+                        <td>{{ order.sales_order }}</td>
+                        <td>{{ order.requested_date }}</td>
+                        <td>{{ order.created_at|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if order.estado %}
+                                <span class="badge bg-success">Listo</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <!-- Botón para ver los detalles del pedido -->
+                            <a href="{% url 'my_request_detail' order.id %}" class="btn btn-info btn-sm">
+                                Ver Detalle
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-warning text-center" role="alert">
+            No tienes pedidos registrados.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
