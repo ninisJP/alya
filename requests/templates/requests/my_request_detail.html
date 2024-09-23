@@ -26,8 +26,14 @@
                 <strong>Fecha de Creación:</strong> {{ order.created_at|date:"d/m/Y" }}
             </div>
         </div>
+                <!-- Agregamos la fila de notas del requerimiento -->
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <strong>Notas del Requerimiento:</strong> 
+                        <p>{{ order.notes }}</p> <!-- Aquí se muestran las notas -->
+                    </div>
+                </div>
 
-        <h3>Items</h3>
         <table class="table table-bordered">
             <thead class="table-dark">
                 <tr>
