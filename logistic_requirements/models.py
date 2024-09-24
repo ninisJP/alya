@@ -17,17 +17,18 @@ class RequirementOrder(models.Model):
         return f"Requirement Order {self.order_number} for {self.sales_order.sapcode} on {self.requested_date}"
 
     def save(self, *args, **kwargs):
-        # Si el order_number no existe, guardarlo para obtener el ID primero
+        # Si no hay clave primaria (pk), guarda primero para obtener el ID
         if not self.pk:
-            super().save(*args, **kwargs)  # Guarda inicialmente para obtener el id
+            super().save(*args, **kwargs)
             self.order_number = f"OR-{self.id}"  # Genera el número de orden basado en el id
             super().save(*args, **kwargs)  # Vuelve a guardar para asignar el order_number
 
-        # Calcular el total después de que la instancia tenga un ID
-        self.total_order = sum(item.price * item.quantity_requested for item in self.items.all())
+        # Después de tener el ID, calcula el total sumando los precios de los ítems
+        self.total_order = sum(item.total_price for item in self.items.all())
 
-        # Guardar nuevamente con el total actualizado
+        # Guarda nuevamente con el total actualizado
         super().save(*args, **kwargs)
+
 
 class RequirementOrderItem(models.Model):
     ESTADO_CHOICES = [

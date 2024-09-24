@@ -17,14 +17,13 @@ def create_requirement_order(request):
         formset = RequirementOrderItemFormSet(request.POST)
 
         if order_form.is_valid() and formset.is_valid():
-            requirement_order = order_form.save()
+            requirement_order = order_form.save()  # Guardar la orden primero
 
             items = formset.save(commit=False)
             for item in items:
-                item.requirement_order = requirement_order
+                item.requirement_order = requirement_order  # Asignar la orden a los ítems
                 item.save()
 
-            # El total_order se calculará automáticamente en el modelo
             return redirect('requirement_order_list')
     else:
         order_form = RequirementOrderForm()
@@ -34,6 +33,7 @@ def create_requirement_order(request):
         'order_form': order_form,
         'formset': formset
     })
+
 
 
 def edit_requirement_order(request, pk):
