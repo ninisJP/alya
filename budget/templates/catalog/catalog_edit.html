@@ -1,12 +1,5 @@
-<div id="budget_catalog_edit">
-
-    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
-        <div class="card-body text-center py-2">
-            <h1 class="mb-0">Editar Item</h1>
-        </div>
-    </div>
-
-    <form hx-post="{% url 'catalog_edit' catalog.id %}" hx-target="#budget_catalog_list" hx-swap="outerHTML" class="w-100">
+<div id="catalog-{{ catalog.id }}">
+    <form hx-post="{% url 'catalog_edit' catalog.id %}" hx-target="#catalog-{{ catalog.id }}" hx-swap="outerHTML" class="w-100">
         {% csrf_token %}
         <div class="row">
             <div class="col-6 col-md-2 mb-3">
