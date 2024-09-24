@@ -1,0 +1,13 @@
+<ul class="list-group">
+    {% for supplier in suppliers %}
+        <li id="supplier-{{ supplier.id }}" class="list-group-item d-flex justify-content-between align-items-center">
+            <span>
+                <strong>Nombre del Proveedor: {{ supplier.name }}</strong> RUC/DNI:  {{ supplier.document }} BANCO: {{ supplier.bank }} TIPO DE CAMBIO: {{ supplier.currency }} CUENTA: {{ supplier.account }} CUENTA INTERBANCARIA: {{ supplier.interbank_currency }}
+            </span>
+            <span>
+                <button class="btn btn-warning btn-sm me-2" hx-get="{% url 'edit-supplier' supplier.id %}" hx-target="#supplier-{{ supplier.id }}" hx-swap="outerHTML">Editar</button>
+                <button class="btn btn-danger btn-sm" hx-post="{% url 'delete-supplier' supplier.id %}" hx-confirm="Estas seguro de eliminar el Proveedor?" hx-target="#supplier-{{ supplier.id }}" hx-swap="outerHTML">Eliminar</button>
+            </span> 
+        </li>
+    {% endfor %}
+</ul>

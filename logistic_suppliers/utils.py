@@ -1,4 +1,4 @@
 CURRENCY_CHOICES = (
-    ('Soles', 'Soles'),
-    ('Dolares', 'Dolares'),
+    ('PEN', 'Soles'),
+    ('USD', 'Dólares'),
 )

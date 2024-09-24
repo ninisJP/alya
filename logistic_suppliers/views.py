@@ -7,7 +7,7 @@ from django.http import HttpResponse, JsonResponse
 
 # Create your views here.
 # Iniciamos vista y metodos HTMX para tareas
-def suppliers(request):
+def index_suppliers(request):
     suppliers = Suppliers.objects.all()
     context = {'form': SuppliersForm(), 'suppliers': suppliers}
     return render(request, 'suppliers/suppliers.html', context)
@@ -19,30 +19,36 @@ def create_suppliers(request):
             supplier = form.save(commit=False)
             supplier.user = request.user
             supplier.save()
-            user_tasks = Suppliers.objects.all()
-            context = {'suppliers': supplier}
-            return render(request, 'suppliers/suppliers-list.html', context)
+            # Consulta todos los proveedores después de guardar el nuevo proveedor
+            suppliers = Suppliers.objects.all()
+            context = {'suppliers': suppliers}
+            return render(request, 'suppliers/suppliers_list.html', context)
     else:
         form = SuppliersForm()
 
-    return render(request, 'suppliers/suppliers-form.html', {'form': form})
+    return render(request, 'suppliers/suppliers_form.html', {'form': form})
+
 
 def edit_suppliers(request, supplier_id):
-    task = get_object_or_404(Suppliers, id=supplier_id)
+    supplier = get_object_or_404(Suppliers, id=supplier_id)
+    
     if request.method == 'GET':
-        form = SuppliersForm(instance=suppliers)
-        return render(request, 'suppliers/edit-suppliers-form.html', {'form': form, 'task': task})
+        form = SuppliersForm(instance=supplier)
+        return render(request, 'suppliers/suppliers_edit.html', {'form': form, 'supplier': supplier})
+    
     elif request.method == 'POST':
-        form = SuppliersForm(request.POST, instance=task)
+        form = SuppliersForm(request.POST, instance=supplier)
         if form.is_valid():
             form.save()
             suppliers = Suppliers.objects.all()
-            return render(request, 'suppliers/suppliers-list.html', {'tasks': suppliers})
+            return render(request, 'suppliers/suppliers_list.html', {'suppliers': suppliers})
+    
     return HttpResponse(status=405)
 
+
 def delete_suppliers(request, supplier_id):
-    suppliers = get_object_or_404(Suppliers, id=supplier_id)
-    if request.method == 'DELETE':
-        suppliers.delete()
-        return render(request, 'suppliers/suppliers-list.html')
-    return HttpResponse(status=405)
+    suppliers = get_object_or_404(Suppliers, id=supplier_id)  
+    if request.method == 'POST':  
+        suppliers.delete()  
+        return render(request, 'suppliers/suppliers_list.html')  
+    return HttpResponse(status=405) 
