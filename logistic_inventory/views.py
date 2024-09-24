@@ -67,6 +67,7 @@ def brand_search(request):
 
 def item(request):
     context = {'form': ItemForm(), 'search': SearchItemForm()}
+    context['types'] = Type.objects.all()
     return render(request, 'inventory/item.html', context)
 
 def item_edit(request, item_id):
@@ -92,19 +93,23 @@ def item_edit(request, item_id):
         return render(request, 'inventory/item_edit.html', context)
     return HttpResponse(status=405)
 
-def item_new(request):
+def item_new(request, subtype):
     context = {}
     if request.method == 'POST':
-        form = ItemForm(request.POST)
+        form = ItemForm(reqduest.POST)
+        print("subtype"+subtype)
         status = "no"
         if form.is_valid():
             status = "yes"
             form.save()
         context['status'] = status
 
+    context['types'] = Type.objects.all()
     context['form'] = ItemForm()
+    print("nani")
 
     return render(request, 'inventory/item_form.html', context)
+
 
 def item_search(request):
     context = {}
@@ -236,3 +241,11 @@ def type_search(request):
 
     context['search'] = SearchForm()
     return render(request, 'inventory/type_list.html', context)
+
+
+def get_all_subtypes(request):
+    ttype = request.GET.get('type')
+    subtype = Subtype.objects.filter(type=ttype)
+    context = {'subtypes': subtype}
+
+    return render(request, 'inventory/item_form_subtype.html', context)

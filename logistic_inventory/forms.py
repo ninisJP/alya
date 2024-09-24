@@ -32,7 +32,7 @@ class SubtypeForm(forms.ModelForm):
 class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
-        fields = ('brand', 'description', 'item_id', 'quantity', 'subtype', 'unit')
+        fields = ('brand', 'description', 'item_id', 'quantity', 'unit')
         labels = {
             'brand': 'Marca',
             'description': 'Descripcion',

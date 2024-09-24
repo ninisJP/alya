@@ -1,0 +1,9 @@
+<div class="col-6 col-md-2 mb-3">
+    <label>Sub-tipo: </label>
+    <select>
+        <option selected>----------------</option>
+        {% for subtype in subtypes %}
+        <option value ="{{subtype.pk}}">{{subtype.name}}</option>
+        {% endfor %}
+    </select>
+</div>
