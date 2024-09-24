@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('suppliers-list/', index_suppliers, name='suppliers'),
+    
 ]
 
 htmxurlpatters = [

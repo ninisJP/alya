@@ -8,7 +8,7 @@ class Suppliers(models.Model):
     bank = models.CharField(max_length=100, verbose_name="Nombre del Banco", null=True, blank=True, default='')
     account = models.CharField(max_length=50, verbose_name="Número de Cuenta", null=True, blank=True, default='')
     currency = models.CharField(max_length=20,choices=CURRENCY_CHOICES, default="Soles", verbose_name="Moneda", null=True, blank=True)
-    interbank_currency = models.CharField(max_length=50, verbose_name="Número de Cuenta Interbancario", null=True, blank=True, default='')
+    interbank_currency = models.CharField(max_length=50, verbose_name="Cuenta Interbancaria", null=True, blank=True, default='')
 
     def __str__(self):
         return f"{self.name} - {self.document}"
