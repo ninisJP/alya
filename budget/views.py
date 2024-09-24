@@ -147,16 +147,13 @@ def catalog_edit(request, catalog_id):
         if form.is_valid():
             form.save()
             # Después de guardar, renderizar la lista completa de ítems
-            catalogs = CatalogItem.objects.all()
-            return render(request, 'catalog/catalog_list.html', {'catalogs': catalogs})
+            catalog = get_object_or_404(CatalogItem, id=catalog_id)
+            return render(request, 'catalog/catalog_list_element.html', {'catalog': catalog})
 
     else:
         form = CatalogItemForm(instance=catalog)
 
     return render(request, 'catalog/catalog_edit.html', {'form': form, 'catalog': catalog})
-
-
-
 
 def catalog_new(request):
     context = {}
