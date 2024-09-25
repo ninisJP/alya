@@ -11,7 +11,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 DEBUG = 'RENDER' not in os.environ
 
 # Define ALLOWED_HOSTS primero
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', 'alya-production.up.railway.app']
 
 load_dotenv()
 
