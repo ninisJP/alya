@@ -145,7 +145,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CRFS_TRUSTED_ORIGINS = ['http://*','https://alya-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['http://*','https://alya-production.up.railway.app']
 
 
 
