@@ -14,6 +14,7 @@
                         <th>Fecha Solicitada</th>
                         <th>Fecha de Creación</th>
                         <th>Estado</th>
+                        <th>Total</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -30,6 +31,7 @@
                                 <span class="badge bg-warning">Pendiente</span>
                             {% endif %}
                         </td>
+                        <td>{{ order.total_order }}</td>
                         <td>
                             <!-- Botón para ver los detalles del pedido -->
                             <a href="{% url 'my_request_detail' order.id %}" class="btn btn-info btn-sm">
