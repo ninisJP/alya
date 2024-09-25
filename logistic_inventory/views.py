@@ -1,4 +1,6 @@
 from django.shortcuts import redirect, render, get_object_or_404
+from django.http import HttpResponse
+
 from .forms import BrandForm, TypeForm, SubtypeForm, ItemForm, SearchItemForm
 from .models import Brand, Type, Subtype, Item
 from .utils import sort_item, search_item
@@ -93,11 +95,10 @@ def item_edit(request, item_id):
         return render(request, 'inventory/item_edit.html', context)
     return HttpResponse(status=405)
 
-def item_new(request, subtype):
+def item_new(request):
     context = {}
     if request.method == 'POST':
-        form = ItemForm(reqduest.POST)
-        print("subtype"+subtype)
+        form = ItemForm(request.POST)
         status = "no"
         if form.is_valid():
             status = "yes"
@@ -106,7 +107,6 @@ def item_new(request, subtype):
 
     context['types'] = Type.objects.all()
     context['form'] = ItemForm()
-    print("nani")
 
     return render(request, 'inventory/item_form.html', context)
 
@@ -116,13 +116,10 @@ def item_search(request):
     if request.method == 'POST':
         form = SearchItemForm(request.POST)
         if form.is_valid():
-
             # Search items
             status, items = search_item(Item.objects.all(), form)
-
             # Sort
             items = sort_item(items)
-
             context['items'] = items
             context['search_status'] = status
 
@@ -242,10 +239,6 @@ def type_search(request):
     context['search'] = SearchForm()
     return render(request, 'inventory/type_list.html', context)
 
-
 def get_all_subtypes(request):
-    ttype = request.GET.get('type')
-    subtype = Subtype.objects.filter(type=ttype)
-    context = {'subtypes': subtype}
-
-    return render(request, 'inventory/item_form_subtype.html', context)
+    form = ItemForm(request.GET)
+    return HttpResponse(form["subtype"])

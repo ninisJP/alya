@@ -34,7 +34,7 @@ class Item(models.Model):
     description = models.CharField(max_length=100, null=True)
     item_id = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=0)
-    subtype = models.ForeignKey(Subtype, on_delete=models.CASCADE, null=True)
+    subtype = models.ForeignKey(Subtype, on_delete=models.CASCADE)
     unit = models.CharField(max_length=100, null=True, blank=True)
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)

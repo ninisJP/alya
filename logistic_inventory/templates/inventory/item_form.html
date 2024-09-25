@@ -1,23 +1,15 @@
+{% load widget_tweaks %}
+
 <form hx-post="{% url 'logistic_inventory_item_new' %}" class="w-100">
     {% csrf_token %}
     <div class="row">
-        <div>
-            <label>Tipo: </label>
-            <select
-                    name="type"
-                    hx-get="{% url 'logistic_inventory_all_subtypes' %}"
-                    hx-trigger="change"
-                    hx-target="#logistic_inventory_item_new_list_subtype"
-                    >
-                <option selected>-----------------</option>
-                {% for type in types %}
-                    <option value ="{{type.pk}}">{{type.name}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div id="logistic_inventory_item_new_list_subtype">
-            {% include 'inventory/item_form_subtype.html' %}
-        </div>
+
+        {{ form.type.label_tag }}
+        {% render_field form.type class="col-6 col-md-2 mb-3" autocomplete="off" hx-get="/logistic/inventory/item/getallsubtype/" hx-target="#id_subtype" hx-trigger="change"%}
+
+        {{ form.subtype.label_tag }}
+        {% render_field form.subtype class="col-6 col-md-2 mb-3" autocomplete="off" %}
+
         <div class="col-6 col-md-2 mb-3">
             <label for="{{ form.description.id_for_label }}" >{{ form.description.label }}: </label>
             {{ form.description }}
