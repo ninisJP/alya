@@ -12,6 +12,7 @@ class RequirementOrder(models.Model):
     estado = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     total_order = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    purchase_order_created = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Requirement Order {self.order_number} for {self.sales_order.sapcode} on {self.requested_date}"
@@ -26,7 +27,6 @@ class RequirementOrder(models.Model):
         # Después de tener el ID, calcula el total sumando los precios de los ítems
         self.total_order = sum(item.total_price for item in self.items.all())
 
-        # Guarda nuevamente con el total actualizado
         super().save(*args, **kwargs)
 
 
