@@ -34,7 +34,6 @@ class ItemForm(DynamicFormMixin, forms.ModelForm):
 
     type = forms.ModelChoiceField(
                 queryset = Type.objects.all(),
-                initial = Type.objects.first()
             )
 
     def type_choice(form):
@@ -48,7 +47,6 @@ class ItemForm(DynamicFormMixin, forms.ModelForm):
     subtype = DynamicField(
                 forms.ModelChoiceField,
                 queryset = type_choice,
-                initial = type_initial,
             )
 
     class Meta:
