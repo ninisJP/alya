@@ -51,7 +51,9 @@ INSTALLED_APPS = [
     'follow_control_technician',
     'hub',
     'employee',
+    # APIS
     'employee_api',
+    'logistic_api',
     'employee_portal',
     'widget_tweaks',
     'client',
@@ -59,11 +61,11 @@ INSTALLED_APPS = [
     'project',
     'budget',
     'logistic_inventory',
-    #DJANGO BROWSER RELOAD
+    # DJANGO BROWSER RELOAD
     "django_browser_reload",
-    #Django htmx
+    # Django htmx
     'django_htmx',
-    #Django restframwork
+    # Django restframwork
     'rest_framework',
     'rest_framework.authtoken',
     'formtools',
