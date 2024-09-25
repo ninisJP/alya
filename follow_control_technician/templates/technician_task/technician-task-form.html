@@ -1,0 +1,20 @@
+<form hx-post="{% url 'create-technician-tasks' %}" hx-target="#task-list" hx-swap="innerHTML" class="w-100">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-12 col-md-2 mb-3">
+            {{ form.verb }}
+        </div>
+        <div class="col-12 col-md-4 mb-3">
+            {{ form.object }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            {{ form.measurement }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            {{ form.time }}
+        </div>
+        <div class="col-12 col-md-2 mb-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Crear Tarea</button>
+        </div>
+    </div>
+</form>

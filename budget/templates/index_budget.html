@@ -1,0 +1,57 @@
+{% extends "base_budget.html" %}
+
+{% block title %}Presupuestos{% endblock %}
+
+{% block content %}
+
+
+{% if budgets %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 rounded-3 shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>Presupuestos</th>
+                    <th>Cliente</th>
+                    <th>Días</th>
+                    <th>Precio Total</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for budget in budgets %}
+                    <tr class="rounded-3">
+                        <td>{{ budget.budget_name }}</td>
+                        <td>{{ budget.client }}</td>
+                        <td>
+                            <span class="badge bg-primary rounded-pill">
+                                {{ budget.budget_days }} Días
+                            </span>
+                        </td>
+                        <td>{{ budget.budget_final_price }}</td>
+                        <td>{{ budget.budget_date }}</td>
+                        <td>
+                            <div class="btn-group" role="group" aria-label="Acciones">
+                                <a href="{% url 'detail_budget' budget.id %}" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
+                                <a href="{% url 'duplicate_budget' pk=budget.pk %}" class="btn btn-warning">
+                                    <i class="fas fa-copy"></i> Duplicar Presupuesto
+                                </a>
+                                <a href="{% url 'delete_budget' budget.id %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-warning text-center" role="alert">
+        No hay presupuestos disponibles.
+    </div>
+{% endif %}
+
+{% endblock %}

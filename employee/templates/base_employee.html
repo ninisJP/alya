@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}REGISTROS{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <!-- Bootstrap Icons CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+
+<style>
+    * {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    html, body {
+        width: 100%;
+        height: 100%;
+    }
+    body {
+        overflow: hidden;
+        background: #F5F5F5; /* Blanco humo */
+    }
+    #wrapper {
+        height: 100vh;
+        display: flex;
+        padding: 10px;
+    }
+    .sidebar-heading {
+        font-size: 2em;
+        color: #FFFFFF; /* Texto blanco */
+        background-color: #0D47A1; /* Azul oscuro */
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+    #sidebar-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100px;
+        height: calc(100vh - 20px);
+        background-color: #0D47A1; /* Azul oscuro */
+        border-right: 2px solid #1E88E5; /* Borde azul claro */
+        box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5); /* Sombra fuerte */
+        border-radius: 17px;
+        color: #FFFFFF; /* Texto blanco */
+        overflow-y: auto;
+        flex-shrink: 0;
+        margin-right: 10px;
+    }
+
+    #sidebar-wrapper::-webkit-scrollbar {
+        display: none;
+    }
+
+    #sidebar-wrapper .list-group-item {
+        padding: 0.5rem;
+        border: none;
+        border-radius: 20px;
+        color: #FFFFFF;
+        background-color: #0D47A1; /* Azul oscuro */
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    #sidebar-wrapper .list-group-item i {
+        margin-bottom: 5px;
+        font-size: 1.9em;
+        color: #FFFFFF; /* Íconos en blanco */
+    }
+
+    #sidebar-wrapper .list-group-item:hover,
+    #sidebar-wrapper .list-group-item:focus {
+        background-color: #1E88E5; /* Azul más claro al hacer hover */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Sombra más intensa */
+    }
+
+    #sidebar-wrapper .list-group-item span {
+        font-size: 0.65em;
+        font-weight: bold;
+    }
+
+    #page-content-wrapper {
+        flex-grow: 1;
+        overflow: auto;
+        padding: 10px;
+        background-color: #F5F5F5; /* Blanco humo */
+    }
+
+    .container-fluid {
+        padding: 0px;
+        height: 100%;
+    }
+
+    .logout-container {
+        margin-top: auto;
+    }
+
+    .task-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .content {
+        flex-grow: 1;
+        overflow: auto;
+    }
+</style>
+
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading text-center py-4 primary-text fs-8 fw-bold text-uppercase">
+                <a href="{% url 'hub' %}" ht-target="#main" class="nav-link" style="color: inherit;">
+                    <span>JP</span>
+                </a>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'register' %}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                    <span>List</span>
+                </a>
+                <a href="{% url 'supervisor' %}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-address-book" aria-hidden="true"></i>
+                    <span>Supervisor</span>
+                </a>
+                <a href="{% url 'technician' %}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-address-book" aria-hidden="true"></i>
+                    <span>Técnicos</span>
+                </a>
+            </div>
+
+            <!-- Contenedor específico para el botón de logout -->
+            <div id="" class="logout-container">
+                {% if request.user.is_authenticated %}
+                <a href="javascript:{}" onclick="document.getElementById('logout-form').submit();" class="list-group-item list-group-item-action">
+                    <i class="fas fa-sign-out-alt" style="color: red;"></i><br>Logout
+                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-sign-in-alt" style="color: green;"></i><br>Login
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div id="main" class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    {% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('userSearch');
+            const userItems = document.querySelectorAll('.user-item');
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+
+                userItems.forEach(item => {
+                    const name = item.getAttribute('data-name').toLowerCase();
+                    const email = item.getAttribute('data-email').toLowerCase();
+                    const role = item.getAttribute('data-role').toLowerCase();
+                    const position = item.getAttribute('data-position').toLowerCase();
+
+                    if (name.includes(searchTerm) || email.includes(searchTerm) ||
+                        role.includes(searchTerm) || position.includes(searchTerm)) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>

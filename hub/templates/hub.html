@@ -1,182 +1,147 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestiones</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <!-- Montserrat Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #f4f7fa;
-            padding: 2rem;
-        }
-        h1 {
-            text-align: center;
-            font-weight: 700;
-            margin-bottom: 2rem;
-            color: #495057;
-        }
-        .category-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #343a40;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-        }
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-        }
-        .app-card {
-            text-align: center;
-            text-decoration: none;
-            color: #495057;
-            padding: 1.5rem;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            background-color: #ffffff;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .app-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-        .app-icon {
-            background-color: #f8f9fa;
-            border-radius: 50%;
-            padding: 1.2rem;
-            display: inline-block;
-            margin-bottom: 0.5rem;
-            transition: background-color 0.3s ease;
-        }
-        .app-icon:hover {
-            background-color: #e0a800;
-        }
-        .app-icon i {
-            font-size: 2.5rem;
-            color: #343a40;
-        }
-        .app-card h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-top: 0.5rem;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALYA</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Montserrat Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+  <!-- Font Awesome for professional icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <!-- HTMX -->
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      background-color: #e3f2fd; /* Fondo azul claro */
+      color: #333; /* Color oscuro para el texto */
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1.lilith {
+      font-size: 3rem;
+      font-weight: 600;
+      color: #333; /* Texto oscuro */
+      margin-top: 20px;
+    }
+
+    h1.jp {
+      position: absolute;
+      top: 50px;
+      right: 180px;
+      font-size: 10rem;
+      font-weight: 800;
+      margin: 0;
+      color: #333; /* Texto oscuro */
+      cursor: pointer;
+      transition: color 0.3s ease, transform 0.3s ease;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+                   0 0 40px rgba(255, 255, 255, 0.6),
+                   0 0 60px rgba(255, 255, 255, 0.4);
+    }
+
+    h1.jp:hover {
+      color: red;
+      transform: scale(1.05);
+    }
+
+    .footer-cards {
+      padding: 20px;
+      margin-top: auto;
+      width: 100%;
+      background-color: #e3f2fd; /* Fondo azul claro para las tarjetas */
+      box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    }
+
+    .footer-cards .card {
+      margin: 10px;
+      border: none;
+      background-color: transparent; /* Fondo transparente para cada tarjeta */
+      color: #333; /* Texto oscuro */
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .footer-cards .card:hover {
+      transform: scale(1.05);
+    }
+
+    .footer-cards .card i {
+      font-size: 3rem;
+      color: #555; /* Iconos en gris medio */
+    }
+
+    .footer-cards .card-body {
+      padding: 20px;
+      text-align: center;
+      background-color: transparent; /* Fondo transparente para el cuerpo de la tarjeta */
+    }
+
+    .footer-cards .card-title {
+      font-size: 1.1rem;
+      color: #333; /* Texto en gris oscuro */
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .footer-cards .card-text {
+      font-size: 0.9rem;
+      color: #666; /* Texto más claro */
+    }
+
+    .footer-cards a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Diseño responsivo de las tarjetas */
+    .col-custom {
+      flex: 0 0 calc(100% / 4);
+      max-width: calc(100% / 4);
+    }
+
+    @media (max-width: 768px) {
+      .col-custom {
+        flex: 0 0 calc(100% / 2);
+        max-width: calc(100% / 2);
+      }
+    }
+
+    @media (max-width: 576px) {
+      .col-custom {
+        flex: 0 0 calc(100%);
+        max-width: calc(100%);
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>JP INGENIERIA Y SERVICIOS</h1>
+  <!-- Título principal -->
+  <div class="container text-center mt-5">
+    <h1 class="lilith">ERP</h1>
+  </div>
 
-    <h2 class="category-title">Finanzas</h2>
-    <div class="app-grid">
-        <a href="/contabilidad/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-calculator"></i>
-            </div>
-            <h2>Contabilidad</h2>
-        </a>
-        <a href="/presupuestos/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-file-invoice-dollar"></i>
-            </div>
-            <h2>Presupuestos</h2>
-        </a>
-        <a href="/conciliaciones/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-handshake"></i>
-            </div>
-            <h2>Conciliaciones</h2>
-        </a>
-    </div>
+  <!-- JP grande como botón de logout -->
+  <h1 class="jp" onclick="document.getElementById('logout-form').submit();" title="Haz clic para cerrar sesión">
+    JP
+  </h1>
 
-    <h2 class="category-title">Gestión de Proyectos</h2>
-    <div class="app-grid">
-        <a href="/proyectos/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-project-diagram"></i>
-            </div>
-            <h2>Proyectos</h2>
-        </a>
-        <a class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-calendar-alt"></i>
-            </div>
-            <h2>Planificaciones</h2>
-        </a>
-    </div>
+  <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+      {% csrf_token %}
+  </form>
 
-    <h2 class="category-title">Recursos Humanos</h2>
-    <div class="app-grid">
-        <a href="/rrhh-jp/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-user-tie"></i>
-            </div>
-            <h2>Recursos Humanos JP</h2>
-        </a>
-        <a ref="/rrhh-awl/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-user-tie"></i>
-            </div>
-            <h2>Recursos Humanos AWL</h2>
-        </a>
-        <a href="/mi-cuenta/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-user-cog"></i>
-            </div>
-            <h2>Mi cuenta</h2>
-        </a>
-    </div>
+  <!-- Contenedor de Tarjetas -->
+  <div class="footer-cards container-fluid">
+    {% include 'partials/cards.html' %}
+  </div>
 
-    <h2 class="category-title">Otros</h2>
-    <div class="app-grid">
-        <a href="{% url 'follow_control_home' %}" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-id-card"></i>
-            </div>
-            <h2>Tarjetas</h2>
-        </a>
-        <a class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-clipboard-list"></i>
-            </div>
-            <h2>Gestiones</h2>
-        </a>
-        <a href="/proveedores/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-truck"></i>
-            </div>
-            <h2>Proveedores</h2>
-        </a>
-        <a href="/clientes/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <h2>Clientes</h2>
-        </a>
-        <a href="/logistica/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-boxes"></i>
-            </div>
-            <h2>Logística</h2>
-        </a>
-        <a href="/sistema-jp-antiguo/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-archive"></i>
-            </div>
-            <h2>Sistema JP </h2>
-        </a>
-        <a href="/sistema-jp-nuevo/" class="app-card">
-            <div class="app-icon">
-                <i class="fas fa-database"></i>
-            </div>
-            <h2>Sistema JP</h2>
-        </a>
-    </div>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

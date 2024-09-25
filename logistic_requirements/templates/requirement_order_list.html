@@ -1,0 +1,55 @@
+{% extends 'base_logistic.html' %}
+
+{% block extra_css %}
+<style>
+    .custom-rounded-top {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        overflow: hidden; /* Asegura que el contenido dentro de la tabla respete el redondeo */
+    }
+    .custom-thead-rounded {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+            <thead class="table-dark custom-thead-rounded">
+                <tr>
+                    <th>Ordenes de requerimieno</th>
+                    <th>Orden de Venta</th>
+                    <th>Fecha Solicitada</th>
+                    <th>Fecha Creada</th>
+                    <th>Detalles</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in requirement_orders %}
+                <tr class="rounded-3">
+                    <td>{{ order.order_number }}</td>
+                    <td>{{ order.sales_order.sapcode }}</td>
+                    <td>{{ order.requested_date }}</td>
+                    <td>{{ order.created_at }}</td>
+                    <td>{{ order.notes }}</td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Acciones">
+                            <a href="{% url 'requirement_order_edit' order.id %}" class="btn btn-outline-warning btn-sm">
+                                <i class="fas fa-edit"></i> Alistar
+                            </a>
+                            <a href="" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

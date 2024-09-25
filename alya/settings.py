@@ -9,8 +9,12 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+# Import dj-database-url at the beginning of the file.
+import dj_database_url
+
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,14 +24,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_m62^uwc#10-ghi@te_3x!^gle^+(s#svgz0a^ic(^b-o$wueo'
+SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = 'RENDER' not in os.environ
 
+# Define ALLOWED_HOSTS primero
 ALLOWED_HOSTS = []
 
-
+# Luego agrega RENDER_EXTERNAL_HOSTNAME si está definido
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,24 +43,48 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #APP PARA TODOS LOS BASE
+    'accounting_order_sales',
     'follow_control_backlog',
     'follow_control_card',
     'follow_control_home',
     'follow_control_report',
-    'follow_control_technical',
+    'follow_control_technician',
     'hub',
     'employee',
+    'employee_api',
+    'employee_portal',
     'widget_tweaks',
+    'client',
+    'client_crm',
+    'project',
+    'budget',
+    'logistic_inventory',
+    #DJANGO BROWSER RELOAD
+    "django_browser_reload",
+    #Django htmx
+    'django_htmx',
+    #Django restframwork
+    'rest_framework',
+    'rest_framework.authtoken',
+    'formtools',
+    'crispy_forms',
+    'logistic_requirements',
+    'logistic_suppliers',
+    'requests',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "django.contrib.auth.middleware.LoginRequiredMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ROOT_URLCONF = 'alya.urls'
@@ -124,9 +153,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+#SETTINGS login accounts
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = '/'
+
+# MEDIA ROOT
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

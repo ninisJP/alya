@@ -1,0 +1,62 @@
+{% extends "base_employee.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Lista de Técnicos{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Técnicos</h1>
+    </div>
+    
+    <div class="mb-4">
+        <input type="text" id="technicianSearch" placeholder="Buscar por nombre o posición" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+    </div>
+
+    <div id="technician-list" class="row mt-8">
+        {% for technician in technicians %}
+        <div class="col-md-6">
+            <div class="bg-white py-4 px-4 rounded-lg shadow-md mb-3 flex flex-wrap items-center hover:shadow-xl transition-shadow duration-300 technician-item" 
+                data-name="{{ technician.first_name }} {{ technician.last_name }}" 
+                data-email="{{ technician.email }}" 
+                data-role="Técnico" 
+                data-position="{{ technician.position }}">
+                <div class="w-full sm:w-1/2">
+                    <p class="mb-2"><i class="fas fa-user"></i> Nombre: <span class="font-bold">{{ technician.first_name }} {{ technician.last_name }}</span></p>
+                    <p class="mb-2"><i class="fas fa-envelope"></i> Correo: <span class="font-bold">{{ technician.email }}</span></p>
+                </div>
+                <div class="w-full sm:w-1/2">
+                    <p class="mb-2 font-semibold"><i class="fas fa-id-card"></i> Rol: <span class="font-bold">Técnico</span></p>
+                    <p class="mb-2 font-semibold"><i class="fas fa-id-card"></i> Posición: <span class="font-bold">{{ technician.position }}</span></p>
+                    <p class="mb-2 font-semibold"><i class="fas fa-info-circle"></i> Status: <span class="font-bold">{{ technician.get_status_display }}</span></p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('technicianSearch');
+        const technicianItems = document.querySelectorAll('.technician-item');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+        
+            technicianItems.forEach(item => {
+                const name = item.getAttribute('data-name').toLowerCase();
+                const email = item.getAttribute('data-email').toLowerCase();
+                const role = item.getAttribute('data-role').toLowerCase();
+                const position = item.getAttribute('data-position').toLowerCase();
+        
+                if (name.includes(searchTerm) || email.includes(searchTerm) || 
+                    role.includes(searchTerm) || position.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock content %}

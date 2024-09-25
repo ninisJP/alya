@@ -1,0 +1,19 @@
+
+{% load widget_tweaks %}
+
+<form hx-post="{% url 'budget_catalog_search' %}" hx-target="#budget_catalog_list" hx-swap="innerHTML" class="w-100">
+    <div class="row">
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ search.sap.id_for_label }}" > Por SAP: </label>
+            {{ search.sap }}
+
+        </div>
+        <div class="col-12 col-md-4 col-lg-2">
+            <label for="{{ search.description.id_for_label }}" class="form-label">Por nombre:</label>
+            {{ search.description|add_class:"form-control" }}
+        </div>
+        <div class="col-12 col-md-4 col-lg-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Buscar</button>
+        </div>
+    </div>
+</form>

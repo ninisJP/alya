@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from accounting_order_sales.models import SalesOrder
 
 
 class Card(models.Model):
@@ -56,8 +57,7 @@ class Task(models.Model):
     cards = models.ManyToManyField('Card', related_name='tasks', through='CardTaskOrder')
     verb = models.CharField(max_length=100, default='')
     object = models.CharField(max_length=100, default='')
-    orden_venta = models.CharField(max_length=200, db_index=True, default='')
-    client = models.CharField(max_length=200, default='')
+    sale_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE)
     measurement = models.CharField(max_length=50, default='minutos')
     task_time = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)

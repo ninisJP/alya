@@ -19,9 +19,9 @@ class SupervisorAdmin(admin.ModelAdmin):
 
     
     
-@admin.register(Technical)
-class TechnicalAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'technical_position', 'status', 'email')
+@admin.register(Technician)
+class TechnicianAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'technician_position', 'status', 'email')
     search_fields = ('first_name', 'last_name', 'position', 'email')
     list_filter = ('status',)
     
@@ -29,6 +29,6 @@ class TechnicalAdmin(admin.ModelAdmin):
         return f"{obj.first_name} {obj.last_name}"
     full_name.short_description = 'Name'
 
-    def technical_position(self, obj):
+    def technician_position(self, obj):
         return f"Técnico {obj.position}"
-    technical_position.short_description = 'Position'
+    technician_position.short_description = 'Position'

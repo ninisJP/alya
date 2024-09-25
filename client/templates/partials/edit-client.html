@@ -1,0 +1,53 @@
+<form method="POST" hx-post="{% url 'edit-client' client.id  %}" hx-target="#client-list"  class="space-y-6">
+    {% csrf_token %}
+
+    <div>
+        <label for="id_legal_name" class="block mb-2 text-sm font-medium text-gray-900">Empresa</label>
+        <input type="text" name="legal_name" id="id_legal_name" value="{{ form.legal_name.value }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5">
+        {% if form.legal_name.errors %}
+            <p class="text-red-500 text-sm mt-2">{{ form.legal_name.errors }}</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="id_tax_id" class="block mb-2 text-sm font-medium text-gray-900">RUC</label>
+        <input type="text" name="tax_id" id="id_tax_id" value="{{ form.tax_id.value }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5">
+        {% if form.tax_id.errors %}
+            <p class="text-red-500 text-sm mt-2">{{ form.tax_id.errors }}</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="id_phone" class="block mb-2 text-sm font-medium text-gray-900">Teléfono</label>
+        <input type="text" name="phone" id="id_phone" value="{{ form.phone.value }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5">
+        {% if form.phone.errors %}
+            <p class="text-red-500 text-sm mt-2">{{ form.phone.errors }}</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="id_email" class="block mb-2 text-sm font-medium text-gray-900">Correo Electrónico</label>
+        <input type="email" name="email" id="id_email" value="{{ form.email.value }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5">
+        {% if form.email.errors %}
+            <p class="text-red-500 text-sm mt-2">{{ form.email.errors }}</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="id_website" class="block mb-2 text-sm font-medium text-gray-900">Página Web</label>
+        <input type="url" name="website" id="id_website" value="{{ form.website.value }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5">
+        {% if form.website.errors %}
+            <p class="text-red-500 text-sm mt-2">{{ form.website.errors }}</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="id_primary_contact" class="block mb-2 text-sm font-medium text-gray-900">Contacto</label>
+        <input type="text" name="primary_contact" id="id_primary_contact" value="{{ form.primary_contact.value }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5">
+        {% if form.primary_contact.errors %}
+            <p class="text-red-500 text-sm mt-2">{{ form.primary_contact.errors }}</p>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Guardar Cambios</button>
+</form>

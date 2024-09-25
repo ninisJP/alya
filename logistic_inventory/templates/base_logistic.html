@@ -1,0 +1,194 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LOGISTICA{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <!-- Select2 CSS OPCIONAL PARA CADA REQUERIMieNTP-->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{% static 'js/htmx.min.js' %}" defer></script>
+
+<style>
+    * {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    html, body {
+        width: 100%;
+        height: 100%;
+    }
+    body {
+        overflow: hidden;
+        background: #F5F5F5; /* Blanco humo */
+    }
+    #wrapper {
+        height: 100vh;
+        display: flex;
+        padding: 10px;
+    }
+    .sidebar-heading {
+        font-size: 2em;
+        color: #FFFFFF; /* Texto blanco */
+        background-color: #1B5E20; /* Verde oscuro */
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+    #sidebar-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100px;
+        height: calc(100vh - 20px);
+        background-color: #1B5E20; /* Verde oscuro */
+        border-right: 2px solid #0D3D14; /* Borde verde aún más oscuro */
+        box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5); /* Sombra fuerte */
+        border-radius: 17px;
+        color: #FFFFFF; /* Texto blanco */
+        overflow-y: auto;
+        flex-shrink: 0;
+        margin-right: 10px;
+    }
+
+    #sidebar-wrapper::-webkit-scrollbar {
+        display: none;
+    }
+
+    #sidebar-wrapper .list-group-item {
+        padding: 0.5rem;
+        border: none;
+        border-radius: 20px;
+        color: #FFFFFF;
+        background-color: #1B5E20; /* Verde oscuro */
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    #sidebar-wrapper .list-group-item i {
+        margin-bottom: 5px;
+        font-size: 1.9em;
+        color: #FFFFFF; /* Íconos en blanco */
+    }
+
+    #sidebar-wrapper .list-group-item:hover,
+    #sidebar-wrapper .list-group-item:focus {
+        background-color: #388E3C; /* Verde más claro al hacer hover */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Sombra más intensa */
+    }
+
+    #sidebar-wrapper .list-group-item span {
+        font-size: 0.65em;
+        font-weight: bold;
+    }
+
+    #page-content-wrapper {
+        flex-grow: 1;
+        overflow: auto;
+        padding: 10px;
+        background-color: #F5F5F5; /* Blanco humo */
+    }
+
+    .container-fluid {
+        padding: 0px;
+        height: 100%;
+    }
+
+    .logout-container {
+        margin-top: auto;
+    }
+
+    .task-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .content {
+        flex-grow: 1;
+        overflow: auto;
+    }
+</style>
+
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <div class="d-flex" id="wrapper">
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading text-center py-4 primary-text fs-8 fw-bold text-uppercase">
+                <a href="{% url 'hub' %}" ht-target="#main" class="nav-link" style="color: inherit;">
+                    <span>JP</span>
+                </a>
+            </div>
+            <div class="list-group list-group-flush">
+                <a hx-get="" hx-target="#main" class="list-group-item list-group-item-action">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Inventario</span>
+                </a>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'requirement_order_list' %}"class="list-group-item list-group-item-action">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Ordenes de requerimiento</span>
+                </a>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'create_requirement_order' %}"class="list-group-item list-group-item-action">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Crear orden de requerimiento</span>
+                </a>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'suppliers' %}"class="list-group-item list-group-item-action">
+                    <i class="fa fa-users" aria-hidden="true"></i>
+                    <span>Proveedores</span>
+                </a>
+            </div>
+            <!-- Contenedor específico para el botón de logout -->
+            <div id="" class="logout-container">
+                {% if request.user.is_authenticated %}
+                <a href="javascript:{}" onclick="document.getElementById('logout-form').submit();" class="list-group-item list-group-item-action">
+                    <i class="fas fa-sign-out-alt" style="color: red;"></i><br>Logout
+                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-sign-in-alt" style="color: green;"></i><br>Login
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div id="main" class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

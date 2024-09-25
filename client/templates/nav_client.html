@@ -1,0 +1,42 @@
+<!-- templates/partials/nav_client.html -->
+<div id="sidebar-wrapper">
+    <div class="sidebar-heading text-center py-4 primary-text fs-8 fw-bold text-uppercase">
+        <a href="{% url 'hub' %}" ht-target="#main" class="nav-link" style="color: inherit;">
+            <span>JP</span>
+        </a>
+    </div>
+    <div class="list-group list-group-flush">
+        <a  href="{% url 'index_client'%}" class="list-group-item list-group-item-action">
+            <i class="fa fa-handshake"></i>
+            <span>Clientes</span>
+        </a>
+    </div>
+    <div class="list-group list-group-flush">
+        <a href="{% url 'index_contract' %}" class="list-group-item list-group-item-action {% if pagina_activa == 'contratos' %}active{% endif %}">
+            <i class="fas fa-file-contract"></i>
+            <span>Contratos</span>
+        </a>
+    </div>
+    <div class="list-group list-group-flush">
+        <a href="{% url 'nav-client' %}?destiny=oportunidad" hx-boost="true" hx-target="body" class="list-group-item list-group-item-action">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Oportunidades</span>
+        </a>
+    </div>
+
+    <!-- Contenedor específico para el botón de logout -->
+    <div id="" class="logout-container">
+        {% if request.user.is_authenticated %}
+        <a href="javascript:{}" onclick="document.getElementById('logout-form').submit();" class="list-group-item list-group-item-action">
+            <i class="fas fa-sign-out-alt" style="color: red;"></i><br>Logout
+            <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                {% csrf_token %}
+            </form>
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-sign-in-alt" style="color: green;"></i><br>Login
+        </a>
+        {% endif %}
+    </div>
+</div>

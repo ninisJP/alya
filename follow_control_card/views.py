@@ -7,6 +7,8 @@ from django.views.generic.list import ListView
 from datetime import datetime
 from typing import Any
 
+from accounting_order_sales.models import SalesOrder
+
 from .forms import TaskForm
 from .models import Card, Task, CardTaskOrder
 from .utils import get_max_order
@@ -35,14 +37,18 @@ class DailyCardList(ListView):
             context['daily_tasks'] = []
             context['card_id'] = None
             self.request.session['current_card_id'] = None
+
+        # Obtener todas las SalesOrders o filtrarlas según sea necesario
+        sale_orders = SalesOrder.objects.all()
+        context['sale_orders'] = sale_orders  # Pasar las SalesOrders al contexto
+
         return context
 
 def add_daily_task(request):
     user = request.user
     verb = request.POST.get('taskname', '')
     object_ = request.POST.get('object', '')
-    orden_venta = request.POST.get('orden_venta', '')
-    client = request.POST.get('client', '')
+    sale_order_id = request.POST.get('sale_order', '')  # Asegúrate de que el name en el formulario es "sale_order"
     measurement = request.POST.get('measurement', 'minutos')
     task_time = request.POST.get('task_time', None)
     card_id = request.POST.get('card_id')
@@ -52,21 +58,28 @@ def add_daily_task(request):
 
     card = get_object_or_404(Card, id=card_id, user=user)
 
+    # Obtener la instancia de SalesOrder basada en sale_order_id
+    sale_order = get_object_or_404(SalesOrder, id=sale_order_id)
+
+    # Crear la nueva tarea diaria
     daily_task = Task.objects.create(
         verb=verb,
         object=object_,
-        orden_venta=orden_venta,
-        client=client,
+        sale_order=sale_order,  # Asignar la instancia de SalesOrder
         measurement=measurement,
         task_time=task_time,
         user=user
     )
 
+    # Obtener el orden máximo actual para las tareas en esta tarjeta
     max_order = get_max_order(card)
     CardTaskOrder.objects.create(task=daily_task, card=card, order=max_order)
 
+    # Volver a cargar las tareas ordenadas para la tarjeta
     tasks_ordered = CardTaskOrder.objects.filter(card=card).order_by('order').select_related('task')
     daily_tasks = tasks_ordered
+
+    # Renderizar la lista actualizada de tareas
     return render(request, 'partials/daily-task-list.html', {'daily_tasks': daily_tasks, 'card_id': card.id})
 
 

@@ -1,0 +1,21 @@
+{% extends "follow_control_base.html" %}
+{% block content %}
+<div class="container-fluid ">
+    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+        <div class="card-body text-center py-2">
+            <h1 class="mb-0">Crear tareas para tecnicos</h1>
+        </div>
+    </div>
+
+    <div id="tasks-forms" class="w-100">
+        {% include 'technician_task/technician-task-form.html' %}
+    </div>
+    
+    <div id="task-list">
+        {% include 'technician_task/technician-task-list.html' %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

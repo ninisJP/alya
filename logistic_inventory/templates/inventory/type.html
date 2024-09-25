@@ -1,0 +1,27 @@
+<div class="container-fluid ">
+    <div id="logistic_inventory_type_window">
+        <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+            <div class="card-body text-center py-2">
+                <h1 class="mb-0">Añadir Tipo</h1>
+            </div>
+        </div>
+
+        <div id="tasks-forms" class="w-100">
+            {% include 'inventory/type_form.html' %}
+        </div>
+
+        <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+            <div class="card-body text-center py-2">
+                <h1 class="mb-0">Búsqueda de Tipos</h1>
+            </div>
+        </div>
+
+        <ul id="logistic_inventory_type_search" class="mt-8 space-y-4">
+            {% include 'inventory/type_search.html' %}
+        </ul>
+
+        <ul id="logistic_inventory_type_list" class="mt-8 space-y-4">
+            {% include 'inventory/type_list.html' %}
+        </ul>
+    </div>
+</div>
