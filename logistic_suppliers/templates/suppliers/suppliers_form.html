@@ -1,0 +1,36 @@
+<form hx-post="{% url 'create-supplier' %}" hx-target="#task-list" hx-swap="innerHTML" class="w-100">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-12 col-md-4 mb-3">
+            <label for="{{ form.document.id_for_label }}" class="form-label">{{ form.document.label }}</label>
+            {{ form.document }}
+        </div>
+        <div class="col-12 col-md-4 mb-3">
+            <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+            {{ form.name }}
+        </div>
+        <div class="col-12 col-md-4 mb-3">
+            <label for="{{ form.bank.id_for_label }}" class="form-label">{{ form.bank.label }}</label>
+            {{ form.bank }}
+        </div>
+
+        <div class="col-12 col-md-4 mb-3">
+            <label for="{{ form.account.id_for_label }}" class="form-label">{{ form.account.label }}</label>
+            {{ form.account }}
+        </div>
+        <div class="col-12 col-md-4 mb-3">
+            <label for="{{ form.currency.id_for_label }}" class="form-label">{{ form.currency.label }}</label>
+            {{ form.currency }}
+        </div>
+        <div class="col-12 col-md-4 mb-3">
+            <label for="{{ form.interbank_currency.id_for_label }}" class="form-label">{{ form.interbank_currency.label }}</label>
+            {{ form.interbank_currency }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-3 d-flex justify-content-start">
+            <button type="submit" class="btn btn-success">Crear Proveedor</button>
+        </div>
+    </div>
+</form>

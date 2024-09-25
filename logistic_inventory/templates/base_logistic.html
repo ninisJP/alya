@@ -161,6 +161,12 @@
                     <span>Crear orden de requerimiento</span>
                 </a>
             </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'suppliers' %}"class="list-group-item list-group-item-action">
+                    <i class="fa fa-users" aria-hidden="true"></i>
+                    <span>Proveedores</span>
+                </a>
+            </div>
             <!-- Contenedor específico para el botón de logout -->
             <div id="" class="logout-container">
                 {% if request.user.is_authenticated %}
