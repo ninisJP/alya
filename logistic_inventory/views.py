@@ -1,4 +1,6 @@
 from django.shortcuts import redirect, render, get_object_or_404
+from django.http import HttpResponse
+
 from .forms import BrandForm, TypeForm, SubtypeForm, ItemForm, SearchItemForm
 from .models import Brand, Type, Subtype, Item
 from .utils import sort_item, search_item
@@ -67,6 +69,7 @@ def brand_search(request):
 
 def item(request):
     context = {'form': ItemForm(), 'search': SearchItemForm()}
+    context['types'] = Type.objects.all()
     return render(request, 'inventory/item.html', context)
 
 def item_edit(request, item_id):
@@ -102,22 +105,21 @@ def item_new(request):
             form.save()
         context['status'] = status
 
+    context['types'] = Type.objects.all()
     context['form'] = ItemForm()
 
     return render(request, 'inventory/item_form.html', context)
+
 
 def item_search(request):
     context = {}
     if request.method == 'POST':
         form = SearchItemForm(request.POST)
         if form.is_valid():
-
             # Search items
             status, items = search_item(Item.objects.all(), form)
-
             # Sort
             items = sort_item(items)
-
             context['items'] = items
             context['search_status'] = status
 
@@ -236,3 +238,7 @@ def type_search(request):
 
     context['search'] = SearchForm()
     return render(request, 'inventory/type_list.html', context)
+
+def get_all_subtypes(request):
+    form = ItemForm(request.GET)
+    return HttpResponse(form["subtype"])
