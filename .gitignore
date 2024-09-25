@@ -2,5 +2,5 @@ venv
 .venv
 __pycache__
 db.sqlite3
-*.jpg
 *.pdf
+**/00*.py

@@ -1,4 +1,5 @@
 from django import forms
+from dynamic_forms import DynamicField, DynamicFormMixin
 
 from .models import Brand, Type, Subtype, Item
 
@@ -29,16 +30,35 @@ class SubtypeForm(forms.ModelForm):
             'type': 'Tipo',
         }
 
-class ItemForm(forms.ModelForm):
+class ItemForm(DynamicFormMixin, forms.ModelForm):
+
+    type = forms.ModelChoiceField(
+                queryset = Type.objects.all(),
+            )
+
+    def type_choice(form):
+        ttype = form['type'].value()
+        return Subtype.objects.filter(type=ttype)
+
+    def type_initial(form):
+        ttype = form['type'].value()
+        return Subtype.objects.filter(type=ttype).first()
+
+    subtype = DynamicField(
+                forms.ModelChoiceField,
+                queryset = type_choice,
+            )
+
     class Meta:
         model = Item
-        fields = ('brand', 'description', 'item_id', 'quantity', 'subtype', 'unit')
+        fields = ('brand', 'description', 'item_id', 'quantity', 'unit', 'subtype')
         labels = {
             'brand': 'Marca',
             'description': 'Descripcion',
             'item_id': 'ID del item',
             'quantity': 'Cantidad',
             'unit': 'Unidad de medida',
+            'subtype': 'Sub-tipo',
         }
 
 class SearchItemForm(forms.Form):

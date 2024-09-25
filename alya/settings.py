@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'formtools',
     'crispy_forms',
     'logistic_requirements',
+    'logistic_suppliers',
     'requests',
 ]
 

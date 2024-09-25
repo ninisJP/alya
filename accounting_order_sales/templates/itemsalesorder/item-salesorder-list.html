@@ -1,0 +1,51 @@
+<style>
+    .custom-table-wrapper {
+        max-height: calc(100vh - 200px); /* Ajusta este cálculo según tus necesidades */
+        overflow-y: auto;
+        border-radius: 0.5rem;
+        background-color: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .custom-table th {
+        background-color: #343a40;
+        color: #fff;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    .custom-table tbody tr {
+        transition: background-color 0.3s;
+    }
+    .custom-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+</style>
+
+<div class="custom-table-wrapper mb-4">
+    <table class="table custom-table mb-0" id="salesorder-item-list">
+        <thead>
+            <tr>
+                <th scope="col">Código SAP</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">Precio Unitario</th>
+                <th scope="col">Precio Total</th>
+                <th scope="col">UND</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td class="fw-bold">{{ item.sap_code }}</td>
+                <td>{{ item.description }}</td>
+                <td class="text-center">{{ item.amount }}</td>
+                <td class="text-end">{{ item.price }}</td>
+                <td class="text-end">{{ item.price_total }}</td>
+                <td class="text-center">{{ item.unit_of_measurement }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
