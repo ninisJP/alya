@@ -12,10 +12,10 @@
                         <li id="task-{{ task_order.pk }}" class="list-group-item d-flex justify-content-between align-items-center">
                             <div class="d-flex flex-wrap w-100 align-items-center">
                                 <div class="mr-3 mb-2 flex-fill">
-                                    <strong class="small">{{ task_order.task.verb }} - {{ task_order.task.object }} - 
-                                        <span class="d-inline-block text-truncate align-middle" style="max-width: 200px;" title="{{ task_order.task.orden_venta }}">
-                                            {{ task_order.task.orden_venta }}
-                                        </span> - {{ task_order.task.client }}
+                                    <strong class="small">{{ task_order.task.verb }} - {{ task_order.task.object }}- 
+                                        <span class="d-inline-block text-truncate align-middle" style="max-width: 200px;" title="{{ task_order.task.sale_order }}">
+                                            {{ task_order.task.sale_order.detail }}
+                                        </span> - {{ task_order.task.sale_order.project.client }}
                                     </strong>
                                 </div>
                                 <div class="time mr-3" data-duration="{{ task_order.task.task_time }}">
@@ -62,11 +62,11 @@
                             <td>{{ task_order.task.verb }}</td>
                             <td>{{ task_order.task.object }}</td>
                             <td>
-                                <span class="d-inline-block text-truncate align-middle" style="max-width: 200px;" title="{{ task_order.task.orden_venta }}">
-                                    {{ task_order.task.orden_venta }}
+                                <span class="d-inline-block text-truncate align-middle" style="max-width: 200px;" title="{{ task_order.task.sale_order }}">
+                                    {{ task_order.task.sale_order.detail }}
                                 </span>
                             </td>
-                            <td>{{ task_order.task.client }}</td>
+                            <td>{{ task_order.task.sale_order.project.client }}</td>
                             <td>{{ task_order.task.measurement }}</td>
                             <td>
                                 <div class="time" data-duration="{{ task_order.task.task_time }}">
