@@ -1,4 +1,5 @@
-<form method="POST" hx-post="{% url 'edit-client' %}" hx-target="#client-list"  class="space-y-6">
+<div id="client-{{ client.id }}">
+<form method="POST" hx-post="{% url 'edit-client' client.id %}" hx-target="#client-{{ client.id }}" hx-swap="outerHTML" class="space-y-6">
     {% csrf_token %}
 
     <div>
@@ -51,3 +52,4 @@
 
     <button type="submit" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Guardar Cambios</button>
 </form>
+</div>

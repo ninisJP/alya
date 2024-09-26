@@ -15,8 +15,5 @@
         <button class="btn btn-warning btn-sm btn-icon bg-edit" hx-get="{% url 'edit-client' client.id %}" hx-target="#client-{{ client.id }}" hx-swap="outerHTML" title="Editar">
             <i class="fas fa-edit"></i> Editar
         </button>
-        <button class="btn btn-danger btn-sm btn-icon bg-delete" hx-delete="{% url 'delete-client' client.id %}" hx-target="#client-{{ client.id }}" hx-swap="outerHTML" title="Eliminar">
-            <i class="fas fa-trash"></i> Eliminar
-        </button>
     </div>
 </div>

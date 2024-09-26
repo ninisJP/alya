@@ -7,12 +7,9 @@ from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect
 
 # Create your views here.
 def index_client(request):
-    print("nono")
     if request.method == 'POST':
-        print("nani")
         form = ClientForm(request.POST)
         if form.is_valid():
-            print("asdf")
             client = form.save()
             context = {'client': client}
             return render(request, 'partials/client_list.html', context)
@@ -26,13 +23,13 @@ def edit_client(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     if request.method == 'GET':
         form = ClientForm(instance=client)
-        return render(request, 'partials/edit-client.html', {'form': form, 'client': client})
+        return render(request, 'partials/edit_client.html', {'form': form, 'client': client})
     elif request.method == 'POST':
         form = ClientForm(request.POST, instance=client)
         if form.is_valid():
             form.save()
-            clients = Client.objects.all().order_by("-id")
-            return render(request, 'partials/client_list.html', {'clients': clients})
+            client = get_object_or_404(Client, id=client_id)
+            return render(request, 'partials/client_list.html', {'client': client})
     return HttpResponse(status=405)
 
 def delete_client(request, client_id):
