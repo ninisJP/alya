@@ -2,7 +2,6 @@ from django.db import models
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from django.utils import timezone
 from django.contrib.auth.models import User
-
 from logistic_suppliers.models import Suppliers
 
 class RequirementOrder(models.Model):
@@ -30,7 +29,6 @@ class RequirementOrder(models.Model):
         self.total_order = sum(item.total_price for item in self.items.all())
 
         super().save(*args, **kwargs)
-
 
 class RequirementOrderItem(models.Model):
     ESTADO_CHOICES = [

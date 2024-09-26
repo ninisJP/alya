@@ -11,6 +11,18 @@ class RequirementOrderListView(ListView):
     model = RequirementOrder
     template_name = 'requirement_order_list.html'
     context_object_name = 'requirement_orders'
+    
+class RequirementOrderDetailView(DetailView):
+    model = RequirementOrder
+    template_name = 'requirement_order_detail.html'  # El template que vas a crear
+    context_object_name = 'requirement_order'
+
+    # Sobrescribir el método get_context_data para incluir ítems relacionados
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agregar los ítems relacionados de la orden de requerimiento
+        context['items'] = self.object.items.all()
+        return context
 
 def create_requirement_order(request):
     if request.method == "POST":
