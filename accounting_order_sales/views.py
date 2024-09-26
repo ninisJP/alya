@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import SalesOrder, SalesOrderItem
+from .models import SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem
 from .utils import procesar_archivo_excel
 from .forms import SalesOrderForm, ItemSalesOrderExcelForm, ItemSalesOrderForm
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
@@ -15,7 +15,7 @@ def create_salesorder(request):
         form = SalesOrderForm(request.POST)
         if form.is_valid():
             form.save()
-            salesorders = SalesOrder.objects.all().order_by("-id")  # Asegúrate de que esté en plural
+            salesorders = SalesOrder.objects.all().order_by("-id")
             context = {'salesorders': salesorders}
             return render(request, 'salesorder/salesorder-list.html', context)
     else:
@@ -39,15 +39,13 @@ def delete_salesorder(request, salesorder_id):
     salesorder = get_object_or_404(SalesOrder, id=salesorder_id)
     if request.method == 'DELETE':
         salesorder.delete()
-        salesorders = SalesOrder.objects.all().order_by("-id")  # Para actualizar la lista después de eliminar
+        salesorders = SalesOrder.objects.all().order_by("-id") 
         return render(request, 'salesorder/salesorder-list.html', {'salesorders': salesorders})
     return HttpResponse(status=405)
 
-
-# QUEDA 
 def items_salesorder(request, salesorder_id):
     salesorder = get_object_or_404(SalesOrder, id=salesorder_id)
-    items = SalesOrderItem.objects.filter(salesorder=salesorder)  # Asegúrate de que esto está obteniendo los ítems
+    items = SalesOrderItem.objects.filter(salesorder=salesorder)
 
     if request.method == "POST":
         form = ItemSalesOrderForm(request.POST)
@@ -78,3 +76,17 @@ def items_salesorder(request, salesorder_id):
     }
 
     return render(request, 'itemsalesorder/item-salesorder.html', context)
+
+# Ordenes de compra
+def purchase_orders(request, salesorder_id):
+    # Obtener la SalesOrder correspondiente por su ID
+    salesorder = get_object_or_404(SalesOrder, id=salesorder_id)
+    # Filtrar todas las Purchase Orders relacionadas con esa SalesOrder
+    purchase_orders = PurchaseOrder.objects.filter(salesorder=salesorder).prefetch_related('items')
+
+    context = {
+        'salesorder': salesorder,  # Pasar la Sales Order para referencia
+        'purchase_orders': purchase_orders,  # Lista de Purchase Orders con sus Items
+    }
+    
+    return render(request, 'purchaseorder/purchaseorder-list.html', context)
