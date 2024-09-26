@@ -19,7 +19,6 @@ def create_suppliers(request):
             supplier = form.save(commit=False)
             supplier.user = request.user
             supplier.save()
-            # Consulta todos los proveedores después de guardar el nuevo proveedor
             suppliers = Suppliers.objects.all()
             context = {'suppliers': suppliers}
             return render(request, 'suppliers/suppliers_list.html', context)

@@ -2,6 +2,7 @@ from django.db import models
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from django.utils import timezone
 from django.contrib.auth.models import User
+from logistic_suppliers.models import Suppliers
 
 class RequirementOrder(models.Model):
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="requirement_orders")
@@ -29,7 +30,6 @@ class RequirementOrder(models.Model):
 
         super().save(*args, **kwargs)
 
-
 class RequirementOrderItem(models.Model):
     ESTADO_CHOICES = [
         ('L', 'Listo'),
@@ -41,6 +41,7 @@ class RequirementOrderItem(models.Model):
     sap_code = models.CharField(max_length=50, default="")
     quantity_requested = models.PositiveIntegerField(default=1)
     notes = models.CharField(max_length=255, blank=True, null=True)
+    supplier = models.ForeignKey(Suppliers, on_delete=models.SET_NULL, blank=True, null=True)
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES, default='P')
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
