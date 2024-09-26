@@ -1,4 +1,6 @@
-<form hx-post="{% url 'logistic_inventory_item_search' %}" hx-target="#logistic_inventory_item_list" hx-swap="innerHTML" class="w-100">
+{% load widget_tweaks %}
+
+<form hx-post="{% url 'logistic_inventory_item_search' %}" hx-target="#logistic_inventory_item_list" hx-swap="innerHTML" hx-trigger="keyup delay:0.2s" class="w-100 mb-5 p-4 border rounded shadow-sm">
     <div class="row">
         <div class="col-6 col-md-2 mb-3">
             <label for="{{ search.type.id_for_label }}" > Por tipo: </label>
@@ -11,10 +13,6 @@
         <div class="col-6 col-md-2 mb-3">
             <label for="{{ search.item_id.id_for_label }}" > Por ID: </label>
             {{ search.item_id }}
-        </div>
-
-        <div class="col-6 col-md-2 mb-3 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary">Buscar</button>
         </div>
     </div>
 </form>

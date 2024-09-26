@@ -1,0 +1,6 @@
+{% load widget_tweaks %}
+
+<form hx-post="{% url 'logistic_inventory_brand_new' %}" hx-target="#logistic_inventory_brand_forms" hx-swap="outerHTML" class="w-100 mb-5 p-4 border rounded shadow-sm">
+    {% csrf_token %}
+    {% include 'inventory/brand/form_template.html' %}
+</form>

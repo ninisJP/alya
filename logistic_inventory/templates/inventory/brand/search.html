@@ -1,0 +1,11 @@
+{% load widget_tweaks %}
+
+<form hx-post="{% url 'logistic_inventory_brand_search' %}" hx-target="#logistic_inventory_brand_list" hx-swap="innerHTML" hx-trigger="keyup delay:0.2s" class="w-100 mb-5 p-4 border rounded shadow-sm">
+
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-4 mb-3">
+            <label for="{{ search.name.id_for_label }}" class="form-label">Por Nombre:</label>
+            {{ search.name|add_class:"form-control" }}
+        </div>
+    </div>
+</form>

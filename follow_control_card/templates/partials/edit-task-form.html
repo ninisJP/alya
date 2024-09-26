@@ -2,27 +2,27 @@
     {% csrf_token %}
     <div class="row">
         <div class="col-6 col-md-2 mb-3">
-            <label for="{{ form.verb.id_for_label }}">{{ form.verb.label }}</label>
+            <label for="{{ form.verb.id_for_label }}">{{ form.verb.label }}1</label>
             {{ form.verb }}
         </div>
         <div class="col-6 col-md-2 mb-3">
-            <label for="{{ form.object.id_for_label }}">{{ form.object.label }}</label>
+            <label for="{{ form.object.id_for_label }}">{{ form.object.label }}2</label>
             {{ form.object }}
         </div>
         <div class="col-6 col-md-2 mb-3">
-            <label for="{{ form.orden_venta.id_for_label }}">{{ form.orden_venta.label }}</label>
-            {{ form.orden_venta }}
+            <label for="{{ form.sale_order.id_for_label }}">{{ form.sale_order.label }}3</label>
+            {{ form.sale_order }}
         </div>
-        <div class="col-6 col-md-2 mb-3">
-            <label for="{{ form.client.id_for_label }}">{{ form.client.label }}</label>
+        {% comment %} <div class="col-6 col-md-2 mb-3">
+            <label for="{{ form.client.id_for_label }}">{{ form.client.label }}4</label>
             {{ form.client }}
-        </div>
+        </div> {% endcomment %}
         <div class="col-6 col-md-1 mb-3">
-            <label for="{{ form.measurement.id_for_label }}">{{ form.measurement.label }}</label>
+            <label for="{{ form.measurement.id_for_label }}">{{ form.measurement.label }}5</label>
             {{ form.measurement }}
         </div>
         <div class="col-6 col-md-1 mb-3">
-            <label for="{{ form.task_time.id_for_label }}">{{ form.task_time.label }}</label>
+            <label for="{{ form.task_time.id_for_label }}">{{ form.task_time.label }}6</label>
             {{ form.task_time }}
         </div>
         <div class="col-6 col-md-2 mb-3 d-flex align-items-end">

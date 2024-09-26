@@ -1,4 +1,3 @@
-<!-- item-salesorder/item-salesorder.html -->
 <div class="container-fluid">
     <style>
         .form-label {
@@ -27,7 +26,7 @@
     </style>
 
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-9"> <!-- Cambiado a col-md-9 para darle más espacio a la lista -->
             <div class="section-title">
                 <h2 class="h4 mb-0">Lista de Ítems</h2>
             </div>
@@ -36,7 +35,7 @@
             </div>
         </div>
         
-        <div class="col-md-4">
+        <div class="col-md-3"> <!-- Cambiado a col-md-3 para reducir el ancho del formulario -->
             <div class="p-3 bg-light rounded mb-4">
                 <h2 class="h5 text-center">Agregar Nuevo Ítem</h2>
                 <form hx-post="{% url 'item-salesorder' salesorder.id %}" hx-target="#item-salesorder-list" hx-swap="innerHTML" class="w-100 mb-4">

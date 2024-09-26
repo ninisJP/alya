@@ -13,30 +13,21 @@ def index(request):
 
 def brand(request):
     context = {'form': BrandForm(), 'search': SearchForm()}
-    return render(request, 'inventory/brand.html', context)
+    return render(request, 'inventory/brand/home.html', context)
 
 def brand_edit(request, brand_id):
     brand = get_object_or_404(Brand, id=brand_id)
-    if request.method == 'GET':
-        form = BrandForm(instance=brand)
-        context = {
-                'form': form,
-                'brand': brand,
-                }
-        return render(request, 'inventory/brand_edit.html', context)
-    elif request.method == 'POST':
+    if request.method == 'POST':
         form = BrandForm(request.POST, instance=brand)
-        status = "no"
         if form.is_valid():
-            status = "yes"
             form.save()
-            context = {
-                    'form': form,
-                    'brand': brand,
-                    }
-        context['status'] = status
-        return render(request, 'inventory/brand_edit.html', context)
-    return HttpResponse(status=405)
+            # Después de guardar, renderizar el ítem
+            brand = get_object_or_404(Brand, id=brand_id)
+            return render(request, 'inventory/brand/list_element.html', {'brand': brand})
+    # Create view to edit
+    form = BrandForm(instance=brand)
+    context = {'form': form, 'brand': brand}
+    return render(request, 'inventory/brand/edit.html', context)
 
 def brand_new(request):
     context = {}
@@ -50,7 +41,7 @@ def brand_new(request):
 
     context['form'] = BrandForm()
 
-    return render(request, 'inventory/brand_form.html', context)
+    return render(request, 'inventory/brand/form.html', context)
 
 def brand_search(request):
     context = {}
@@ -65,7 +56,7 @@ def brand_search(request):
             context['search_status'] = status
 
     context['search'] = SearchForm()
-    return render(request, 'inventory/brand_list.html', context)
+    return render(request, 'inventory/brand/list.html', context)
 
 def item(request):
     context = {'form': ItemForm(), 'search': SearchItemForm()}
@@ -74,26 +65,23 @@ def item(request):
 
 def item_edit(request, item_id):
     item = get_object_or_404(Item, id=item_id)
-    if request.method == 'GET':
-        form = ItemForm(instance=item)
-        context = {
-                'form': form,
-                'item': item,
-                }
-        return render(request, 'inventory/item_edit.html', context)
-    elif request.method == 'POST':
+    context = {}
+    if request.method == 'POST':
         form = ItemForm(request.POST, instance=item)
-        status = "no"
+        status="no"
         if form.is_valid():
-            status = "yes"
             form.save()
-            context = {
-                    'form': form,
-                    'item': item,
-                    }
+            status="yes"
+        # nani
         context['status'] = status
-        return render(request, 'inventory/item_edit.html', context)
-    return HttpResponse(status=405)
+        form = ItemForm(instance=item)
+        context['item'] = item
+        context['form'] = form
+        return render(request, 'inventory/item_form_template.html', context)
+
+    form = ItemForm(instance=item)
+    context = {'form': form, 'item': item}
+    return render(request, 'inventory/item_edit.html', context)
 
 def item_new(request):
     context = {}
@@ -128,31 +116,19 @@ def item_search(request):
 
 def subtype(request):
     context = {'form': SubtypeForm(), 'search': SearchForm()}
-    return render(request, 'inventory/subtype.html', context)
+    return render(request, 'inventory/subtype/home.html', context)
 
 def subtype_edit(request, subtype_id):
     subtype = get_object_or_404(Subtype, id=subtype_id)
-    print(subtype_id)
-    if request.method == 'GET':
-        form = SubtypeForm(instance=subtype)
-        context = {
-                'form': form,
-                'subtype': subtype,
-                }
-        return render(request, 'inventory/subtype_edit.html', context)
-    elif request.method == 'POST':
+    if request.method == 'POST':
         form = SubtypeForm(request.POST, instance=subtype)
-        status = "no"
         if form.is_valid():
-            status = "yes"
             form.save()
-            context = {
-                    'form': form,
-                    'subtype': subtype,
-                    }
-        context['status'] = status
-        return render(request, 'inventory/subtype_edit.html', context)
-    return HttpResponse(status=405)
+            return render(request, 'inventory/subtype/list_element.html', {'subtype': subtype})
+    # Create view to edit
+    form = SubtypeForm(instance=subtype)
+    context = {'form': form, 'subtype': subtype}
+    return render(request, 'inventory/subtype/edit.html', context)
 
 def subtype_new(request):
     context = {}
@@ -166,7 +142,7 @@ def subtype_new(request):
 
     context['form'] = SubtypeForm()
 
-    return render(request, 'inventory/subtype_form.html', context)
+    return render(request, 'inventory/subtype/form.html', context)
 
 def subtype_search(request):
     context = {}
@@ -181,34 +157,24 @@ def subtype_search(request):
             context['search_status'] = status
 
     context['search'] = SearchForm()
-    return render(request, 'inventory/subtype_list.html', context)
+    return render(request, 'inventory/subtype/list.html', context)
 
 def type(request):
     context = {'form': TypeForm(), 'search': SearchForm()}
-    return render(request, 'inventory/type.html', context)
+    return render(request, 'inventory/type/home.html', context)
 
 def type_edit(request, type_id):
     ttype = get_object_or_404(Type, id=type_id)
-    if request.method == 'GET':
-        form = TypeForm(instance=ttype)
-        context = {
-                'form': form,
-                'type': ttype,
-                }
-        return render(request, 'inventory/type_edit.html', context)
-    elif request.method == 'POST':
+    if request.method == 'POST':
         form = TypeForm(request.POST, instance=ttype)
-        status = "no"
         if form.is_valid():
-            status = "yes"
             form.save()
-            context = {
-                    'form': form,
-                    'type': ttype,
-                    }
-        context['status'] = status
-        return render(request, 'inventory/type_edit.html', context)
-    return HttpResponse(status=405)
+            ttype = get_object_or_404(Type, id=type_id)
+            return render(request, 'inventory/type/list_element.html', {'type': ttype})
+    # Create view to edit
+    form = TypeForm(instance=ttype)
+    context = {'form': form, 'type': ttype}
+    return render(request, 'inventory/type/edit.html', context)
 
 def type_new(request):
     context = {}
@@ -222,7 +188,7 @@ def type_new(request):
 
     context['form'] = TypeForm()
 
-    return render(request, 'inventory/type_form.html', context)
+    return render(request, 'inventory/type/form.html', context)
 
 def type_search(request):
     context = {}
@@ -237,7 +203,7 @@ def type_search(request):
             context['search_status'] = status
 
     context['search'] = SearchForm()
-    return render(request, 'inventory/type_list.html', context)
+    return render(request, 'inventory/type/list.html', context)
 
 def get_all_subtypes(request):
     form = ItemForm(request.GET)

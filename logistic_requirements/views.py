@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RequirementOrderForm, RequirementOrderItemFormSet
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView 
+from django.views.generic import ListView, DetailView
 from .models import RequirementOrder, RequirementOrderItem
 from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
 
@@ -11,6 +11,18 @@ class RequirementOrderListView(ListView):
     model = RequirementOrder
     template_name = 'requirement_order_list.html'
     context_object_name = 'requirement_orders'
+    
+class RequirementOrderDetailView(DetailView):
+    model = RequirementOrder
+    template_name = 'requirement_order_detail.html'  # El template que vas a crear
+    context_object_name = 'requirement_order'
+
+    # Sobrescribir el método get_context_data para incluir ítems relacionados
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agregar los ítems relacionados de la orden de requerimiento
+        context['items'] = self.object.items.all()
+        return context
 
 def create_requirement_order(request):
     if request.method == "POST":
@@ -99,7 +111,3 @@ def edit_requirement_order(request, pk):
         'formset': formset,
         'requirement_order': requirement_order
     })
-
-
-
-
