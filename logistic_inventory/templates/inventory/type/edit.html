@@ -1,0 +1,9 @@
+{% load widget_tweaks %}
+
+<div id="type-{{ type.id }}" style="background-color: #CCCCCC">
+    <form hx-post="{% url 'logistic_inventory_type_edit' type.id %}" hx-target="#type-{{ type.id }}" hx-swap="outerHTML" class="w-100m b-5 p-4 border rounded shadow-sm">
+        {% csrf_token %}
+        {% include 'inventory/type/form_template.html' %}
+    </form>
+</div>
+
