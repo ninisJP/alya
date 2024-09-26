@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RequirementOrderForm, RequirementOrderItemFormSet
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView 
+from django.views.generic import ListView, DetailView
 from .models import RequirementOrder, RequirementOrderItem
 from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
 
@@ -111,7 +111,3 @@ def edit_requirement_order(request, pk):
         'formset': formset,
         'requirement_order': requirement_order
     })
-
-
-
-
