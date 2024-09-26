@@ -1,0 +1,122 @@
+{% extends 'base_logistic.html' %}
+
+{% block extra_css %}
+<style>
+    .custom-card {
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+    .custom-table {
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+    .badge-listo {
+        background-color: #28a745;
+        color: white;
+    }
+    .badge-pendiente {
+        background-color: #ffc107;
+        color: black;
+    }
+    .badge-comprando {
+        background-color: #17a2b8;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <!-- Información General -->
+    <div class="custom-card mb-4">
+        <div class="custom-card-header bg-dark text-white p-3">
+            <h4>Detalles de la Orden de Requerimiento #{{ requirement_order.order_number }}</h4>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <p><strong>Orden de Venta (Código SAP):</strong> {{ requirement_order.sales_order.sapcode }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p><strong>Fecha Solicitada:</strong> {{ requirement_order.requested_date }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p><strong>Usuario:</strong> {{ requirement_order.user }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p><strong>Total de la Orden:</strong> S/. {{ requirement_order.total_order }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p><strong>Estado de la Orden:</strong> 
+                        {% if requirement_order.estado %}
+                            <span class="badge badge-listo">Listo</span>
+                        {% else %}
+                            <span class="badge badge-pendiente">Pendiente</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <p><strong>Notas:</strong> {{ requirement_order.notes }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ítems de la Orden -->
+    <div class="custom-table">
+        <table class="table table-bordered table-hover text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Descripción</th>
+                    <th>Código SAP</th>
+                    <th>Cantidad Solicitada</th>
+                    <th>Proveedor</th>
+                    <th>Estado</th>
+                    <th>Precio Unitario</th>
+                    <th>Precio Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.sales_order_item.description }}</td>
+                    <td>{{ item.sap_code }}</td>
+                    <td>{{ item.quantity_requested }}</td>
+                    <td>
+                        {% if item.supplier %}
+                            {{ item.supplier.name }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.estado == 'L' %}
+                            <span class="badge badge-listo">Listo</span>
+                        {% elif item.estado == 'P' %}
+                            <span class="badge badge-pendiente">Pendiente</span>
+                        {% elif item.estado == 'C' %}
+                            <span class="badge badge-comprando">Comprando</span>
+                        {% endif %}
+                    </td>
+                    <td>S/. {{ item.price }}</td>
+                    <td>S/. {{ item.total_price }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No hay ítems en esta orden.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Botón para volver -->
+    <div class="mt-4 text-center">
+        <a href="{% url 'requirement_order_list' %}" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Volver a la lista de órdenes
+        </a>
+    </div>
+</div>
+{% endblock %}

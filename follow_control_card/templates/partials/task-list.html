@@ -2,7 +2,7 @@
         {% for task in tasks %}
             <li id="task-{{ task.id }}" class="list-group-item d-flex justify-content-between align-items-center">
                 <span>
-                    <strong>{{ task.verb }}</strong> - {{ task.object }} - {{ task.orden_venta }} - {{ task.client }} - {{ task.measurement }} - {{ task.task_time }}
+                    <strong>{{ task.verb }}</strong> - {{ task.object }} - {{ task.sale_order.detail }} - {{ task.sale_order.project.client }} - {{ task.measurement }} - {{ task.task_time }}
             </span>
                 <span>
                     <button class="btn btn-warning btn-sm me-2" hx-get="{% url 'edit-task' task.id %}" hx-target="#task-{{ task.id }}" hx-swap="outerHTML">Editar</button>

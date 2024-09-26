@@ -24,14 +24,14 @@
 </style>
 
 <div class="custom-table-wrapper mb-4">
-    <table class="table custom-table mb-0" id="salesorder-item-list">
+    <table class="table custom-table mb-0 text-center" id="salesorder-item-list"> <!-- 'text-center' para centrar el contenido -->
         <thead>
             <tr>
-                <th scope="col">Código SAP</th>
-                <th scope="col">Descripción</th>
-                <th scope="col">Cantidad</th>
-                <th scope="col">Precio Unitario</th>
-                <th scope="col">Precio Total</th>
+                <th scope="col">CODIGO</th>
+                <th scope="col">DESC</th>
+                <th scope="col">CANT</th>
+                <th scope="col">PRECIO</th>
+                <th scope="col">PRECIO T.</th>
                 <th scope="col">UND</th>
             </tr>
         </thead>
@@ -40,12 +40,13 @@
             <tr>
                 <td class="fw-bold">{{ item.sap_code }}</td>
                 <td>{{ item.description }}</td>
-                <td class="text-center">{{ item.amount }}</td>
-                <td class="text-end">{{ item.price }}</td>
-                <td class="text-end">{{ item.price_total }}</td>
-                <td class="text-center">{{ item.unit_of_measurement }}</td>
+                <td>{{ item.amount }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.price_total }}</td>
+                <td>{{ item.unit_of_measurement }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+

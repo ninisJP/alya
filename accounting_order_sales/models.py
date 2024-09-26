@@ -34,7 +34,7 @@ class PurchaseOrder(models.Model):
     acepted = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Purchase Order {self.id} for Sales Order {self.salesorder.sapcode} - Requested on {self.requested_date}"
+        return f"Orden de Compra {self.id} para la Orden de Venta {self.salesorder.sapcode} - Solicitada el {self.requested_date}"
 
 class PurchaseOrderItem(models.Model):
     purchaseorder = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="items")
