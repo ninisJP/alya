@@ -137,7 +137,7 @@ def catalog(request):
         'catalogs': catalogs,
     }
 
-    return render(request, 'catalog/catalog.html', context)
+    return render(request, 'catalog/home.html', context)
 
 def catalog_edit(request, catalog_id):
     catalog = get_object_or_404(CatalogItem, id=catalog_id)
@@ -146,14 +146,14 @@ def catalog_edit(request, catalog_id):
         form = CatalogItemForm(request.POST, instance=catalog)
         if form.is_valid():
             form.save()
-            # Después de guardar, renderizar la lista completa de ítems
+            # Después de guardar, renderizar el lista ítem
             catalog = get_object_or_404(CatalogItem, id=catalog_id)
-            return render(request, 'catalog/catalog_list_element.html', {'catalog': catalog})
-
+            return render(request, 'catalog/list_element.html', {'catalog': catalog})
     else:
         form = CatalogItemForm(instance=catalog)
 
-    return render(request, 'catalog/catalog_edit.html', {'form': form, 'catalog': catalog})
+    context = {'form': form, 'catalog': catalog}
+    return render(request, 'catalog/edit.html', context)
 
 def catalog_new(request):
     context = {}
@@ -167,7 +167,7 @@ def catalog_new(request):
 
     context['form'] = CatalogItemForm()
 
-    return render(request, 'catalog/catalog_form.html', context)
+    return render(request, 'catalog/form.html', context)
 
 def catalog_search(request):
     context = {}
@@ -176,11 +176,25 @@ def catalog_search(request):
         if form.is_valid():
 
             # Search catalogs
-            status, catalogs = utils.search_model(CatalogItem.objects.all(), 'sap', form.cleaned_data['sap'], accept_all=True)
-            if catalogs != {} :
-                catalogs = catalogs.order_by('sap')
+            if form.cleaned_data['sap'] and not form.cleaned_data['description'] :
+                # Only SAP
+                status, catalogs = utils.search_model(CatalogItem.objects.all(), 'sap', form.cleaned_data['sap'], accept_all=True)
+            elif form.cleaned_data['sap'] and form.cleaned_data['description'] :
+                # SAP and description
+                status, catalogs = utils.search_model(CatalogItem.objects.all(), 'sap', form.cleaned_data['sap'], accept_all=True)
+                status, catalogs = utils.search_model(catalogs, 'description', form.cleaned_data['description'], accept_all=True)
+            elif form.cleaned_data['description']:
+                # Only description
+                status, catalogs = utils.search_model(CatalogItem.objects.all(), 'description', form.cleaned_data['description'], accept_all=True)
+            else :
+                # Item
+                catalogs = CatalogItem.objects.all()
+                status = 0
+
+            # Sort
+            catalogs = catalogs.order_by('sap')
 
             context['catalogs'] = catalogs
             context['search_status'] = status
     context['search'] = SearchCatalogItemForm()
-    return render(request, 'catalog/catalog_list.html', context)
+    return render(request, 'catalog/list.html', context)

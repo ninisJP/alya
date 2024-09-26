@@ -8,6 +8,6 @@
     </div>
 {% endif %}
 
-{% for item in items %}
-    {% include 'inventory/item_list_element.html' %}
+{% for type in types %}
+    {% include 'inventory/type/list_element.html' %}
 {% endfor %}

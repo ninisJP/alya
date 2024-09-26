@@ -7,26 +7,22 @@ def search_model(model_all, column, name, accept_all=False):
     if not accept_all :
         if len(name) < 4 :
             return -1, {}
-    # Get all element
-    model_list = list(model_all.values_list(column))
-    # Convert to str list
-    model_list_str = []
-    for element in model_list:
-        model_list_str.append(element[0])
-    # Regex
-    r = re.compile(".*"+str(name)+".*", re.IGNORECASE)
-    list_new = list(filter(r.match, model_list_str))
 
-    # Get model's element
-    model_list = []
-    for element in list_new :
-        parameter = {column:element}
-        model_list.append(model_all.get(**parameter))
+    model_list = list(model_all.values())
+
+    regex_str = str(name)
+
+    list_find = []
+    for element in model_list:
+        match = re.findall(regex_str, str(element[column]), re.IGNORECASE)
+        match = ''.join(match)
+        if len(match):
+            list_find.append(element)
 
     # Get model id
     list_id = []
-    for element in model_list :
-        list_id.append(element.id)
+    for item in list_find :
+        list_id.append(item['id'])
 
     # Get model
     model_list = model_all.filter(pk__in=list_id)

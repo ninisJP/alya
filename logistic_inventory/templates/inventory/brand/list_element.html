@@ -1,0 +1,18 @@
+<li id="brand-{{ brand.id }}">
+    <div class="bg-white py-4 px-4 rounded-lg shadow-md mb-3 flex flex-wrap items-center hover:shadow-xl transition-shadow duration-300">
+        <div class="w-full sm:w-1/2">
+            <p class="mb-2"><i class="fas fa-briefcase"></i> Marca: <span class="font-bold">{{ brand.name }}</span></p>
+        </div>
+
+        <div class="w-full sm:w-1/6">
+            <!-- Botón Editar con HTMX -->
+            <button class="btn btn-warning btn-sm offset-1g-4 d-flex align-items-end"
+                    hx-get="{% url 'logistic_inventory_brand_edit' brand.id %}"
+                    hx-target="#brand-{{ brand.id }}"
+                    hx-swap="outerHTML">
+                <i class="fas fa-edit"></i>
+            </button>
+        </div>
+
+    </div>
+</li>
