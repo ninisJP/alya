@@ -1,7 +1,9 @@
-import dj_database_url
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -13,7 +15,6 @@ DEBUG = False
 # Define ALLOWED_HOSTS primero
 ALLOWED_HOSTS = ['*', 'alya-production.up.railway.app']
 
-load_dotenv()
 
 # Luego agrega RENDER_EXTERNAL_HOSTNAME si está definido
 # Application definition
@@ -92,7 +93,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'alya.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(default="postgresql://postgres:mNAgvOVIjMHRtSYfsLYYTQKXtJCjjZqn@postgres-_1ej.railway.internal:5432/railway")
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
 
