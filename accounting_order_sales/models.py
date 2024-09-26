@@ -51,5 +51,3 @@ class PurchaseOrderItem(models.Model):
 
     def __str__(self):
         return f"Item {self.sap_code} - {self.quantity_requested} units - Total {self.price_total}"
-
-
