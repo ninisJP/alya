@@ -5,8 +5,8 @@ from client.models import Client
 from decimal import Decimal
 
 class SalesOrder(models.Model):
-    sapcode = models.PositiveBigIntegerField()
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    sapcode = models.PositiveBigIntegerField(default=0)  # Código SAP por defecto como "000"
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)  # Proyecto puede ser nulo
     detail = models.CharField(max_length=255)
     date = models.DateField()
 
@@ -15,7 +15,7 @@ class SalesOrder(models.Model):
         self.save()
 
     def __str__(self):
-        return f"{self.sapcode} - {self.detail}"
+        return f"{self.sapcode} - {self.project if self.project else 'Sin Proyecto'} - {self.detail}"
 
 
 class SalesOrderItem(models.Model):
