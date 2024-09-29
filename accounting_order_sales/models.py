@@ -10,6 +10,10 @@ class SalesOrder(models.Model):
     detail = models.CharField(max_length=255)
     date = models.DateField()
 
+    def update_total_sales_order(self):
+        self.total_sales_order = sum(item.price_total for item in self.items.all())
+        self.save()
+
     def __str__(self):
         return f"{self.sapcode} - {self.project if self.project else 'Sin Proyecto'} - {self.detail}"
 
@@ -22,9 +26,20 @@ class SalesOrderItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     unit_of_measurement = models.CharField(max_length=10, default="UND")
+    remaining_requirement = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.description} - {self.amount} unidades"
+
+    def update_remaining_requirement(self):
+        cantidad_solicitada = sum(item.quantity_requested for item in self.requirementorderitem_set.all())
+        self.remaining_requirement = self.amount - cantidad_solicitada
+        self.save()
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.salesorder.update_total_sales_order()
+
 
 class PurchaseOrder(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE,related_name="purchase_orders")

@@ -15,20 +15,32 @@ class RequirementOrder(models.Model):
     total_order = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     purchase_order_created = models.BooleanField(default=False)
 
+    def delete(self, *args, **kwargs):
+        # Obtener los SalesOrderItems afectados antes de eliminar
+        affected_sales_order_items = set(item.sales_order_item for item in self.items.all())
+
+        # Eliminar la RequirementOrder y sus items
+        super().delete(*args, **kwargs)
+
+        # Recalcular remaining_requirement para cada SalesOrderItem afectado
+        for sales_order_item in affected_sales_order_items:
+            sales_order_item.update_remaining_requirement()
+
     def __str__(self):
         return f"Requirement Order {self.order_number} for {self.sales_order.sapcode} on {self.requested_date}"
 
     def save(self, *args, **kwargs):
-        # Si no hay clave primaria (pk), guarda primero para obtener el ID
+        # Si es una nueva instancia, guardarla primero para generar el ID
         if not self.pk:
             super().save(*args, **kwargs)
-            self.order_number = f"OR-{self.id}"  # Genera el número de orden basado en el id
-            super().save(*args, **kwargs)  # Vuelve a guardar para asignar el order_number
+            self.order_number = f"OR-{self.id}"  # Generar el número de orden basado en el ID
 
-        # Después de tener el ID, calcula el total sumando los precios de los ítems
+        # Calcular el total de la orden sumando los precios de los ítems
         self.total_order = sum(item.total_price for item in self.items.all())
-
+        
+        # Guardar finalmente la instancia
         super().save(*args, **kwargs)
+
 
 class RequirementOrderItem(models.Model):
     ESTADO_CHOICES = [
@@ -46,18 +58,24 @@ class RequirementOrderItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        # Si el precio no está definido, asignarlo desde sales_order_item
         if not self.price:
             self.price = self.sales_order_item.price
         if not self.sap_code:
             self.sap_code = self.sales_order_item.sap_code
+        
         super().save(*args, **kwargs)
+        self.sales_order_item.update_remaining_requirement()
+        
+    def delete(self, *args, **kwargs):
+        sales_order_item = self.sales_order_item
+        super().delete(*args, **kwargs)
+        sales_order_item.update_remaining_requirement()
 
     def __str__(self):
         return f"{self.sales_order_item.description} ({self.quantity_requested}) - {self.get_estado_display()}"
 
-    # Método para calcular el precio total de un ítem (cantidad * precio unitario)
     @property
     def total_price(self):
         return self.price * self.quantity_requested
+
 
