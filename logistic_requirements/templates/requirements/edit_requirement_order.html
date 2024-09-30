@@ -48,13 +48,14 @@
                 </div>
             </div>
 
-            <!-- Tabla de Ítems con Estado -->
+            <!-- Tabla de Ítems con Estado y Proveedor -->
             <div class="table-responsive">
                 <table class="table table-bordered table-hover table-striped table-sm">
                     <thead class="table-dark">
                         <tr>
                             <th>Item</th>
                             <th>Cantidad</th>
+                            <th>Proveedor</th>  <!-- Nueva columna para el proveedor -->
                             <th>Notas</th>
                             <th>Estado</th>
                         </tr>
@@ -66,6 +67,7 @@
                             {{ form.id }}  <!-- Campo oculto para el ID del formset -->
                             <td>{{ form.sales_order_item|add_class:"form-control" }}</td>
                             <td>{{ form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}</td>
+                            <td>{{ form.supplier|add_class:"form-control select2" }} <!-- Campo para seleccionar el proveedor --></td>
                             <td>{{ form.notes|add_class:"form-control" }}</td>
                             <td>{{ form.estado|add_class:"form-control" }}</td>
                         </tr>
@@ -90,6 +92,11 @@
 </div>
 
 <script>
+// Script para inicializar Select2 en los campos de proveedores
+$(document).ready(function() {
+    $('.select2').select2();  // Iniciar Select2 para todos los selectores con la clase select2
+});
+
 // Script para eliminar un formulario de ítem
 function removeForm(btn) {
     btn.closest('tr').remove();

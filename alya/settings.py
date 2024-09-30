@@ -11,8 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 # Import dj-database-url at the beginning of the file.
 import dj_database_url
-
-
 from pathlib import Path
 import os
 
@@ -27,10 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'RENDER' not in os.environ
+DEBUG = True
 
 # Define ALLOWED_HOSTS primero
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*','10.0.2.2']
 
 # Luego agrega RENDER_EXTERNAL_HOSTNAME si está definido
 # Application definition
@@ -70,6 +68,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'logistic_requirements',
     'logistic_suppliers',
+    'logistic_api',
     'requests',
 ]
 

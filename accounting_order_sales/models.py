@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
+from logistic_suppliers.models import Suppliers
 from project.models import Project
 from client.models import Client
 from decimal import Decimal
@@ -62,6 +63,7 @@ class PurchaseOrderItem(models.Model):
     notes = models.CharField(max_length=255, blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    supplier = models.ForeignKey(Suppliers, on_delete=models.SET_NULL, blank=True, null=True)
     mov_number = models.CharField(max_length=255, null=True, blank=True, default='')
     bank = models.CharField(max_length=100, null=True, blank=True)
 
