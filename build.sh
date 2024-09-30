@@ -2,7 +2,6 @@
 # Exit on error
 set -o errexit
 
-# Instalar dependencias
 pip install -r requirements.txt
 
 # Recoger archivos estáticos
