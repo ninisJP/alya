@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder
+from .views import salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder, update_purchase_orders, edit_purchase_order
 from . import views
 
 urlpatterns = [
@@ -14,6 +14,8 @@ htmxurlpatters = [
     
     # purchase order
     path('salesorder/<int:salesorder_id>/purchase-orders/', views.purchase_orders, name='purchaseorders'),
+    path('actualizar_orden/<int:item_id>/', update_purchase_orders, name='update_purchase_orders'),
+    path('editar_ordencompra/<int:order_id>/', edit_purchase_order, name='edit_purchase_order'),
 
 ]
 
