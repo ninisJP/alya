@@ -1,12 +1,13 @@
 from django.contrib import messages
-from django.db import models
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from collections import defaultdict
 from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm
 from .models import Budget, BudgetItem, CatalogItem
 from .utils import export_budget_report_to_excel
-
+from accounting_order_sales.models import SalesOrder, SalesOrderItem
+from django.http import HttpResponse
+from django.contrib import messages
 from alya import utils
 
 
@@ -112,7 +113,35 @@ def duplicate_budget(request, pk):
     # Redirigir a la vista de detalle del nuevo presupuesto
     return redirect('detail_budget', pk=duplicated_budget.pk)
 
-
+def create_sales_order_from_budget(request, budget_id):
+    # Obtener el presupuesto seleccionado
+    budget = get_object_or_404(Budget, id=budget_id)
+    
+    # Crear la orden de venta con los datos básicos, dejando 'project' como null inicialmente y sapcode="000"
+    sales_order = SalesOrder.objects.create(
+        sapcode=0,  # Valor por defecto (SAP 000)
+        project=None,  # Proyecto nulo, será agregado más tarde
+        detail=f"Orden basada en el presupuesto {budget.budget_name}",
+        date=budget.budget_date,
+    )
+    
+    # Iterar sobre los items del presupuesto y crear items de la orden de venta
+    for budget_item in budget.items.all():
+        SalesOrderItem.objects.create(
+            salesorder=sales_order,
+            sap_code=budget_item.item.sap,
+            description=budget_item.item.description,
+            amount=budget_item.quantity,
+            price=budget_item.item.price,  # Precio unitario
+            price_total=budget_item.total_price,  # Precio total
+            unit_of_measurement=budget_item.item.unit,
+        )
+    
+    # Agregar un mensaje de éxito
+    messages.success(request, f"La orden de venta {sales_order.sapcode} fue creada exitosamente.")
+    
+    # Redirigir a la vista principal de presupuestos
+    return redirect('index_budget')
 
 def export_budget_report(request, pk):
     return export_budget_report_to_excel(request, pk)

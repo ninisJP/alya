@@ -1,3 +1,4 @@
+import dj_database_url
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -9,15 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-# Define ALLOWED_HOSTS primero
 ALLOWED_HOSTS = ['*', 'alya-production.up.railway.app']
-
-
-# Luego agrega RENDER_EXTERNAL_HOSTNAME si está definido
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -54,6 +49,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'logistic_requirements',
     'logistic_suppliers',
+    'logistic_api',
     'requests',
     'whitenoise.runserver_nostatic',
 ]

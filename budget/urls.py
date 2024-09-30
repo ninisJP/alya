@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index_budget, create_budget, detail_budget, edit_budget, delete_budget, catalog, export_budget_report
+from .views import index_budget, create_budget, detail_budget, edit_budget, delete_budget, catalog, export_budget_report, create_sales_order_from_budget
 from . import views
 
 urlpatterns = [
@@ -10,6 +10,8 @@ urlpatterns = [
     path('delete_budget/<int:pk>/', delete_budget, name='delete_budget'),
     path('duplicate_budget/<int:pk>/', views.duplicate_budget, name='duplicate_budget'),
     path('export_budget/<int:pk>/', export_budget_report, name="export_budget_report"),
+    path('create_sales_order/<int:budget_id>/', create_sales_order_from_budget, name='create_sales_order'),
+
    
     # Catalog
     path('catalog/', views.catalog, name='budget_catalog'),
