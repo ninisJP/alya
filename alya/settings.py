@@ -46,15 +46,6 @@ INSTALLED_APPS = [
     'hub',
     'logistic_api',
     'logistic_inventory',
-    #DJANGO BROWSER RELOAD
-    "django_browser_reload",
-    #Django htmx
-    'django_htmx',
-    #Django restframwork
-    'rest_framework',
-    'rest_framework.authtoken',
-    'formtools',
-    'crispy_forms',
     'crispy_bootstrap5',
     'logistic_inventory_api',
     'logistic_requirements',
