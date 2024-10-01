@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
-DEBUG = False
+DEBUG = True # False
 
 ALLOWED_HOSTS = ['*', 'alya-production.up.railway.app']
 
@@ -47,12 +47,15 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'formtools',
     'crispy_forms',
+    'crispy_bootstrap5',
     'logistic_requirements',
     'logistic_suppliers',
     'logistic_api',
     'requests',
     'whitenoise.runserver_nostatic',
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -157,3 +160,7 @@ LOGOUT_REDIRECT_URL = '/'
 # MEDIA ROOT
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Configuración para Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

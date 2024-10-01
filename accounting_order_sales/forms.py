@@ -1,5 +1,5 @@
 from django import forms
-from .models import SalesOrder, SalesOrderItem
+from .models import SalesOrder, SalesOrderItem, Bank
 
 class SalesOrderForm(forms.ModelForm):
     date = forms.DateField(
@@ -51,4 +51,15 @@ class ItemSalesOrderExcelForm(forms.Form):
         'class': 'form-control',
         'placeholder': 'Selecciona un archivo Excel'
     }))
+
+# Bank
+class BankForm(forms.ModelForm):
+    class Meta:
+        model = Bank
+        fields = ['bank_name', 'bank_account', 'bank_detail', 'bank_current_mount']
+
+
+class UploadBankStatementForm(forms.Form):
+    bank = forms.ModelChoiceField(queryset=Bank.objects.all(), required=True, label='Bank')
+    excel_file = forms.FileField(label='Excel File')
 

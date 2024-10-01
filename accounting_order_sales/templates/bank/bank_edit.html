@@ -1,0 +1,30 @@
+{% extends 'base_accounting.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <h2 class="mb-4">Editar Banco</h2>
+
+    <form method="POST" action="{% url 'edit_bank' bank.id %}" class="row g-3">
+        {% csrf_token %}
+        <div class="col-md-6">
+            {{ form.bank_name|add_class:"form-control" }}
+        </div>
+        <div class="col-md-6">
+            {{ form.bank_account|add_class:"form-control" }}
+        </div>
+        <div class="col-md-12">
+            {{ form.bank_detail|add_class:"form-control" }}
+        </div>
+        <div class="col-md-6">
+            {{ form.bank_current_mount|add_class:"form-control" }}
+        </div>
+
+        <!-- Colocar los botones juntos en la misma fila -->
+        <div class="col-md-12 d-flex justify-content-end mt-3">
+            <button type="submit" class="btn btn-primary me-2">Guardar Cambios</button>
+            <a href="{% url 'bank_index' %}" class="btn btn-danger">Cancelar Cambios</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
