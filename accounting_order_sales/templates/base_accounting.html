@@ -147,11 +147,30 @@
                 </a>
             </div>
             <div class="list-group list-group-flush">
-                <a hx-get="#" hx-target="#main" class="list-group-item list-group-item-action">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Orden Venta</span>
+                <a href="{% url 'salesorder' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                    <i class="fas fa-receipt me-2"></i>
+                    <span>Órdenes de Venta</span>
                 </a>
             </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'general_purchaseorder' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                    <i class="fas fa-box-open me-2"></i>
+                    <span>Órdenes de Compra</span>
+                </a>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'petty_cash' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                    <i class="fas fa-wallet me-2"></i>
+                    <span>Caja Chica</span>
+                </a>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'petty_cash' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>
+                    <span>Rendiciones</span>
+                </a>
+            </div>
+            
             
             <!-- Contenedor específico para el botón de logout -->
             <div id="" class="logout-container">
