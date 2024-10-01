@@ -46,12 +46,24 @@ INSTALLED_APPS = [
     'hub',
     'logistic_api',
     'logistic_inventory',
+    #DJANGO BROWSER RELOAD
+    "django_browser_reload",
+    #Django htmx
+    'django_htmx',
+    #Django restframwork
+    'rest_framework',
+    'rest_framework.authtoken',
+    'formtools',
+    'crispy_forms',
+    'crispy_bootstrap5',
     'logistic_inventory_api',
     'logistic_requirements',
     'logistic_suppliers',
     'project',
     'requests',
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -153,3 +165,7 @@ LOGOUT_REDIRECT_URL = '/'
 # MEDIA ROOT
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Configuración para Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

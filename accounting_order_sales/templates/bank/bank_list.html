@@ -1,0 +1,31 @@
+<ul class="list-group">
+    {% for bank in banks %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="d-flex flex-column">
+                <h5 class="mb-1">
+                    <strong>Nombre del Banco:{{ bank.bank_name }}</strong>
+                </h5>
+                <p class="text-muted mb-1">
+                    <span class="fw-bold">Numero de Cuenta Bancaria :</span> {{ bank.bank_account }}
+                </p>
+                <p class="text-muted">
+                    <em>Detalles: </em>
+                    <em>{{ bank.bank_detail }}</em>
+                </p>
+            </div>
+            
+            <div>
+                <span class="badge bg-primary rounded-pill">
+                    Monto: {{ bank.bank_current_mount|floatformat:2 }}  <!-- Formatear con 2 decimales -->
+                </span>
+                <a href="{% url 'bank_statement' bank.id %}" class="btn btn-warning btn-sm me-1">Ver extractos Bancarios</a>
+                <a href="{% url 'edit_bank' bank.id %}" class="btn btn-sm btn-info">Editar</a>
+                <a href="{% url 'delete_bank' bank.id %}" class="btn btn-sm btn-danger">Delete</a>
+
+
+            </div>
+        </li>
+    {% empty %}
+        <li class="list-group-item">No hay bancos registrados.</li>
+    {% endfor %}
+</ul>

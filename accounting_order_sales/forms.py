@@ -1,5 +1,5 @@
 from django import forms
-from .models import SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem
+from .models import SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem,Bank
 from django.forms import inlineformset_factory
 
 class SalesOrderForm(forms.ModelForm):
@@ -53,6 +53,19 @@ class ItemSalesOrderExcelForm(forms.Form):
         'placeholder': 'Selecciona un archivo Excel'
     }))
 
+
+# Bank
+class BankForm(forms.ModelForm):
+    class Meta:
+        model = Bank
+        fields = ['bank_name', 'bank_account', 'bank_detail', 'bank_current_mount']
+
+
+class UploadBankStatementForm(forms.Form):
+    bank = forms.ModelChoiceField(queryset=Bank.objects.all(), required=True, label='Bank')
+    excel_file = forms.FileField(label='Excel File')
+
+
 # Formulario para la orden de compra (PurchaseOrder)
 class PurchaseOrderForm(forms.ModelForm):
     class Meta:
@@ -76,3 +89,4 @@ class PurchaseOrderItemForm(forms.ModelForm):
             'type_pay': forms.Select(attrs={'class': 'form-select'}),
             'notes': forms.TextInput(attrs={'class': 'form-control'}),
         }
+

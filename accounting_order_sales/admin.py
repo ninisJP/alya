@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import SalesOrder, SalesOrderItem
-
+from .models import SalesOrder, SalesOrderItem,Bank, BankStatements
 # Inline para los ítems de la orden de venta
 class SalesOrderItemInline(admin.TabularInline):
     model = SalesOrderItem
@@ -18,3 +17,8 @@ class SalesOrderAdmin(admin.ModelAdmin):
 @admin.register(SalesOrderItem)
 class SalesOrderItemAdmin(admin.ModelAdmin):
     list_display = ('salesorder', 'sap_code', 'description', 'amount', 'price', 'price_total')
+    
+admin.site.register(Bank)
+admin.site.register(BankStatements)
+
+

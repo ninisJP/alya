@@ -4,6 +4,8 @@ from logistic_suppliers.models import Suppliers
 from project.models import Project
 from client.models import Client
 from decimal import Decimal
+from django.db.models.functions import TruncMonth
+
 
 class SalesOrder(models.Model):
     sapcode = models.PositiveBigIntegerField(default=0) 
@@ -95,3 +97,34 @@ class PurchaseOrderItem(models.Model):
 
     def __str__(self):
         return f"Item {self.sap_code} - {self.quantity_requested} units - Total {self.price_total}"
+    
+    
+class Bank(models.Model):
+    bank_name = models.CharField(max_length=70, verbose_name='Banco')
+    bank_account = models.CharField(max_length=30, verbose_name='Número de cuenta bancaria')
+    bank_detail = models.CharField(max_length=200,verbose_name='Detalles')
+    bank_current_mount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name='Monto Total');
+    
+    def __str__(self):
+        return f'Banco: {self.bank_name} - Cuenta:{self.bank_account}'
+    
+    
+class BankStatements(models.Model):
+    bank = models.ForeignKey(Bank, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Banco')
+    operation_date = models.DateField(verbose_name='Fecha de Operación', null=True, blank=True)
+    reference = models.CharField(max_length=100, default='')
+    amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    itf = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='ITF', null=True, blank=True)
+    number_moviment = models.CharField(max_length=50, verbose_name='Número de Movimiento', default='')
+
+    def __str__(self):
+        return f'Movimiento: {self.number_moviment} - Referencia: {self.reference}'   
+    
+class BankStatementManager(models.Manager):
+    def by_month(self, year, month):
+        return self.annotate(
+            month=TruncMonth('operation_date') 
+        ).filter(
+            operation_date__year=year,
+            operation_date__month=month,
+        )
