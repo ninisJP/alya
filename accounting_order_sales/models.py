@@ -8,8 +8,8 @@ from django.db.models.functions import TruncMonth
 
 
 class SalesOrder(models.Model):
-    sapcode = models.PositiveBigIntegerField(default=0)  # Código SAP por defecto como "000"
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)  # Proyecto puede ser nulo
+    sapcode = models.PositiveBigIntegerField(default=0) 
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)  
     detail = models.CharField(max_length=255)
     date = models.DateField()
 
@@ -48,7 +48,8 @@ class PurchaseOrder(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE,related_name="purchase_orders")
     description = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
-    requested_date = models.DateField()
+    requested_date = models.DateField(blank=True, null=True)
+    scheduled_date = models.DateField(blank=True, null=True)
     requested_by = models.CharField(max_length=20, verbose_name="Encargado", blank=True, null=True)
     acepted = models.BooleanField(default=True)
 
@@ -56,11 +57,36 @@ class PurchaseOrder(models.Model):
         return f"Orden de Compra {self.id} para la Orden de Venta {self.salesorder.sapcode} - Solicitada el {self.requested_date}"
 
 class PurchaseOrderItem(models.Model):
+    CLASS_PAY_CHOICES = [
+        ('bancos', 'Bancos'),
+        ('planillas', 'Planillas'),
+        ('servicios', 'Servicios'),
+        ('sunat', 'SUNAT'),
+        ('proveedores', 'Proveedores'),
+    ]
+
+    TYPE_PAY_CHOICES = [
+        ('prestamo', 'Préstamo'),
+        ('tarjeta', 'Tarjeta'),
+        ('sueldo', 'Sueldo'),
+        ('bonos', 'Bonos'),
+        ('afp', 'AFP'),
+        ('graticaciones', 'Gratificaciones'),
+        ('liquidacion', 'Liquidación'),
+        ('vacaciones', 'Vacaciones'),
+        ('cts', 'CTS'),
+        ('recibo_honorarios', 'Recibo por Honorarios'),
+        ('proveedores', 'Proveedores'),
+        ('fraccionamiento', 'Fraccionamiento'),
+        ('planilla', 'Planilla'),
+        ('pdt', 'PDT'),
+    ]
+
     purchaseorder = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="items")
     sales_order_item = models.ForeignKey(SalesOrderItem, on_delete=models.CASCADE)
     sap_code = models.CharField(max_length=50, default="")
-    class_pay = models.CharField(max_length=50, default="")
-    type_pay = models.CharField(max_length=50, default="")
+    class_pay = models.CharField(max_length=50, choices=CLASS_PAY_CHOICES, default='proveedores')  # Elegir entre clases
+    type_pay = models.CharField(max_length=50, choices=TYPE_PAY_CHOICES, default='proveedores')  # Elegir entre tipos
     quantity_requested = models.PositiveIntegerField(default=1)
     notes = models.CharField(max_length=255, blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)

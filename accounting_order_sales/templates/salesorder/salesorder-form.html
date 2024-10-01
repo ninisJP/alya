@@ -1,5 +1,5 @@
 <div class="p-4 bg-light rounded shadow-sm mb-2"> 
-    <h2 class="text-center text-uppercase mb-2">ORDENES DE VENTA</h2> 
+    <h1 class="text-center text-uppercase mb-2">ORDENES DE VENTA</h1> 
     <form hx-post="{% url 'create-salesorder' %}" hx-target="#salesorder-list" hx-swap="innerHTML" class="w-100">
         {% csrf_token %}
         <div class="row">
