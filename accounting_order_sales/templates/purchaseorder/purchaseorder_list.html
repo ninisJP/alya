@@ -1,19 +1,20 @@
-<div class="container-fluid mt-5">
+<div class="container-fluid">
+
     <!-- Header con detalles de la orden de venta -->
-    <header class="bg-light p-3 rounded shadow-sm d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-0">Órdenes de Compra para la Orden de Venta {{ salesorder.sapcode }}</h2>
-            <h5>Proyecto: {{ salesorder.project.name }}</h5>
+    <header class="bg-light p-4 rounded shadow-sm mb-2">
+        <div class="row align-items-center">
+            <!-- Título, Proyecto en Badge y Detalle en la misma línea -->
+            <div class="col-md-12">
+                <h2 class="mb-0 fw-bold" style="font-size: 1.5rem;">
+                    <span class="badge bg-danger" style="font-size: 1.1rem;">{{ salesorder.project.name }}</span>
+                    - {{ salesorder.sapcode }} - <span style="font-size: 1.1rem;">Detalle: {{ salesorder.detail }}</span>
+                </h2>
+            </div>
         </div>
-        <p class="mb-0">Detalle de la Orden: {{ salesorder.detail }}</p>
     </header>
 
     <!-- Lista de órdenes de compra -->
     <section class="list-group" id="ordenes-compra-container">
-        {% for order in purchase_orders %}
-            <div id="orden-{{ order.id }}">
-                {% include 'purchaseorder/purchaseorder_list_partial.html' %}
-            </div>
-        {% endfor %}
+        {% include 'purchaseorder/purchaseorder_list_partial.html' %}
     </section>
 </div>

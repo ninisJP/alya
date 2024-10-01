@@ -81,6 +81,52 @@ def items_salesorder(request, salesorder_id):
 
     return render(request, 'itemsalesorder/item-salesorder.html', context)
 
+def quick_create_purchaseorder(request, salesorder_id):
+    salesorder = get_object_or_404(SalesOrder, id=salesorder_id)
+    items = SalesOrderItem.objects.filter(salesorder=salesorder)
+
+    if request.method == "POST":
+        # Obtenemos el ID del item desde el formulario y la cantidad
+        item_id = request.POST.get("item_id")
+        quantity_requested = int(request.POST.get("quantity_requested"))
+
+        sales_order_item = get_object_or_404(SalesOrderItem, id=item_id)
+        
+        # Creamos la PurchaseOrder basada en los detalles del SalesOrder
+        purchase_order = PurchaseOrder.objects.create(
+            salesorder=salesorder,
+            description=f"Orden de Compra rápida para {sales_order_item.description}",
+            requested_date=request.POST.get('requested_date', None),  # Opcional
+            scheduled_date=request.POST.get('scheduled_date', None),  # Opcional
+            requested_by=request.user.username  # Asumimos que el usuario actual está creando la orden
+        )
+
+        # Creamos el PurchaseOrderItem basado en el SalesOrderItem
+        purchase_order_item = PurchaseOrderItem.objects.create(
+            purchaseorder=purchase_order,
+            sales_order_item=sales_order_item,
+            sap_code=sales_order_item.sap_code,
+            quantity_requested=quantity_requested,  # Usamos la cantidad ingresada por el usuario
+            price=sales_order_item.price,
+            price_total=sales_order_item.price * quantity_requested,
+            supplier=None  # Este campo puede ser opcional o predeterminado
+        )
+
+        return redirect('purchaseorder_list')  # Redirige a la lista de órdenes de compra
+
+    return render(request, 'itemsalesorder/item-salesorder.html', {
+        'salesorder': salesorder,
+        'items': items,
+    })
+
+
+def general_purchaseorder(request):
+    purchase_orders = PurchaseOrder.objects.all() 
+    context = {
+        'purchase_orders': purchase_orders, 
+    }
+    return render(request, 'purchaseorder/general_purchaseorder.html', context)
+
 # Ordenes de compra
 def purchase_orders(request, salesorder_id):
     salesorder = get_object_or_404(SalesOrder, id=salesorder_id)
@@ -94,104 +140,40 @@ def purchase_orders(request, salesorder_id):
     return render(request, 'purchaseorder/purchaseorder_list.html', context)
 
 def edit_purchase_order(request, order_id):
-    # Obtener la orden de compra
     order = get_object_or_404(PurchaseOrder, id=order_id)
-
-    # Crear el FormSet para los ítems de la orden de compra
     ItemFormSet = modelformset_factory(PurchaseOrderItem, form=PurchaseOrderItemForm, extra=0)
 
     if request.method == 'POST':
-        # Recibir el order_id desde el formulario oculto
-        order_id = request.POST.get('order_id')
-
         # Formulario para la orden de compra
         order_form = PurchaseOrderForm(request.POST, instance=order)
-
         # Formset para los ítems de la orden de compra
         item_formset = ItemFormSet(request.POST, queryset=PurchaseOrderItem.objects.filter(purchaseorder=order))
 
         if order_form.is_valid() and item_formset.is_valid():
+            # Guardar la orden de compra y los ítems
             order_form.save()
             item_formset.save()
 
-            # Después de guardar, recargar la lista de órdenes
-            purchase_orders = PurchaseOrder.objects.filter(salesorder=order.salesorder)
-            context = {
-                'purchase_orders': purchase_orders,
-                'order_id': order_id  # Asegúrate de pasar el order_id
-            }
-
-            return render(request, 'purchaseorder/purchaseorder_list_partial.html', context)
-        else:
-            # Si no son válidos, imprime los errores
-            print("Errores del formulario de orden:", order_form.errors)
-            print("Errores del formset de ítems:", item_formset.errors)
-
+            # Después de guardar, devolver el artículo actualizado
+            return render(request, 'purchaseorder/purchaseorder_partial.html', {'order': order})
     else:
-        # Cargar los formularios iniciales si no es POST
         order_form = PurchaseOrderForm(instance=order)
         item_formset = ItemFormSet(queryset=PurchaseOrderItem.objects.filter(purchaseorder=order))
 
-    # Renderizar el formulario parcial con HTMX
-    context = {
+    return render(request, 'purchaseorder/purchaseorder_form_partial.html', {
         'order_form': order_form,
         'item_formset': item_formset,
         'order': order,
-        'order_id': order.id  # Asegúrate de pasar el order_id en el contexto
+    })
+    
+
+#caja chica
+def petty_cash(request):
+    # Obtener todos los ítems de las órdenes de compra que tienen fecha de pago
+    items = PurchaseOrderItem.objects.filter(purchaseorder__scheduled_date__isnull=False).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
+
+    context = {
+        'items': items,  # Pasamos todos los ítems de órdenes de compra
     }
-    return render(request, 'purchaseorder/purchaseorder_form_partial.html', context)
 
-
-
-
-
-def update_purchase_orders(request, item_id):
-    # Obtener el PurchaseOrderItem por su ID
-    item = get_object_or_404(PurchaseOrderItem, pk=item_id)
-
-    # Campos que vamos a actualizar desde el formulario
-    quantity_requested = request.POST.get("quantity_requested", "")
-    price = request.POST.get("price", "")
-    class_pay = request.POST.get("class_pay", "")
-    type_pay = request.POST.get("type_pay", "")
-    notes = request.POST.get("notes", "")
-    supplier_id = request.POST.get("supplier", "")
-
-    try:
-        # Actualizar los campos en base a lo recibido en el formulario
-        if quantity_requested:
-            item.quantity_requested = int(quantity_requested)
-
-        if price:
-            item.price = round(float(price), 2)
-            # Recalcular el precio total basado en la cantidad y el precio unitario
-            item.price_total = round(item.quantity_requested * item.price, 2)
-
-        if class_pay:
-            item.class_pay = class_pay
-
-        if type_pay:
-            item.type_pay = type_pay
-
-        if notes:
-            item.notes = notes
-
-        # Actualizar el proveedor solo si se envía uno válido
-        if supplier_id:
-            supplier = Suppliers.objects.filter(id=supplier_id).first()
-            if supplier:
-                item.supplier = supplier
-            else:
-                return HttpResponse("Proveedor no válido", status=400)
-
-        # Guardar los cambios
-        item.save()
-
-        return HttpResponse(f"Actualización exitosa. Total: {item.price_total:.2f}")
-
-    except ValueError:
-        return HttpResponse("Error en los datos proporcionados", status=400)
-    except ValidationError as e:
-        return HttpResponse(f"Error de validación: {e.messages}", status=400)
-    except Exception as e:
-        return HttpResponse(f"Error inesperado: {str(e)}", status=500)
+    return render(request, 'pettycash/petty_cash_items.html', context)

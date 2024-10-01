@@ -6,8 +6,8 @@ from client.models import Client
 from decimal import Decimal
 
 class SalesOrder(models.Model):
-    sapcode = models.PositiveBigIntegerField(default=0)  # Código SAP por defecto como "000"
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)  # Proyecto puede ser nulo
+    sapcode = models.PositiveBigIntegerField(default=0) 
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)  
     detail = models.CharField(max_length=255)
     date = models.DateField()
 
@@ -46,7 +46,7 @@ class PurchaseOrder(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE,related_name="purchase_orders")
     description = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
-    requested_date = models.DateField()
+    requested_date = models.DateField(blank=True, null=True)
     scheduled_date = models.DateField(blank=True, null=True)
     requested_by = models.CharField(max_length=20, verbose_name="Encargado", blank=True, null=True)
     acepted = models.BooleanField(default=True)
