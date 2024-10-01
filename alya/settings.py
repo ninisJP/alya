@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*', 'alya-production.up.railway.app']
 
@@ -21,37 +21,36 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #DJANGO BROWSER RELOAD
+    "django_browser_reload",
+    'django_htmx',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'formtools',
+    'crispy_forms',
+    'whitenoise.runserver_nostatic',
+    'widget_tweaks',
     #APP PARA TODOS LOS BASE
     'accounting_order_sales',
+    'budget',
+    'client',
+    'client_crm',
+    'employee',
+    'employee_api',
+    'employee_portal',
     'follow_control_backlog',
     'follow_control_card',
     'follow_control_home',
     'follow_control_report',
     'follow_control_technician',
     'hub',
-    'employee',
-    'employee_api',
-    'employee_portal',
-    'widget_tweaks',
-    'client',
-    'client_crm',
-    'project',
-    'budget',
+    'logistic_api',
     'logistic_inventory',
-    #DJANGO BROWSER RELOAD
-    "django_browser_reload",
-    #Django htmx
-    'django_htmx',
-    #Django restframwork
-    'rest_framework',
-    'rest_framework.authtoken',
-    'formtools',
-    'crispy_forms',
+    'logistic_inventory_api',
     'logistic_requirements',
     'logistic_suppliers',
-    'logistic_api',
+    'project',
     'requests',
-    'whitenoise.runserver_nostatic',
 ]
 
 MIDDLEWARE = [
