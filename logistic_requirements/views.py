@@ -56,11 +56,9 @@ def edit_requirement_order(request, pk):
         formset = RequirementOrderItemFormSet(request.POST, instance=requirement_order)
 
         if order_form.is_valid() and formset.is_valid():
-            with transaction.atomic():  # Usamos una transacción para asegurar la consistencia
-                # Guardar la RequirementOrder
+            with transaction.atomic(): 
                 order_form.save()
 
-                # Guardar los RequirementOrderItems
                 items = formset.save(commit=False)
                 for item in items:
                     item.save()

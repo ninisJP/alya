@@ -23,8 +23,8 @@ class SalesOrder(models.Model):
 
 class SalesOrderItem(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="items")
-    sap_code = models.CharField(max_length=50, default="")
-    description = models.CharField(max_length=50, default="")
+    sap_code = models.CharField(max_length=255, default="")  # Aumenta el límite
+    description = models.CharField(max_length=255, default="")
     amount = models.IntegerField(null=True, default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
@@ -46,7 +46,7 @@ class SalesOrderItem(models.Model):
 
 class PurchaseOrder(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE,related_name="purchase_orders")
-    description = models.CharField(max_length=100)
+    description = models.CharField(max_length=255) 
     created_at = models.DateTimeField(auto_now_add=True)
     requested_date = models.DateField(blank=True, null=True)
     scheduled_date = models.DateField(blank=True, null=True)
@@ -84,7 +84,7 @@ class PurchaseOrderItem(models.Model):
 
     purchaseorder = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="items")
     sales_order_item = models.ForeignKey(SalesOrderItem, on_delete=models.CASCADE)
-    sap_code = models.CharField(max_length=50, default="")
+    sap_code = models.CharField(max_length=255, default="")
     class_pay = models.CharField(max_length=50, choices=CLASS_PAY_CHOICES, default='proveedores')  # Elegir entre clases
     type_pay = models.CharField(max_length=50, choices=TYPE_PAY_CHOICES, default='proveedores')  # Elegir entre tipos
     quantity_requested = models.PositiveIntegerField(default=1)
