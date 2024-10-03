@@ -26,8 +26,13 @@
                         <td>
                             <div class="btn-group" role="group" aria-label="Acciones">
                                 <a href="{% url 'create_requests' order.id %}" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-plus-circle"></i> Crear Requerimiento
+                                    <i class="fas fa-plus-circle"></i>Crear Pedido
                                 </a>   
+                            </div>
+                            <div class="btn-group" role="group" aria-label="Acciones">
+                                <a href="{% url 'create_prepopulated_request' order.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus-circle"></i>Pedido rapido
+                                </a>
                             </div>
                         </td>
                     </tr>

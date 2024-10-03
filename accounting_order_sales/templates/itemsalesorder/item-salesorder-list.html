@@ -24,7 +24,7 @@
 </style>
 
 <div class="custom-table-wrapper mb-4">
-    <form method="POST" action="{% url 'quick_create_purchaseorder' salesorder.id %}">
+    <form method="POST" action="">
         {% csrf_token %}
         <table class="table custom-table mb-0 text-center" id="salesorder-item-list">
             <thead>

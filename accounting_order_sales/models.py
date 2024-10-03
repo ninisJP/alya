@@ -35,13 +35,26 @@ class SalesOrderItem(models.Model):
         return f"{self.description} - {self.amount} unidades"
 
     def update_remaining_requirement(self):
+        """
+        Calcula el remaining_requirement basado en las cantidades solicitadas en las RequirementOrderItems asociadas.
+        """
         cantidad_solicitada = sum(item.quantity_requested for item in self.requirementorderitem_set.all())
-        self.remaining_requirement = self.amount - cantidad_solicitada
+        self.remaining_requirement = max(self.amount - cantidad_solicitada, 0)  # Asegura que nunca sea menor a 0
         self.save()
-    
+
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        """
+        Sobrescribe el método save para inicializar remaining_requirement al valor de amount cuando se crea el objeto.
+        """
+        # Solo inicializar el remaining_requirement cuando el objeto se crea por primera vez
+        if self.pk is None:  # Si el objeto aún no ha sido guardado (nuevo objeto)
+            self.remaining_requirement = self.amount
+
+        super().save(*args, **kwargs)  # Llamar al método save original
+
+        # Actualizar la orden de venta (SalesOrder) total después de guardar
         self.salesorder.update_total_sales_order()
+
 
 
 class PurchaseOrder(models.Model):

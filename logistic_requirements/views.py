@@ -25,29 +25,6 @@ class RequirementOrderDetailView(DetailView):
         context['items'] = self.object.items.all()
         return context
 
-def create_requirement_order(request):
-    if request.method == "POST":
-        order_form = RequirementOrderForm(request.POST)
-        formset = RequirementOrderItemFormSet(request.POST)
-
-        if order_form.is_valid() and formset.is_valid():
-            requirement_order = order_form.save()  # Guardar la orden primero
-
-            items = formset.save(commit=False)
-            for item in items:
-                item.requirement_order = requirement_order  # Asignar la orden a los ítems
-                item.save()
-
-            return redirect('requirement_order_list')
-    else:
-        order_form = RequirementOrderForm()
-        formset = RequirementOrderItemFormSet()
-
-    return render(request, 'create_requirement_order.html', {
-        'order_form': order_form,
-        'formset': formset
-    })
-
 def edit_requirement_order(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
 
