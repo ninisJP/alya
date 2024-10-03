@@ -8,3 +8,9 @@ urlpatterns = [
     path('mis-pediddos/', views.my_requests, name='my_requests'),
     path('mi-pedido/<int:pk>/', views.MyRequestDetail.as_view(), name='my_request_detail'),
 ]
+
+htmxpatterms = [
+    path('delete_order/<int:order_id>/', views.delete_order, name='delete_order'),
+]
+
+urlpatterns = urlpatterns + htmxpatterms

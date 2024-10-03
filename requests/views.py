@@ -1,3 +1,4 @@
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from logistic_requirements.models import RequirementOrder, RequirementOrderItem
@@ -17,6 +18,14 @@ def index_requests(request):
 def my_requests(request):
     my_orders = RequirementOrder.objects.filter(user=request.user)
     return render(request, 'requests/my_requests.html', {'my_orders': my_orders})
+
+def delete_order(request, order_id):
+    if request.method == 'DELETE':
+        order = get_object_or_404(RequirementOrder, id=order_id, user=request.user)
+        order.delete()
+        # Aquí devolvemos un fragmento HTML directamente
+        return HttpResponse('<div class="alert alert-success">¡El pedido ha sido eliminado correctamente!</div>', content_type='text/html')
+    return HttpResponse('<div class="alert alert-danger">Hubo un problema al eliminar el pedido.</div>', status=400)
 
 def create_requests(request, order_id):
     sales_order = get_object_or_404(SalesOrder, id=order_id)
@@ -84,7 +93,7 @@ def create_prepopulated_request(request, order_id):
         RequirementOrder,
         RequirementOrderItem,
         form=CreateRequirementOrderItemForm,
-        extra=num_items,  # Ajustar el número de formularios según la cantidad de ítems
+        extra=num_items,
         can_delete=True
     )
 
@@ -137,14 +146,7 @@ def create_prepopulated_request(request, order_id):
         'sales_order': sales_order
     })
 
-
-
-
 class MyRequestDetail(DetailView):
     model = RequirementOrder
     template_name = 'requests/my_request_detail.html'
-    context_object_name = 'order'
-
-
-
-
+    context_object_name = 'order'   
