@@ -144,23 +144,27 @@
                 </a>
             </div>
             <div class="list-group list-group-flush">
-                <a href="{% url 'requirement_order_list' %}"class="list-group-item list-group-item-action">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Ordenes de requerimiento</span>
+                <!-- Ordenes de Requerimiento -->
+                <a href="{% url 'requirement_order_list' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tasks"></i> <!-- Icono más moderno para listas de tareas -->
+                    <span>Órdenes de Requerimiento</span>
                 </a>
             </div>
             <div class="list-group list-group-flush">
-                <a href="{% url 'logistic_inventory_index' %}"class="list-group-item list-group-item-action">
-                    <i class="fas fa-shopping-cart"></i>
+                <!-- Inventario -->
+                <a href="{% url 'logistic_inventory_index' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-boxes"></i> <!-- Icono de cajas que representa inventarios -->
                     <span>Inventario</span>
                 </a>
             </div>
             <div class="list-group list-group-flush">
-                <a href="{% url 'suppliers' %}"class="list-group-item list-group-item-action">
-                    <i class="fa fa-users" aria-hidden="true"></i>
+                <!-- Proveedores -->
+                <a href="{% url 'suppliers' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-handshake"></i> <!-- Icono de un apretón de manos para Proveedores -->
                     <span>Proveedores</span>
                 </a>
             </div>
+            
             <!-- Contenedor específico para el botón de logout -->
             <div id="" class="logout-container">
                 {% if request.user.is_authenticated %}
