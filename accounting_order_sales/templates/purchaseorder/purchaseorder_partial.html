@@ -22,6 +22,17 @@
             <div>{{ order.created_at }}</div>
         </div>
 
+        <!-- Mostrar Proyecto y Detalle de la Orden de Venta asociada -->
+        <div class="col-lg-3">
+            <label><strong>Proyecto:</strong></label>
+            <div>{{ order.salesorder.project.name }}</div> <!-- Proyecto al que pertenece -->
+        </div>
+
+        <div class="col-lg-3">
+            <label><strong>Detalle de Orden de Venta:</strong></label>
+            <div>{{ order.salesorder.detail }}</div> <!-- Detalle de la Orden de Venta -->
+        </div>
+
         <!-- Botón para editar la orden de compra usando HTMX -->
         <div class="col-lg-2">
             <button hx-get="{% url 'edit_purchase_order' order.id %}" 
