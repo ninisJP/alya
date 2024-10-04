@@ -11,8 +11,9 @@ import pandas as pd
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 from django.contrib import messages
-
-
+from django.db.models import Q
+from datetime import datetime
+from django.utils.timezone import localdate
 
 def salesorder(request):
     salesorders = SalesOrder.objects.all().order_by("-id")
@@ -124,12 +125,29 @@ def quick_create_purchaseorder(request, salesorder_id):
         'items': items,
     })
 
-
 def general_purchaseorder(request):
-    purchase_orders = PurchaseOrder.objects.all() 
+    # Obtener los parámetros del rango de fechas (si existen)
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Si no se han proporcionado fechas, mostrar las órdenes sin scheduled_date
+    if not start_date and not end_date:
+        purchase_orders = PurchaseOrder.objects.filter(scheduled_date__isnull=True)
+    else:
+        # Si se proporcionan fechas, buscar entre esas dos fechas
+        if not end_date:
+            end_date = localdate()  # Si solo se proporciona la fecha de inicio, se asume que el rango termina hoy
+
+        purchase_orders = PurchaseOrder.objects.filter(
+            scheduled_date__range=[start_date, end_date]
+        )
+
     context = {
-        'purchase_orders': purchase_orders, 
+        'purchase_orders': purchase_orders,
+        'start_date': start_date,
+        'end_date': end_date,
     }
+
     return render(request, 'purchaseorder/general_purchaseorder.html', context)
 
 # Ordenes de compra
@@ -170,9 +188,6 @@ def edit_purchase_order(request, order_id):
         'item_formset': item_formset,
         'order': order,
     })
-    
-    return render(request, 'purchaseorder/purchaseorder-list.html', context)
-
 
 # Bank 
 def index_bank(request):
@@ -247,7 +262,6 @@ def delete_bank(request, bank_id):
 
     return render(request, 'bank/bank_delete.html', {'bank': bank})
 
-
 # BankStatements
 def bank_statements(request, bank_id):
     bank = get_object_or_404(Bank, pk=bank_id)
@@ -313,11 +327,32 @@ class BankStatementUploadView(FormView):
 
 #caja chica
 def petty_cash(request):
-    # Obtener todos los ítems de las órdenes de compra que tienen fecha de pago
-    items = PurchaseOrderItem.objects.filter(purchaseorder__scheduled_date__isnull=False).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
+    # Obtener la fecha de hoy según la zona horaria configurada
+    today = localdate()
+
+    # Obtenemos los parámetros del rango de fechas (si existen)
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Si no se han proporcionado fechas, mostrar ítems del día actual
+    if not start_date and not end_date:
+        items = PurchaseOrderItem.objects.filter(purchaseorder__scheduled_date=today).select_related(
+            'purchaseorder', 'sales_order_item__salesorder', 'supplier'
+        )
+    else:
+        # Si se proporcionan fechas, buscar entre esas dos fechas
+        if not end_date:
+            end_date = today  # Si solo hay fecha de inicio, el rango termina en el día actual
+
+        items = PurchaseOrderItem.objects.filter(
+            purchaseorder__scheduled_date__range=[start_date, end_date]
+        ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
 
     context = {
-        'items': items,  # Pasamos todos los ítems de órdenes de compra
+        'items': items,
+        'start_date': start_date,
+        'end_date': end_date,
     }
 
     return render(request, 'pettycash/petty_cash_items.html', context)
+

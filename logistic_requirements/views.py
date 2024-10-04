@@ -12,6 +12,9 @@ class RequirementOrderListView(ListView):
     model = RequirementOrder
     template_name = 'requirement_order_list.html'
     context_object_name = 'requirement_orders'
+
+    def get_queryset(self):
+        return RequirementOrder.objects.all().order_by('-id')
     
 class RequirementOrderDetailView(DetailView):
     model = RequirementOrder

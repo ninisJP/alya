@@ -9,14 +9,12 @@ from .forms import CreateRequirementOrderForm, CreateRequirementOrderItemForm, C
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 
-
-
 def index_requests(request):
-    sales_orders = SalesOrder.objects.all()
+    sales_orders = SalesOrder.objects.all().order_by('-id')
     return render(request, 'index_requests.html', {'sales_orders': sales_orders})
 
 def my_requests(request):
-    my_orders = RequirementOrder.objects.filter(user=request.user)
+    my_orders = RequirementOrder.objects.filter(user=request.user).order_by('-id')
     return render(request, 'requests/my_requests.html', {'my_orders': my_orders})
 
 def delete_order(request, order_id):

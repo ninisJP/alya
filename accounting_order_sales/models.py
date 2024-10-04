@@ -55,8 +55,6 @@ class SalesOrderItem(models.Model):
         # Actualizar la orden de venta (SalesOrder) total después de guardar
         self.salesorder.update_total_sales_order()
 
-
-
 class PurchaseOrder(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE,related_name="purchase_orders")
     description = models.CharField(max_length=255) 
