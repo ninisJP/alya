@@ -3,6 +3,7 @@ from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from django.utils import timezone
 from django.contrib.auth.models import User
 from logistic_suppliers.models import Suppliers
+from django.core.exceptions import ValidationError
 
 class RequirementOrder(models.Model):
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="requirement_orders")
@@ -41,7 +42,6 @@ class RequirementOrder(models.Model):
         # Guardar finalmente la instancia
         super().save(*args, **kwargs)
 
-
 class RequirementOrderItem(models.Model):
     ESTADO_CHOICES = [
         ('L', 'Listo'),
@@ -57,15 +57,29 @@ class RequirementOrderItem(models.Model):
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES, default='P')
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
+    def clean(self):
+        # Asegurar que remaining_requirement no sea None antes de la validación
+        if self.sales_order_item.remaining_requirement is None:
+            self.sales_order_item.remaining_requirement = self.sales_order_item.amount
+            self.sales_order_item.save()
+
+        # Validar si el remaining_requirement es suficiente para la cantidad solicitada
+        if self.sales_order_item.remaining_requirement < self.quantity_requested:
+            raise ValidationError(f"La cantidad solicitada ({self.quantity_requested}) excede la cantidad disponible ({self.sales_order_item.remaining_requirement}).")
+
+
+
+        super().clean()
+
     def save(self, *args, **kwargs):
         if not self.price:
             self.price = self.sales_order_item.price
         if not self.sap_code:
             self.sap_code = self.sales_order_item.sap_code
-        
+
         super().save(*args, **kwargs)
         self.sales_order_item.update_remaining_requirement()
-        
+
     def delete(self, *args, **kwargs):
         sales_order_item = self.sales_order_item
         super().delete(*args, **kwargs)
@@ -77,5 +91,7 @@ class RequirementOrderItem(models.Model):
     @property
     def total_price(self):
         return self.price * self.quantity_requested
+
+
 
 

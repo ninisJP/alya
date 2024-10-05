@@ -7,7 +7,7 @@
 
         {% if my_orders %}
         <div class="table-responsive">
-            <table class="table table-bordered table-hover table-striped table-sm">
+            <table class="table table-bordered table-hover table-striped table-sm text-center">
                 <thead class="table-dark">
                     <tr>
                         <th>Orden de Venta</th>
@@ -20,7 +20,7 @@
                 </thead>
                 <tbody>
                     {% for order in my_orders %}
-                    <tr>
+                    <tr id="order-{{ order.id }}">
                         <td>{{ order.sales_order }}</td>
                         <td>{{ order.requested_date }}</td>
                         <td>{{ order.created_at|date:"d/m/Y" }}</td>
@@ -34,9 +34,17 @@
                         <td>{{ order.total_order }}</td>
                         <td>
                             <!-- Botón para ver los detalles del pedido -->
-                            <a href="{% url 'my_request_detail' order.id %}" class="btn btn-info btn-sm">
-                                Ver Detalle
+                            <a href="{% url 'my_request_detail' order.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-info-circle"></i> <!-- Icono mejorado para ver detalles -->
                             </a>
+                            <!-- Botón para eliminar el pedido con confirmación -->
+                            <button hx-delete="{% url 'delete_order' order.id %}"
+                                    hx-confirm="¿Estás seguro de que deseas eliminar este pedido?"
+                                    hx-target="#order-{{ order.id }}"
+                                    hx-swap="outerHTML"
+                                    class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-times-circle"></i> <!-- Icono mejorado para eliminar -->
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}

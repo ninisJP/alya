@@ -1,0 +1,17 @@
+{% extends 'base_accounting.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Subir Extractos Bancarios</h1>
+    <p>Utilice el formulario a continuación para cargar un archivo Excel con extractos bancarios.</p>
+    
+    <!-- Form for uploading bank statements -->
+    <form method="post" enctype="multipart/form-data" action="{% url 'upload_bank_statements' %}">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary">Subir Extracto Bancario</button>
+    </form>
+    
+</div>
+{% endblock %}

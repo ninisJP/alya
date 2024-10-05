@@ -5,11 +5,15 @@
     .custom-rounded-top {
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
-        overflow: hidden; /* Asegura que el contenido dentro de la tabla respete el redondeo */
+        overflow: hidden;
     }
     .custom-thead-rounded {
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
+    }
+    .btn-group .btn {
+        padding: 0.375rem 0.75rem; /* Aumenta el padding de los botones */
+        font-size: 0.875rem; /* Ajusta el tamaño de la fuente */
     }
 </style>
 {% endblock %}
@@ -20,10 +24,12 @@
         <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
             <thead class="table-dark custom-thead-rounded">
                 <tr>
-                    <th>Ordenes de requerimieno</th>
+                    <th>ID</th>
+                    <th>Proyecto</th> <!-- Nueva columna para el proyecto -->
+                    <th>Cliente</th> <!-- Nueva columna para el cliente -->
                     <th>Orden de Venta</th>
-                    <th>Fecha Solicitada</th>
-                    <th>Fecha Creada</th>
+                    <th>F. Solicitada</th>
+                    <th>F. Creada</th>
                     <th>Detalles</th>
                     <th>Acciones</th>
                 </tr>
@@ -33,22 +39,28 @@
                 <tr class="rounded-3">
                     <td>{{ order.order_number }}</td>
                     <td>{{ order.sales_order.sapcode }}</td>
+                    <td>{{ order.sales_order.project.name }}</td>
+                    <td>{{ order.sales_order.project.client.legal_name }}</td>
                     <td>{{ order.requested_date }}</td>
                     <td>{{ order.created_at }}</td>
                     <td>{{ order.notes }}</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="Acciones">
-                            <a href="{% url 'requirement_order_detail' order.id %}" class="btn btn-outline-info btn-sm">
+                            <!-- Botón de Detalles con color sólido y más llamativo -->
+                            <a href="{% url 'requirement_order_detail' order.id %}" class="btn btn-info btn-sm">
                                 <i class="fas fa-info-circle"></i> Detalles
                             </a>
-                            <a href="{% url 'requirement_order_edit' order.id %}" class="btn btn-outline-warning btn-sm">
+                            <!-- Botón de Alistar con color amarillo sólido -->
+                            <a href="{% url 'requirement_order_edit' order.id %}" class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit"></i> Alistar
                             </a>
-                            <a href="" class="btn btn-outline-danger btn-sm">
+                            <!-- Botón de Eliminar con color rojo sólido -->
+                            <a href="" class="btn btn-danger btn-sm">
                                 <i class="fas fa-trash-alt"></i> Eliminar
                             </a>
                         </div>
                     </td>
+                    
                 </tr>
                 {% endfor %}
             </tbody>
