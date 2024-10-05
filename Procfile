@@ -1,1 +1,1 @@
-web: python manage.py migrate && python manage.py collectstatic --noinput && gunicorn alya.wsgi
+web: python manage.py makemigrations && python manage.py migrate && ./build.sh && python manage.py collectstatic && gunicorn alya.wsgi
