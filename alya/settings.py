@@ -21,16 +21,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #DJANGO BROWSER RELOAD
-    "django_browser_reload",
-    'django_htmx',
     'rest_framework',
     'rest_framework.authtoken',
-    'formtools',
     'crispy_forms',
     'whitenoise.runserver_nostatic',
     'widget_tweaks',
-    #APP PARA TODOS LOS BASE
     'accounting_order_sales',
     'budget',
     'client',
@@ -49,10 +44,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'logistic_inventory_api',
     'django_htmx',
-    'rest_framework',
-    'rest_framework.authtoken',
     'formtools',
-    'crispy_forms',
     'logistic_requirements',
     'logistic_suppliers',
     'project',
@@ -71,7 +63,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.LoginRequiredMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'django_browser_reload.middleware.BrowserReloadMiddleware',
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
@@ -96,10 +87,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'alya.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / "db.sqlite3",
-    }
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
 AUTH_PASSWORD_VALIDATORS = [
