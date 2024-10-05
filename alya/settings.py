@@ -48,6 +48,11 @@ INSTALLED_APPS = [
     'logistic_inventory',
     'crispy_bootstrap5',
     'logistic_inventory_api',
+    'django_htmx',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'formtools',
+    'crispy_forms',
     'logistic_requirements',
     'logistic_suppliers',
     'project',
@@ -66,7 +71,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.LoginRequiredMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_browser_reload.middleware.BrowserReloadMiddleware',
+    #'django_browser_reload.middleware.BrowserReloadMiddleware',
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
@@ -96,11 +101,6 @@ DATABASES = {
         'NAME': BASE_DIR / "db.sqlite3",
     }
 }
-
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
