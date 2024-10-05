@@ -1,6 +1,5 @@
 from django import forms
-from .models import SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem,Bank
-from django.forms import inlineformset_factory
+from .models import SalesOrder, SalesOrderItem
 
 class SalesOrderForm(forms.ModelForm):
     date = forms.DateField(
@@ -52,41 +51,4 @@ class ItemSalesOrderExcelForm(forms.Form):
         'class': 'form-control',
         'placeholder': 'Selecciona un archivo Excel'
     }))
-
-
-# Bank
-class BankForm(forms.ModelForm):
-    class Meta:
-        model = Bank
-        fields = ['bank_name', 'bank_account', 'bank_detail', 'bank_current_mount']
-
-
-class UploadBankStatementForm(forms.Form):
-    bank = forms.ModelChoiceField(queryset=Bank.objects.all(), required=True, label='Bank')
-    excel_file = forms.FileField(label='Excel File')
-
-
-# Formulario para la orden de compra (PurchaseOrder)
-class PurchaseOrderForm(forms.ModelForm):
-    class Meta:
-        model = PurchaseOrder
-        fields = ['scheduled_date']  # Campos editables
-        widgets = {
-            'scheduled_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        }
-
-# Formulario para los ítems de la orden de compra (PurchaseOrderItem)
-class PurchaseOrderItemForm(forms.ModelForm):
-    class Meta:
-        model = PurchaseOrderItem
-        fields = ['sales_order_item', 'quantity_requested', 'price', 'supplier', 'class_pay', 'type_pay', 'notes']  # Campos editables
-        widgets = {
-            'sales_order_item': forms.Select(attrs={'class': 'form-select'}),
-            'quantity_requested': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'supplier': forms.Select(attrs={'class': 'form-select select2'}),
-            'class_pay': forms.Select(attrs={'class': 'form-select'}),
-            'type_pay': forms.Select(attrs={'class': 'form-select'}),
-            'notes': forms.TextInput(attrs={'class': 'form-control'}),
-        }
 
