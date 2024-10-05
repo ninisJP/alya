@@ -25,16 +25,11 @@
                         <td>{{ order.date|date:"d-m-Y" }}</td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Acciones">
-                                <a href="{% url 'create_requests' order.id %}" class="btn btn-success btn-sm" style="background-color: #28a745; border: none;">
-                                    <i class="fas fa-plus-circle"></i> <span style="font-weight: bold;">Crear Pedido</span>
+                                <a href="{% url 'create_requests' order.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus-circle"></i> Crear Requerimiento
                                 </a>   
                             </div>
-                            <div class="btn-group" role="group" aria-label="Acciones" style="margin-left: 10px;">
-                                <a href="{% url 'create_prepopulated_request' order.id %}" class="btn btn-danger btn-sm" style="background-color: #dc3545; border: none;">
-                                    <i class="fas fa-rocket"></i> <span style="font-weight: bold;">Pedido rápido</span>
-                                </a>
-                            </div>
-                        </td>   
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

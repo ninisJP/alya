@@ -1,0 +1,105 @@
+<div class="container-fluid mt-5">
+    <header class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Órdenes de Compra para la Orden de Venta {{ salesorder.sapcode }}</h2>
+        <h5>Proyecto: 
+            {% if salesorder.project %}
+                {{ salesorder.project.name }}
+            {% else %}
+                Sin Proyecto
+            {% endif %}
+        </h5>
+        
+        <p>Detalle de la Orden: {{ salesorder.detail }}</p>
+    </header>
+
+    <section class="list-group" id="ordenes-compra-container">
+        {% for order in purchase_orders %}
+        <!-- Detalles de la Purchase Order -->
+        <article class="list-group-item mb-3" id="orden-{{ order.id }}" style="border: 1px solid #d1d5db; border-radius: 15px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); padding: 20px; background: linear-gradient(135deg, #ffffff, #f2f5f8);">
+            
+            <!-- Primera fila: Información general de la Orden de Compra -->
+            <header class="row mb-2">
+                <div class="col-lg-3 col-md-6 mb-2">
+                    <label><strong>Orden de Compra:</strong></label>
+                    <div>{{ order.description }}</div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-2">
+                    <label><strong>Solicitada por:</strong></label>
+                    <span class="badge bg-primary">{{ order.requested_by }}</span>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-2">
+                    <label><strong>Fecha solicitada:</strong></label>
+                    <div>{{ order.requested_date }}</div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-2">
+                    <label><strong>Fecha creada:</strong></label>
+                    <div>{{ order.created_at }}</div>
+                </div>
+            </header>
+
+            <!-- Tabla de Ítems de la Orden de Compra -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-sm">
+                    <thead>
+                        <tr>
+                            <th>DESC</th>
+                            <th>CANT</th>
+                            <th>Precio Uni.</th>
+                            <th>Precio T.</th>
+                            <th>Proveedor</th>
+                            <th>Clase</th>
+                            <th>Tipo</th>
+                            <th>Apunte</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td>{{ item.sales_order_item.description }}</td>
+                            <td>{{ item.quantity_requested }}</td>
+                            <td>{{ item.price }}</td>
+                            <td>{{ item.price_total }}</td>
+                            <td>
+                                <select name="proveedor" form="form-{{ order.id }}" class="form-select form-select-sm select2">
+                                    {% if item.supplier %}
+                                    <option value="{{ item.supplier.id }}" selected>{{ item.supplier.nombre_proveedor }}</option>
+                                    {% else %}
+                                    <option value="" selected>Seleccionar</option>
+                                    {% endif %}
+                                    {% for proveedor in proveedores %}
+                                    <option value="{{ proveedor.id }}">{{ proveedor.nombre_proveedor }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>{{ item.class_pay }}</td>
+                            <td>{{ item.type_pay }}</td>
+                            <td>{{ item.notes }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center">No se encontraron ítems para esta orden de compra.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Botones para Guardar o Eliminar la Orden de Compra -->
+            <div class="row mt-2">
+                <div class="col d-flex justify-content-end align-items-center">
+                    <form id="form-{{ order.id }}" hx-post="" hx-target="#precio-total-{{ order.id }}" hx-swap="outerHTML" method="post" class="d-flex">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-sm me-1"><i class="fas fa-check"></i> Guardar</button>
+                    </form>
+                    <button class="btn btn-danger btn-sm" hx-delete="" hx-target="#orden-{{ order.id }}" hx-swap="outerHTML">
+                        <i class="fas fa-times"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </section>
+</div>

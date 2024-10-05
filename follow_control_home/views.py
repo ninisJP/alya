@@ -19,6 +19,7 @@ def HomeCC(request):
 
     # Obtener el mes y año actuales
     current_month = now().strftime('%B %Y')  # Ejemplo: "September 2024"
+    print(f"Current Month: {current_month}")  # Depuración
 
     return render(request, 'follow_control_home.html', {
         'cards': cards,

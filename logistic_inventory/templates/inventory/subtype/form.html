@@ -1,8 +1,6 @@
 {% load widget_tweaks %}
 
-<div id="logistic_inventory_subtype_forms" class="w-100">
-    <form hx-post="{% url 'logistic_inventory_subtype_new' %}" hx-target="#logistic_inventory_subtype_forms" hx-swap="outerHTML" class="w-100 mb-5 p-4 border rounded shadow-sm">
-        {% csrf_token %}
-        {% include 'inventory/subtype/form_template.html' %}
-    </form>
-</div>
+<form hx-post="{% url 'logistic_inventory_subtype_new' %}" hx-target="#logistic_inventory_subtype_forms" hx-swap="outerHTML" class="w-100 mb-5 p-4 border rounded shadow-sm">
+    {% csrf_token %}
+    {% include 'inventory/subtype/form_template.html' %}
+</form>

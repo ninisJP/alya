@@ -3,19 +3,7 @@
 {% block content %}
 <div class="container-fluid">
     <div class="p-4 bg-white rounded shadow">
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <h1 class="display-6 text-dark">Detalle del Pedido</h1>
-            <div class="d-flex align-items-center">
-                {% if order.estado %}
-                    <span class="badge bg-success fs-5 me-3">Listo</span>
-                {% else %}
-                    <span class="badge bg-warning fs-5 me-3">Pendiente</span>
-                {% endif %}
-                <a href="{% url 'my_requests' %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Regresar a Mis Pedidos
-                </a>
-            </div>
-        </div>
+        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">Detalle del Pedido</h1>
 
         <div class="row mb-3">
             <div class="col-md-6">
@@ -25,25 +13,34 @@
                 <strong>Fecha Solicitada:</strong> {{ order.requested_date }}
             </div>
         </div>
-        
         <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Estado:</strong>
+                {% if order.estado %}
+                    <span class="badge bg-success">Listo</span>
+                {% else %}
+                    <span class="badge bg-warning">Pendiente</span>
+                {% endif %}
+            </div>
             <div class="col-md-6">
                 <strong>Fecha de Creación:</strong> {{ order.created_at|date:"d/m/Y" }}
             </div>
-            <div class="col-md-6">
-                <strong>Detalle del Requerimiento:</strong>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <strong>Notas del Requerimiento:</strong>
                 <p>{{ order.notes }}</p>
             </div>
         </div>
 
-        <table class="table table-bordered text-center"> <!-- Añadido text-center para centrar el contenido de la tabla -->
+        <table class="table table-bordered">
             <thead class="table-dark">
                 <tr>
                     <th>Item</th>
-                    <th>Info</th>
                     <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Precio Total</th>
+                    <th>Precio Unitario</th> <!-- Nueva columna para mostrar el precio unitario -->
+                    <th>Precio Total</th> <!-- Nueva columna para mostrar el precio total -->
+                    <th>Notas</th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -51,10 +48,10 @@
                 {% for item in order.items.all %}
                 <tr>
                     <td>{{ item.sales_order_item.description }}</td>
-                    <td>{{ item.notes }}</td>
                     <td>{{ item.quantity_requested }}</td>
-                    <td>{{ item.price }}</td>
-                    <td>{{ item.total_price }}</td>
+                    <td>{{ item.price }}</td> <!-- Mostrar el precio unitario -->
+                    <td>{{ item.total_price }}</td> <!-- Mostrar el precio total calculado -->
+                    <td>{{ item.notes }}</td>
                     <td>
                         {% if item.estado == 'L' %}
                             <span class="badge bg-success">Listo</span>
@@ -68,6 +65,8 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <a href="{% url 'my_requests' %}" class="btn btn-secondary">Regresar a Mis Pedidos</a>
     </div>
 </div>
 {% endblock %}
