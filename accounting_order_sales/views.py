@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem
 from .utils import procesar_archivo_excel
-from .forms import SalesOrderForm, ItemSalesOrderExcelForm, ItemSalesOrderForm
+from .forms import PurchaseOrderForm, PurchaseOrderItemForm, SalesOrderForm, ItemSalesOrderExcelForm, ItemSalesOrderForm, BankForm,UploadBankStatementForm
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
 
