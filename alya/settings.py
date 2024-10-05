@@ -25,7 +25,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'crispy_forms',
     'whitenoise.runserver_nostatic',
-    'widget_tweaks',
     'accounting_order_sales',
     'follow_control_backlog',
     'follow_control_card',

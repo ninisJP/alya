@@ -47,7 +47,7 @@ class PurchaseOrder(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE,related_name="purchase_orders")
     description = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
-    requested_date = models.DateField()
+    requested_date = models.DateField(null=True, blank=True)
     requested_by = models.CharField(max_length=20, verbose_name="Encargado", blank=True, null=True)
     acepted = models.BooleanField(default=True)
 
