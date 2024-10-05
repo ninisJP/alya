@@ -12,9 +12,6 @@ class RequirementOrderListView(ListView):
     model = RequirementOrder
     template_name = 'requirement_order_list.html'
     context_object_name = 'requirement_orders'
-
-    def get_queryset(self):
-        return RequirementOrder.objects.all().order_by('-id')
     
 class RequirementOrderDetailView(DetailView):
     model = RequirementOrder
@@ -28,6 +25,29 @@ class RequirementOrderDetailView(DetailView):
         context['items'] = self.object.items.all()
         return context
 
+def create_requirement_order(request):
+    if request.method == "POST":
+        order_form = RequirementOrderForm(request.POST)
+        formset = RequirementOrderItemFormSet(request.POST)
+
+        if order_form.is_valid() and formset.is_valid():
+            requirement_order = order_form.save()  # Guardar la orden primero
+
+            items = formset.save(commit=False)
+            for item in items:
+                item.requirement_order = requirement_order  # Asignar la orden a los ítems
+                item.save()
+
+            return redirect('requirement_order_list')
+    else:
+        order_form = RequirementOrderForm()
+        formset = RequirementOrderItemFormSet()
+
+    return render(request, 'create_requirement_order.html', {
+        'order_form': order_form,
+        'formset': formset
+    })
+
 def edit_requirement_order(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
 
@@ -36,9 +56,11 @@ def edit_requirement_order(request, pk):
         formset = RequirementOrderItemFormSet(request.POST, instance=requirement_order)
 
         if order_form.is_valid() and formset.is_valid():
-            with transaction.atomic(): 
+            with transaction.atomic():  # Usamos una transacción para asegurar la consistencia
+                # Guardar la RequirementOrder
                 order_form.save()
 
+                # Guardar los RequirementOrderItems
                 items = formset.save(commit=False)
                 for item in items:
                     item.save()

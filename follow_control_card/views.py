@@ -119,6 +119,9 @@ def add_task_to_card(request, task_id):
     if not card_id:
         return JsonResponse({'error': 'Card ID is required'}, status=400)
 
+    # Debugging logs
+    print(f"card_id: {card_id}")
+    print(f"task_id: {task_id}")
 
     card = get_object_or_404(Card, id=card_id, user=request.user)
     task = get_object_or_404(Task, id=task_id, user=request.user)

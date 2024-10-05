@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
@@ -6,10 +7,10 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from .utils import get_month_dates
 from .forms import CardTaskForm
-from follow_control_card.models import Card, CardTaskOrder
-from follow_control_card.utils import get_max_order
+from follow_control_card.models import Card
+from follow_control_card.utils import CardTaskOrder
 
-
+@login_required
 def weekly_backlog(request, year=None, week=None):
     user = request.user
 
@@ -93,6 +94,10 @@ def backlog(request, year=None, month=None):
         date__range=(month_data['start_of_month'], month_data['end_of_month'])
     ).exclude(date__week_day=1)  # Exclude Sundays
 
+    # Imprimir los IDs de las tarjetas para depuración
+    for card in cards:
+        print(f'Card ID: {card.id}, Date: {card.date}')
+
     form = CardTaskForm(user=user)
     all_users = User.objects.all()
 
@@ -111,6 +116,7 @@ def backlog(request, year=None, month=None):
     }
     return render(request, 'backlog.html', context)
 
+@login_required
 def add_task(request, card_id):
     card = get_object_or_404(Card, id=card_id, user=request.user)
     if request.method == 'POST':
@@ -126,6 +132,7 @@ def add_task(request, card_id):
         form = CardTaskForm(user=request.user)
     return render(request, 'backlog/modal_content.html', {'form': form, 'card': card})
 
+@login_required
 def clear_tasks_from_card(request, card_id):
     card = get_object_or_404(Card, id=card_id, user=request.user)
 
@@ -169,6 +176,8 @@ def replicate_tasks_to_new_card(source_card, target_card):
 
     print(f"Tareas replicadas de {source_card} a {target_card} sin duplicaciones")
 
+
+@login_required
 def replicate_last_week_tasks(request):
     user = request.user
 
@@ -204,6 +213,7 @@ def replicate_last_week_tasks(request):
     messages.success(request, "Tareas replicadas exitosamente para la semana actual.")
     return redirect('backlog_default')
 
+@login_required
 def replicate_tasks_to_future_week(request):
     user = request.user
 
@@ -253,6 +263,7 @@ def replicate_tasks_to_future_week(request):
     messages.success(request, "Tareas replicadas exitosamente.")
     return redirect('backlog_default')
 
+@login_required
 def replicate_tasks_to_previous_week_filling_gaps(request):
     user = request.user
 
