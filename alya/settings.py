@@ -21,38 +21,45 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #DJANGO BROWSER RELOAD
+    "django_browser_reload",
+    'django_htmx',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'formtools',
+    'crispy_forms',
+    'whitenoise.runserver_nostatic',
+    'widget_tweaks',
     #APP PARA TODOS LOS BASE
     'accounting_order_sales',
+    'budget',
+    'client',
+    'client_crm',
+    'employee',
+    'employee_api',
+    'employee_portal',
     'follow_control_backlog',
     'follow_control_card',
     'follow_control_home',
     'follow_control_report',
     'follow_control_technician',
     'hub',
-    'employee',
-    'employee_api',
-    'employee_portal',
-    'widget_tweaks',
-    'client',
-    'client_crm',
-    'project',
-    'budget',
+    'logistic_api',
     'logistic_inventory',
-    #DJANGO BROWSER RELOAD
-    # "django_browser_reload",
-    #Django htmx
+    'crispy_bootstrap5',
+    'logistic_inventory_api',
     'django_htmx',
-    #Django restframwork
     'rest_framework',
     'rest_framework.authtoken',
     'formtools',
     'crispy_forms',
     'logistic_requirements',
     'logistic_suppliers',
-    'logistic_api',
+    'project',
     'requests',
-    'whitenoise.runserver_nostatic',
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -89,10 +96,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'alya.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
+    }
 }
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -109,13 +117,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Lima'
 
 USE_I18N = True
 
@@ -147,3 +154,7 @@ LOGOUT_REDIRECT_URL = '/'
 # MEDIA ROOT
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Configuración para Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

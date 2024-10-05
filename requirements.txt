@@ -2,6 +2,7 @@ asgiref==3.8.1
 Brotli==1.1.0
 click==8.1.7
 colorama==0.4.6
+crispy-bootstrap5==2024.2
 dj-database-url==2.2.0
 Django==5.1.1
 django-browser-reload==1.15.0
@@ -19,7 +20,8 @@ openpyxl==3.1.5
 packaging==24.1
 pandas==2.2.2
 pillow==10.4.0
-psycopg2==2.9.9
+#psycopg2==2.9.9
+psycopg2-binary==2.9.9
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2

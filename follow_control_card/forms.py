@@ -24,4 +24,8 @@ class TaskForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Personalizar la etiqueta de cada opción en el select para incluir el detalle de la orden de venta y el nombre del cliente
-        self.fields['sale_order'].label_from_instance = lambda obj: f'{obj.detail} - {obj.project.client.legal_name}'
+        self.fields['sale_order'].label_from_instance = lambda obj: (
+            f'{obj.detail} - {obj.project.client.legal_name}' 
+            if obj.project and obj.project.client else f'{obj.detail} - Sin Cliente'
+        )
+

@@ -1,11 +1,10 @@
-{% extends 'base_logistic.html' %}
-
+{% extends 'base_requests.html' %}
 {% load widget_tweaks %}
 
 {% block content %}
 <div class="container-fluid">
     <div class="p-4 bg-white rounded shadow">
-        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">CREAR NUEVA ORDEN DE REQUERIMIENTO</h1>
+        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">CREAR ORDEN DE REQUERIMIENTO (PRE-POBLADO)</h1>
 
         <form method="post">
             {% csrf_token %}
@@ -26,7 +25,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Reducción del tamaño del campo de detalles -->
                 <div class="form-group">
                     {{ order_form.notes|add_class:"form-control form-control-sm" |attr:"placeholder=Detalles notas (opcional)" |attr:"rows:2" }}
                 </div>
@@ -93,7 +91,7 @@ document.getElementById('add-item-btn').addEventListener('click', function() {
 
     // Incrementar el valor de total_forms en el management_form
     var totalForms = document.getElementById('id_items-TOTAL_FORMS');
-    totalForms.value = formIdx + 1;  // Aumenta el total de formularios
+    totalForms.value = formIdx + 1;
 });
 
 // Script para eliminar un formulario de ítem

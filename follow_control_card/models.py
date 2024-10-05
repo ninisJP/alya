@@ -16,7 +16,7 @@ class Card(models.Model):
 
     def update_valuation(self):
         total_tasks = self.tasks.count()
-        completed_tasks = self.tasks.filter(cardstasksorder__state=True).count()
+        completed_tasks = self.tasks.filter(cardtaskorder__state=True).count()
         if total_tasks > 0:
             completion_rate = (completed_tasks / total_tasks) * 100
             if completion_rate == 100:

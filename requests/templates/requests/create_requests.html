@@ -9,6 +9,16 @@
             <div class="p-4 bg-white rounded shadow">
                 <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">CREAR NUEVO PEDIDO</h1>
 
+                {% if messages %}
+                <div class="alert alert-danger" role="alert">
+                    <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
                 <!-- Formulario para RequirementOrder -->
                 <form method="post">
                     {% csrf_token %}
@@ -35,35 +45,32 @@
 
                     <!-- Formset de Ítems del pedido -->
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover table-striped table-sm">
+                        <table class="table table-bordered table-hover table-sm">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Item</th>
-                                    <th>Cantidad</th>
-                                    <th>Notas</th>
-                                    <th>Disponibilidad</th> <!-- Columna para la cantidad disponible -->
-                                    <th>Proveedor</th> <!-- Nueva columna para proveedor -->
+                                    <th style="width: 35%;">Item</th> <!-- Ajustando el ancho de la columna -->
+                                    <th style="width: 20%;">Proveedor</th> <!-- Ajustar el ancho de Proveedor -->
+                                    <th style="width: 30%;">Notas</th> <!-- Ajustar el espacio para Notas -->
+                                    <th style="width: 10%;">Cantidad</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <!-- Añadimos un ID al tbody para aislar el formset -->
                             <tbody id="formset-tbody">
                                 {{ formset.management_form }}
                                 {% for form in formset %}
                                 <tr>
-                                    <td>{{ form.sales_order_item|add_class:"form-control item-selector select2" }}</td> <!-- Campo de ítem con Select2 -->
-                                    <td>{{ form.quantity_requested|add_class:"form-control text-center quantity-input" |attr:"min:1" }}</td>
+                                    <td>{{ form.sales_order_item|add_class:"form-control item-selector select2" }}</td>
+                                    <td>{{ form.supplier|add_class:"form-control select2" }}</td>
                                     <td>{{ form.notes|add_class:"form-control" }}</td>
-                                    <td class="available-quantity text-center"></td> <!-- Columna de cantidad disponible -->
-                                    <td>{{ form.supplier|add_class:"form-control select2" }}</td> <!-- Campo de proveedor con Select2 -->
+                                    <td>{{ form.quantity_requested|add_class:"form-control text-center quantity-input" |attr:"min:1" }}</td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-danger btn-sm" onclick="removeForm(this)">
-                                            <i class="fas fa-trash-alt"></i> Eliminar
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </td>
                                 </tr>
                                 {% endfor %}
-                            </tbody>                            
+                            </tbody>
                         </table>
                     </div>
 
@@ -90,23 +97,19 @@
             <div class="p-4 bg-white rounded shadow">
                 <h3 class="text-center mb-4">Ítems de la Orden de Venta</h3>
 
-                <!-- Tabla de ítems de referencia con el nuevo nombre -->
+                <!-- Tabla de ítems de referencia más compacta -->
                 <table class="table table-bordered table-hover table-sm">
                     <thead class="table-dark">
                         <tr>
-                            <th>Descripción</th>
-                            <th>Cantidad</th>
-                            <th>UND</th>
-                            <th>Precio Total</th>
+                            <th style="width: 80%;">Descripción</th>
+                            <th style="width: 20%;">Cantidad Restante</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in referencia_ordenventa %}
-                        <tr data-item-id="{{ item.id }}" data-available-quantity="{{ item.amount }}">
+                        <tr data-item-id="{{ item.id }}">
                             <td>{{ item.description }}</td>
-                            <td>{{ item.amount }}</td>
-                            <td>{{ item.unit_of_measurement }}</td>
-                            <td>{{ item.price_total }}</td>
+                            <td>{{ item.remaining_requirement }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -120,10 +123,9 @@
 // Inicializar Select2 al cargar la página
 $(document).ready(function() {
     $('.select2').select2({
-        theme: "bootstrap-5", // Ajusta el tema
-        width: '100%'  // Asegurar el ancho completo
+        theme: "bootstrap-5",
+        width: '100%'
     });
-
     // Asignar evento para actualizar la disponibilidad a los campos existentes
     $('.item-selector').on('change', updateAvailableQuantity);
 });
@@ -131,7 +133,7 @@ $(document).ready(function() {
 // Script para agregar un nuevo formulario de ítem dinámicamente
 document.getElementById('add-item-btn').addEventListener('click', function() {
     var formsetTbody = document.getElementById('formset-tbody');  // Usar el ID del formset
-    var formIdx = formsetTbody.querySelectorAll('tr').length;  // Contar las filas del formset
+    var formIdx = formsetTbody.querySelectorAll('tr').length;
 
     var emptyFormHtml = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, formIdx);
     var newRow = document.createElement('tr');
@@ -147,10 +149,6 @@ document.getElementById('add-item-btn').addEventListener('click', function() {
         theme: "bootstrap-5",
         width: '100%'
     });
-
-    // Asignar evento para actualizar la disponibilidad en los nuevos campos
-    newRow.querySelector('.item-selector').addEventListener('change', updateAvailableQuantity);
-    newRow.querySelector('.quantity-input').addEventListener('input', checkQuantity);
 });
 
 // Script para eliminar un formulario del formset
@@ -158,64 +156,22 @@ function removeForm(btn) {
     var row = btn.closest('tr');
     row.remove();
 
-    // Después de eliminar un formulario, reducir el valor de TOTAL_FORMS
+    // Reducir el valor de TOTAL_FORMS
     var totalForms = document.getElementById('id_items-TOTAL_FORMS');
     var formsetTbody = document.getElementById('formset-tbody');
     var formCount = formsetTbody.querySelectorAll('tr').length;
-
-    totalForms.value = formCount;  // Ajustar el valor al número actual de formularios
+    totalForms.value = formCount;
 }
-
-// Función para actualizar la cantidad disponible cuando se selecciona un ítem
-function updateAvailableQuantity(event) {
-    var itemId = event.target.value;  // El ID del ítem seleccionado
-    var row = event.target.closest('tr');  // La fila actual del formset
-
-    // Buscar el ítem en la tabla de referencia
-    var itemRow = document.querySelector('tr[data-item-id="' + itemId + '"]');
-    if (itemRow) {
-        var availableQuantity = parseInt(itemRow.getAttribute('data-available-quantity'), 10);
-        // Actualizar la columna de cantidad disponible
-        row.querySelector('.available-quantity').textContent = availableQuantity + " UND"; // Mostrar la cantidad disponible
-        // Asignar el evento input para verificar la cantidad ingresada
-        row.querySelector('.quantity-input').addEventListener('input', checkQuantity);
-    } else {
-        // Si no se encuentra el ítem, limpiar el campo de disponibilidad
-        row.querySelector('.available-quantity').textContent = "";
-    }
-}
-
-// Verificar si la cantidad ingresada excede la cantidad disponible
-function checkQuantity(event) {
-    var input = event.target;
-    var row = input.closest('tr');
-    var availableQuantity = parseInt(row.querySelector('.available-quantity').textContent);
-
-    if (input.value > availableQuantity) {
-        input.style.backgroundColor = 'red';  // Poner en rojo si excede
-    } else {
-        input.style.backgroundColor = '';  // Quitar el color si no excede
-    }
-}
-
-// Asignar evento a todos los selectores actuales y los campos de cantidad
-document.querySelectorAll('.item-selector').forEach(function(select) {
-    select.addEventListener('change', updateAvailableQuantity);
-});
-document.querySelectorAll('.quantity-input').forEach(function(input) {
-    input.addEventListener('input', checkQuantity);
-});
 
 </script>
 
 <!-- Formulario vacío para clonar -->
 <template id="empty-form">
     <tr>
-        <td>{{ formset.empty_form.sales_order_item|add_class:"form-control item-selector select2" }}</td> <!-- Campo de ítem con Select2 -->
+        <td>{{ formset.empty_form.sales_order_item|add_class:"form-control item-selector select2" }}</td>
+        <td>{{ formset.empty_form.supplier|add_class:"form-control select2" }}</td>
+        <td>{{ formset.empty_form.notes|add_class:"form-control" }}</td>
         <td>{{ formset.empty_form.quantity_requested|add_class:"form-control text-center quantity-input" |attr:"min:1" }}</td>
-        <td>{{ formset.empty_form.notes|add_class:"form-control" |attr:"maxlength:255" |attr:"placeholder=Añadir notas del ítem (opcional)" }}</td>
-        <td class="available-quantity text-center"></td>
-        <td>{{ formset.empty_form.supplier|add_class:"form-control select2" }}</td> <!-- Campo de proveedor con Select2 -->
         <td class="text-center">
             <button type="button" class="btn btn-danger btn-sm" onclick="removeForm(this)">
                 <i class="fas fa-trash-alt"></i> Eliminar

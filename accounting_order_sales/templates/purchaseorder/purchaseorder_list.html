@@ -1,0 +1,19 @@
+<div class="container-fluid">
+    <!-- Header con detalles de la orden de venta -->
+    <header class="bg-light p-4 rounded shadow-sm mb-2">
+        <div class="row align-items-center">
+            <!-- Título, Proyecto en Badge y Detalle en la misma línea -->
+            <div class="col-md-12">
+                <h2 class="mb-0 fw-bold" style="font-size: 1.5rem;">
+                    <span class="badge bg-danger" style="font-size: 1.1rem;">{{ salesorder.project.name }}</span>
+                    - {{ salesorder.sapcode }} - <span style="font-size: 1.1rem;">Detalle: {{ salesorder.detail }}</span>
+                </h2>
+            </div>
+        </div>
+    </header>
+
+    <!-- Lista de órdenes de compra -->
+    <section class="list-group" id="ordenes-compra-container">
+        {% include 'purchaseorder/purchaseorder_list_partial.html' %}
+    </section>
+</div>
