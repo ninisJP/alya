@@ -37,6 +37,6 @@ CreateRequirementOrderItemFormSet = inlineformset_factory(
     RequirementOrder,
     RequirementOrderItem,
     form=CreateRequirementOrderItemForm,
-    extra=0,
+    extra=0, 
     can_delete=True  # Permitir eliminar ítems en la creación
 )

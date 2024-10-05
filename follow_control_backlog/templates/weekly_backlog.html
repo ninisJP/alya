@@ -57,7 +57,8 @@
     <a href="{% url 'weekly_backlog' %}?year={{ previous_year }}&week={{ previous_week }}&user={{ selected_user.id }}" class="btn btn-primary">Semana Anterior</a>
     <a href="{% url 'weekly_backlog' %}?year={{ next_year }}&week={{ next_week }}&user={{ selected_user.id }}" class="btn btn-primary">Semana Siguiente</a>
     <a href="{% url 'weekly_backlog' %}?year={{ current_year }}&week={{ current_week }}&user={{ user.id }}" class="btn btn-success">Ir a mi semana</a>
-  </div>
+</div>
+
 
   <table class="calendar-table">
     <thead>
@@ -80,8 +81,8 @@
                   {% for task in card.tasks.all %}
                     <div class="task-item">
                       <h5>{{ task.verb }} - {{ task.object }}</h5>
-                      <p><strong>Orden de Venta:</strong> {{ task.sale_order.sapcode }}</p>
-                      <p><strong>Cliente:</strong> {{ task.sale_order.project}}</p>
+                      <p><strong>Orden de Venta:</strong> {{ task.orden_venta }}</p>
+                      <p><strong>Cliente:</strong> {{ task.client }}</p>
                     </div>
                   {% endfor %}
                 </div>
