@@ -27,31 +27,28 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'widget_tweaks',
     'accounting_order_sales',
-    'budget',
-    'client',
-    'client_crm',
-    'employee',
-    'employee_api',
-    'employee_portal',
     'follow_control_backlog',
     'follow_control_card',
     'follow_control_home',
     'follow_control_report',
     'follow_control_technician',
     'hub',
-    'logistic_api',
+    'employee',
+    'employee_api',
+    'employee_portal',
+    'widget_tweaks',
+    'client',
+    'client_crm',
+    'project',
+    'budget',
     'logistic_inventory',
-    'crispy_bootstrap5',
-    'logistic_inventory_api',
     'django_htmx',
     'formtools',
     'logistic_requirements',
     'logistic_suppliers',
-    'project',
+    'logistic_api',
     'requests',
 ]
-
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -89,6 +86,8 @@ WSGI_APPLICATION = 'alya.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
+# Password validation
+# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -105,12 +104,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'America/Lima'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -142,7 +142,3 @@ LOGOUT_REDIRECT_URL = '/'
 # MEDIA ROOT
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Configuración para Crispy Forms
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"

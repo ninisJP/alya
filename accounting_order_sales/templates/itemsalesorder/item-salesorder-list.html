@@ -24,40 +24,30 @@
 </style>
 
 <div class="custom-table-wrapper mb-4">
-    <form method="POST" action="">
-        {% csrf_token %}
-        <table class="table custom-table mb-0 text-center" id="salesorder-item-list">
-            <thead>
-                <tr>
-                    <th scope="col">CODIGO</th>
-                    <th scope="col">DESC</th>
-                    <th scope="col">UND</th>
-                    <th scope="col">CANT (REST)</th> 
-                    <th scope="col">PRECIO</th>
-                    <th scope="col">PRECIO T.</th>
-                    <th scope="col">HOT OC (Cantidad)</th> <!-- Nueva columna -->
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr>
-                    <td class="fw-bold">{{ item.sap_code }}</td>
-                    <td>{{ item.description }}</td>
-                    <td>{{ item.unit_of_measurement }}</td>
-                    <td>{{ item.amount }} ({{ item.remaining_requirement }})</td>
-                    <td>{{ item.price }}</td>
-                    <td>{{ item.price_total }}</td>
-                    <td>
-                        <input type="number" name="quantity_requested" min="1" value="1" class="form-control" required>
-                        <input type="hidden" name="item_id" value="{{ item.id }}"> <!-- Campo oculto con el ID del item -->
-                        <button type="submit" class="btn btn-primary mt-2">Crear OC</button> <!-- Botón para crear la OC -->
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </form>
+    <table class="table custom-table mb-0 text-center" id="salesorder-item-list"> <!-- 'text-center' para centrar el contenido -->
+        <thead>
+            <tr>
+                <th scope="col">CODIGO</th>
+                <th scope="col">DESC</th>
+                <th scope="col">UND</th>
+                <th scope="col">CANT (REST)</th> 
+                <th scope="col">PRECIO</th>
+                <th scope="col">PRECIO T.</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td class="fw-bold">{{ item.sap_code }}</td>
+                <td>{{ item.description }}</td>
+                <td>{{ item.unit_of_measurement }}</td>
+                <td>{{ item.amount }} ({{ item.remaining_requirement }})</td> <!-- Mostrar cantidad total y restante -->
+                <td>{{ item.price }}</td>
+                <td>{{ item.price_total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-
 
 

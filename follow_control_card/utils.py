@@ -1,5 +1,6 @@
 from django.db.models import Max
 from datetime import date, timedelta
+
 from follow_control_card.models import Card, CardTaskOrder
 
 
