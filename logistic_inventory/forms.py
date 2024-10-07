@@ -1,5 +1,9 @@
 from django import forms
+from django.conf import settings
+
 from dynamic_forms import DynamicField, DynamicFormMixin
+
+import segno
 
 from .models import Brand, Type, Subtype, Item
 
@@ -48,6 +52,22 @@ class ItemForm(DynamicFormMixin, forms.ModelForm):
                 forms.ModelChoiceField,
                 queryset = type_choice,
             )
+
+    def save(self, commit=True):
+        instance = super(ItemForm, self).save(commit=False)
+        if commit:
+            instance.save()
+            # Get id
+            item_id = str(instance.id)
+            # Create QR
+            qrcode = segno.make_qr(item_id)
+            name = settings.MEDIA_ROOT + "item_qr/"+item_id+".png"
+            qrcode.save(name, scale=10)
+            # Save QR
+            instance.code_qr = name
+            instance.save()
+
+        return instance
 
     class Meta:
         model = Item
