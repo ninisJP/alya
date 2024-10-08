@@ -58,19 +58,21 @@ class RequirementOrderItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def clean(self):
-        # Asegurar que remaining_requirement no sea None antes de la validación
-        if self.sales_order_item.remaining_requirement is None:
-            self.sales_order_item.remaining_requirement = self.sales_order_item.amount
-            self.sales_order_item.save()
+        # Validar la cantidad solo si el estado no es 'C', 'L' o 'P'
+        if self.estado not in ['C', 'L', 'P']:
+            # Asegurar que remaining_requirement no sea None antes de la validación
+            if self.sales_order_item.remaining_requirement is None:
+                self.sales_order_item.remaining_requirement = self.sales_order_item.amount
+                self.sales_order_item.save()
 
-        # Validar si el remaining_requirement es suficiente para la cantidad solicitada
-        if self.sales_order_item.remaining_requirement < self.quantity_requested:
-            raise ValidationError(f"La cantidad solicitada ({self.quantity_requested}) excede la cantidad disponible ({self.sales_order_item.remaining_requirement}).")
-
-
-
+            # Validar si el remaining_requirement es suficiente para la cantidad solicitada
+            if self.sales_order_item.remaining_requirement < self.quantity_requested:
+                raise ValidationError(
+                    f"La cantidad solicitada ({self.quantity_requested}) excede la cantidad disponible ({self.sales_order_item.remaining_requirement})."
+                )
+        
         super().clean()
-
+        
     def save(self, *args, **kwargs):
         if not self.price:
             self.price = self.sales_order_item.price

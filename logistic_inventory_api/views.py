@@ -1,14 +1,11 @@
 from django.contrib.auth.decorators import login_not_required
 from django.shortcuts import render
-
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import authentication_classes, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
 from logistic_inventory.models import Subtype, Type, Brand
-
 from .serializers import SubtypeSerializer, TypeSerializer, ItemSerializer, BrandSerializer
 
 

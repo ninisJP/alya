@@ -60,7 +60,7 @@ def brand_search(request):
 
 def item(request):
     context = {'form': ItemForm(), 'search': SearchItemForm()}
-    context['types'] = Type.objects.all()
+    context['items'] = Item.objects.all()
     return render(request, 'inventory/item.html', context)
 
 def item_edit(request, item_id):
@@ -91,6 +91,7 @@ def item_new(request):
         if form.is_valid():
             status = "yes"
             form.save()
+            #create_qr(form.instance.id)
         context['status'] = status
 
     context['types'] = Type.objects.all()

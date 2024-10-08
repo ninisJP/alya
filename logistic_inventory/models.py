@@ -39,3 +39,4 @@ class Item(models.Model):
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     life_time = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    code_qr = models.ImageField('img', upload_to='item_qr/', blank=True, null=True)
