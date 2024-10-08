@@ -1,0 +1,33 @@
+{% extends "base_budget.html" %}
+
+{% block title %}Subir Catálogo (Excel){% endblock %}
+
+{% block content %}
+
+<!-- Formulario para subir archivo Excel -->
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3>Subir Catálogo (Excel)</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="file" class="form-label">Selecciona el archivo Excel:</label>
+                    {{ form.file }} <!-- Campo de subida de archivos -->
+                </div>
+                <button type="submit" class="btn btn-success">Subir</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Enlace para regresar al catálogo -->
+    <div class="mt-3">
+        <a href="{% url 'budget_catalog' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Catálogo
+        </a>
+    </div>
+</div>
+
+{% endblock %}

@@ -229,3 +229,58 @@ def catalog_search(request):
             context['search_status'] = status
     context['search'] = SearchCatalogItemForm()
     return render(request, 'catalog/list.html', context)
+
+import pandas as pd
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import ExcelUploadForm
+from .models import CatalogItem
+
+def upload_excel(request):
+    if request.method == "POST":
+        form = ExcelUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = request.FILES['file']
+            
+            try:
+                # Leer el archivo Excel
+                df = pd.read_excel(file)
+                
+                # Mostrar los primeros registros para asegurarnos de que las columnas se están leyendo correctamente
+                print(df.head())
+
+                # Verificar si las columnas esperadas están presentes en el archivo
+                required_columns = ['SAP', 'DESC', 'GRUPO', 'unidad de medida', 'Último Precio']
+                if not all(column in df.columns for column in required_columns):
+                    messages.error(request, "El archivo Excel no tiene las columnas necesarias.")
+                    return redirect('upload_excel')
+
+                # Procesar cada fila y crear instancias de CatalogItem
+                for _, row in df.iterrows():
+                    # Limpiar y asegurar la extracción correcta de datos
+                    sap = str(row['SAP']).strip()
+                    description = str(row['DESC']).strip()
+                    category = str(row['GRUPO']).strip()
+                    unit = str(row['unidad de medida']).strip() if pd.notnull(row['unidad de medida']) else 'UND'
+                    price = float(row['Último Precio']) if pd.notnull(row['Último Precio']) else 0.0
+
+                    # Crear o actualizar un objeto CatalogItem
+                    item, created = CatalogItem.objects.update_or_create(
+                        sap=sap,
+                        defaults={
+                            'description': description,
+                            'category': category,
+                            'unit': unit,
+                            'price': price,
+                            'price_per_day': 0.0,  # Ajusta según sea necesario
+                        }
+                    )
+                    
+                messages.success(request, "El archivo Excel se ha procesado y los datos se han guardado exitosamente.")
+                return redirect('budget_catalog_excel')
+            except Exception as e:
+                messages.error(request, f"Hubo un error procesando el archivo: {e}")
+    else:
+        form = ExcelUploadForm()
+    
+    return render(request, 'upload_excel.html', {'form': form})

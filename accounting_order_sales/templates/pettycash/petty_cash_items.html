@@ -9,6 +9,11 @@
             <h2 class="mb-0 fw-bold" style="font-size: 1.5rem;">
                 Caja Chica
             </h2>
+            <div class="d-flex justify-content-end mb-3">
+                <button onclick="exportToExcel()" class="btn btn-success me-2">Descargar Excel</button>
+                <button onclick="exportToPDF()" class="btn btn-danger">Descargar PDF</button>
+            </div>
+            
     
             <!-- Formulario de filtros entre fechas -->
             <form method="GET" class="row g-2">
@@ -71,3 +76,107 @@
     </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+    function exportToPDF() {
+        // Selecciona la tabla
+        const { jsPDF } = window.jspdf;
+        let pdf = new jsPDF();
+
+        pdf.text("Caja Chica - Ítems de Órdenes de Compra", 10, 10);
+        
+        // Variables de inicio para la posición en el PDF
+        let y = 20;
+
+        // Recorrer filas de la tabla
+        document.querySelectorAll("table tbody tr").forEach((row, index) => {
+            let rowData = [];
+            row.querySelectorAll("td").forEach(cell => {
+                rowData.push(cell.innerText);
+            });
+
+            // Agregar texto al PDF
+            pdf.text(rowData.join("  "), 10, y);
+            y += 10;
+
+            // Crear nueva página si la altura es mayor a 280
+            if (y > 280) {
+                pdf.addPage();
+                y = 10;
+            }
+        });
+
+        // Descargar el archivo PDF
+        pdf.save("Caja_Chica.pdf");
+    }
+</script>
+<script>
+    function exportToExcel() {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet("Caja Chica");
+
+        // Definir los encabezados con estilo
+        const headers = ["O. Venta", "Proyecto", "Ítem", "Detalle", "Precio T.", "Proveedor", "Banco", "Número de Cuenta", "Cuenta Interbancaria"];
+        sheet.addRow(headers);
+
+        // Estilos para los encabezados
+        sheet.getRow(1).eachCell(cell => {
+            cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '4CAF50' } };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.border = { 
+                top: { style: 'thin' }, 
+                left: { style: 'thin' }, 
+                bottom: { style: 'thin' }, 
+                right: { style: 'thin' }
+            };
+        });
+
+        // Seleccionar todas las filas de la tabla
+        const rows = Array.from(document.querySelectorAll("table tbody tr"));
+        
+        rows.forEach(row => {
+            const rowData = Array.from(row.querySelectorAll("td")).map(cell => cell.innerText);
+            const addedRow = sheet.addRow(rowData);
+
+            // Estilos de cada fila
+            addedRow.eachCell(cell => {
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                cell.border = { 
+                    top: { style: 'thin' }, 
+                    left: { style: 'thin' }, 
+                    bottom: { style: 'thin' }, 
+                    right: { style: 'thin' }
+                };
+            });
+        });
+
+        // Ajustar ancho de las columnas automáticamente y hacerlas un poco más anchas
+        sheet.columns.forEach(column => {
+            let maxWidth = 10; // Valor inicial mínimo
+            column.eachCell({ includeEmpty: true }, cell => {
+                const cellValue = cell.value ? cell.value.toString() : "";
+                maxWidth = Math.max(maxWidth, cellValue.length + 5); // Añade un margen extra de +5
+            });
+            column.width = maxWidth;
+        });
+
+        // Descargar el archivo Excel
+        workbook.xlsx.writeBuffer().then(buffer => {
+            const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = "Caja_Chica_Styled.xlsx";
+            link.click();
+        });
+    }
+</script>
+
+
+
+
+
+{% endblock %}
+
+
