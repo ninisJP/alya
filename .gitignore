@@ -2,7 +2,4 @@ venv
 .venv
 __pycache__
 db.sqlite3
-*.pdf
-**/00*.py
-staticfiles
 .env
