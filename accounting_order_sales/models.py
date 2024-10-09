@@ -23,7 +23,7 @@ class SalesOrder(models.Model):
 
 class SalesOrderItem(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="items")
-    sap_code = models.CharField(max_length=255, default="")  # Aumenta el límite
+    sap_code = models.CharField(max_length=255, default="") 
     description = models.CharField(max_length=255, default="")
     amount = models.IntegerField(null=True, default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
@@ -39,7 +39,7 @@ class SalesOrderItem(models.Model):
         Calcula el remaining_requirement basado en las cantidades solicitadas en las RequirementOrderItems asociadas.
         """
         cantidad_solicitada = sum(item.quantity_requested for item in self.requirementorderitem_set.all())
-        self.remaining_requirement = max(self.amount - cantidad_solicitada, 0)  # Asegura que nunca sea menor a 0
+        self.remaining_requirement = max(self.amount - cantidad_solicitada, 0) 
         self.save()
 
     def save(self, *args, **kwargs):
