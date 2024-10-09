@@ -77,7 +77,8 @@ class CatalogItem(models.Model):
     unit = models.CharField(max_length=100, default='UND')
 
     def __str__(self):
-        return f'{self.sap} <{self.description}> precio: {self.price} precio por dia: {self.price_per_day}'
+        return f'{self.sap} <{self.description}> precio: {self.price}'
+
 
 class BudgetItem(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='items')
