@@ -26,7 +26,7 @@
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra ligera para el contenedor */
-        background-color: #e0f7fa; /* Fondo suave */
+        background-color: #adbdcc; /* Fondo suave */
     }
 
     .form-container .row {
@@ -57,35 +57,6 @@
         margin: 10px auto 0;
     }
 
-    .btn {
-        transition: background-color 0.3s, transform 0.3s;
-    }
-
-    .btn:hover {
-        transform: scale(1.05); /* Aumenta ligeramente el tamaño */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
-    }
-
-    .btn-primary {
-        background-color: #6c757d; /* Gris oscuro */
-        border-color: #6c757d;
-    }
-
-    .btn-primary:hover {
-        background-color: #5a6268;
-        border-color: #545b62;
-    }
-
-    .btn-danger {
-        background-color: #dc3545; /* Rojo */
-        border-color: #dc3545;
-    }
-
-    .btn-danger:hover {
-        background-color: #c82333;
-        border-color: #bd2130;
-    }
-
     /* Alinear los campos de los formularios para que ocupen el mismo tamaño */
     .form-control-lg, .form-select-lg {
         padding: 10px 15px; /* Ajustar el padding interno */
@@ -114,7 +85,7 @@
     <div class="mb-4">
         <div class="row">
             <!-- Primera columna: Cliente, Presupuesto, Número de Cotización -->
-            <div class="col-md-4 d-flex flex-column">
+            <div class="col-md-6 d-flex flex-column">
                 <div class="mb-3 flex-grow-1">
                     {{ form.client.label_tag }}
                     {{ form.client|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Cliente" }}
@@ -130,7 +101,7 @@
             </div>
 
             <!-- Segunda columna: Días del Presupuesto, Utilidad, Gastos Administrativos -->
-            <div class="col-md-4 d-flex flex-column">
+            <div class="col-md-6 d-flex flex-column">
                 <div class="mb-3 flex-grow-1">
                     {{ form.budget_days.label_tag }}
                     {{ form.budget_days|add_class:"form-control-lg mb-3 custom-form-control"|attr:"placeholder=Días del Presupuesto" }}
@@ -146,7 +117,7 @@
             </div>
 
             <!-- Tercera columna: Tiempo de Entrega, Tiempo de Servicio, Tiempo de Garantía -->
-            <div class="col-md-4 d-flex flex-column">
+            {% comment %} <div class="col-md-4 d-flex flex-column">
                 <div class="mb-3 flex-grow-1">
                     {{ form.budget_deliverytime.label_tag }}
                     {{ form.budget_deliverytime|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Tiempo de Entrega" }}
@@ -159,7 +130,7 @@
                     {{ form.budget_warrantytime.label_tag }}
                     {{ form.budget_warrantytime|add_class:"form-select-lg mb-3 select2 custom-form-control"|attr:"placeholder=Tiempo de Garantía" }}
                 </div>
-            </div>
+            </div> {% endcomment %}
         </div>
     </div>
 
@@ -204,7 +175,7 @@
     </div>
 
     <div class="d-flex justify-content-between mt-4">
-        <button type="button" id="add-item" class="btn btn-secondary"><i class="fas fa-plus-circle"></i> Agregar Ítem</button>
+        <button type="button" id="add-item" class="btn btn-success"><i class="fas fa-plus-circle"></i> Agregar Ítem</button>
         <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Presupuesto</button>
     </div>
 </form>
