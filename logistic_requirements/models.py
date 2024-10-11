@@ -59,19 +59,21 @@ class RequirementOrderItem(models.Model):
     #pdf_file = models.FileField(upload_to='pdfs/', blank=True, null=True)
 
     def clean(self):
-        # Validar la cantidad solo si el estado no es 'C', 'L' o 'P'
-        if self.estado not in ['C', 'L', 'P']:
-            # Asegurar que remaining_requirement no sea None antes de la validación
-            if self.sales_order_item.remaining_requirement is None:
-                self.sales_order_item.remaining_requirement = self.sales_order_item.amount
-                self.sales_order_item.save()
+    # Obtener la cantidad solicitada original si el ítem ya existe
+        if self.pk:
+            original_quantity = RequirementOrderItem.objects.get(pk=self.pk).quantity_requested
+            # Si no hay cambio en la cantidad, saltar la validación
+            if self.quantity_requested <= self.sales_order_item.remaining_requirement + original_quantity:
+                return
+        else:
+            original_quantity = 0
 
-            # Validar si el remaining_requirement es suficiente para la cantidad solicitada
-            if self.sales_order_item.remaining_requirement < self.quantity_requested:
-                raise ValidationError(
-                    f"La cantidad solicitada ({self.quantity_requested}) excede la cantidad disponible ({self.sales_order_item.remaining_requirement})."
-                )
-        
+        # Validar si la cantidad solicitada es mayor que la cantidad disponible,
+        # teniendo en cuenta la cantidad original en caso de ser una edición
+        if (self.sales_order_item.remaining_requirement + original_quantity) < self.quantity_requested:
+            raise ValidationError(
+                f"La cantidad solicitada ({self.quantity_requested}) excede la cantidad disponible ({self.sales_order_item.remaining_requirement})."
+            )
         super().clean()
         
     def save(self, *args, **kwargs):

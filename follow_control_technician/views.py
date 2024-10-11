@@ -8,8 +8,17 @@ from .models import TechnicianCard, TechnicianTask
 from .forms import TechnicianCardForm, TechnicianCardTaskFormSet, TechnicianCardTask, TechnicianTaskForm
 from django.views.decorators.http import require_http_methods
 
+
+from django.utils.timezone import now
+
 class TechniciansMonth(TemplateView):
     template_name = 'technicians_month.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        hoy = now().date()
+        if int(self.kwargs.get('mes')) != hoy.month or int(self.kwargs.get('anio')) != hoy.year:
+            return redirect(reverse('technicians_month', kwargs={'mes': hoy.month, 'anio': hoy.year}))
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
