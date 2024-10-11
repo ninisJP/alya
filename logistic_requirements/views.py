@@ -99,3 +99,11 @@ def edit_requirement_order(request, pk):
         'requirement_order': requirement_order
     })
 
+from django.http import JsonResponse
+from .models import Suppliers  # Ajusta según la ubicación de tu modelo
+
+def ajax_load_suppliers(request):
+    query = request.GET.get('q', '')  # Término de búsqueda
+    suppliers = Suppliers.objects.filter(name__icontains=query)[:50]  # Limitar resultados
+    results = [{'id': supplier.id, 'name': supplier.name} for supplier in suppliers]
+    return JsonResponse(results, safe=False)

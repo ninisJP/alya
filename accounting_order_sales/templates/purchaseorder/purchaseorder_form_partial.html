@@ -1,3 +1,14 @@
+<script>
+    // Inicializa Select2 para todos los selectores que tengan la clase 'select2'
+    $(document).ready(function() {
+      $('.select2').select2({
+        width: '100%', // Ajusta el ancho para que se adapte a tu diseño
+        placeholder: "Selecciona un proveedor",
+        allowClear: true
+      });
+    });
+</script>
+
 <article class="list-group-item mb-3" id="orden-{{ order.id }}">
     <!-- Formulario de la orden de compra -->
     <form method="post" hx-post="{% url 'edit_purchase_order' order.id %}" hx-target="#orden-{{ order.id }}" hx-swap="outerHTML">

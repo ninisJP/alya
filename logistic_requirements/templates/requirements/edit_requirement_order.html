@@ -23,7 +23,7 @@
                         <div class="form-group">
                             <label for="id_sales_order">Orden de Venta</label>
                             <!-- Campo oculto que envía el valor al guardar -->
-                            {{ order_form.sales_order|add_class:"form-control d-none" }}  <!-- Usamos d-none para ocultarlo -->
+                            {{ order_form.sales_order|add_class:"form-control d-none" }}
                             <!-- Mostrar el valor como texto solo de lectura -->
                             <input type="text" readonly class="form-control" value="{{ requirement_order.sales_order }}" />
                         </div>
@@ -48,33 +48,43 @@
                 </div>
             </div>
 
-            <!-- Tabla de Ítems con Estado y Proveedor -->
             <div class="table-responsive">
                 <table class="table table-bordered table-hover table-striped table-sm">
                     <thead class="table-dark">
                         <tr>
-                            <th>Item</th>
-                            <th>Cantidad</th>
-                            <th>Proveedor</th>  <!-- Nueva columna para el proveedor -->
-                            <th>Notas</th>
-                            <th>Estado</th>
+                            <th class="col-3">Item</th>
+                            <th class="col-2">Cantidad</th>
+                            <th class="col-3">Proveedor</th>
+                            <th class="col-2">Notas</th>
+                            <th class="col-2">Estado</th>
                         </tr>
                     </thead>
                     <tbody>
                         {{ formset.management_form }}
                         {% for form in formset %}
                         <tr>
-                            {{ form.id }}  <!-- Campo oculto para el ID del formset -->
-                            <td>{{ form.sales_order_item|add_class:"form-control" }}</td>
-                            <td>{{ form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}</td>
-                            <td>{{ form.supplier|add_class:"form-control select2" }} <!-- Campo para seleccionar el proveedor --></td>
-                            <td>{{ form.notes|add_class:"form-control" }}</td>
-                            <td>{{ form.estado|add_class:"form-control" }}</td>
+                            {{ form.id }}
+                            <td>
+                                <input type="text" readonly class="form-control" style="width: 100%;" value="{{ form.instance.sales_order_item }}" />
+                            </td>
+                            <td>
+                                {{ form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}
+                            </td>
+                            <td>
+                                {{ form.supplier|add_class:"form-control select2" }}  <!-- Este campo ocupará menos espacio -->
+                            </td>
+                            <td>
+                                {{ form.notes|add_class:"form-control" }}
+                            </td>
+                            <td>
+                                {{ form.estado|add_class:"form-control" }}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+            
 
             <!-- Botones al final en una sola fila -->
             <div class="d-flex justify-content-between mt-4">
@@ -91,10 +101,32 @@
     </div>
 </div>
 
+<!-- Corregir el bloque de scripts -->
 <script>
-// Script para inicializar Select2 en los campos de proveedores
 $(document).ready(function() {
-    $('.select2').select2();  // Iniciar Select2 para todos los selectores con la clase select2
+    $('.select2').select2({
+        ajax: {
+            url: "{% url 'ajax_load_suppliers' %}",  // URL de la vista para cargar proveedores
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term  // Termino de búsqueda ingresado
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.map(function (supplier) {
+                        return { id: supplier.id, text: supplier.name };  // Ajustar según los campos del modelo
+                    })
+                };
+            },
+            cache: true
+        },
+        minimumInputLength: 2,
+        placeholder: "Selecciona un proveedor",
+        width: 'resolve'
+    });
 });
 
 // Script para eliminar un formulario de ítem

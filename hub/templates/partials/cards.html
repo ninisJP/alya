@@ -1,104 +1,108 @@
-<!-- Partial para las tarjetas -->
 <div class="row d-flex justify-content-center">
-    <!-- Tarjeta 1 -->
-    <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
+  <!-- Tarjetas que todos pueden ver -->
+  <!-- Clientes -->
+  <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
       <a href="{% url 'index_client' %}" class="d-flex align-items-center text-decoration-none w-100">
-        <i class="fas fa-user-friends fa-3x text-primary"></i>
-        <div class="ms-3">
-          <h5 class="mb-1 text-white">Clientes</h5>
-          <p class="mb-0 text-light">Gestiona tus clientes aquí.</p>
-        </div>
+          <i class="fas fa-user-friends fa-3x text-primary"></i>
+          <div class="ms-3">
+              <h5 class="mb-1 text-white">Clientes</h5>
+              <p class="mb-0 text-light">Gestiona tus clientes aquí.</p>
+          </div>
       </a>
-    </div>
-  
-    <!-- Tarjeta 2 -->
-    <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
-      <a href="{% url 'index_budget' %}" class="d-flex align-items-center text-decoration-none w-100">
-        <i class="fas fa-file-invoice-dollar fa-3x text-success"></i>
-        <div class="ms-3">
-          <h5 class="mb-1 text-white">Presupuestos</h5>
-          <p class="mb-0 text-light">Crea y revisa presupuestos.</p>
-        </div>
-      </a>
-    </div>
-  
-    <!-- Tarjeta 3 -->
-    <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
-      <a href="{% url 'project_index' %}" class="d-flex align-items-center text-decoration-none w-100">
-        <i class="fas fa-project-diagram fa-3x text-warning"></i>
-        <div class="ms-3">
-          <h5 class="mb-1 text-white">Proyectos</h5>
-          <p class="mb-0 text-light">Administra tus proyectos.</p>
-        </div>
-      </a>
-    </div>
-  
-    <!-- Tarjeta 4 -->
-    <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
-      <a href="{% url 'salesorder' %}" class="d-flex align-items-center text-decoration-none w-100">
-        <i class="fas fa-chart-line fa-3x text-info"></i>
-        <div class="ms-3">
-          <h5 class="mb-1 text-white">Contabilidad</h5>
-          <p class="mb-0 text-light">Revisa tus finanzas.</p>
-        </div>
-      </a>
-    </div>
-  
-    <!-- Tarjeta 5 -->
-    <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
-      <a href="{% url 'follow_control_home' %}" class="d-flex align-items-center text-decoration-none w-100">
-        <i class="fas fa-tasks fa-3x text-secondary"></i>
-        <div class="ms-3">
-          <h5 class="mb-1 text-white">Tarjetas</h5>
-          <p class="mb-0 text-light">Monitorea actividades.</p>
-        </div>
-      </a>
-    </div>
-  
-    <!-- Tarjeta 6 -->
-    <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
-      <a href="{% url 'requirement_order_list' %}" class="d-flex align-items-center text-decoration-none w-100">
-        <i class="fas fa-boxes fa-3x text-danger"></i>
-        <div class="ms-3">
-          <h5 class="mb-1 text-white">Logística</h5>
-          <p class="mb-0 text-light">Gestiona inventarios.</p>
-        </div>
-      </a>
-    </div>
-  
-    <!-- Tarjeta 7 -->
-    <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
-      <a href="{% url 'register' %}" class="d-flex align-items-center text-decoration-none w-100">
-        <i class="fas fa-user-plus fa-3x text-info"></i>
-        <div class="ms-3">
-          <h5 class="mb-1 text-white">Empleados</h5>
-          <p class="mb-0 text-light">Registra empleados.</p>
-        </div>
-      </a>
-    </div>
-  
-    <!-- Tarjeta 8 -->
-    <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
-      <a href="{% url 'index_portal' %}" class="d-flex align-items-center text-decoration-none w-100">
-        <i class="fas fa-user-circle fa-3x text-primary"></i>
-        <div class="ms-3">
-          <h5 class="mb-1 text-white">Mi Cuenta</h5>
-          <p class="mb-0 text-light">Configura tu perfil.</p>
-        </div>
-      </a>
-    </div>
-  
-    <!-- Tarjeta 9 -->
-    <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
-      <a href="{% url 'index_requests' %}" class="d-flex align-items-center text-decoration-none w-100">
-        <i class="fas fa-shopping-cart fa-3x text-warning"></i>
-        <div class="ms-3">
-          <h5 class="mb-1 text-white">Pedidos</h5>
-          <p class="mb-0 text-light">Crea tus pedidos.</p>
-        </div>
-      </a>
-    </div>
   </div>
+
+  <!-- Presupuestos -->
+  <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
+      <a href="{% url 'index_budget' %}" class="d-flex align-items-center text-decoration-none w-100">
+          <i class="fas fa-file-invoice-dollar fa-3x text-success"></i>
+          <div class="ms-3">
+              <h5 class="mb-1 text-white">Presupuestos</h5>
+              <p class="mb-0 text-light">Crea y revisa presupuestos.</p>
+          </div>
+      </a>
+  </div>
+
+  <!-- Proyectos -->
+  <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
+      <a href="{% url 'project_index' %}" class="d-flex align-items-center text-decoration-none w-100">
+          <i class="fas fa-project-diagram fa-3x text-warning"></i>
+          <div class="ms-3">
+              <h5 class="mb-1 text-white">Proyectos</h5>
+              <p class="mb-0 text-light">Administra tus proyectos.</p>
+          </div>
+      </a>
+  </div>
+
+  <!-- Empleados -->
+  <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
+      <a href="{% url 'register' %}" class="d-flex align-items-center text-decoration-none w-100">
+          <i class="fas fa-user-plus fa-3x text-info"></i>
+          <div class="ms-3">
+              <h5 class="mb-1 text-white">Empleados</h5>
+              <p class="mb-0 text-light">Registra empleados.</p>
+          </div>
+      </a>
+  </div>
+
+  <!-- Mi Cuenta -->
+  <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
+      <a href="{% url 'index_portal' %}" class="d-flex align-items-center text-decoration-none w-100">
+          <i class="fas fa-user-circle fa-3x text-primary"></i>
+          <div class="ms-3">
+              <h5 class="mb-1 text-white">Mi Cuenta</h5>
+              <p class="mb-0 text-light">Configura tu perfil.</p>
+          </div>
+      </a>
+  </div>
+
+  <!-- Pedidos -->
+  <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
+      <a href="{% url 'index_requests' %}" class="d-flex align-items-center text-decoration-none w-100">
+          <i class="fas fa-shopping-cart fa-3x text-warning"></i>
+          <div class="ms-3">
+              <h5 class="mb-1 text-white">Pedidos</h5>
+              <p class="mb-0 text-light">Crea tus pedidos.</p>
+          </div>
+      </a>
+  </div>
+
+  <!-- Tarjetas -->
+  <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
+      <a href="{% url 'follow_control_home' %}" class="d-flex align-items-center text-decoration-none w-100">
+          <i class="fas fa-tasks fa-3x text-secondary"></i>
+          <div class="ms-3">
+              <h5 class="mb-1 text-white">Tarjetas</h5>
+              <p class="mb-0 text-light">Monitorea actividades.</p>
+          </div>
+      </a>
+  </div>
+
+  <!-- Solo para el Admin -->
+  {% if user.is_superuser %}
+  <!-- Contabilidad -->
+  <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
+      <a href="{% url 'salesorder' %}" class="d-flex align-items-center text-decoration-none w-100">
+          <i class="fas fa-chart-line fa-3x text-info"></i>
+          <div class="ms-3">
+              <h5 class="mb-1 text-white">Contabilidad</h5>
+              <p class="mb-0 text-light">Revisa tus finanzas.</p>
+          </div>
+      </a>
+  </div>
+
+  <!-- Logística -->
+  <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
+      <a href="{% url 'requirement_order_list' %}" class="d-flex align-items-center text-decoration-none w-100">
+          <i class="fas fa-boxes fa-3x text-danger"></i>
+          <div class="ms-3">
+              <h5 class="mb-1 text-white">Logística</h5>
+              <p class="mb-0 text-light">Gestiona inventarios.</p>
+          </div>
+      </a>
+  </div>
+  {% endif %}
+</div>
+
   
   <!-- Estilos CSS para interactividad -->
   <style>

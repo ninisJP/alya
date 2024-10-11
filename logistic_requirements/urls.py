@@ -6,4 +6,6 @@ urlpatterns = [
     path('requirement-orders/', RequirementOrderListView.as_view(), name='requirement_order_list'),
     path('requirement-order/detail/<int:pk>/', RequirementOrderDetailView.as_view(), name='requirement_order_detail'),
     path('requirement-order/<int:pk>/', views.edit_requirement_order, name='requirement_order_edit'),
+    path('ajax/load-suppliers/', views.ajax_load_suppliers, name='ajax_load_suppliers'),
+    
 ]

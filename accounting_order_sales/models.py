@@ -23,12 +23,12 @@ class SalesOrder(models.Model):
 
 class SalesOrderItem(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="items")
-    sap_code = models.CharField(max_length=255, default="")  # Aumenta el límite
+    sap_code = models.CharField(max_length=255, default="") 
     description = models.CharField(max_length=255, default="")
     amount = models.IntegerField(null=True, default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    unit_of_measurement = models.CharField(max_length=10, default="UND")
+    unit_of_measurement = models.CharField(max_length=255, default="UND")
     remaining_requirement = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
@@ -39,7 +39,7 @@ class SalesOrderItem(models.Model):
         Calcula el remaining_requirement basado en las cantidades solicitadas en las RequirementOrderItems asociadas.
         """
         cantidad_solicitada = sum(item.quantity_requested for item in self.requirementorderitem_set.all())
-        self.remaining_requirement = max(self.amount - cantidad_solicitada, 0)  # Asegura que nunca sea menor a 0
+        self.remaining_requirement = max(self.amount - cantidad_solicitada, 0) 
         self.save()
 
     def save(self, *args, **kwargs):
@@ -105,6 +105,14 @@ class PurchaseOrderItem(models.Model):
     supplier = models.ForeignKey(Suppliers, on_delete=models.SET_NULL, blank=True, null=True)
     mov_number = models.CharField(max_length=255, null=True, blank=True, default='')
     bank = models.CharField(max_length=100, null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        # Verificamos que `price` y `quantity_requested` no sean nulos antes de calcular
+        if self.price is not None and self.quantity_requested is not None:
+            self.price_total = self.price * self.quantity_requested
+        else:
+            self.price_total = None  # Opcional: manejar el caso en que no se pueda calcular el total
+        super(PurchaseOrderItem, self).save(*args, **kwargs)
 
     def __str__(self):
         return f"Item {self.sap_code} - {self.quantity_requested} units - Total {self.price_total}"

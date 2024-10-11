@@ -56,6 +56,7 @@ class RequirementOrderItem(models.Model):
     supplier = models.ForeignKey(Suppliers, on_delete=models.SET_NULL, blank=True, null=True)
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES, default='P')
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    #pdf_file = models.FileField(upload_to='pdfs/', blank=True, null=True)
 
     def clean(self):
     # Obtener la cantidad solicitada original si el ítem ya existe

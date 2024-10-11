@@ -14,20 +14,30 @@ class RequirementOrderForm(forms.ModelForm):
         }
 
 # Formulario para RequirementOrderItem
-# Formulario para RequirementOrderItem
 class RequirementOrderItemForm(forms.ModelForm):
+    item_name = forms.CharField(
+        label="Descripción del Ítem",
+        required=False,
+        widget=forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'})
+    )
+
     class Meta:
         model = RequirementOrderItem
-        fields = ['sales_order_item', 'quantity_requested', 'supplier', 'notes', 'estado']  # Se añade el campo 'supplier'
+        fields = ['item_name', 'quantity_requested', 'supplier', 'notes', 'estado']
         widgets = {
-            'estado': forms.Select(choices=RequirementOrderItem.ESTADO_CHOICES),  # Se renderiza como un select con las opciones
-            'supplier': forms.Select()  # El campo supplier se renderiza como un select
+            'estado': forms.Select(choices=RequirementOrderItem.ESTADO_CHOICES),
+            'supplier': forms.Select(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Si quieres personalizar el queryset de suppliers, puedes hacerlo aquí
-        self.fields['supplier'].queryset = Suppliers.objects.all()
+        # Asegúrate de cargar el valor descriptivo en el campo `item_name`
+        if self.instance and self.instance.sales_order_item:
+            self.fields['item_name'].initial = str(self.instance.sales_order_item)  # Aquí cargamos el nombre descriptivo
+
+
+
+
 
 # Creación de formset para manejar múltiples ítems
 RequirementOrderItemFormSet = inlineformset_factory(

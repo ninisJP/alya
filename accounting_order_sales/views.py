@@ -167,17 +167,18 @@ def edit_purchase_order(request, order_id):
     ItemFormSet = modelformset_factory(PurchaseOrderItem, form=PurchaseOrderItemForm, extra=0)
 
     if request.method == 'POST':
-        # Formulario para la orden de compra
         order_form = PurchaseOrderForm(request.POST, instance=order)
-        # Formset para los ítems de la orden de compra
         item_formset = ItemFormSet(request.POST, queryset=PurchaseOrderItem.objects.filter(purchaseorder=order))
 
         if order_form.is_valid() and item_formset.is_valid():
-            # Guardar la orden de compra y los ítems
             order_form.save()
-            item_formset.save()
-
-            # Después de guardar, devolver el artículo actualizado
+            
+            # Guardar cada ítem y recalcular el price_total
+            items = item_formset.save(commit=False)
+            for item in items:
+                item.price_total = item.price * item.quantity_requested  # Recalcular
+                item.save()
+            
             return render(request, 'purchaseorder/purchaseorder_partial.html', {'order': order})
     else:
         order_form = PurchaseOrderForm(instance=order)
@@ -188,6 +189,7 @@ def edit_purchase_order(request, order_id):
         'item_formset': item_formset,
         'order': order,
     })
+
 
 # Bank 
 def index_bank(request):
