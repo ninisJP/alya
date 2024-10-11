@@ -1,18 +1,21 @@
 from django.http import JsonResponse
-from django.shortcuts import render
-
-from collections import defaultdict
-from datetime import date, timedelta, datetime
+from django.shortcuts import render, redirect
+from datetime import date, datetime
+import calendar
 
 from .utils import get_daily_valuations_for_month
 
 
 def valuations_view(request, year, month):
+    today = date.today()
+    if year != today.year or month != today.month:
+        return redirect('valuations', year=today.year, month=today.month)
+        
     raw_valuations = get_daily_valuations_for_month(year, month)
-    num_days = (datetime(year, month + 1, 1) - datetime(year, month, 1)).days
+    
+    _, num_days = calendar.monthrange(year, month)
     days = list(range(1, num_days + 1))
-
-    # Simplifica la preparación de los datos
+    
     valuations = []
     for user, days_valuations in raw_valuations.items():
         row = [user] + [days_valuations.get(day, '-') for day in days]
