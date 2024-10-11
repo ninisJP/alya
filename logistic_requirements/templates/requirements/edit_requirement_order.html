@@ -48,16 +48,15 @@
                 </div>
             </div>
 
-            <!-- Tabla de Ítems con Estado y Proveedor -->
             <div class="table-responsive">
                 <table class="table table-bordered table-hover table-striped table-sm">
                     <thead class="table-dark">
                         <tr>
-                            <th>Item</th>
-                            <th>Cantidad</th>
-                            <th>Proveedor</th>
-                            <th>Notas</th>
-                            <th>Estado</th>
+                            <th class="col-3">Item</th>
+                            <th class="col-2">Cantidad</th>
+                            <th class="col-3">Proveedor</th>
+                            <th class="col-2">Notas</th>
+                            <th class="col-2">Estado</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -65,16 +64,27 @@
                         {% for form in formset %}
                         <tr>
                             {{ form.id }}
-                            <td>{{ form.sales_order_item|add_class:"form-control" }}</td>
-                            <td>{{ form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}</td>
-                            <td>{{ form.supplier|add_class:"form-control select2" }}</td>
-                            <td>{{ form.notes|add_class:"form-control" }}</td>
-                            <td>{{ form.estado|add_class:"form-control" }}</td>
+                            <td>
+                                <input type="text" readonly class="form-control" style="width: 100%;" value="{{ form.instance.sales_order_item }}" />
+                            </td>
+                            <td>
+                                {{ form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}
+                            </td>
+                            <td>
+                                {{ form.supplier|add_class:"form-control select2" }}  <!-- Este campo ocupará menos espacio -->
+                            </td>
+                            <td>
+                                {{ form.notes|add_class:"form-control" }}
+                            </td>
+                            <td>
+                                {{ form.estado|add_class:"form-control" }}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+            
 
             <!-- Botones al final en una sola fila -->
             <div class="d-flex justify-content-between mt-4">

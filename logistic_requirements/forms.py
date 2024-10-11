@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
+
 from logistic_suppliers.models import Suppliers
 from .models import RequirementOrder, RequirementOrderItem
 
@@ -14,22 +15,29 @@ class RequirementOrderForm(forms.ModelForm):
 
 # Formulario para RequirementOrderItem
 class RequirementOrderItemForm(forms.ModelForm):
+    item_name = forms.CharField(
+        label="Descripción del Ítem",
+        required=False,
+        widget=forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'})
+    )
+
     class Meta:
         model = RequirementOrderItem
-        fields = ['sales_order_item', 'quantity_requested', 'supplier', 'notes', 'estado']
+        fields = ['item_name', 'quantity_requested', 'supplier', 'notes', 'estado']
         widgets = {
-            'sales_order_item': forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),  # Campo solo lectura
             'estado': forms.Select(choices=RequirementOrderItem.ESTADO_CHOICES),
-            'supplier': forms.Select(),  # El campo supplier se renderiza como un select
+            'supplier': forms.Select(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Mostrar solo el texto del `sales_order_item`
+        # Asegúrate de cargar el valor descriptivo en el campo `item_name`
         if self.instance and self.instance.sales_order_item:
-            self.fields['sales_order_item'].initial = str(self.instance.sales_order_item)
-        # Personalizar el queryset de suppliers
-        self.fields['supplier'].queryset = Suppliers.objects.all()
+            self.fields['item_name'].initial = str(self.instance.sales_order_item)  # Aquí cargamos el nombre descriptivo
+
+
+
+
 
 # Creación de formset para manejar múltiples ítems
 RequirementOrderItemFormSet = inlineformset_factory(
