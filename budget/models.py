@@ -75,11 +75,9 @@ class CatalogItem(models.Model):
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     sap = models.CharField(max_length=100, unique=True)
     unit = models.CharField(max_length=100, default='UND')
-    apply_price_per_day = models.BooleanField(default=True)  # Nuevo campo
 
     def __str__(self):
         return f'{self.sap} <{self.description}> precio: {self.price} precio por dia: {self.price_per_day}'
-
 
 class BudgetItem(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='items')
@@ -88,14 +86,16 @@ class BudgetItem(models.Model):
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.item.apply_price_per_day:
-            # Si aplica el precio por día, calcular en base a la cantidad, días y precio por día
+        # Determinar si se aplica precio por día en función de la categoría
+        if self.item.category not in [CatalogItem.Category.EQUIPO, CatalogItem.Category.CONSUMIBLE, CatalogItem.Category.MATERIAL]:
+            # Aplica precio por día para categorías que no sean EQUIPO, CONSUMIBLE o MATERIAL
             self.total_price = self.item.price_per_day * self.quantity * self.budget.budget_days
         else:
-            # Si no aplica el precio por día, solo multiplicar por el precio unitario
+            # No aplica precio por día
             self.total_price = self.item.price * self.quantity
 
         super().save(*args, **kwargs)
         # Guardar el presupuesto para que sus valores también se actualicen
         self.budget.save()
+
 
