@@ -2,70 +2,70 @@ from django import forms
 from .models import Budget, BudgetItem, CatalogItem
 from django.forms import inlineformset_factory
 
+class Select2AjaxWidget(forms.Select):
+    class Media:
+        css = {
+            'all': ('https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css',)
+        }
+        js = (
+            'https://code.jquery.com/jquery-3.6.0.min.js',
+            'https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js',
+        )
+
+    def build_attrs(self, base_attrs, extra_attrs=None):
+        attrs = super().build_attrs(base_attrs, extra_attrs)
+        attrs['class'] = (attrs.get('class', '') + ' select2-ajax').strip()
+        attrs['data-placeholder'] = 'Seleccione un ítem'
+        attrs['data-ajax--url'] = reverse_lazy('catalog_item_search')
+        attrs['style'] = 'width: 100%;'
+        return attrs
+
 class BudgetForm(forms.ModelForm):
     class Meta:
         model = Budget
         fields = [
-            'client',
-            'budget_name',
-            'budget_number',
-            'budget_days',
-            'budget_date',
-            'budget_expenses',
-            'budget_utility',
-            'budget_deliverytime',
-            'budget_servicetime',
-            'budget_warrantytime'
+            'client', 'budget_name', 'budget_number', 'budget_days', 'budget_date',
+            'budget_expenses', 'budget_utility', 'budget_deliverytime',
+            'budget_servicetime', 'budget_warrantytime'
         ]
         widgets = {
-            'budget_date': forms.DateInput(attrs={
-                'type': 'date',
-                'class': 'form-control',
-            }),
-            'budget_expenses': forms.Select(attrs={
-                'class': 'form-select',
-            }),
-            'budget_utility': forms.Select(attrs={
-                'class': 'form-select',
-            }),
-            'budget_deliverytime': forms.Select(attrs={
-                'class': 'form-select',
-            }),
-            'budget_servicetime': forms.Select(attrs={
-                'class': 'form-select',
-            }),
-            'budget_warrantytime': forms.Select(attrs={
-                'class': 'form-select',
-            }),
+            'budget_date': forms.DateInput(attrs={'type': 'date'}),
+            'client': forms.Select(attrs={'class': 'form-control'}),
         }
-        labels = {
-            'client': 'Nombre de Cliente',
-            'budget_name': 'Nombre del Presupuesto',
-            'budget_number': 'Número de Cotización',
-            'budget_days': 'Días del Presupuesto',
-            'budget_date': 'Fecha del Presupuesto',
-            'budget_expenses': 'Gastos Administrativos (%)',
-            'budget_utility': 'Utilidad (%)',
-            'budget_deliverytime': 'Tiempo de Entrega',
-            'budget_servicetime': 'Tiempo de Servicio',
-            'budget_warrantytime': 'Tiempo de Garantía',
+    
+    def __init__(self, *args, **kwargs):
+        super(BudgetForm, self).__init__(*args, **kwargs)
+        self.fields['client'].empty_label = 'Seleccione un cliente'
+
+
+class BudgetItemForm(forms.ModelForm):
+    class Meta:
+        model = BudgetItem
+        fields = ('item', 'quantity')
+        widgets = {
+            'item': Select2AjaxWidget(),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(BudgetItemForm, self).__init__(*args, **kwargs)
+        if 'DELETE' in self.fields:
+            self.fields['DELETE'].widget = forms.HiddenInput()
 
 BudgetItemFormSet = inlineformset_factory(
     Budget,
     BudgetItem,
-    fields=['item', 'quantity'],
-    extra=0,
-    can_delete=True,
-    widgets={
-        'item': forms.Select(attrs={'class': 'form-select'}),
-        'quantity': forms.NumberInput(attrs={'class': 'form-control', 'style': 'max-width: 80px;'}),
-    },
-    labels={
-        'item': 'Ítem',
-        'quantity': 'Cantidad',
-    }
+    form=BudgetItemForm,
+    extra=5,
 )
+
+from django import forms
+from django.urls import reverse_lazy
+
+
+
+
+
 
 class CatalogItemForm(forms.ModelForm):
     class Meta:
