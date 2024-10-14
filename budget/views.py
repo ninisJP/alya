@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from collections import defaultdict
-
+from django.http import HttpResponse, JsonResponse
 from follow_control_card.forms import TaskForm
 from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm
 from .models import Budget, BudgetItem, CatalogItem
@@ -17,59 +17,85 @@ def index_budget(request):
     budgets = Budget.objects.all()  # Recupera todos los presupuestos
     return render(request, 'index_budget.html', {'budgets': budgets})
 
+def catalog_item_search(request):
+    if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        term = request.GET.get('term', '')
+        items = CatalogItem.objects.filter(description__icontains=term)[:50]
+        results = []
+        for item in items:
+            results.append({
+                'id': item.id,
+                'text': f'{item.sap} - {item.description}',
+            })
+        return JsonResponse({'results': results})
+    else:
+        return JsonResponse({'results': []})
+    
 def create_budget(request):
     if request.method == 'POST':
+        print("Recibida solicitud POST en create_budget")
         form = BudgetForm(request.POST)
-        formset = BudgetItemFormSet(request.POST)
-
-        if form.is_valid() and formset.is_valid():
-            budget = form.save()
-            formset.instance = budget  # Vincula el formset al budget
-            formset.save()  # Guardar el formset directamente, sin preocuparse por `final_price`
-            return redirect('detail_budget', pk=budget.pk)
+        if form.is_valid():
+            budget = form.save(commit=False)
+            formset = BudgetItemFormSet(request.POST, instance=budget)
+            print(f"Formset válido: {formset.is_valid()}")
+            if formset.is_valid():
+                budget.save()
+                formset.save()
+                print("Presupuesto y detalles guardados exitosamente")
+                return redirect('detail_budget', pk=budget.pk)
+            else:
+                print(f"Errores en el formset: {formset.errors}")
+        else:
+            print(f"Errores en el formulario: {form.errors}")
+        # Renderizar nuevamente el formulario con errores
+        return render(request, 'budget/budget_form.html', {
+            'form': form,
+            'formset': formset,
+        })
     else:
+        print("Recibida solicitud GET en create_budget")
         form = BudgetForm()
         formset = BudgetItemFormSet()
-
-    return render(request, 'budget/create_budget.html', {
+    return render(request, 'budget/budget_form.html', {
         'form': form,
         'formset': formset,
     })
 
 def edit_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
-
     if request.method == 'POST':
         form = BudgetForm(request.POST, instance=budget)
         formset = BudgetItemFormSet(request.POST, instance=budget)
 
         if form.is_valid() and formset.is_valid():
-            budget = form.save()
+            # Guarda el presupuesto principal
+            form.save()
+
+            # Guarda todos los ítems del formset
             items = formset.save(commit=False)
-
             for item in items:
-                item.budget = budget
-                item.save()
+                item.save()  # Guarda o actualiza los ítems que permanecen visibles
 
-            for obj in formset.deleted_objects:
-                obj.delete()
-
-            budget.save()
+            # Elimina ítems que no estén en el formset actual (es decir, los eliminados)
+            for item in formset.deleted_objects:
+                item.delete()
 
             return redirect('detail_budget', pk=budget.pk)
         else:
-            # Imprimir errores en la consola para depuracións
-            print("Formulario principal no válido:", form.errors)
-            print("Formset no válido:", formset.errors)
+            # Mostrar errores para depuración
+            print("Errores en el formulario:", form.errors)
+            print("Errores en el formset:", formset.errors)
     else:
         form = BudgetForm(instance=budget)
         formset = BudgetItemFormSet(instance=budget)
 
-    return render(request, 'budget/edit_budget.html', {
-        'form': form,
-        'formset': formset,
-        'budget': budget,
-    })
+    return render(request, 'budget/budget_edit.html', {'form': form, 'formset': formset})
+
+
+
+
+
 
 def detail_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)

@@ -1,0 +1,207 @@
+{% extends 'base_budget.html' %}
+
+{% load widget_tweaks %}
+{% load static %}
+
+{% block content %}
+<h2 class="text-center mb-4">Editar Presupuesto</h2>
+
+<form method="post" id="budget-form">
+    {% csrf_token %}
+    <div class="container">
+        <!-- Campos superiores organizados en 3 columnas -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form.client.label_tag }}
+                    {{ form.client|add_class:"form-control mb-2" }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form.budget_name.label_tag }}
+                    {{ form.budget_name|add_class:"form-control mb-2"|attr:"placeholder=Nombre del Presupuesto" }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form.budget_number.label_tag }}
+                    {{ form.budget_number|add_class:"form-control mb-2"|attr:"placeholder=Número del Presupuesto" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Segunda fila de campos -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form.budget_days.label_tag }}
+                    {{ form.budget_days|add_class:"form-control mb-2"|attr:"placeholder=Días del Presupuesto" }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form.budget_date.label_tag }}
+                    {{ form.budget_date|add_class:"form-control mb-2"|attr:"placeholder=Fecha del Presupuesto" }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form.budget_expenses.label_tag }}
+                    {{ form.budget_expenses|add_class:"form-control mb-2"|attr:"placeholder=Gastos" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Tercera fila de campos -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form.budget_utility.label_tag }}
+                    {{ form.budget_utility|add_class:"form-control mb-2"|attr:"placeholder=Utilidad" }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form.budget_deliverytime.label_tag }}
+                    {{ form.budget_deliverytime|add_class:"form-control mb-2"|attr:"placeholder=Tiempo de Entrega" }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form.budget_servicetime.label_tag }}
+                    {{ form.budget_servicetime|add_class:"form-control mb-2"|attr:"placeholder=Tiempo de Servicio" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Cuarta fila de campos -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form.budget_warrantytime.label_tag }}
+                    {{ form.budget_warrantytime|add_class:"form-control mb-2"|attr:"placeholder=Tiempo de Garantía" }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Encabezados del formset -->
+    <div class="row font-weight-bold border-bottom pb-2 mb-3">
+        <div class="col-md-4">Ítem</div>
+        <div class="col-md-2 text-center">Cantidad</div>
+        <div class="col-md-2 text-center">Eliminar</div>
+    </div>
+
+    <div id="item-formset">
+        {{ formset.management_form }}
+        {% for form in formset.forms %}
+            <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm item-row">
+                {{ form.id }}
+                <div class="col-md-4">
+                    {{ form.item|add_class:"form-control text-dark select2-ajax"|attr:"placeholder=Ítem" }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
+                </div>
+                <div class="col-md-1 text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+        {% endfor %}
+        <div id="empty-form" style="display: none;">
+            <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm item-row">
+                <div class="col-md-4">
+                    {{ formset.empty_form.item|add_class:"form-control text-dark select2-ajax"|attr:"placeholder=Ítem" }}
+                </div>
+                <div class="col-md-2">
+                    {{ formset.empty_form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
+                </div>
+                <div class="col-md-1 text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="d-flex justify-content-between mt-4">
+        <button type="button" id="add-item" class="btn btn-secondary"><i class="fas fa-plus-circle"></i> Agregar Ítem</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+    </div>
+</form>
+
+<!-- Incluir librerías de Select2 y jQuery -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- JS para Select2 y manejo del formset -->
+<script>
+    $(document).ready(function() {
+        function initializeSelect2(selector) {
+            $(selector).select2({
+                placeholder: 'Seleccione un ítem',
+                allowClear: true,
+                ajax: {
+                    url: $(selector).data('ajax--url'),
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            term: params.term,
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data.results,
+                        };
+                    },
+                    cache: true,
+                },
+                minimumInputLength: 1,
+            });
+        }
+
+        function reindexFormset() {
+            $('#item-formset .item-row').each(function(index) {
+                $(this).find(':input').each(function() {
+                    var name = $(this).attr('name').replace(/items-\d+-/, 'items-' + index + '-');
+                    $(this).attr('name', name);
+                    var id = $(this).attr('id').replace(/id_items-\d+-/, 'id_items-' + index + '-');
+                    $(this).attr('id', id);
+                });
+            });
+        }
+
+        $('.select2-ajax').each(function() {
+            initializeSelect2(this);
+        });
+
+        $('#add-item').click(function(e) {
+            e.preventDefault();
+            var formCount = parseInt($('#id_items-TOTAL_FORMS').val());
+            var $emptyForm = $('#empty-form .form-row').clone();
+
+            $emptyForm.find(':input').each(function() {
+                var name = $(this).attr('name').replace('__prefix__', formCount);
+                $(this).attr('name', name);
+                var id = $(this).attr('id').replace('__prefix__', formCount);
+                $(this).attr('id', id);
+            });
+
+            $('#item-formset').append($emptyForm);
+            $('#id_items-TOTAL_FORMS').val(formCount + 1);
+            reindexFormset();
+            initializeSelect2($emptyForm.find('.select2-ajax'));
+        });
+
+        $(document).on('click', '.remove-form', function(e) {
+            e.preventDefault();
+            $(this).closest('.item-row').remove();
+            reindexFormset();
+            $('#id_items-TOTAL_FORMS').val($('#item-formset .item-row').length);
+        });
+    });
+</script>
+{% endblock %}
