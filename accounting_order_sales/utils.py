@@ -48,9 +48,9 @@ def procesar_archivo_excel(archivo_excel, salesorder_id):
 
         SalesOrderItem.objects.create(
             salesorder=salesorder,
-            nro_articulo=row[idx_nro_articulo],
-            desc_articulo=row[idx_desc_articulo],
-            cantidad=cantidad,
-            precio_bruto=precio_bruto,
-            total_bruto=total_bruto,
+            sap_code=row[idx_nro_articulo],
+            description=row[idx_desc_articulo],
+            amount=cantidad,
+            price=precio_bruto,
+            price_total=total_bruto,
         )

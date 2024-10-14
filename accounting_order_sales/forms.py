@@ -48,10 +48,11 @@ class ItemSalesOrderForm(forms.ModelForm):
         }
 
 class ItemSalesOrderExcelForm(forms.Form):
-    excel_file = forms.FileField(label='Selecciona un archivo Excel', widget=forms.ClearableFileInput(attrs={
+    archivo_excel = forms.FileField(label='Selecciona un archivo Excel', widget=forms.ClearableFileInput(attrs={
         'class': 'form-control',
         'placeholder': 'Selecciona un archivo Excel'
     }))
+
 
 
 # Bank
