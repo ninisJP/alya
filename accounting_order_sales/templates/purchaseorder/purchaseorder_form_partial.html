@@ -8,6 +8,8 @@
       });
     });
 </script>
+{% load widget_tweaks %}
+
 
 <article class="list-group-item mb-3" id="orden-{{ order.id }}">
     <!-- Formulario de la orden de compra -->
@@ -64,7 +66,7 @@
                             <!-- Precio total (No editable, se calcula automáticamente) -->
                             <td>{{ form.instance.price_total }}</td>
                             <!-- Proveedor (Editable) -->
-                            <td>{{ form.supplier }}</td>
+                            <td>{{ form.supplier|add_class:"select2-ajax" }}</td>
                             <!-- Clase de pago (Editable) -->
                             <td>{{ form.class_pay }}</td>
                             <!-- Tipo de pago (Editable) -->
@@ -81,3 +83,30 @@
         <button type="submit" class="btn btn-success">Guardar</button>
     </form>
 </article>
+<script>
+    $(document).ready(function() {
+        $('.select2-ajax').select2({
+            width: '100%',
+            placeholder: "Selecciona un proveedor",
+            allowClear: true,
+            ajax: {
+                url: "{% url 'supplier_autocomplete' %}",  // URL de la vista que maneja la búsqueda
+                dataType: 'json',
+                delay: 250,  // Retardo para evitar demasiadas solicitudes
+                data: function (params) {
+                    return {
+                        term: params.term  // Termino que el usuario escribe
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.results  // Datos procesados para Select2
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 1  // Número mínimo de caracteres para comenzar la búsqueda
+        });
+    });
+</script>
+

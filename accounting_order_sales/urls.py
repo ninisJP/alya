@@ -1,5 +1,5 @@
 from django.urls import path
-
+from accounting_order_sales.forms import supplier_autocomplete
 from .views import salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder, edit_purchase_order, general_purchaseorder, quick_create_purchaseorder, petty_cash, index_bank,edit_bank,delete_bank,bank_statements,BankStatementUploadView
 from . import views
 
@@ -28,6 +28,7 @@ htmxurlpatters = [
     path('salesorder/<int:salesorder_id>/quick-create-purchase-order/', quick_create_purchaseorder, name='quick_create_purchaseorder'),
     path('salesorder/<int:salesorder_id>/purchase-orders/', views.purchase_orders, name='purchaseorders'),
     path('editar_ordencompra/<int:order_id>/', edit_purchase_order, name='edit_purchase_order'),
+    path('supplier-autocomplete/', supplier_autocomplete, name='supplier_autocomplete'),
     
     # pettycash
     path('caja_chica/', petty_cash, name='petty_cash'),

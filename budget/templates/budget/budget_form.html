@@ -4,251 +4,169 @@
 {% load static %}
 
 {% block content %}
-<h2 class="text-center mb-4">
+<h2 class="text-center mb-4 pt-2" style="font-size: 2rem; font-weight: bold;">
     {% if form.instance.pk %}Editar{% else %}Crear{% endif %} Presupuesto
 </h2>
+<hr class="mb-3">
 
 <form method="post" id="budget-form">
     {% csrf_token %}
     <div class="container">
-        <!-- Campos superiores organizados en 3 columnas -->
-        <!-- Primera fila de campos -->
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form.client.label_tag }}
-                    {{ form.client|add_class:"form-control mb-2" }}
-                </div>
+        <!-- Sección de campos principales -->
+        <div class="row mb-3">
+            <div class="col-md-4 form-group">
+                {{ form.client.label_tag }}
+                {{ form.client|add_class:"form-control" }}
             </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form.budget_name.label_tag }}
-                    {{ form.budget_name|add_class:"form-control mb-2"|attr:"placeholder=Nombre del Presupuesto" }}
-                </div>
+            <div class="col-md-4 form-group">
+                {{ form.budget_name.label_tag }}
+                {{ form.budget_name|add_class:"form-control"|attr:"placeholder=Nombre del Presupuesto" }}
             </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form.budget_number.label_tag }}
-                    {{ form.budget_number|add_class:"form-control mb-2"|attr:"placeholder=Número del Presupuesto" }}
-                </div>
+            <div class="col-md-4 form-group">
+                {{ form.budget_number.label_tag }}
+                {{ form.budget_number|add_class:"form-control"|attr:"placeholder=Número del Presupuesto" }}
             </div>
         </div>
 
-        <!-- Segunda fila de campos -->
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form.budget_days.label_tag }}
-                    {{ form.budget_days|add_class:"form-control mb-2"|attr:"placeholder=Días del Presupuesto" }}
-                </div>
+        <div class="row mb-3">
+            <div class="col-md-4 form-group">
+                {{ form.budget_days.label_tag }}
+                {{ form.budget_days|add_class:"form-control"|attr:"placeholder=Días del Presupuesto" }}
             </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form.budget_date.label_tag }}
-                    {{ form.budget_date|add_class:"form-control mb-2"|attr:"placeholder=Fecha del Presupuesto" }}
-                </div>
+            <div class="col-md-4 form-group">
+                {{ form.budget_date.label_tag }}
+                {{ form.budget_date|add_class:"form-control"|attr:"placeholder=Fecha del Presupuesto" }}
             </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form.budget_expenses.label_tag }}
-                    {{ form.budget_expenses|add_class:"form-control mb-2"|attr:"placeholder=Gastos" }}
-                </div>
+            <div class="col-md-4 form-group">
+                {{ form.budget_expenses.label_tag }}
+                {{ form.budget_expenses|add_class:"form-control"|attr:"placeholder=Gastos" }}
             </div>
         </div>
 
-        <!-- Tercera fila de campos -->
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form.budget_utility.label_tag }}
-                    {{ form.budget_utility|add_class:"form-control mb-2"|attr:"placeholder=Utilidad" }}
-                </div>
+        <div class="row mb-3">
+            <div class="col-md-4 form-group">
+                {{ form.budget_utility.label_tag }}
+                {{ form.budget_utility|add_class:"form-control"|attr:"placeholder=Utilidad" }}
             </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form.budget_deliverytime.label_tag }}
-                    {{ form.budget_deliverytime|add_class:"form-control mb-2"|attr:"placeholder=Tiempo de Entrega" }}
-                </div>
+            <div class="col-md-4 form-group">
+                {{ form.budget_deliverytime.label_tag }}
+                {{ form.budget_deliverytime|add_class:"form-control"|attr:"placeholder=Tiempo de Entrega" }}
             </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form.budget_servicetime.label_tag }}
-                    {{ form.budget_servicetime|add_class:"form-control mb-2"|attr:"placeholder=Tiempo de Servicio" }}
-                </div>
+            <div class="col-md-4 form-group">
+                {{ form.budget_servicetime.label_tag }}
+                {{ form.budget_servicetime|add_class:"form-control"|attr:"placeholder=Tiempo de Servicio" }}
             </div>
         </div>
 
-        <!-- Cuarta fila de campos -->
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form.budget_warrantytime.label_tag }}
-                    {{ form.budget_warrantytime|add_class:"form-control mb-2"|attr:"placeholder=Tiempo de Garantía" }}
-                </div>
-            </div>
-            <!-- Puedes agregar más campos aquí si los tienes -->
-            <div class="col-md-4">
-                <!-- Espacio vacío o campo adicional -->
-            </div>
-            <div class="col-md-4">
-                <!-- Espacio vacío o campo adicional -->
+        <div class="row mb-3">
+            <div class="col-md-4 form-group">
+                {{ form.budget_warrantytime.label_tag }}
+                {{ form.budget_warrantytime|add_class:"form-control"|attr:"placeholder=Tiempo de Garantía" }}
             </div>
         </div>
     </div>
 
-    <!-- Resto del formulario (formset de ítems) -->
-    <!-- Encabezados de la "tabla" -->
-    <div class="row font-weight-bold border-bottom pb-2 mb-3">
-        <div class="col-md-4">Ítem</div>
-        <div class="col-md-2 text-center">Cantidad</div>
-        <div class="col-md-2 text-center">Eliminar</div>
-    </div>
+    <!-- Formset de Ítems -->
+    <div class="container">
+        <div class="row font-weight-bold border-bottom pb-1 mb-2" style="border-bottom: 2px solid #ddd;">
+            <div class="col-md-7 text-center">Ítem</div>
+            <div class="col-md-3 text-center">Cantidad</div>
+            <div class="col-md-2 text-center">Eliminar</div>
+        </div>
 
-    <div id="item-formset">
-        {{ formset.management_form }}
-        {% for form in formset.forms %}
-            <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
-                <div class="col-md-4">
-                    {{ form.item|add_class:"form-control text-dark"|attr:"placeholder=Ítem" }}
-                </div>
-                <div class="col-md-2">
-                    {{ form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
-                </div>
-                <div class="col-md-1 text-center">
-                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
-                </div>
-            </div>
-        {% endfor %}
-        <!-- Formulario vacío para clonación -->
-        <div id="empty-form" style="display: none;">
-            <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
-                <div class="col-md-4">
-                    {{ formset.empty_form.item|add_class:"form-control text-dark"|attr:"placeholder=Ítem" }}
-                </div>
-                <div class="col-md-2">
-                    {{ formset.empty_form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
-                </div>
-                <div class="col-md-1 text-center">
-                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+        <div id="item-formset">
+            {{ formset.management_form }}
+            <div id="empty-form" style="display: none;">
+                <!-- Eliminación del fondo blanco y margen reducido para compactar los ítems -->
+                <div class="form-row row align-items-center p-1" style="margin-bottom: 4px;">
+                    <div class="col-md-7">
+                        {{ formset.empty_form.item|add_class:"form-control select2-ajax text-dark"|attr:"placeholder=Ítem" }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ formset.empty_form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Botones de acción -->
-    <div class="d-flex justify-content-between mt-4">
-        <button type="button" id="add-item" class="btn btn-secondary"><i class="fas fa-plus-circle"></i> Agregar Ítem</button>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+    <!-- Botones de acción ocupando todo el ancho -->
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-6 pr-1">
+                <button type="button" id="add-item" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-plus-circle"></i> Agregar Ítem
+                </button>
+            </div>
+            <div class="col-6 pl-1">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
     </div>
 </form>
 
-<!-- Incluir las librerías de Select2 y jQuery desde los CDNs proporcionados -->
+<!-- Librerías de Select2 y jQuery -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<!-- Inicializar Select2 y manejar la adición/eliminación de formularios -->
-<!-- Tu código JavaScript -->
+<!-- JavaScript para manejar Select2 y la adición/eliminación de formularios -->
 <script>
     $(document).ready(function() {
         function initializeSelect2(selector) {
-            $(selector).select2({
-                placeholder: 'Seleccione un ítem',
-                allowClear: true,
-                ajax: {
-                    url: $(selector).data('ajax--url'),
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            term: params.term,
-                        };
+            if (!$(selector).hasClass("select2-hidden-accessible")) {
+                $(selector).select2({
+                    placeholder: 'Seleccione un ítem',
+                    allowClear: true,
+                    ajax: {
+                        url: $(selector).data('ajax--url'),
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return { term: params.term };
+                        },
+                        processResults: function(data) {
+                            return { results: data.results };
+                        },
+                        cache: true
                     },
-                    processResults: function(data) {
-                        return {
-                            results: data.results,
-                        };
-                    },
-                    cache: true,
-                },
-                minimumInputLength: 1,
-            });
+                    minimumInputLength: 3
+                });
+            }
         }
 
-        // Inicializar Select2 en los campos existentes
-        $('.select2-ajax').each(function() {
-            initializeSelect2(this);
-        });
-
-        // Al hacer clic en "Agregar Ítem"
+        // Agregar tres formularios al hacer clic en "Agregar Ítem"
         $('#add-item').click(function(e) {
             e.preventDefault();
             var formCount = parseInt($('#id_items-TOTAL_FORMS').val());
-            var $emptyForm = $('#empty-form .form-row').clone();
+            for (var i = 0; i < 3; i++) {
+                var $emptyForm = $('#empty-form .form-row').clone();
+                $emptyForm.find(':input').each(function() {
+                    var name = $(this).attr('name');
+                    if (name) $(this).attr('name', name.replace('__prefix__', formCount));
+                    var id = $(this).attr('id');
+                    if (id) $(this).attr('id', id.replace('__prefix__', formCount));
+                });
 
-            // Actualizar los atributos de los campos en el formulario clonado
-            $emptyForm.find(':input').each(function() {
-                var name = $(this).attr('name');
-                if (name) {
-                    var newName = name.replace('__prefix__', formCount);
-                    $(this).attr('name', newName);
-                }
-                var id = $(this).attr('id');
-                if (id) {
-                    var newId = id.replace('__prefix__', formCount);
-                    $(this).attr('id', newId);
-                }
-            });
-
-            $emptyForm.find('label').each(function() {
-                var forAttr = $(this).attr('for');
-                if (forAttr) {
-                    var newFor = forAttr.replace('__prefix__', formCount);
-                    $(this).attr('for', newFor);
-                }
-            });
-
-            // Agregar el formulario clonado al formset
-            $('#item-formset').append($emptyForm);
-            $('#id_items-TOTAL_FORMS').val(formCount + 1);
-
-            // Inicializar Select2 en el nuevo campo
-            initializeSelect2('#id_items-' + formCount + '-item');
+                $('#item-formset').append($emptyForm);
+                $('#id_items-TOTAL_FORMS').val(formCount + 1);
+                initializeSelect2($emptyForm.find('.select2-ajax'));        
+                formCount++;
+            }
         });
 
-        // Manejar la eliminación de formularios
         $(document).on('click', '.remove-form', function(e) {
             e.preventDefault();
-            var $formRow = $(this).closest('.form-row');
-            $formRow.remove();
-
-            // Decrementar el número total de formularios
+            $(this).closest('.form-row').remove();
             var totalForms = $('#id_items-TOTAL_FORMS');
             totalForms.val(parseInt(totalForms.val()) - 1);
-
-            // Reindexar los formularios
-            $('#item-formset .form-row').each(function(index) {
-                $(this).find(':input').each(function() {
-                    var name = $(this).attr('name');
-                    var id = $(this).attr('id');
-                    if (name) {
-                        var newName = name.replace(/items-\d+-/, 'items-' + index + '-');
-                        $(this).attr('name', newName);
-                    }
-                    if (id) {
-                        var newId = id.replace(/id_items-\d+-/, 'id_items-' + index + '-');
-                        $(this).attr('id', newId);
-                    }
-                });
-                $(this).find('label').each(function() {
-                    var forAttr = $(this).attr('for');
-                    if (forAttr) {
-                        var newFor = forAttr.replace(/id_items-\d+-/, 'id_items-' + index + '-');
-                        $(this).attr('for', newFor);
-                    }
-                });
-            });
         });
     });
 </script>
+
 {% endblock %}
