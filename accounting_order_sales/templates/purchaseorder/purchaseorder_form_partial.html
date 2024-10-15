@@ -4,17 +4,17 @@
     <form method="post" hx-post="{% url 'edit_purchase_order' order.id %}" hx-target="#orden-{{ order.id }}" hx-swap="outerHTML">
         {% csrf_token %}
         
-        <!-- Incluye un campo oculto para asegurarte de que el order_id siempre se envía -->
+        <!-- Campo oculto para el order_id -->
         <input type="hidden" name="order_id" value="{{ order.id }}">
 
         {{ item_formset.management_form }}
         <div class="row mb-2 align-items-center">
-            <!-- Campo Descripción (No editable, solo visible) -->
+            <!-- Campo Descripción (No editable) -->
             <div class="col-lg-2">
                 <label><strong>Descripción:</strong></label>
                 <div>{{ order.description }}</div>
             </div>
-            <!-- Campo Por (No editable, solo visible) -->
+            <!-- Campo Por (No editable) -->
             <div class="col-lg-2">
                 <label><strong>Por:</strong></label>
                 <div>{{ order.requested_by }}</div>
@@ -43,7 +43,6 @@
                 <tbody>
                     {% for form in item_formset %}
                         <tr>
-                            <!-- Campo ID oculto (necesario para identificar la instancia) -->
                             {{ form.id }}
                             <!-- Descripción del ítem (No editable) -->
                             <td>{{ form.sales_order_item }}</td>
@@ -53,7 +52,7 @@
                             <td>{{ form.price }}</td>
                             <!-- Precio total (No editable, se calcula automáticamente) -->
                             <td>{{ form.instance.price_total }}</td>
-                            <!-- Proveedor (Editable) -->
+                            <!-- Proveedor (Editable con Select2 AJAX) -->
                             <td>
                                 {{ form.supplier|add_class:"select2-ajax" }}
                             </td>
@@ -74,30 +73,31 @@
     </form>
 </article>
 
+<!-- Script para inicializar Select2 con AJAX tras las actualizaciones de HTMX -->
 <script>
-    $(document).ready(function() {
-        // Inicializa Select2 con AJAX para cada campo de proveedor
+    // Escucha el evento después de que HTMX haya reemplazado el contenido
+    document.addEventListener('htmx:afterSwap', function(event) {
+        // Destruye cualquier instancia existente de Select2 para evitar duplicados
+        $('.select2-ajax').select2('destroy');
+        
+        // Vuelve a inicializar Select2 para los campos de proveedor
         $('.select2-ajax').select2({
             width: '100%',
             placeholder: "Selecciona un proveedor",
             allowClear: true,
             ajax: {
-                url: "{% url 'supplier_autocomplete' %}",  // Asegúrate de que esta URL es correcta
+                url: "{% url 'supplier_autocomplete' %}",
                 dataType: 'json',
-                delay: 250,  // Retardo para evitar demasiadas solicitudes
+                delay: 250,
                 data: function (params) {
-                    return {
-                        term: params.term  // Término de búsqueda
-                    };
+                    return { term: params.term };
                 },
                 processResults: function (data) {
-                    return {
-                        results: data.results  // Datos procesados para Select2
-                    };
+                    return { results: data.results };
                 },
                 cache: true
             },
-            minimumInputLength: 1  // Número mínimo de caracteres para comenzar la búsqueda
+            minimumInputLength: 1
         });
     });
 </script>
