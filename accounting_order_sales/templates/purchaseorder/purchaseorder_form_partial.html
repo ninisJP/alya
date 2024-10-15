@@ -1,16 +1,4 @@
-<script>
-    // Inicializa Select2 para todos los selectores que tengan la clase 'select2'
-    $(document).ready(function() {
-      $('.select2').select2({
-        width: '100%', // Ajusta el ancho para que se adapte a tu diseño
-        placeholder: "Selecciona un proveedor",
-        allowClear: true
-      });
-    });
-</script>
 {% load widget_tweaks %}
-
-
 <article class="list-group-item mb-3" id="orden-{{ order.id }}">
     <!-- Formulario de la orden de compra -->
     <form method="post" hx-post="{% url 'edit_purchase_order' order.id %}" hx-target="#orden-{{ order.id }}" hx-swap="outerHTML">
@@ -66,7 +54,9 @@
                             <!-- Precio total (No editable, se calcula automáticamente) -->
                             <td>{{ form.instance.price_total }}</td>
                             <!-- Proveedor (Editable) -->
-                            <td>{{ form.supplier|add_class:"select2-ajax" }}</td>
+                            <td>
+                                {{ form.supplier|add_class:"select2-ajax" }}
+                            </td>
                             <!-- Clase de pago (Editable) -->
                             <td>{{ form.class_pay }}</td>
                             <!-- Tipo de pago (Editable) -->
@@ -83,19 +73,21 @@
         <button type="submit" class="btn btn-success">Guardar</button>
     </form>
 </article>
+
 <script>
     $(document).ready(function() {
+        // Inicializa Select2 con AJAX para cada campo de proveedor
         $('.select2-ajax').select2({
             width: '100%',
             placeholder: "Selecciona un proveedor",
             allowClear: true,
             ajax: {
-                url: "{% url 'supplier_autocomplete' %}",  // URL de la vista que maneja la búsqueda
+                url: "{% url 'supplier_autocomplete' %}",  // Asegúrate de que esta URL es correcta
                 dataType: 'json',
                 delay: 250,  // Retardo para evitar demasiadas solicitudes
                 data: function (params) {
                     return {
-                        term: params.term  // Termino que el usuario escribe
+                        term: params.term  // Término de búsqueda
                     };
                 },
                 processResults: function (data) {
@@ -109,4 +101,3 @@
         });
     });
 </script>
-
