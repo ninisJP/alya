@@ -1,32 +1,20 @@
-<script>
-    // Inicializa Select2 para todos los selectores que tengan la clase 'select2'
-    $(document).ready(function() {
-      $('.select2').select2({
-        width: '100%', // Ajusta el ancho para que se adapte a tu diseño
-        placeholder: "Selecciona un proveedor",
-        allowClear: true
-      });
-    });
-</script>
 {% load widget_tweaks %}
-
-
 <article class="list-group-item mb-3" id="orden-{{ order.id }}">
     <!-- Formulario de la orden de compra -->
     <form method="post" hx-post="{% url 'edit_purchase_order' order.id %}" hx-target="#orden-{{ order.id }}" hx-swap="outerHTML">
         {% csrf_token %}
         
-        <!-- Incluye un campo oculto para asegurarte de que el order_id siempre se envía -->
+        <!-- Campo oculto para el order_id -->
         <input type="hidden" name="order_id" value="{{ order.id }}">
 
         {{ item_formset.management_form }}
         <div class="row mb-2 align-items-center">
-            <!-- Campo Descripción (No editable, solo visible) -->
+            <!-- Campo Descripción (No editable) -->
             <div class="col-lg-2">
                 <label><strong>Descripción:</strong></label>
                 <div>{{ order.description }}</div>
             </div>
-            <!-- Campo Por (No editable, solo visible) -->
+            <!-- Campo Por (No editable) -->
             <div class="col-lg-2">
                 <label><strong>Por:</strong></label>
                 <div>{{ order.requested_by }}</div>
@@ -55,7 +43,6 @@
                 <tbody>
                     {% for form in item_formset %}
                         <tr>
-                            <!-- Campo ID oculto (necesario para identificar la instancia) -->
                             {{ form.id }}
                             <!-- Descripción del ítem (No editable) -->
                             <td>{{ form.sales_order_item }}</td>
@@ -65,8 +52,10 @@
                             <td>{{ form.price }}</td>
                             <!-- Precio total (No editable, se calcula automáticamente) -->
                             <td>{{ form.instance.price_total }}</td>
-                            <!-- Proveedor (Editable) -->
-                            <td>{{ form.supplier|add_class:"select2-ajax" }}</td>
+                            <!-- Proveedor (Editable con Select2 AJAX) -->
+                            <td>
+                                {{ form.supplier|add_class:"select2-ajax" }}
+                            </td>
                             <!-- Clase de pago (Editable) -->
                             <td>{{ form.class_pay }}</td>
                             <!-- Tipo de pago (Editable) -->
@@ -83,30 +72,48 @@
         <button type="submit" class="btn btn-success">Guardar</button>
     </form>
 </article>
+
 <script>
-    $(document).ready(function() {
-        $('.select2-ajax').select2({
-            width: '100%',
-            placeholder: "Selecciona un proveedor",
-            allowClear: true,
-            ajax: {
-                url: "{% url 'supplier_autocomplete' %}",  // URL de la vista que maneja la búsqueda
-                dataType: 'json',
-                delay: 250,  // Retardo para evitar demasiadas solicitudes
-                data: function (params) {
-                    return {
-                        term: params.term  // Termino que el usuario escribe
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.results  // Datos procesados para Select2
-                    };
-                },
-                cache: true
-            },
-            minimumInputLength: 1  // Número mínimo de caracteres para comenzar la búsqueda
+    function initializeSelect2() {
+        // Destruye la instancia Select2 en el elemento solo si está activado
+        $('.select2-ajax').each(function() {
+            if ($(this).data('select2')) { 
+                $(this).select2('destroy');
+            }
         });
+
+        // Vuelve a inicializar Select2 para los elementos con clase select2-ajax
+        try {
+            $('.select2-ajax').select2({
+                width: '100%',
+                placeholder: "Selecciona un proveedor",
+                allowClear: true,
+                ajax: {
+                    url: "{% url 'supplier_autocomplete' %}",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return { term: params.term };
+                    },
+                    processResults: function (data) {
+                        return { results: data.results };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 1
+            });
+        } catch (error) {
+            console.error("Error al inicializar Select2:", error);
+        }
+    }
+
+    // Ejecuta Select2 al cargar la página
+    $(document).ready(function() {
+        initializeSelect2();
+    });
+
+    // Re-inicializa Select2 después de cada actualización de HTMX
+    document.addEventListener('htmx:afterSwap', function(event) {
+        initializeSelect2();
     });
 </script>
-
