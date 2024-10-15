@@ -73,31 +73,47 @@
     </form>
 </article>
 
-<!-- Script para inicializar Select2 con AJAX tras las actualizaciones de HTMX -->
 <script>
-    // Escucha el evento después de que HTMX haya reemplazado el contenido
-    document.addEventListener('htmx:afterSwap', function(event) {
-        // Destruye cualquier instancia existente de Select2 para evitar duplicados
-        $('.select2-ajax').select2('destroy');
-        
-        // Vuelve a inicializar Select2 para los campos de proveedor
-        $('.select2-ajax').select2({
-            width: '100%',
-            placeholder: "Selecciona un proveedor",
-            allowClear: true,
-            ajax: {
-                url: "{% url 'supplier_autocomplete' %}",
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { term: params.term };
-                },
-                processResults: function (data) {
-                    return { results: data.results };
-                },
-                cache: true
-            },
-            minimumInputLength: 1
+    function initializeSelect2() {
+        // Destruye la instancia Select2 en el elemento solo si está activado
+        $('.select2-ajax').each(function() {
+            if ($(this).data('select2')) { 
+                $(this).select2('destroy');
+            }
         });
+
+        // Vuelve a inicializar Select2 para los elementos con clase select2-ajax
+        try {
+            $('.select2-ajax').select2({
+                width: '100%',
+                placeholder: "Selecciona un proveedor",
+                allowClear: true,
+                ajax: {
+                    url: "{% url 'supplier_autocomplete' %}",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return { term: params.term };
+                    },
+                    processResults: function (data) {
+                        return { results: data.results };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 1
+            });
+        } catch (error) {
+            console.error("Error al inicializar Select2:", error);
+        }
+    }
+
+    // Ejecuta Select2 al cargar la página
+    $(document).ready(function() {
+        initializeSelect2();
+    });
+
+    // Re-inicializa Select2 después de cada actualización de HTMX
+    document.addEventListener('htmx:afterSwap', function(event) {
+        initializeSelect2();
     });
 </script>
