@@ -1,6 +1,8 @@
 from django import forms
 from .models import Budget, BudgetItem, CatalogItem
 from django.forms import inlineformset_factory
+from django import forms
+from django.urls import reverse_lazy
 
 class Select2AjaxWidget(forms.Select):
     class Media:
@@ -56,16 +58,8 @@ BudgetItemFormSet = inlineformset_factory(
     Budget,
     BudgetItem,
     form=BudgetItemForm,
-    extra=5,
+    extra=0,
 )
-
-from django import forms
-from django.urls import reverse_lazy
-
-
-
-
-
 
 class CatalogItemForm(forms.ModelForm):
     class Meta:

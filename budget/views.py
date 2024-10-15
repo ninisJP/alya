@@ -48,7 +48,6 @@ def create_budget(request):
                 print(f"Errores en el formset: {formset.errors}")
         else:
             print(f"Errores en el formulario: {form.errors}")
-        # Renderizar nuevamente el formulario con errores
         return render(request, 'budget/budget_form.html', {
             'form': form,
             'formset': formset,
@@ -61,6 +60,8 @@ def create_budget(request):
         'form': form,
         'formset': formset,
     })
+    
+    
 
 def edit_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
@@ -75,9 +76,8 @@ def edit_budget(request, pk):
             # Guarda todos los ítems del formset
             items = formset.save(commit=False)
             for item in items:
-                item.save()  # Guarda o actualiza los ítems que permanecen visibles
+                item.save() 
 
-            # Elimina ítems que no estén en el formset actual (es decir, los eliminados)
             for item in formset.deleted_objects:
                 item.delete()
 
