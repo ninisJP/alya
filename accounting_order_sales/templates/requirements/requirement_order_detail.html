@@ -1,0 +1,256 @@
+{% extends 'base_accounting.html' %}
+
+{% block extra_css %}
+<style>
+    .custom-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .custom-thead-rounded {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .alert-message {
+        margin-top: 20px;
+        border-radius: 10px;
+        padding: 0.75rem 1.25rem;
+        text-align: center;
+        font-weight: bold;
+    }
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    // buton choice
+    .custom-select-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 200px;
+    }
+    .custom-select {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: white;
+        cursor: pointer;
+        margin: 10px 0!important;
+    }
+    .custom-select:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+    .custom-select-arrow {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+    .custom-option {
+        padding: 5px;
+        margin: 2px 0;
+        border-radius: 3px;
+    }
+    .aprobado { background-color: #d4edda; color: #155724; }
+    .rechazado { background-color: #f8d7da; color: #721c24; }
+</style>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <!-- Información General -->
+    <div class="custom-card mb-4">
+        <div class="custom-card-header bg-dark text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Detalles de la Orden de Requerimiento #{{ requirement_order.order_number }}</h4>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-warning badge-large me-3">Fecha Solicitada: {{ requirement_order.requested_date }}</span>
+                    <span class="badge badge-large {% if requirement_order.estado == 'L' %}badge-listo{% else %}badge-pendiente{% endif %}">
+                        {% if requirement_order.estado == 'L' %}Listo{% else %}Pendiente{% endif %}
+                    </span>
+                    <a href="{% url 'requirement_orders_accounting' %}" class="btn btn-danger ms-3">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-6 mb-3"><p><strong>Orden de Venta (Código SAP):</strong> {{ requirement_order.sales_order.sapcode }}</p></div>
+                <div class="col-md-6 mb-3"><p><strong>Total de la Orden:</strong> S/. {{ requirement_order.total_order }}</p></div>
+                <div class="col-md-6 mb-3"><p><strong>Cliente:</strong> {{ requirement_order.sales_order.project.client.legal_name }}</p></div>
+                <div class="col-md-6 mb-3"><p><strong>Pedido por:</strong> {{ requirement_order.user }}</p></div>
+                <div class="col-md-6 mb-3"><p><strong>Proyecto:</strong> {{ requirement_order.sales_order.project.name }}</p></div>
+                <div class="col-md-12 mb-3"><p><strong>Detalles:</strong> {{ requirement_order.notes }}</p></div>
+                <div class="col-md-12 mb-3"><p><strong>Fecha creada:</strong> {{ requirement_order.created_at }}</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario para Ítems de la Orden -->
+    <form hx-post="{% url 'update_requirement_order_items' requirement_order.pk %}"
+          hx-target="#response-message"
+          hx-swap="innerHTML"
+          id="requirement-order-form">
+        <div class="form-group margin-select">
+            <label for="requirement-order-state">Estado de la Orden de Requerimiento:</label>
+            <select name="requirement_order_state" id="requirement-order-state" class="form-select">
+                <option value="APROBADO" {% if requirement_order.state == 'APROBADO' %}selected{% endif %}>Aprobado</option>
+                <option value="RECHAZADO" {% if requirement_order.state == 'RECHAZADO' %}selected{% endif %}>Rechazado</option>
+            </select>
+        </div>
+        <hr>
+        <div class="custom-table">
+            <table class="table table-bordered table-hover text-center">
+                <thead class="table-dark custom-thead-rounded">
+                    <tr>
+                        <th>SAP</th>
+                        <th>ITEM</th>
+                        <th style="width: 20%;">Detalle</th>
+                        <th style="width: 8%;">Cantidad Solicitada</th>
+                        <th style="width: 8%;">Precio Unitario</th>
+                        <th style="width: 8%;">Precio Total</th>
+                        <th>Proveedor</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr id="item-row-{{ item.id }}">
+                        <td>{{ item.sap_code }}</td>
+                        <td>{{ item.sales_order_item.description }}</td>
+                        <td><input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control"></td>
+                        <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="1"></td>
+                        <td><input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" min="0" step="0.01"></td>
+                        <td><input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" readonly></td>
+                        <td>
+                            <select name="supplier_{{ item.id }}" class="form-select select2-supplier" data-ajax-url="{% url 'ajax_load_suppliers' %}" data-placeholder="Seleccionar proveedor">
+                                {% if item.supplier %}
+                                    <option value="{{ item.supplier.id }}" selected>{{ item.supplier.name }}</option>
+                                {% endif %}
+                            </select>
+                        </td>
+                        <td>
+                            <select name="estado_{{ item.id }}" class="form-select">
+                                <option value="L" {% if item.estado == 'L' %}selected{% endif %}>Listo</option>
+                                <option value="P" {% if item.estado == 'P' %}selected{% endif %}>Pendiente</option>
+                                <option value="C" {% if item.estado == 'C' %}selected{% endif %}>Comprando</option>
+                            </select>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Botón "Guardar Cambios" y "Crear Orden de Compra" -->
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <button hx-post="{% url 'create_purchase_order' requirement_order.pk %}"
+                    hx-target="#response-message"
+                    hx-swap="innerHTML"
+                    class="btn btn-success ms-2">
+                Crear Orden de Compra
+            </button>
+        </div>
+        <div id="response-message" class="alert-message mt-2"></div>
+    </form>
+</div>
+
+<!-- Script para inicializar Select2 con AJAX y calcular el total dinámicamente -->
+<script>
+    $(document).ready(function() {
+        $('.select2-supplier').each(function() {
+            $(this).select2({
+                ajax: {
+                    url: $(this).data('ajax-url'),
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return { term: params.term };
+                    },
+                    processResults: function(data) {
+                        return { results: data.results };
+                    },
+                    cache: true
+                },
+                placeholder: $(this).data('placeholder'),
+                allowClear: true,
+                minimumInputLength: 3
+            });
+        });
+
+        // Actualiza el Precio Total al cambiar la Cantidad Solicitada o el Precio Unitario
+        $('input[name^="quantity_requested_"], input[name^="price_"]').on('input', function() {
+            var $row = $(this).closest('tr');
+            var quantity = parseFloat($row.find('input[name^="quantity_requested_"]').val()) || 0;
+            var price = parseFloat($row.find('input[name^="price_"]').val()) || 0;
+            var total = (quantity * price).toFixed(2);
+            $row.find('input[name^="total_price_"]').val(total);
+        });
+    });
+</script>
+<script>
+    const select = document.getElementById('requirement-order-state');
+    const wrapper = select.parentElement;
+
+    function updateSelectStyle() {
+        const selectedOption = select.options[select.selectedIndex];
+        select.className = `custom-select ${selectedOption.value.toLowerCase()}`;
+    }
+
+    select.addEventListener('change', updateSelectStyle);
+
+    // Crear un div para mostrar las opciones personalizadas
+    const customOptions = document.createElement('div');
+    customOptions.style.display = 'none';
+    customOptions.style.position = 'absolute';
+    customOptions.style.width = '100%';
+    customOptions.style.backgroundColor = 'white';
+    customOptions.style.border = '1px solid #ccc';
+    customOptions.style.borderTop = 'none';
+    customOptions.style.borderRadius = '0 0 4px 4px';
+    customOptions.style.zIndex = '1000';
+
+    Array.from(select.options).forEach(option => {
+        const customOption = document.createElement('div');
+        customOption.textContent = option.textContent;
+        customOption.className = `custom-option ${option.value.toLowerCase()}`;
+        customOption.addEventListener('click', () => {
+            select.value = option.value;
+            updateSelectStyle();
+            customOptions.style.display = 'none';
+        });
+        customOptions.appendChild(customOption);
+    });
+
+    wrapper.appendChild(customOptions);
+
+    select.addEventListener('click', (e) => {
+        e.preventDefault();
+        customOptions.style.display = customOptions.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target)) {
+            customOptions.style.display = 'none';
+        }
+    });
+
+    // Inicializar el estilo
+    updateSelectStyle();
+</script>
+{% endblock %}

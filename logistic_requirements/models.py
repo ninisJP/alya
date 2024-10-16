@@ -6,6 +6,10 @@ from logistic_suppliers.models import Suppliers
 from django.core.exceptions import ValidationError
 
 class RequirementOrder(models.Model):
+    STATE_CHOICES = [
+        ('APROBADO', 'Aprobado'),
+        ('RECHAZADO', 'Rechazado'),
+    ]
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="requirement_orders")
     requested_date = models.DateField()
     notes = models.TextField(blank=True, null=True)
@@ -15,6 +19,7 @@ class RequirementOrder(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     total_order = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     purchase_order_created = models.BooleanField(default=False)
+    state = models.CharField(max_length=10,choices=STATE_CHOICES,default='NO REVISADO')
 
     def delete(self, *args, **kwargs):
         # Obtener los SalesOrderItems afectados antes de eliminar

@@ -35,7 +35,7 @@ def requirement_order_detail_view(request, pk):
 def update_requirement_order_items(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
     updated_items = []
-
+        
     # Recorrer los ítems de la orden y actualizar con los datos recibidos del request.POST
     for item in requirement_order.items.all():
         item.quantity_requested = request.POST.get(f'quantity_requested_{item.id}', item.quantity_requested)
@@ -45,7 +45,7 @@ def update_requirement_order_items(request, pk):
         item.estado = request.POST.get(f'estado_{item.id}', item.estado)
         item.save()
         updated_items.append(item)
-
+    
     # Retornar un mensaje de éxito sin crear la PurchaseOrder
     return JsonResponse({'message': 'Items actualizados con éxito'}, status=200)
 
@@ -99,11 +99,7 @@ def create_purchase_order(request, pk):
 
     return JsonResponse({'success': f'Orden de Compra creada para la Orden de Requerimiento #{requirement_order.order_number}.'})
 
-
-
-from django.http import JsonResponse
-from .models import Suppliers  # Ajusta según la ubicación de tu modelo
-
+ 
 def ajax_load_suppliers(request):
     term = request.GET.get('term', '')
     suppliers = Suppliers.objects.filter(name__icontains=term)[:20]

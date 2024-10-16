@@ -1,4 +1,4 @@
-{% extends 'base_logistic.html' %}
+{% extends 'base_accounting.html' %}
 
 {% block extra_css %}
 <style>
@@ -59,9 +59,10 @@
                     <td>
                         <div class="btn-group" role="group" aria-label="Acciones">
                             <!-- Botón de Detalles con color sólido y más llamativo -->
-                            <a href="{% url 'requirement_order_detail' order.id %}" class="btn btn-info btn-sm">
-                                <i class="fas fa-info-circle"></i> Detalles
+                            <a href="{% url 'requirement_order_detail_accounting' order.id %}" class="btn btn-success btn-sm">
+                                <i class="fas fa-info-circle"></i> Revisar
                             </a>
+                            <!-- Botón de Eliminar con color rojo sólido -->
                         </div>
                     </td>
                     
