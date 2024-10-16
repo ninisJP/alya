@@ -12,14 +12,35 @@ from django.http import JsonResponse
 from logistic_requirements.models import RequirementOrder, RequirementOrderItem
 from django.views.decorators.http import require_POST
 
-# Vista para listar todas las RequirementOrders
+# # Vista para listar todas las RequirementOrders
 class RequirementOrderListView(ListView):
     model = RequirementOrder
     template_name = 'requirement_order_list.html'
     context_object_name = 'requirement_orders'
 
     def get_queryset(self):
-        return RequirementOrder.objects.all().order_by('-id')
+        queryset = RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
+        
+        for order in queryset:
+            items = order.items.all()
+            total_items = items.count()
+            if total_items == 0:
+                order.global_state = "No tiene ítems"
+                continue
+
+            ready_count = items.filter(estado='L').count()
+            buying_count = items.filter(estado='C').count()
+
+            # Determinar el estado general
+            if ready_count == total_items:
+                order.global_state = "Listo"
+            elif buying_count >= total_items / 2:
+                order.global_state = "Comprando"
+            else:
+                order.global_state = "Pendiente"
+                
+        return queryset
+
     
 def requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
