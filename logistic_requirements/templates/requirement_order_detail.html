@@ -44,7 +44,7 @@
                 <h4 class="mb-0">Detalles de la Orden de Requerimiento #{{ requirement_order.order_number }}</h4>
                 <div class="d-flex align-items-center">
                     <span class="badge bg-warning badge-large me-3">Fecha Solicitada: {{ requirement_order.requested_date }}</span>
-                    {% comment %} <span class="badge badge-large {% if requirement_order.estado == 'L' %}badge-listo{% else %}badge-pendiente{% endif %}">
+                    <span class="badge badge-large {% if requirement_order.estado == 'L' %}badge-listo{% else %}badge-pendiente{% endif %}">
                         {% if requirement_order.estado == 'L' %}Listo{% else %}Pendiente{% endif %}
                     </span>
                     <button id="downloadPdf" class="btn btn-danger">Descargar PDF</button>
