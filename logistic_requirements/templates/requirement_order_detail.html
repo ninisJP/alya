@@ -19,7 +19,7 @@
     }
     .alert-success {
         color: #155724;
-        background-color: #d4edda;
+        background-color: #d4edda;w
         border-color: #c3e6cb;
     }
     .alert-danger {
@@ -31,6 +31,8 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -45,6 +47,8 @@
                     <span class="badge badge-large {% if requirement_order.estado == 'L' %}badge-listo{% else %}badge-pendiente{% endif %}">
                         {% if requirement_order.estado == 'L' %}Listo{% else %}Pendiente{% endif %}
                     </span>
+                    <button id="downloadPdf" class="btn btn-danger">Descargar PDF</button>
+
                     <a href="{% url 'requirement_order_list' %}" class="btn btn-primary ms-3">
                         <i class="fas fa-arrow-left"></i> Volver
                     </a>
@@ -157,6 +161,22 @@
             var total = (quantity * price).toFixed(2);
             $row.find('input[name^="total_price_"]').val(total);
         });
+    });
+    document.getElementById('downloadPdf').addEventListener('click', function () {
+        // Selecciona el contenedor que deseas exportar a PDF
+        var element = document.querySelector('.container-fluid');
+        
+        // Configura opciones de html2pdf
+        var options = {
+            margin:       0.5,
+            filename:     'Orden_Requerimiento.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        
+        // Genera y descarga el PDF
+        html2pdf().set(options).from(element).save();
     });
 </script>
 {% endblock %}
