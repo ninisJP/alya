@@ -1,4 +1,4 @@
-{% extends 'base_logistic.html' %}
+{% extends 'base_accounting.html' %}
 
 {% block extra_css %}
 <style>
@@ -19,7 +19,7 @@
     }
     .alert-success {
         color: #155724;
-        background-color: #d4edda;w
+        background-color: #d4edda;
         border-color: #c3e6cb;
     }
     .alert-danger {
@@ -27,12 +27,46 @@
         background-color: #f8d7da;
         border-color: #f5c6cb;
     }
+
+    // buton choice
+    .custom-select-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 200px;
+    }
+    .custom-select {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: white;
+        cursor: pointer;
+        margin: 10px 0!important;
+    }
+    .custom-select:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+    .custom-select-arrow {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+    .custom-option {
+        padding: 5px;
+        margin: 2px 0;
+        border-radius: 3px;
+    }
+    .aprobado { background-color: #d4edda; color: #155724; }
+    .rechazado { background-color: #f8d7da; color: #721c24; }
 </style>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-
 {% endblock %}
 
 {% block content %}
@@ -44,12 +78,10 @@
                 <h4 class="mb-0">Detalles de la Orden de Requerimiento #{{ requirement_order.order_number }}</h4>
                 <div class="d-flex align-items-center">
                     <span class="badge bg-warning badge-large me-3">Fecha Solicitada: {{ requirement_order.requested_date }}</span>
-                    {% comment %} <span class="badge badge-large {% if requirement_order.estado == 'L' %}badge-listo{% else %}badge-pendiente{% endif %}">
+                    <span class="badge badge-large {% if requirement_order.estado == 'L' %}badge-listo{% else %}badge-pendiente{% endif %}">
                         {% if requirement_order.estado == 'L' %}Listo{% else %}Pendiente{% endif %}
                     </span>
-                    <button id="downloadPdf" class="btn btn-danger">Descargar PDF</button>
-
-                    <a href="{% url 'requirement_order_list' %}" class="btn btn-primary ms-3">
+                    <a href="{% url 'requirement_orders_accounting' %}" class="btn btn-danger ms-3">
                         <i class="fas fa-arrow-left"></i> Volver
                     </a>
                 </div>
@@ -73,6 +105,14 @@
           hx-target="#response-message"
           hx-swap="innerHTML"
           id="requirement-order-form">
+        <div class="form-group margin-select">
+            <label for="requirement-order-state">Estado de la Orden de Requerimiento:</label>
+            <select name="requirement_order_state" id="requirement-order-state" class="form-select">
+                <option value="APROBADO" {% if requirement_order.state == 'APROBADO' %}selected{% endif %}>Aprobado</option>
+                <option value="RECHAZADO" {% if requirement_order.state == 'RECHAZADO' %}selected{% endif %}>Rechazado</option>
+            </select>
+        </div>
+        <hr>
         <div class="custom-table">
             <table class="table table-bordered table-hover text-center">
                 <thead class="table-dark custom-thead-rounded">
@@ -162,21 +202,55 @@
             $row.find('input[name^="total_price_"]').val(total);
         });
     });
-    document.getElementById('downloadPdf').addEventListener('click', function () {
-        // Selecciona el contenedor que deseas exportar a PDF
-        var element = document.querySelector('.container-fluid');
-        
-        // Configura opciones de html2pdf
-        var options = {
-            margin:       0.5,
-            filename:     'Orden_Requerimiento.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        
-        // Genera y descarga el PDF
-        html2pdf().set(options).from(element).save();
+</script>
+<script>
+    const select = document.getElementById('requirement-order-state');
+    const wrapper = select.parentElement;
+
+    function updateSelectStyle() {
+        const selectedOption = select.options[select.selectedIndex];
+        select.className = `custom-select ${selectedOption.value.toLowerCase()}`;
+    }
+
+    select.addEventListener('change', updateSelectStyle);
+
+    // Crear un div para mostrar las opciones personalizadas
+    const customOptions = document.createElement('div');
+    customOptions.style.display = 'none';
+    customOptions.style.position = 'absolute';
+    customOptions.style.width = '100%';
+    customOptions.style.backgroundColor = 'white';
+    customOptions.style.border = '1px solid #ccc';
+    customOptions.style.borderTop = 'none';
+    customOptions.style.borderRadius = '0 0 4px 4px';
+    customOptions.style.zIndex = '1000';
+
+    Array.from(select.options).forEach(option => {
+        const customOption = document.createElement('div');
+        customOption.textContent = option.textContent;
+        customOption.className = `custom-option ${option.value.toLowerCase()}`;
+        customOption.addEventListener('click', () => {
+            select.value = option.value;
+            updateSelectStyle();
+            customOptions.style.display = 'none';
+        });
+        customOptions.appendChild(customOption);
     });
+
+    wrapper.appendChild(customOptions);
+
+    select.addEventListener('click', (e) => {
+        e.preventDefault();
+        customOptions.style.display = customOptions.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target)) {
+            customOptions.style.display = 'none';
+        }
+    });
+
+    // Inicializar el estilo
+    updateSelectStyle();
 </script>
 {% endblock %}
