@@ -35,6 +35,7 @@ from django.http import JsonResponse
 from logistic_requirements.models import RequirementOrder, RequirementOrderItem
 from django.http import JsonResponse
 from logistic_suppliers.models import Suppliers  # Ajusta según la ubicación de tu modelo
+from alya.utils import send_state_change_email
 
 # -----------------------------
 
@@ -402,23 +403,6 @@ def accounting_requirement_order_detail_view(request, pk):
         'suppliers': suppliers,
     })
 
-# @require_POST
-# def update_requirement_order_items(request, pk):
-#     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
-#     updated_items = []
-
-#     # Recorrer los ítems de la orden y actualizar con los datos recibidos del request.POST
-#     for item in requirement_order.items.all():
-#         item.quantity_requested = request.POST.get(f'quantity_requested_{item.id}', item.quantity_requested)
-#         item.price = request.POST.get(f'price_{item.id}', item.price)
-#         item.notes = request.POST.get(f'notes_{item.id}', item.notes)
-#         item.supplier_id = request.POST.get(f'supplier_{item.id}')
-#         item.estado = request.POST.get(f'estado_{item.id}', item.estado)
-#         item.save()
-#         updated_items.append(item)
-
-#     # Retornar un mensaje de éxito sin crear la PurchaseOrder
-#     return JsonResponse({'message': 'Items actualizados con éxito'}, status=200)
 
 @require_POST
 def update_requirement_order_items(request, pk):
@@ -444,19 +428,20 @@ def update_requirement_order_items(request, pk):
     # Retornar un mensaje de éxito sin crear la PurchaseOrder
     return JsonResponse({'message': 'Elementos actualizados con éxito'}, status=200)
 
-
 def create_purchase_order(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
 
     # Verificar si ya existe una orden de compra para esta orden de requerimiento
     if requirement_order.purchase_order_created:
-        return JsonResponse({'error': 'Ya se ha creado una Orden de Compra para esta Orden de Requerimiento.'})
+        error_message = "<div>Ya se se ha creado una Orden de Compra para esta Orden de Requerimiento.</div>"
+        return HttpResponse(error_message, content_type="text/html")
 
     # Filtrar los ítems que están en estado "C"
     items_comprando = RequirementOrderItem.objects.filter(requirement_order=requirement_order, estado='C')
     
     if not items_comprando.exists():
-        return JsonResponse({'error': 'No hay ítems en estado "Comprando" para crear una Orden de Compra.'})
+        error_message = "<div>No hay ítems en estado 'Comprando' para crear una Orden de Compra.</div>"
+        return HttpResponse(error_message, content_type="text/html")
 
     # Crear la PurchaseOrder
     with transaction.atomic():
@@ -488,8 +473,31 @@ def create_purchase_order(request, pk):
         requirement_order.purchase_order_created = True
         requirement_order.save()
 
-    return JsonResponse({'success': f'Orden de Compra creada para la Orden de Requerimiento #{requirement_order.order_number}.'})
+    # Respuesta de éxito en HTML
+    success_message = f"<div>Orden de Compra creada para la Orden de Requerimiento #{requirement_order.order_number}.</div>"
+    return HttpResponse(success_message, content_type="text/html")
 
+#APROBAR REQUERIMIENTOS:
+@require_POST
+def update_requirement_order_state(request, pk):
+    requirement_order = get_object_or_404(RequirementOrder, pk=pk)
+    new_state = request.POST.get('state')
+
+    if new_state in dict(RequirementOrder.STATE_CHOICES):
+        requirement_order.state = new_state
+        requirement_order.save()
+
+        # Enviar correo de notificación
+        send_state_change_email(requirement_order)
+
+        # Mensaje de éxito
+        message = 'La orden ha sido aprobada con éxito.' if new_state == 'APROBADO' else 'La orden ha sido rechazada con éxito.'
+        response_content = f"<div>{message}</div>"
+        return HttpResponse(response_content, content_type="text/html")
+    else:
+        # Mensaje de error
+        error_message = "<div>Estado inválido. Por favor, selecciona un estado válido.</div>"
+        return HttpResponse(error_message, content_type="text/html")
 
 def ajax_load_suppliers(request):
     term = request.GET.get('term', '')
@@ -497,4 +505,37 @@ def ajax_load_suppliers(request):
     supplier_list = [{'id': supplier.id, 'text': supplier.name} for supplier in suppliers]
     return JsonResponse({'results': supplier_list})
 
+# conciliations
+# conciliations
+def purchase_conciliations(request):
+    # Obtener la fecha de hoy según la zona horaria configurada
+    today = localdate()
 
+    # Obtenemos los parámetros del rango de fechas (si existen)
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Si no se han proporcionado fechas, mostrar ítems del día actual
+    if not start_date and not end_date:
+        items = PurchaseOrderItem.objects.filter(purchaseorder__scheduled_date=today).select_related(
+            'purchaseorder', 'sales_order_item__salesorder', 'supplier'
+        )
+    else:
+        # Si se proporcionan fechas, buscar entre esas dos fechas
+        if not end_date:
+            end_date = today  # Si solo hay fecha de inicio, el rango termina en el día actual
+
+        items = PurchaseOrderItem.objects.filter(
+            purchaseorder__scheduled_date__range=[start_date, end_date]
+        ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
+
+    context = {
+        'items': items,
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+
+    return render(request, 'conciliations/conciliations.html', context)
+
+
+# renditions

@@ -74,19 +74,24 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse
 from .models import RequirementOrder, RequirementOrderItem
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.db import transaction
 
 def create_purchase_order(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
 
     # Verificar si ya existe una orden de compra para esta orden de requerimiento
     if requirement_order.purchase_order_created:
-        return JsonResponse({'error': 'Ya se ha creado una Orden de Compra para esta Orden de Requerimiento.'})
+        error_message = "<div>Ya se se ha creado una Orden de Compra para esta Orden de Requerimiento.</div>"
+        return HttpResponse(error_message, content_type="text/html")
 
     # Filtrar los ítems que están en estado "C"
     items_comprando = RequirementOrderItem.objects.filter(requirement_order=requirement_order, estado='C')
     
     if not items_comprando.exists():
-        return JsonResponse({'error': 'No hay ítems en estado "Comprando" para crear una Orden de Compra.'})
+        error_message = "<div>No hay ítems en estado 'Comprando' para crear una Orden de Compra.</div>"
+        return HttpResponse(error_message, content_type="text/html")
 
     # Crear la PurchaseOrder
     with transaction.atomic():
@@ -118,7 +123,9 @@ def create_purchase_order(request, pk):
         requirement_order.purchase_order_created = True
         requirement_order.save()
 
-    return JsonResponse({'success': f'Orden de Compra creada para la Orden de Requerimiento #{requirement_order.order_number}.'})
+    # Respuesta de éxito en HTML
+    success_message = f"<div>Orden de Compra creada para la Orden de Requerimiento #{requirement_order.order_number}.</div>"
+    return HttpResponse(success_message, content_type="text/html")
 
  
 def ajax_load_suppliers(request):

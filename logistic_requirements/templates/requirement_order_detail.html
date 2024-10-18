@@ -84,6 +84,7 @@
                         <th style="width: 8%;">Precio Unitario</th>
                         <th style="width: 8%;">Precio Total</th>
                         <th>Proveedor</th>
+                        <th>Doc</th>
                         <th>Estado</th>
                     </tr>
                 </thead>
@@ -102,6 +103,13 @@
                                     <option value="{{ item.supplier.id }}" selected>{{ item.supplier.name }}</option>
                                 {% endif %}
                             </select>
+                        </td>
+                        <td>
+                            {% if item.file_attachment %}
+                                <a href="{{ item.file_attachment.url }}" target="_blank">Archivo</a>
+                            {% else %}
+                                No disponible
+                            {% endif %}
                         </td>
                         <td>
                             <select name="estado_{{ item.id }}" class="form-select">

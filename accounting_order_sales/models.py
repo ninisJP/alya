@@ -107,11 +107,10 @@ class PurchaseOrderItem(models.Model):
     bank = models.CharField(max_length=100, null=True, blank=True)
     
     def save(self, *args, **kwargs):
-        # Verificamos que `price` y `quantity_requested` no sean nulos antes de calcular
         if self.price is not None and self.quantity_requested is not None:
             self.price_total = self.price * self.quantity_requested
         else:
-            self.price_total = None  # Opcional: manejar el caso en que no se pueda calcular el total
+            self.price_total = None
         super(PurchaseOrderItem, self).save(*args, **kwargs)
 
     def __str__(self):

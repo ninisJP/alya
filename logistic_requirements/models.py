@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from logistic_suppliers.models import Suppliers
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 
 class RequirementOrder(models.Model):
     STATE_CHOICES = [
@@ -61,7 +62,13 @@ class RequirementOrderItem(models.Model):
     supplier = models.ForeignKey(Suppliers, on_delete=models.SET_NULL, blank=True, null=True)
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES, default='P')
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    #pdf_file = models.FileField(upload_to='pdfs/', blank=True, null=True)
+    file_attachment = models.FileField(
+        upload_to='attachments/',
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'jpeg', 'png'])],
+        help_text="Sube un archivo PDF o una imagen (JPG, PNG)."
+    )
 
     def clean(self):
     # Obtener la cantidad solicitada original si el ítem ya existe
