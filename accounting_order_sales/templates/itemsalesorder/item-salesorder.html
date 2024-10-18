@@ -74,20 +74,21 @@
             </div>
 
             <div class="p-3 bg-light rounded">
-                <h2 class="h5 text-center">Subir Ítems desde Excel</h2>
-                <form hx-post="{% url 'item-salesorder' salesorder.id %}" hx-target="#item-salesorder-list" hx-swap="innerHTML" enctype="multipart/form-data" class="w-100">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-12 mb-3">
-                            <label for="{{ excel_form.archivo_excel.id_for_label }}" class="form-label visually-hidden">{{ excel_form.archivo_excel.label }}</label>
-                            {{ excel_form.archivo_excel }}
-                        </div>
-                        <div class="col-12 mb-3 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">Subir Excel</button>
-                        </div>
-                    </div>
-                </form>
+    <h2 class="h5 text-center">Subir Ítemasdsds desde Excel</h2>
+    <form hx-post="{% url 'item-salesorder' salesorder.id %}" hx-target="#item-salesorder-list" hx-swap="innerHTML" enctype="multipart/form-data" class="w-100">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-12 mb-3">
+                <label for="{{ excel_form.archivo_excel.id_for_label }}" class="form-label visually-hidden">{{ excel_form.archivo_excel.label }}</label>
+                {{ excel_form.archivo_excel }}
             </div>
+            <div class="col-12 mb-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Subir Excel</button>
+            </div>
+        </div>
+    </form>
+</div>
+
         </div>
     </div>
 </div>

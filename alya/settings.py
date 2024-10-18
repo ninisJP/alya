@@ -2,7 +2,6 @@ import dj_database_url
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-import dj_database_url
 
 load_dotenv()
 
@@ -10,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*', 'alya-production.up.railway.app']
 
@@ -22,7 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #DJANGO BROWSER RELOAD
-    "django_browser_reload",
+    #"django_browser_reload",
     'django_htmx',
     'rest_framework',
     'rest_framework.authtoken',
@@ -67,7 +66,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.LoginRequiredMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_browser_reload.middleware.BrowserReloadMiddleware',
+    #'django_browser_reload.middleware.BrowserReloadMiddleware',
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
@@ -96,15 +95,8 @@ WSGI_APPLICATION = 'alya.wsgi.application'
 #}
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / "db.sqlite3",
-    }
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
-
-# DATABASES = {
-#     'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

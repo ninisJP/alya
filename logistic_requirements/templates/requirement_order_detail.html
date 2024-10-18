@@ -133,10 +133,19 @@
                     class="btn btn-success ms-2">
                 Crear Orden de Compra
             </button>
+            <!-- Botón de descarga PDF -->
+            <button type="button" class="btn btn-danger ms-2" onclick="downloadPDF()">Descargar PDF</button>
+            <!-- Botón de descarga Excel -->
+            <button type="button" class="btn btn-info ms-2" onclick="downloadExcel()">Descargar Excel</button>
         </div>
+
         <div id="response-message" class="alert-message mt-2"></div>
     </form>
 </div>
+<!-- Incluir jsPDF y SheetJS (XLSX) desde CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
 
 <!-- Script para inicializar Select2 con AJAX y calcular el total dinámicamente -->
 <script>
@@ -186,5 +195,49 @@
         // Genera y descarga el PDF
         html2pdf().set(options).from(element).save();
     });
+    function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        let doc = new jsPDF();
+
+        // Añadir título
+        doc.setFontSize(18);
+        doc.text('Detalles de la Orden de Requerimiento', 10, 10);
+
+        // Añadir contenido de la tabla
+        let rows = [];
+        $('#requirement-order-form tbody tr').each(function() {
+            let row = [];
+            $(this).find('td').each(function() {
+                row.push($(this).text().trim() || $(this).find('input').val() || $(this).find('select').find('option:selected').text());
+            });
+            rows.push(row);
+        });
+
+        // Añadir la tabla al PDF
+        doc.autoTable({
+            head: [['SAP', 'ITEM', 'Detalle', 'Cantidad', 'Precio Unitario', 'Precio Total', 'Proveedor', 'Estado']],
+            body: rows
+        });
+
+        doc.save('Orden_de_Requerimiento.pdf');
+    }
+
+    function downloadExcel() {
+        let workbook = XLSX.utils.book_new();
+        let worksheet_data = [['SAP', 'ITEM', 'Detalle', 'Cantidad Solicitada', 'Precio Unitario', 'Precio Total', 'Proveedor', 'Estado']];
+
+        // Añadir filas de la tabla al array worksheet_data
+        $('#requirement-order-form tbody tr').each(function() {
+            let row = [];
+            $(this).find('td').each(function() {
+                row.push($(this).text().trim() || $(this).find('input').val() || $(this).find('select').find('option:selected').text());
+            });
+            worksheet_data.push(row);
+        });
+
+        let worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Orden de Requerimiento');
+        XLSX.writeFile(workbook, 'Orden_de_Requerimiento.xlsx');
+    }
 </script>
 {% endblock %}
