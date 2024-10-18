@@ -1,0 +1,18 @@
+<div class="container-fluid ">
+    <div id="logistic_inventory_output_window">
+        <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+            <div class="card-body text-center py-2">
+                <h1 class="mb-0">Búsqueda de Orden de venta</h1>
+            </div>
+        </div>
+
+        <ul id="logistic_inventory_output_new_salesorder_search" class="mt-8 space-y-4">
+            {% include 'output/guide/salesorder/search.html' %}
+        </ul>
+
+        <ul id="logistic_inventory_output_new_salesorder_list" class="mt-8 space-y-4">
+            {% include 'output/guide/salesorder/list.html' %}
+        </ul>
+
+    </div>
+</div>

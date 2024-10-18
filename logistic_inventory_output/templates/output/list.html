@@ -27,7 +27,7 @@
                     Guia de Salida
                 </h2>
                 <button class="btn w-100"
-                    hx-get="{% url 'logistic_inventory_output_new' %}"
+                    hx-get="{% url 'logistic_inventory_output_new_salesorder_search' %}"
                     hx-target="#logistic_inventory_output_window"
                     data-bs-toggle="button"
                     aria-pressed="false">
@@ -71,15 +71,6 @@
                             {% else %}
                                 No
                             {% endif %}
-                        </td>
-                        <td>
-                            <button class="btn btn-info btn-sm"
-                                hx-get="{% url 'logistic_inventory_output_see' output.id %}"
-                                hx-target="#logistic_inventory_output_window"
-                                data-bs-toggle="button"
-                                aria-pressed="false">
-                                <i class="fas fa-info-circle"></i> Detalles
-                            </button>
                         </td>
                     </tr>
                     {% endfor %}

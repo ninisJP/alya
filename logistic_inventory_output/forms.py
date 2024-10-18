@@ -26,3 +26,8 @@ class InventoryOutputForm(forms.ModelForm):
                 item_save.save()
 
         return instance
+
+class SearchSalesOrderForm(forms.Form):
+    sapcode = forms.CharField(label="SAP", max_length=100, required=False)
+    project = forms.CharField(label="Proyecto", max_length=100, required=False)
+    detail = forms.CharField(label="Description", max_length=100, required=False)

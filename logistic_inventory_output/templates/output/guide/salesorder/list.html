@@ -1,0 +1,36 @@
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th>SAP</th>
+                <th>Proyecto</th>
+                <th>Detalle</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for saleorder in salesorders %}
+            <tr class="rounded-3">
+                <td>{{ saleorder.sapcode }}</td>
+                <td>{{ saleorder.project }}</td>
+                <td>{{ saleorder.detail }}</td>
+                <td>{{ saleorder.date }}</td>
+                <td>
+                    <button class="btn btn-info btn-sm"
+                        hx-get="{% url 'logistic_inventory_output_new' saleorder.id %}"
+                        hx-target="#logistic_inventory_output_window"
+                        data-bs-toggle="button"
+                        aria-pressed="false">
+                        <i class="fas fa-info-circle"></i> Nueva guia de salida
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="8" >No se encontró ninguna coincidencia</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
