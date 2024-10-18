@@ -3,10 +3,34 @@
 {% load widget_tweaks %}
 
 {% block content %}
-portal del empleado
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="text-center">Perfil de {{ user.username }}</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <p><strong>Correo electrónico:</strong> {{ user.email }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <p><strong>Nombre completo:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <p><strong>Fecha de registro:</strong> {{ user.date_joined|date:"d M Y" }}</p>
+                        </div>
 
-{{ uerid}}
-
-
-
+                        <!-- Botón para editar perfil -->
+                        <div class="d-flex justify-content-end mt-4">
+                            <a href="{% url 'edit_profile' %}" class="btn btn-primary btn-lg">Editar Perfil</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
