@@ -11,38 +11,72 @@
         ¡Operación exitosa! :)
     </div>
 
-{% elif status == "item_error" %}
-    <div class="inline bg-red-200 p-2 border border-red-400 text-red-700 px-4 py-3 rounded">
-        No existe todos los items de la lista
-    </div>
-    <br>
-    <br>
-    <br>
-
-
-    <div class="table-responsive">
-    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
-        <thead class="table-dark custom-thead-rounded">
-            <tr>
-                <th>Código SAP de los items faltantes en el inventario</th>
-                <th>Descripción</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for no_item in item_no_found %}
-                <tr class="rounded-3">
-                    <td>{{ no_item.sap_code }}</td>
-                    <td>{{ no_item.description }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    </div>
-
 {% elif status == "no" %}
     <div class="inline bg-red-200 p-2 border border-red-400 text-red-700 px-4 py-3 rounded">
         Algo falló :P
     </div>
+
+{% elif status == "item_error" %}
+    {% if items_no_found %}
+        <br>
+        <div class="inline bg-red-200 p-2 border border-red-400 text-red-700 px-4 py-3 rounded">
+            No existe todos los items de la lista
+        </div>
+        <br>
+        <br>
+        <div class="table-responsive">
+        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+            <thead class="table-dark custom-thead-rounded">
+                <tr>
+                    <th>Código SAP de los items que no existen en el inventario</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items_no_found %}
+                    <tr class="rounded-3">
+                        <td>{{ item.sap_code }}</td>
+                        <td>{{ item.description }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        <br>
+        <br>
+    {% endif %}
+
+    {% if items_no_enough %}
+        <br>
+        <div class="inline bg-red-200 p-2 border border-red-400 text-red-700 px-4 py-3 rounded">
+            No hay suficientes existencias
+        </div>
+        <br>
+        <br>
+        <div class="table-responsive">
+        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+            <thead class="table-dark custom-thead-rounded">
+                <tr>
+                    <th>Código SAP de los items faltantes en el inventario</th>
+                    <th>Descripción</th>
+                    <th>Cantidad necesaria</th>
+                    <th>Cantidad disponible</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items_no_enough %}
+                    <tr class="rounded-3">
+                        <td>{{ item.sap_code }}</td>
+                        <td>{{ item.description }}</td>
+                        <td>{{ item.quantity_necesary }}</td>
+                        <td>{{ item.quantity_available }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% endif %}
+
 {% endif %}
 
 </div>

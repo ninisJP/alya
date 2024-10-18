@@ -18,12 +18,13 @@ def output_new(request):
         status = "no"
         if form.is_valid():
             status = "item_error"
-            item_no_found = check_items(form.data['sales_order'])
-            if len(item_no_found) == 0 :
+            items_no_found, items_no_enough = check_items(form.data['sales_order'])
+            if (len(items_no_found)==0) and (len(items_no_enough)==0):
                 form.save()
                 status = "yes"
             else :
-                context['item_no_found'] = item_no_found
+                context['items_no_found'] = items_no_found
+                context['items_no_enough'] = items_no_enough
         context['status'] = status
 
     context['form'] = InventoryOutputForm()
