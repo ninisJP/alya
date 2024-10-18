@@ -1,0 +1,14 @@
+{% load widget_tweaks %}
+
+<!-- Primera columna: Nombre -->
+<div class="row">
+    <div class="col-12 col-md-6 col-lg-4 mb-3">
+        <label for="{{ form.sales_order.id_for_label }}" class="form-label">{{ form.sales_order.label }}:</label>
+        {{ form.sales_order|add_class:"form-control" }}
+    </div>
+    <!-- Botón de enviar -->
+    <div class="col-12 col-md-6 col-lg-4 offset-lg-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Siguiente paso</button>
+    </div>
+</div>
+

@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'whitenoise.runserver_nostatic',
     'widget_tweaks',
+    'crispy_bootstrap5',
     #APP PARA TODOS LOS BASE
     'accounting_order_sales',
     'budget',
@@ -46,8 +47,8 @@ INSTALLED_APPS = [
     'hub',
     'logistic_api',
     'logistic_inventory',
-    'crispy_bootstrap5',
     'logistic_inventory_api',
+    'logistic_inventory_output',
     'logistic_requirements',
     'logistic_suppliers',
     'project',
@@ -90,10 +91,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'alya.wsgi.application'
 
+#DATABASES = {
+#    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+#}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Motor de la base de datos
-        'NAME': BASE_DIR / 'db.sqlite3',         # Nombre y ubicación del archivo de la base de datos
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
     }
 }
 
