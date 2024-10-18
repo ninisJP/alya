@@ -91,7 +91,6 @@ def item_new(request):
         if form.is_valid():
             status = "yes"
             form.save()
-            #create_qr(form.instance.id)
         context['status'] = status
 
     context['types'] = Type.objects.all()

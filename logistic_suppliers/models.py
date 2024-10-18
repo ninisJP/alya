@@ -19,4 +19,3 @@ class Suppliers(models.Model):
         indexes = [
             models.Index(fields=['name', 'document']),
         ]
-
