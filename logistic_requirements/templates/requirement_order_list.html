@@ -25,12 +25,14 @@
             <thead class="table-dark custom-thead-rounded">
                 <tr>
                     <th>ID</th>
-                    <th>Proyecto</th> <!-- Nueva columna para el proyecto -->
-                    <th>Cliente</th> <!-- Nueva columna para el cliente -->
+                    <th>Proyecto</th>
+                    <th>Cliente</th>
                     <th>Orden de Venta</th>
                     <th>F. Solicitada</th>
                     <th>F. Creada</th>
                     <th>Detalles</th>
+                    <th>Aprobado por Contabilidad</th>
+                    <th>Estado de Ítems</th> <!-- Nueva columna para el estado de los ítems -->
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -45,25 +47,38 @@
                     <td>{{ order.created_at }}</td>
                     <td>{{ order.notes }}</td>
                     <td>
+                        {% if order.state == "NO REVISADO" %}
+                            <span class="badge bg-warning text-dark rounded-pill">No Revisado</span>
+                        {% elif order.state == "APROBADO" %}
+                            <span class="badge bg-success rounded-pill">Aprobado</span>
+                        {% elif order.state == "RECHAZADO" %}
+                            <span class="badge bg-danger rounded-pill">Rechazado</span>
+                        {% else %}
+                            <span class="badge bg-secondary rounded-pill">{{ order.state }}</span>
+                        {% endif %}
+                    </td>
+                    <!-- Columna para mostrar los estados de los ítems -->
+                    <td>
+                        {% if order.global_state == "Listo" %}
+                            <span class="badge bg-success">Listo</span>
+                        {% elif order.global_state == "Comprando" %}
+                            <span class="badge bg-primary">Comprando</span>
+                        {% elif order.global_state == "Pendiente" %}
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ order.global_state }}</span>
+                        {% endif %}
+                    </td>                   
+                    <td>
                         <div class="btn-group" role="group" aria-label="Acciones">
-                            <!-- Botón de Detalles con color sólido y más llamativo -->
                             <a href="{% url 'requirement_order_detail' order.id %}" class="btn btn-info btn-sm">
                                 <i class="fas fa-info-circle"></i> Detalles
                             </a>
-                            <!-- Botón de Alistar con color amarillo sólido -->
-                            <a href="{% url 'requirement_order_edit' order.id %}" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit"></i> Alistar
-                            </a>
-                            <!-- Botón de Eliminar con color rojo sólido -->
-                            <a href="" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash-alt"></i> Eliminar
-                            </a>
                         </div>
                     </td>
-                    
                 </tr>
                 {% endfor %}
-            </tbody>
+            </tbody>            
         </table>
     </div>
 </div>

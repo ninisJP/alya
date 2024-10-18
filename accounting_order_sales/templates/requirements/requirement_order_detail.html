@@ -1,0 +1,150 @@
+{% extends 'base_accounting.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Botones de Aprobar y Rechazar con Fondo Transparente -->
+    <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-4">
+        <button hx-post="{% url 'update_requirement_order_state' requirement_order.pk %}" 
+                hx-target="#state-response-message" 
+                hx-swap="innerHTML" 
+                hx-vals='{"state": "APROBADO"}' 
+                class="btn btn-lg w-50 shadow-sm text-green"
+                style="background-color: transparent; border: 2px solid #28a745; color: #28a745; transition: all 0.3s;">
+            <i class="fas fa-check-circle me-2"></i> Aprobar
+        </button>
+        <button hx-post="{% url 'update_requirement_order_state' requirement_order.pk %}" 
+                hx-target="#state-response-message" 
+                hx-swap="innerHTML" 
+                hx-vals='{"state": "RECHAZADO"}' 
+                class="btn btn-lg w-50 shadow-sm text-red ms-2"
+                style="background-color: transparent; border: 2px solid #dc3545; color: #dc3545; transition: all 0.3s;">
+            <i class="fas fa-times-circle me-2"></i> Rechazar
+        </button>
+    </div>
+    <!-- Div para mostrar el mensaje de respuesta de Aprobar/Rechazar -->
+    <div id="state-response-message" class="text-center mt-3"></div>
+
+    <!-- Información General -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-light text-dark d-flex justify-content-between align-items-center">
+            <h2 class="mb-0 ms-3">{{ requirement_order.order_number }}</h2>
+            <div class="d-flex align-items-center">
+                <span class="badge bg-warning text-dark me-3">Fecha Solicitada: {{ requirement_order.requested_date }}</span>
+                <span class="badge {% if requirement_order.estado == 'L' %}bg-success{% else %}bg-secondary{% endif %} me-3">
+                    {% if requirement_order.estado == 'L' %}Listo{% else %}Pendiente{% endif %}
+                </span>
+                <a href="{% url 'requirement_orders_accounting' %}" class="badge bg-danger text-decoration-none me-2">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <p class="mb-1"><strong>O. de Venta:</strong> {{ requirement_order.sales_order.sapcode }}</p>
+                    <p class="mb-1"><strong>Cliente:</strong> {{ requirement_order.sales_order.project.client.legal_name }}</p>
+                    <p class="mb-1"><strong>Proyecto:</strong> {{ requirement_order.sales_order.project.name }}</p>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <p class="mb-1"><strong>Total de la Orden:</strong> S/. {{ requirement_order.total_order }}</p>
+                    <p class="mb-1"><strong>Pedido por:</strong> {{ requirement_order.user }}</p>
+                    <p class="mb-1"><strong>Fecha creada:</strong> {{ requirement_order.created_at }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1"><strong>Detalles:</strong></p>
+                    <p>{{ requirement_order.notes }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario para Ítems de la Orden -->
+    <form id="requirement-order-form" hx-post="{% url 'update_requirement_order_items' requirement_order.pk %}" hx-target="#order-response-message" hx-swap="innerHTML">
+        <hr>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center bg-white">
+                <thead class="bg-light text-dark">
+                    <tr>
+                        <th>SAP</th>
+                        <th>ITEM</th>
+                        <th>DETALLE</th>
+                        <th>CANT</th>
+                        <th>P. UNIT</th>
+                        <th>P. TOT</th>
+                        <th>PROVEEDOR</th>
+                        <th>DOC</th>
+                        <th>ESTADO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.sap_code }}</td>
+                        <td>{{ item.sales_order_item.description }}</td>
+                        <td><input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control"></td>
+                        <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="1"></td>
+                        <td><input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" min="0" step="0.01"></td>
+                        <td><input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" readonly></td>
+                        <td>
+                            <select name="supplier_{{ item.id }}" class="form-select select2-supplier" data-ajax-url="{% url 'ajax_load_suppliers' %}" data-placeholder="Seleccionar proveedor">
+                                {% if item.supplier %}
+                                    <option value="{{ item.supplier.id }}" selected>{{ item.supplier.name }}</option>
+                                {% endif %}
+                            </select>
+                        </td>
+                        <td>
+                            {% if item.file_attachment %}
+                                <a href="{{ item.file_attachment.url }}" target="_blank">Archivo</a>
+                            {% else %}
+                                No disponible
+                            {% endif %}
+                        </td>
+                        <td>
+                            <select name="estado_{{ item.id }}" class="form-select">
+                                <option value="L" {% if item.estado == 'L' %}selected{% endif %}>Listo</option>
+                                <option value="P" {% if item.estado == 'P' %}selected{% endif %}>Pendiente</option>
+                                <option value="C" {% if item.estado == 'C' %}selected{% endif %}>Comprando</option>
+                            </select>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Div para mostrar el mensaje de respuesta de Guardar Cambios/Crear Orden de Compra -->
+        <div id="order-response-message" class="text-center mt-3"></div>
+
+        <!-- Botones de Guardar Cambios y Crear Orden de Compra -->
+        <div class="text-center mt-4">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button type="submit" class="btn btn-lg w-50 text-white" 
+                        style="background-color: #007bff; border: none; transition: all 0.3s;">
+                    Guardar Cambios
+                </button>
+                <button hx-post="{% url 'create_purchase_order' requirement_order.pk %}" 
+                        hx-target="#order-response-message" 
+                        hx-swap="innerHTML" 
+                        class="btn btn-lg w-50 text-dark ms-2" 
+                        style="background-color: #ffc107; border: none; transition: all 0.3s;">
+                    Crear Orden de Compra
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Estilos personalizados -->
+<style>
+    .text-green {
+        color: #28a745;
+    }
+    .text-red {
+        color: #dc3545;
+    }
+    .btn:hover {
+        opacity: 0.9;
+    }
+</style>
+
+{% endblock %}

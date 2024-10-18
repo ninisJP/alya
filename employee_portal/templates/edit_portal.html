@@ -1,0 +1,63 @@
+{% extends "base_portal.html" %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="text-center">Editar Perfil</h2>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Nombre de usuario:</label>
+                                {{ form.username|add_class:"form-control form-control-lg" }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label">Nombre:</label>
+                                {{ form.first_name|add_class:"form-control form-control-lg" }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Apellido:</label>
+                                {{ form.last_name|add_class:"form-control form-control-lg" }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Correo electrónico:</label>
+                                {{ form.email|add_class:"form-control form-control-lg" }}
+                            </div>
+
+                            <!-- Botones alineados horizontalmente -->
+                            <div class="d-flex justify-content-end align-items-center mt-4">
+                                <a href="{% url 'profile' %}" class="btn btn-danger btn-lg me-2">Volver</a>
+                                <button type="submit" class="btn btn-primary btn-lg me-2">Guardar Cambios</button>
+                                <button id="edit-password-btn" type="button" class="btn btn-warning btn-lg">Editar Contraseña</button>
+                            </div>
+                        </form>
+
+                        <!-- Alerta y botones de confirmación -->
+                        <div id="password-warning" class="mt-3 alert alert-warning d-none">
+                            <p>Editar tu contraseña podría requerir volver a iniciar sesión. ¿Deseas continuar?</p>
+                            <div class="d-flex justify-content-end">
+                                <a href="{% url 'confirm_password_change' %}" class="btn btn-success btn-lg me-2">Sí</a>
+                                <button id="cancel-btn" class="btn btn-danger btn-lg">No</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('edit-password-btn').addEventListener('click', function() {
+            document.getElementById('password-warning').classList.remove('d-none');
+        });
+        document.getElementById('cancel-btn').addEventListener('click', function() {
+            document.getElementById('password-warning').classList.add('d-none');
+        });
+    </script>
+{% endblock %}

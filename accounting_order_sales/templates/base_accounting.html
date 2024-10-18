@@ -150,6 +150,12 @@
                 </a>
             </div>
             <div class="list-group list-group-flush">
+                <a href="{% url 'requirement_orders_accounting' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tasks"></i> <!-- Icono más moderno para listas de tareas -->
+                    <span>Pedidos por aprobar</span>
+                </a>
+            </div>
+            <div class="list-group list-group-flush">
                 <a href="{% url 'salesorder' %}" hx-target="#main" class="list-group-item list-group-item-action">
                     <i class="fas fa-receipt me-2"></i>
                     <span>Orden Venta</span>
@@ -168,7 +174,7 @@
                 </a>
             </div>
             <div class="list-group list-group-flush">
-                <a href="{% url 'petty_cash' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                <a href="{% url 'purchase_conciliations' %}" class="list-group-item list-group-item-action d-flex align-items-center">
                     <i class="fas fa-file-invoice-dollar me-2"></i>
                     <span>Rendiciones</span>
                 </a>
@@ -179,7 +185,6 @@
                     <span>Banco</span>
                 </a>
             </div>
-            
             <!-- Contenedor específico para el botón de logout -->
             <div id="" class="logout-container">
                 {% if request.user.is_authenticated %}

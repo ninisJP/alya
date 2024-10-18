@@ -13,6 +13,7 @@
                         <th>Orden de Venta</th>
                         <th>Fecha Solicitada</th>
                         <th>Fecha de Creación</th>
+                        <th>Aprobado</th>
                         <th>Estado</th>
                         <th>Total</th>
                         <th>Acciones</th>
@@ -24,6 +25,15 @@
                         <td>{{ order.sales_order }}</td>
                         <td>{{ order.requested_date }}</td>
                         <td>{{ order.created_at|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if order.state == 'APROBADO' %}
+                                <span class="badge bg-success">Aprobado</span>
+                            {% elif order.state == 'RECHAZADO' %}
+                                <span class="badge bg-danger">Rechazado</span>
+                            {% else %}
+                                <span class="badge bg-warning">No revisado</span>
+                            {% endif %}
+                        </td>
                         <td>
                             {% if order.estado %}
                                 <span class="badge bg-success">Listo</span>
