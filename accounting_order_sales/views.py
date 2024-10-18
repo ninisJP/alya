@@ -252,7 +252,7 @@ def edit_bank(request, bank_id):
         if form.is_valid():
             bank = form.save()
 
-            if request.headers.get('HX-Request'):  # Si es una petición HTMX
+            if request.headers.get('HX-Request'): 
                 banks = Bank.objects.all().order_by('-id')
                 return render(request, 'bank/bank_list.html', {'bank': bank, 'banks': banks})
 
@@ -269,7 +269,7 @@ def edit_bank(request, bank_id):
     context = {
         'form': form,
         'banks': banks,
-        'bank': bank  # Aquí estamos pasando la instancia de `bank`
+        'bank': bank 
     }
     return render(request, 'bank/bank_edit.html', context)
 
@@ -282,7 +282,7 @@ def delete_bank(request, bank_id):
         bank.delete()
 
         if request.headers.get('HX-Request'):  # Si es una petición HTMX
-            return HttpResponse(status=204)  # Respuesta de éxito sin contenido
+            return HttpResponse(status=204)
 
         return redirect('bank_index')  # Redirigir después de eliminar
 
@@ -403,7 +403,6 @@ def accounting_requirement_order_detail_view(request, pk):
         'suppliers': suppliers,
     })
 
-
 @require_POST
 def update_requirement_order_items(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
@@ -505,7 +504,6 @@ def ajax_load_suppliers(request):
     supplier_list = [{'id': supplier.id, 'text': supplier.name} for supplier in suppliers]
     return JsonResponse({'results': supplier_list})
 
-# conciliations
 # conciliations
 def purchase_conciliations(request):
     # Obtener la fecha de hoy según la zona horaria configurada
