@@ -4,6 +4,9 @@ from django import forms
 from django.forms import inlineformset_factory
 
 from logistic_suppliers.models import Suppliers
+from django.core.exceptions import ValidationError
+from datetime import date, timedelta
+
 
 
 
@@ -12,6 +15,23 @@ class CreateRequirementOrderForm(forms.ModelForm):
     class Meta:
         model = RequirementOrder
         fields = ['sales_order', 'requested_date', 'notes']  # El campo 'estado' se elimina
+        widgets = {
+            'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=3)).isoformat()}),
+            'notes': forms.Textarea(attrs={'required': 'required'})
+        }
+
+    def clean_requested_date(self):
+        requested_date = self.cleaned_data.get('requested_date')
+        min_date = date.today() + timedelta(days=3) 
+        if requested_date and requested_date < min_date:
+            raise ValidationError(f"La fecha solicitada no puede ser anterior a {min_date.isoformat()}.")
+        return requested_date
+    
+    def clean_notes(self):
+        notes = self.cleaned_data.get('notes')
+        if not notes.strip():
+            raise ValidationError("El campo de notas es obligatorio.")
+        return notes
 
 # Formulario para la creación de RequirementOrderItem (sin estado)
 class CreateRequirementOrderItemForm(forms.ModelForm):
@@ -26,6 +46,23 @@ class CreateRequirementOrderItemForm(forms.ModelForm):
     class Meta:
         model = RequirementOrderItem
         fields = ['sales_order_item', 'quantity_requested', 'notes', 'supplier', 'price', 'file_attachment']
+        widgets = {
+            'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=3)).isoformat()}),
+            'notes': forms.Textarea(attrs={'required': 'required'})
+        }
+
+    def clean_requested_date(self):
+        requested_date = self.cleaned_data.get('requested_date')
+        min_date = date.today() + timedelta(days=3) 
+        if requested_date and requested_date < min_date:
+            raise ValidationError(f"La fecha solicitada no puede ser anterior a {min_date.isoformat()}.")
+        return requested_date
+    
+    def clean_notes(self):
+        notes = self.cleaned_data.get('notes')
+        if not notes.strip():
+            raise ValidationError("El campo de notas es obligatorio.")
+        return notes
 
     def __init__(self, *args, **kwargs):
         sales_order = kwargs.pop('sales_order', None)
