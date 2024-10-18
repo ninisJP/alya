@@ -13,10 +13,10 @@ class UserRegistrationForm(UserCreationForm):
     last_name = forms.CharField(max_length=100, required=True, label='Apellido')
     position = forms.CharField(max_length=100, required=True, label='Posición')
     email = forms.EmailField(max_length=254, required=True, label='Correo Electrónico')
-
+    dni = forms.CharField(max_length=8,required=True,label='DNI')
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name','role', 'position','password1', 'password2']
+        fields = ['username', 'email', 'first_name', 'last_name','dni','role', 'position','password1', 'password2']
 
     def save(self, commit=True):
         user = super(UserRegistrationForm, self).save(commit=False)
@@ -32,6 +32,7 @@ class UserRegistrationForm(UserCreationForm):
                     user=user,
                     first_name=self.cleaned_data['first_name'],
                     last_name=self.cleaned_data['last_name'],
+                    dni=self.cleaned_data['dni'],
                     position=self.cleaned_data['position'],
                     email=self.cleaned_data['email'],
                 )
@@ -40,6 +41,7 @@ class UserRegistrationForm(UserCreationForm):
                     user=user,
                     first_name=self.cleaned_data['first_name'],
                     last_name=self.cleaned_data['last_name'],
+                    dni=self.cleaned_data['dni'],
                     position=self.cleaned_data['position'],
                     email=self.cleaned_data['email'],
                 )

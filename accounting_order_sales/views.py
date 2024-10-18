@@ -251,7 +251,7 @@ def edit_bank(request, bank_id):
         if form.is_valid():
             bank = form.save()
 
-            if request.headers.get('HX-Request'):  # Si es una petición HTMX
+            if request.headers.get('HX-Request'): 
                 banks = Bank.objects.all().order_by('-id')
                 return render(request, 'bank/bank_list.html', {'bank': bank, 'banks': banks})
 
@@ -268,7 +268,7 @@ def edit_bank(request, bank_id):
     context = {
         'form': form,
         'banks': banks,
-        'bank': bank  # Aquí estamos pasando la instancia de `bank`
+        'bank': bank 
     }
     return render(request, 'bank/bank_edit.html', context)
 
@@ -281,7 +281,7 @@ def delete_bank(request, bank_id):
         bank.delete()
 
         if request.headers.get('HX-Request'):  # Si es una petición HTMX
-            return HttpResponse(status=204)  # Respuesta de éxito sin contenido
+            return HttpResponse(status=204)
 
         return redirect('bank_index')  # Redirigir después de eliminar
 
@@ -401,24 +401,6 @@ def accounting_requirement_order_detail_view(request, pk):
         'items': items,
         'suppliers': suppliers,
     })
-
-# @require_POST
-# def update_requirement_order_items(request, pk):
-#     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
-#     updated_items = []
-
-#     # Recorrer los ítems de la orden y actualizar con los datos recibidos del request.POST
-#     for item in requirement_order.items.all():
-#         item.quantity_requested = request.POST.get(f'quantity_requested_{item.id}', item.quantity_requested)
-#         item.price = request.POST.get(f'price_{item.id}', item.price)
-#         item.notes = request.POST.get(f'notes_{item.id}', item.notes)
-#         item.supplier_id = request.POST.get(f'supplier_{item.id}')
-#         item.estado = request.POST.get(f'estado_{item.id}', item.estado)
-#         item.save()
-#         updated_items.append(item)
-
-#     # Retornar un mensaje de éxito sin crear la PurchaseOrder
-#     return JsonResponse({'message': 'Items actualizados con éxito'}, status=200)
 
 @require_POST
 def update_requirement_order_items(request, pk):

@@ -1,7 +1,7 @@
 <div id="userList" class="w-full px-4 mt-10">
     <!-- Encabezado de la Tabla -->
     <div class="bg-white py-6 px-8 rounded-lg shadow-md mb-4 w-full hover:shadow-xl transition-shadow duration-300">
-        <div class="grid grid-cols-5 gap-4">
+        <div class="grid grid-cols-6 gap-4">
             <div>
                 <p class="text-gray-500 font-semibold">Nombre</p>
             </div>
@@ -17,6 +17,9 @@
             <div>
                 <p class="text-gray-500 font-semibold">Posición</p>
             </div>
+            <div>
+                <p class="text-gray-500 font-semibold">DNI</p>
+            </div>
         </div>
     </div>
 
@@ -27,7 +30,7 @@
         data-email="{{ user.email }}" 
         data-role="{% if user.supervisors %}Supervisor{% elif user.technician %}Técnico{% endif %}" 
         data-position="{% if user.supervisors %}{{ user.supervisors.position }}{% elif user.technician %}{{ user.technician.position }}{% endif %}">
-        <div class="grid grid-cols-5 gap-4">
+        <div class="grid grid-cols-6 gap-4">
             <div>
                 <p class="font-bold">{{ user.first_name }} {{ user.last_name }}</p>
             </div>
@@ -49,6 +52,13 @@
                     <p class="font-semibold">{{ user.supervisors.position }}</p>
                 {% elif user.technician %}
                     <p class="font-semibold">{{ user.technician.position }}</p>
+                {% endif %}
+            </div>
+            <div>
+                {% if user.supervisors %}
+                    <p class="font-semibold">{{ user.supervisors.dni }}</p>
+                {% elif user.technician %}
+                    <p class="font-semibold">{{ user.technician.dni }}</p>
                 {% endif %}
             </div>
         </div>
