@@ -12,14 +12,35 @@ from django.http import JsonResponse
 from logistic_requirements.models import RequirementOrder, RequirementOrderItem
 from django.views.decorators.http import require_POST
 
-# Vista para listar todas las RequirementOrders
+# # Vista para listar todas las RequirementOrders
 class RequirementOrderListView(ListView):
     model = RequirementOrder
     template_name = 'requirement_order_list.html'
     context_object_name = 'requirement_orders'
 
     def get_queryset(self):
-        return RequirementOrder.objects.all().order_by('-id')
+        queryset = RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
+        
+        for order in queryset:
+            items = order.items.all()
+            total_items = items.count()
+            if total_items == 0:
+                order.global_state = "No tiene ítems"
+                continue
+
+            ready_count = items.filter(estado='L').count()
+            buying_count = items.filter(estado='C').count()
+
+            # Determinar el estado general
+            if ready_count == total_items:
+                order.global_state = "Listo"
+            elif buying_count >= total_items / 2:
+                order.global_state = "Comprando"
+            else:
+                order.global_state = "Pendiente"
+                
+        return queryset
+
     
 def requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
@@ -35,7 +56,7 @@ def requirement_order_detail_view(request, pk):
 def update_requirement_order_items(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
     updated_items = []
-
+        
     # Recorrer los ítems de la orden y actualizar con los datos recibidos del request.POST
     for item in requirement_order.items.all():
         item.quantity_requested = request.POST.get(f'quantity_requested_{item.id}', item.quantity_requested)
@@ -45,7 +66,7 @@ def update_requirement_order_items(request, pk):
         item.estado = request.POST.get(f'estado_{item.id}', item.estado)
         item.save()
         updated_items.append(item)
-
+    
     # Retornar un mensaje de éxito sin crear la PurchaseOrder
     return JsonResponse({'message': 'Items actualizados con éxito'}, status=200)
 
@@ -53,19 +74,24 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse
 from .models import RequirementOrder, RequirementOrderItem
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.db import transaction
 
 def create_purchase_order(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
 
     # Verificar si ya existe una orden de compra para esta orden de requerimiento
     if requirement_order.purchase_order_created:
-        return JsonResponse({'error': 'Ya se ha creado una Orden de Compra para esta Orden de Requerimiento.'})
+        error_message = "<div>Ya se se ha creado una Orden de Compra para esta Orden de Requerimiento.</div>"
+        return HttpResponse(error_message, content_type="text/html")
 
     # Filtrar los ítems que están en estado "C"
     items_comprando = RequirementOrderItem.objects.filter(requirement_order=requirement_order, estado='C')
     
     if not items_comprando.exists():
-        return JsonResponse({'error': 'No hay ítems en estado "Comprando" para crear una Orden de Compra.'})
+        error_message = "<div>No hay ítems en estado 'Comprando' para crear una Orden de Compra.</div>"
+        return HttpResponse(error_message, content_type="text/html")
 
     # Crear la PurchaseOrder
     with transaction.atomic():
@@ -97,13 +123,11 @@ def create_purchase_order(request, pk):
         requirement_order.purchase_order_created = True
         requirement_order.save()
 
-    return JsonResponse({'success': f'Orden de Compra creada para la Orden de Requerimiento #{requirement_order.order_number}.'})
+    # Respuesta de éxito en HTML
+    success_message = f"<div>Orden de Compra creada para la Orden de Requerimiento #{requirement_order.order_number}.</div>"
+    return HttpResponse(success_message, content_type="text/html")
 
-
-
-from django.http import JsonResponse
-from .models import Suppliers  # Ajusta según la ubicación de tu modelo
-
+ 
 def ajax_load_suppliers(request):
     term = request.GET.get('term', '')
     suppliers = Suppliers.objects.filter(name__icontains=term)[:20]

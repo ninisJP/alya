@@ -1,66 +1,64 @@
 {% extends 'base_accounting.html' %}
 {% load widget_tweaks %}
-
 {% block content %}
 <div class="container-fluid mt-5">
-    <h1 class="display-5 mb-4">Agregar Bancos</h1>
-
-    <form method="POST" action="{% url 'bank_index' %}" class="row g-3">
-        {% csrf_token %}
-
-        <!-- Campo Nombre del Banco -->
-        <div class="col-md-6">
-            <label for="{{ form.bank_name.id_for_label }}" class="form-label">{{ form.bank_name.label }}: </label>
-            {{ form.bank_name|add_class:"form-control"|attr:"placeholder:Nombre del Banco" }}
+    <!-- Sección "Agregar Bancos" y "Subir Extracto Bancario" -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0" style="font-size: 1.5rem;">Gestión Bancaria</h2>
+        <div>
+            <button id="show-form-btn" class="btn btn-sm btn-primary me-2">Crear un nuevo banco</button>
+            <a href="{% url 'upload_bank_statements' %}" class="btn btn-sm btn-primary">Subir Extractos Bancarios</a>
         </div>
-
-        <!-- Campo Número de Cuenta -->
-        <div class="col-md-6">
-            <label for="{{ form.bank_account.id_for_label }}" class="form-label">{{ form.bank_account.label }}: </label>
-            {{ form.bank_account|add_class:"form-control"|attr:"placeholder:Número de Cuenta" }}
-        </div>
-
-        <!-- Campo Detalles del Banco -->
-        <div class="col-md-12">
-            <label for="{{ form.bank_detail.id_for_label }}" class="form-label">{{ form.bank_detail.label }}: </label>
-            {{ form.bank_detail|add_class:"form-control"|attr:"placeholder:Detalles del Banco" }}
-        </div>
-
-        <!-- Campo Monto Actual -->
-        <div class="col-md-6">
-            <label for="{{ form.bank_current_mount.id_for_label }}" class="form-label">{{ form.bank_current_mount.label }}: </label>
-            {{ form.bank_current_mount|add_class:"form-control"|attr:"placeholder:Monto Actual" }}
-        </div>
-
-        <!-- Botón para agregar banco -->
-        <div class="col-md-12 text-end">
-            <button type="submit" class="btn btn-success">Agregar Banco</button>
-        </div>
-    </form>
-
-    <!-- Segmento entre el formulario y la lista de bancos para "Subir Extractos Bancarios" -->
-    <hr class="my-4">
-
-    <!-- Sección para subir extractos bancarios -->
-    <div class="mt-4 p-3 bg-light border rounded">
-        <h1 class="display-5 mb-4">Subir Extracto Bancario</h1>
-        <p class="text-muted">Cargue los extractos bancarios en formato .csv</p>
-        <a href="{% url 'upload_bank_statements' %}" class="btn btn-primary mt-3">
-            Subir Extractos Bancarios
-        </a>
-    </div>    
-
-    <!-- Segmento entre "Subir Extractos" y la lista de bancos -->
-    <hr class="my-4">
-
+    </div>
+    <!-- Formulario oculto por defecto -->
+    <div id="bank-form" style="display: none;">
+        <form method="POST" action="{% url 'bank_index' %}" class="row g-2">
+            {% csrf_token %}
+            <!-- Campo Nombre del Banco -->
+            <div class="col-md-6">
+                <label for="{{ form.bank_name.id_for_label }}" class="form-label" style="font-size: 0.9rem;">{{ form.bank_name.label }}: </label>
+                {{ form.bank_name|add_class:"form-control form-control-sm"|attr:"placeholder:Nombre del Banco" }}
+            </div>
+            <!-- Campo Número de Cuenta -->
+            <div class="col-md-6">
+                <label for="{{ form.bank_account.id_for_label }}" class="form-label" style="font-size: 0.9rem;">{{ form.bank_account.label }}: </label>
+                {{ form.bank_account|add_class:"form-control form-control-sm"|attr:"placeholder:Número de Cuenta" }}
+            </div>
+            <!-- Campo Detalles del Banco -->
+            <div class="col-md-12">
+                <label for="{{ form.bank_detail.id_for_label }}" class="form-label" style="font-size: 0.9rem;">{{ form.bank_detail.label }}: </label>
+                {{ form.bank_detail|add_class:"form-control form-control-sm"|attr:"placeholder:Detalles del Banco" }}
+            </div>
+            <!-- Campo Monto Actual -->
+            <div class="col-md-6">
+                <label for="{{ form.bank_current_mount.id_for_label }}" class="form-label" style="font-size: 0.9rem;">{{ form.bank_current_mount.label }}: </label>
+                {{ form.bank_current_mount|add_class:"form-control form-control-sm"|attr:"placeholder:Monto Actual" }}
+            </div>
+            <!-- Botón para agregar banco -->
+            <div class="col-md-12 text-end">
+                <button type="submit" class="btn btn-sm btn-success">Agregar Banco</button>
+            </div>
+        </form>
+    </div>
+    <!-- Segmento entre el formulario y la lista de bancos -->
+    <hr class="my-3">
     <!-- Lista de bancos y título -->
     <div class="container-fluid">
-        <h1 class="display-5 mb-4">Lista de Bancos</h1>
-
+        <h3 class="mb-3" style="font-size: 1.25rem;">Lista de Bancos</h3>
         <!-- Lista de bancos existentes -->
         <div id="bank-list">
             {% include 'bank/bank_list.html' %}
         </div>
     </div>
 </div>
+<script>
+    document.getElementById('show-form-btn').addEventListener('click', function() {
+        var form = document.getElementById('bank-form');
+        if (form.style.display === "none") {
+            form.style.display = "block";  // Mostrar el formulario
+        } else {
+            form.style.display = "none";   // Ocultar el formulario si ya está visible
+        }
+    });
+</script>
 {% endblock %}

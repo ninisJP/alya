@@ -5,12 +5,12 @@
 {% block content %}
 <div class="w-full p-6" x-data="{ showModal: false }">
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Usuarios</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Empleados</h1>
         <button @click="showModal = true" class="inline-flex items-center text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">
             <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Agregar Usuario
+            Agregar Empleado
         </button>
     </div>
     <div class="mb-4">
@@ -25,7 +25,7 @@
             <!-- Modal header -->
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-gray-900">
-                    Agrega un nuevo usuario
+                    Agrega un nuevo empleado
                 </h2>
                 <button @click="showModal = false" type="button" class="text-gray-500 hover:text-gray-900">
                     <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,7 +47,7 @@
                             {% render_field field class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5" %}
                         </div>
                     {% endfor %}
-                    <button type="submit" @click.debounce.1000ms="showModal = false" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Guardar Usuario</button>
+                    <button type="submit" @click.debounce.1000ms="showModal = false" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Guardar Empleado</button>
                 </form>                
             </div>
         </div>

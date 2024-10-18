@@ -4,8 +4,13 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from logistic_suppliers.models import Suppliers
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 
 class RequirementOrder(models.Model):
+    STATE_CHOICES = [
+        ('APROBADO', 'Aprobado'),
+        ('RECHAZADO', 'Rechazado'),
+    ]
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="requirement_orders")
     requested_date = models.DateField()
     notes = models.TextField(blank=True, null=True)
@@ -15,6 +20,7 @@ class RequirementOrder(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     total_order = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     purchase_order_created = models.BooleanField(default=False)
+    state = models.CharField(max_length=10,choices=STATE_CHOICES,default='NO REVISADO')
 
     def delete(self, *args, **kwargs):
         # Obtener los SalesOrderItems afectados antes de eliminar
@@ -56,7 +62,13 @@ class RequirementOrderItem(models.Model):
     supplier = models.ForeignKey(Suppliers, on_delete=models.SET_NULL, blank=True, null=True)
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES, default='P')
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    #pdf_file = models.FileField(upload_to='pdfs/', blank=True, null=True)
+    file_attachment = models.FileField(
+        upload_to='attachments/',
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'jpeg', 'png'])],
+        help_text="Sube un archivo PDF o una imagen (JPG, PNG)."
+    )
 
     def clean(self):
     # Obtener la cantidad solicitada original si el ítem ya existe
@@ -96,7 +108,3 @@ class RequirementOrderItem(models.Model):
     @property
     def total_price(self):
         return self.price * self.quantity_requested
-
-
-
-

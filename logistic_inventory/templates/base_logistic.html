@@ -133,7 +133,7 @@
 </style>
 
 
-    {% block extra_css %}{% endblock %}
+{% block extra_css %}{% endblock %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <div class="d-flex" id="wrapper">
@@ -162,6 +162,13 @@
                 <a href="{% url 'suppliers' %}" class="list-group-item list-group-item-action">
                     <i class="fas fa-handshake"></i> <!-- Icono de un apretón de manos para Proveedores -->
                     <span>Proveedores</span>
+                </a>
+            </div>
+            <div class="list-group list-group-flush">
+                <!-- Proveedores -->
+                <a href="{% url 'logistic_inventory_output_list' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-handshake"></i> <!-- Icono de un apretón de manos para Proveedores -->
+                    <span>Guia de Salida</span>
                 </a>
             </div>
             
