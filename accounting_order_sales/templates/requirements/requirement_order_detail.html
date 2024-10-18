@@ -2,12 +2,32 @@
 
 {% block content %}
 <div class="container-fluid">
+    <!-- Botones de Aprobar y Rechazar con Fondo Transparente -->
+    <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-4">
+        <button hx-post="{% url 'update_requirement_order_state' requirement_order.pk %}" 
+                hx-target="#state-response-message" 
+                hx-swap="innerHTML" 
+                hx-vals='{"state": "APROBADO"}' 
+                class="btn btn-lg w-50 shadow-sm text-green"
+                style="background-color: transparent; border: 2px solid #28a745; color: #28a745; transition: all 0.3s;">
+            <i class="fas fa-check-circle me-2"></i> Aprobar
+        </button>
+        <button hx-post="{% url 'update_requirement_order_state' requirement_order.pk %}" 
+                hx-target="#state-response-message" 
+                hx-swap="innerHTML" 
+                hx-vals='{"state": "RECHAZADO"}' 
+                class="btn btn-lg w-50 shadow-sm text-red ms-2"
+                style="background-color: transparent; border: 2px solid #dc3545; color: #dc3545; transition: all 0.3s;">
+            <i class="fas fa-times-circle me-2"></i> Rechazar
+        </button>
+    </div>
+    <!-- Div para mostrar el mensaje de respuesta de Aprobar/Rechazar -->
+    <div id="state-response-message" class="text-center mt-3"></div>
+
     <!-- Información General -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-light text-dark d-flex justify-content-between align-items-center">
-            <!-- Título Principal con Separación -->
             <h2 class="mb-0 ms-3">{{ requirement_order.order_number }}</h2>
-            <!-- Información del Estado y Botón de Volver -->
             <div class="d-flex align-items-center">
                 <span class="badge bg-warning text-dark me-3">Fecha Solicitada: {{ requirement_order.requested_date }}</span>
                 <span class="badge {% if requirement_order.estado == 'L' %}bg-success{% else %}bg-secondary{% endif %} me-3">
@@ -18,22 +38,18 @@
                 </a>
             </div>
         </div>
-        <!-- Cuerpo de la Tarjeta con Mayor Organización -->
         <div class="card-body">
             <div class="row">
-                <!-- Primera Columna: Información Básica -->
                 <div class="col-md-4 mb-2">
                     <p class="mb-1"><strong>O. de Venta:</strong> {{ requirement_order.sales_order.sapcode }}</p>
                     <p class="mb-1"><strong>Cliente:</strong> {{ requirement_order.sales_order.project.client.legal_name }}</p>
                     <p class="mb-1"><strong>Proyecto:</strong> {{ requirement_order.sales_order.project.name }}</p>
                 </div>
-                <!-- Segunda Columna: Detalles Adicionales -->
                 <div class="col-md-4 mb-2">
                     <p class="mb-1"><strong>Total de la Orden:</strong> S/. {{ requirement_order.total_order }}</p>
                     <p class="mb-1"><strong>Pedido por:</strong> {{ requirement_order.user }}</p>
                     <p class="mb-1"><strong>Fecha creada:</strong> {{ requirement_order.created_at }}</p>
                 </div>
-                <!-- Tercera Columna: Notas -->
                 <div class="col-md-4">
                     <p class="mb-1"><strong>Detalles:</strong></p>
                     <p>{{ requirement_order.notes }}</p>
@@ -43,16 +59,8 @@
     </div>
 
     <!-- Formulario para Ítems de la Orden -->
-    <form id="requirement-order-form" hx-post="{% url 'update_requirement_order_items' requirement_order.pk %}" hx-target="#response-message" hx-swap="innerHTML">
-        <div class="mb-3">
-            <label for="requirement-order-state" class="form-label">Estado de la Orden de Requerimiento:</label>
-            <select name="requirement_order_state" id="requirement-order-state" class="form-select">
-                <option value="APROBADO" {% if requirement_order.state == 'APROBADO' %}selected{% endif %}>Aprobado</option>
-                <option value="RECHAZADO" {% if requirement_order.state == 'RECHAZADO' %}selected{% endif %}>Rechazado</option>
-            </select>
-        </div>
+    <form id="requirement-order-form" hx-post="{% url 'update_requirement_order_items' requirement_order.pk %}" hx-target="#order-response-message" hx-swap="innerHTML">
         <hr>
-        <!-- Tabla para Ítems de la Orden -->
         <div class="table-responsive">
             <table class="table table-bordered table-hover text-center bg-white">
                 <thead class="bg-light text-dark">
@@ -64,6 +72,7 @@
                         <th>P. UNIT</th>
                         <th>P. TOT</th>
                         <th>PROVEEDOR</th>
+                        <th>DOC</th>
                         <th>ESTADO</th>
                     </tr>
                 </thead>
@@ -84,6 +93,13 @@
                             </select>
                         </td>
                         <td>
+                            {% if item.file_attachment %}
+                                <a href="{{ item.file_attachment.url }}" target="_blank">Archivo</a>
+                            {% else %}
+                                No disponible
+                            {% endif %}
+                        </td>
+                        <td>
                             <select name="estado_{{ item.id }}" class="form-select">
                                 <option value="L" {% if item.estado == 'L' %}selected{% endif %}>Listo</option>
                                 <option value="P" {% if item.estado == 'P' %}selected{% endif %}>Pendiente</option>
@@ -95,51 +111,40 @@
                 </tbody>
             </table>
         </div>
-        
-        <!-- Botones Centrados y de Ancho Completo -->
+
+        <!-- Div para mostrar el mensaje de respuesta de Guardar Cambios/Crear Orden de Compra -->
+        <div id="order-response-message" class="text-center mt-3"></div>
+
+        <!-- Botones de Guardar Cambios y Crear Orden de Compra -->
         <div class="text-center mt-4">
             <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                <button type="submit" class="btn btn-primary w-50">Guardar Cambios</button>
-                <button hx-post="{% url 'create_purchase_order' requirement_order.pk %}" hx-target="#response-message" hx-swap="innerHTML" class="btn btn-success w-50 ms-2">
+                <button type="submit" class="btn btn-lg w-50 text-white" 
+                        style="background-color: #007bff; border: none; transition: all 0.3s;">
+                    Guardar Cambios
+                </button>
+                <button hx-post="{% url 'create_purchase_order' requirement_order.pk %}" 
+                        hx-target="#order-response-message" 
+                        hx-swap="innerHTML" 
+                        class="btn btn-lg w-50 text-dark ms-2" 
+                        style="background-color: #ffc107; border: none; transition: all 0.3s;">
                     Crear Orden de Compra
                 </button>
             </div>
         </div>
-        <div id="response-message" class="text-center mt-3"></div>
     </form>
 </div>
 
-<!-- Script para inicializar Select2 con AJAX y calcular el total dinámicamente -->
-<script>
-    $(document).ready(function() {
-        $('.select2-supplier').each(function() {
-            $(this).select2({
-                ajax: {
-                    url: $(this).data('ajax-url'),
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return { term: params.term };
-                    },
-                    processResults: function(data) {
-                        return { results: data.results };
-                    },
-                    cache: true
-                },
-                placeholder: $(this).data('placeholder'),
-                allowClear: true,
-                minimumInputLength: 3
-            });
-        });
+<!-- Estilos personalizados -->
+<style>
+    .text-green {
+        color: #28a745;
+    }
+    .text-red {
+        color: #dc3545;
+    }
+    .btn:hover {
+        opacity: 0.9;
+    }
+</style>
 
-        // Actualiza el Precio Total al cambiar la Cantidad Solicitada o el Precio Unitario
-        $('input[name^="quantity_requested_"], input[name^="price_"]').on('input', function() {
-            var $row = $(this).closest('tr');
-            var quantity = parseFloat($row.find('input[name^="quantity_requested_"]').val()) || 0;
-            var price = parseFloat($row.find('input[name^="price_"]').val()) || 0;
-            var total = (quantity * price).toFixed(2);
-            $row.find('input[name^="total_price_"]').val(total);
-        });
-    });
-</script>
 {% endblock %}

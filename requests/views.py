@@ -31,7 +31,7 @@ def create_requests(request, order_id):
 
     if request.method == "POST":
         order_form = CreateRequirementOrderForm(request.POST)
-        formset = CreateRequirementOrderItemFormSet(request.POST, form_kwargs={'sales_order': sales_order})
+        formset = CreateRequirementOrderItemFormSet(request.POST, request.FILES, form_kwargs={'sales_order': sales_order})
 
         if order_form.is_valid() and formset.is_valid():
             try:
@@ -43,11 +43,12 @@ def create_requests(request, order_id):
                 items = formset.save(commit=False)
                 for item in items:
                     item.requirement_order = requirement_order
+                    item.price = item.price or item.sales_order_item.price
+                    
                     try:
-                        item.clean()  # Validación manual
+                        item.clean()
                         item.save()
                     except ValidationError as e:
-                        # Capturar errores específicos de validación y agregar nombre del ítem
                         item_name = item.sales_order_item.description
                         for message in e.messages:
                             messages.error(request, f"Error en el ítem '{item_name}': {message}")
@@ -56,11 +57,8 @@ def create_requests(request, order_id):
                 return redirect('index_requests')
 
             except ValidationError as e:
-                # Si se captura una validación general
                 messages.error(request, str(e))
-
         else:
-            # Capturar errores de los formularios y del formset
             for form in formset:
                 if form.errors:
                     item_name = form.cleaned_data.get('sales_order_item', 'Sin nombre')

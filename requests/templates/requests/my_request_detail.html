@@ -44,6 +44,7 @@
                     <th>Cantidad</th>
                     <th>Precio Unitario</th>
                     <th>Precio Total</th>
+                    <th>Doc</th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -55,6 +56,15 @@
                     <td>{{ item.quantity_requested }}</td>
                     <td>{{ item.price }}</td>
                     <td>{{ item.total_price }}</td>
+                    <td>
+                        {% if item.file_attachment %}
+                            <a href="{{ item.file_attachment.url }}" target="_blank">Ver Archivo</a>
+                        {% else %}
+                            No disponible
+                        {% endif %}
+                    </td>
+                    
+                    
                     <td>
                         {% if item.estado == 'L' %}
                             <span class="badge bg-success">Listo</span>

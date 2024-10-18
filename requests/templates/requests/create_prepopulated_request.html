@@ -6,6 +6,17 @@
     <div class="p-4 bg-white rounded shadow">
         <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">CREAR ORDEN DE REQUERIMIENTO (PRE-POBLADO)</h1>
 
+        {% if messages %}
+        <div class="alert alert-danger" role="alert">
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+
         <form method="post">
             {% csrf_token %}
 
