@@ -1,0 +1,33 @@
+{% extends 'base_logistic.html' %}
+
+{% block content %}
+<h1>Detalle del Proveedor: {{ supplier.name }}</h1>
+
+<h2>Órdenes de Compra Asociadas</h2>
+<table>
+    <thead>
+        <tr>
+            <th>SAP Code</th>
+            <th>Cantidad Solicitada</th>
+            <th>Precio Total</th>
+            <th>Fecha de Pedido</th>
+            <th>Notas</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in purchase_orders %}
+        <tr>
+            <td>{{ order.sap_code }}</td>
+            <td>{{ order.quantity_requested }}</td>
+            <td>{{ order.price_total }}</td>
+            <td>{{ order.purchaseorder.requested_date }}</td>
+            <td>{{ order.notes }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No hay órdenes de compra asociadas a este proveedor.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

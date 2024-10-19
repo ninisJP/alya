@@ -7,8 +7,15 @@
                 <small>Banco: {{ supplier.bank }} | Tipo de Moneda: {{ supplier.currency }}</small>
                 <small>Cuenta: {{ supplier.account }} | Cuenta Interbancaria: {{ supplier.interbank_currency }}</small>
             </div>
+                <tr>
             <div class="d-flex align-items-center">
-                <button class="btn btn-warning btn-sm me-2 d-flex align-items-center" 
+                <button class="btn btn-warning btn-sm me-2 d-flex align-items-center"
+                        hx-get="{% url 'supplier_detail' supplier.id %}"
+                        hx-target="#supplier-{{ supplier.id }}"
+                        hx-swap="outerHTML">
+                    <i class="fas fa-edit me-1"></i> Detalle
+                </button>
+                <button class="btn btn-warning btn-sm me-2 d-flex align-items-center"
                         hx-get="{% url 'edit-supplier' supplier.id %}" 
                         hx-target="#supplier-{{ supplier.id }}" 
                         hx-swap="outerHTML">
