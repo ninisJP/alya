@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from logistic_inventory.models import Item
-from accounting_order_sales.models import SalesOrder
+from accounting_order_sales.models import SalesOrder, SalesOrderItem
 
 
 class InventoryOutput(models.Model):
@@ -12,6 +12,7 @@ class InventoryOutput(models.Model):
 
 class InventoryOutputItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    item_saleorder = models.ForeignKey(SalesOrderItem, on_delete=models.CASCADE)
     output = models.ForeignKey(InventoryOutput, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
     date_create = models.DateTimeField(auto_now_add=True)

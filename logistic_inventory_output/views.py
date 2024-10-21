@@ -2,10 +2,11 @@ from django.shortcuts import render, get_object_or_404
 
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from alya import utils
+from logistic_inventory.models import Item
 
 from .forms import InventoryOutputForm, SearchSalesOrderForm, SearchSalesOrderItemForm
 from .models import InventoryOutput, InventoryOutputItem
-from .utils import check_items, search_salesorder, search_salesorder_item
+from .utils import check_items, search_salesorder, search_saleorder_item, get_all_items
 
 # Create your views here.
 
@@ -30,25 +31,6 @@ def output_new_salesorder(request):
     context['search'] = SearchSalesOrderForm()
     return render(request, 'output/guide/salesorder/home.html', context)
 
-
-    #if request.method == 'POST':
-    #    form = SalesOrder(request.POST)
-    #    status = "no"
-    #    if form.is_valid():
-    #        status = "item_error"
-    #        items_no_found, items_no_enough = check_items(form.data['sales_order'])
-    #        if (len(items_no_found)==0) and (len(items_no_enough)==0):
-    #            form.save()
-    #            status = "yes"
-    #        else :
-    #            context['items_no_found'] = items_no_found
-    #            context['items_no_enough'] = items_no_enough
-    #    context['status'] = status
-
-    #context['form'] = InventoryOutputForm()
-
-    #return render(request, 'output/guide/0_salesorder.html', context)
-
 def output_new(request, saleorder_id):
     saleorder = get_object_or_404(SalesOrder, id=saleorder_id)
     context = {}
@@ -58,32 +40,29 @@ def output_new(request, saleorder_id):
     if not output :
         # Create output
         output = InventoryOutput(sale_order=saleorder)
-        output.save();
+        output.save()
     else:
         # Get one output
         output = output[0]
 
-    context['output'] = output
-    context['output_items'] = InventoryOutputItem.objects.filter(output=output.pk)
-    context['saleorder_items'] = SalesOrderItem.objects.filter(salesorder=output.sale_order)
+    context_items, item_missing = get_all_items(output.pk)
+    context.update(context_items)
 
     context['search'] = SearchSalesOrderItemForm()
 
     return render(request, 'output/guide/home.html', context)
 
 def output_new_list(request, output_pk):
-    output = get_object_or_404(InventoryOutput, pk=output_pk)
     context = {}
-    context['output'] = output
-    context['output_items'] = InventoryOutputItem.objects.filter(output=output.pk)
-    context['saleorder_items'] = SalesOrderItem.objects.filter(salesorder=output.sale_order)
+    context_items, item_missing = get_all_items(output_pk)
+    context.update(context_items)
 
     if request.method == 'POST':
         form = SearchSalesOrderItemForm(request.POST)
         # If search camp is void
         if form.is_valid() and (form.cleaned_data['sap_code']!="") :
             # Get search list
-            status, saleorder_items, inventory_items = search_salesorder_item(form)
+            status, saleorder_items, inventory_items = search_saleorder_item(form, item_missing)
             context['saleorder_items'] = saleorder_items
             context['inventory_items'] = inventory_items
             context['valid_item'] = status
@@ -93,7 +72,30 @@ def output_new_list(request, output_pk):
     return render(request, 'output/guide/list.html', context)
 
 def output_new_item(request, output_pk, saleorder_item_pk):
-    return {}
+    output = get_object_or_404(InventoryOutput, pk=output_pk)
+    saleorder_item = get_object_or_404(SalesOrderItem, pk=saleorder_item_pk)
+    logistic_item = get_object_or_404(Item, sap=saleorder_item.sap_code)
+
+    context = {}
+    # Valid quantity: never is 1
+    if logistic_item.quantity < saleorder_item.amount :
+        return render(request, 'output/guide/list.html', context)
+    # Create Output Item
+    output_item = InventoryOutputItem(
+            item = logistic_item,
+            item_saleorder = saleorder_item,
+            output = output,
+            quantity = saleorder_item.amount
+            )
+    output_item.save()
+    # Retirate quantity
+    logistic_item.quantity = logistic_item.quantity - saleorder_item.amount
+    logistic_item.save()
+    # Get quantity
+    context = {}
+    context_items, item_missing = get_all_items(output_pk)
+    context.update(context_items)
+    return render(request, 'output/guide/list.html', context)
 
 def output_see(request, output_id):
     outputs = get_object_or_404(InventoryOutput, id=output_id)

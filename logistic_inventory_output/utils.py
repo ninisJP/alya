@@ -1,4 +1,6 @@
-from .models import InventoryOutput
+from django.shortcuts import get_object_or_404
+
+from .models import InventoryOutput, InventoryOutputItem
 
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from alya import utils
@@ -50,9 +52,27 @@ def search_salesorder(model_all, form):
 
 	return status, model_list
 
-def search_salesorder_item(form):
+def search_saleorder_item(form, item_missing):
+	#output = get_object_or_404(InventoryOutput, pk=output_pk)
+	#output_saleorder_items = InventoryOutputItem.objects.filter(output=output.pk)
+	#saleorder_items = SalesOrderItem.objects.filter(salesorder=output.sale_order)
+
+	#item_missing = []
+
+	#for sale_item in saleorder_items :
+	#	item_exist = output_saleorder_items.filter(item_saleorder=sale_item)
+	#	if not item_exist :
+	#		item_missing.append(sale_item)
+
+	#list_id = []
+	#for item in item_missing :
+	#	list_id.append(item.id)
+
+	## Get model
+	#model_list = saleorder_items.filter(pk__in=list_id)
+
 	# Get salesorder items
-	status_temp, saleorder_items = utils.search_model(SalesOrderItem.objects.all(), 'sap_code', form.cleaned_data['sap_code'], accept_all=True)
+	status_temp, saleorder_items = utils.search_model(item_missing, 'sap_code', form.cleaned_data['sap_code'], accept_all=True)
 
 	if saleorder_items != {} :
 		saleorder_items = saleorder_items.order_by('sap_code')
@@ -70,7 +90,37 @@ def search_salesorder_item(form):
 		if inventory_item :
 			list_items.append(inventory_item[0])
 
+	# Valid item
 	if (len(saleorder_items)==1) and (len(list_items)==1) :
-		status = "yes"
+		# Quantity is valid
+		status = "quantity"
+		if (saleorder_items[0].amount<=list_items[0].quantity) :
+			status = "yes"
 
 	return status, saleorder_items, list_items
+
+def get_all_items(output_pk):
+	output = get_object_or_404(InventoryOutput, pk=output_pk)
+	output_saleorder_items = InventoryOutputItem.objects.filter(output=output.pk)
+	saleorder_items = SalesOrderItem.objects.filter(salesorder=output.sale_order)
+
+	item_missing = []
+
+	for sale_item in saleorder_items :
+		item_exist = output_saleorder_items.filter(item_saleorder=sale_item)
+		if not item_exist :
+			item_missing.append(sale_item)
+
+	list_id = []
+	for item in item_missing :
+		list_id.append(item.id)
+
+	# Get model
+	item_missing = saleorder_items.filter(pk__in=list_id)
+
+	context = {}
+	context['output'] = output
+	context['output_items'] = output_saleorder_items
+	context['saleorder_items'] = item_missing
+
+	return context, item_missing

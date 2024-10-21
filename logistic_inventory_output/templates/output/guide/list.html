@@ -9,6 +9,16 @@
         <i class="fa-solid fa-plus-circle"></i> ITEM VALIDO: RETIRAR
     </button>
 </div>
+{% elif valid_item == "quantity" %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-button custom-rounded-top">
+        <tbody>
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="4" >CANTIDAD INSUFICIENTE</td>
+                </tr>
+        </tbody>
+    </table>
+</div>
 {% endif %}
 
 <!-- Order sale items -->
@@ -16,7 +26,7 @@
     <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
         <thead class="table-dark custom-thead-rounded">
             <tr>
-                <th colspan="6">ITEMS REQUERIDOS POR LA ORDEN DE VENTA</th>
+                <th colspan="4">ITEMS REQUERIDOS POR LA ORDEN DE VENTA</th>
             </tr>
             <tr>
                 <th>SAP</th>
@@ -35,7 +45,7 @@
                 </tr>
             {% empty %}
                 <tr class="bg-red-200 text-red-700">
-                    <td colspan="8" >No se encontró ninguna coincidencia</td>
+                    <td colspan="4" >No se encontró ninguna coincidencia</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -48,10 +58,11 @@
         <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
             <thead class="table-dark custom-thead-rounded">
                 <tr>
-                    <th colspan="6">ITEMS DISPONIBLES EN EL INVENTARIO</th>
+                    <th colspan="7">ITEMS DISPONIBLES EN EL INVENTARIO</th>
                 </tr>
                 <tr>
                     <th>SAP</th>
+                    <th>Item ID</th>
                     <th>Tipo</th>
                     <th>Sub-tipo</th>
                     <th>Marca</th>
@@ -63,6 +74,7 @@
                 {% for item in inventory_items %}
                     <tr class="rounded-3">
                         <td>{{ item.sap }}</td>
+                        <td>{{ item.pk }}</td>
                         <td>{{ item.subtype.type }}</td>
                         <td>{{ item.subtype }}</td>
                         <td>{{ item.brand }}</td>
@@ -71,7 +83,7 @@
                     </tr>
                 {% empty %}
                     <tr class="bg-red-200 text-red-700">
-                        <td colspan="8" >No se encontró ninguna coincidencia</td>
+                        <td colspan="7" >No se encontró ninguna coincidencia</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -84,10 +96,11 @@
     <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
         <thead class="table-dark custom-thead-rounded">
             <tr>
-                <th colspan="8">ITEMS RETIRADOS</th>
+                <th colspan="9">ITEMS RETIRADOS</th>
             </tr>
             <tr>
                 <th>SAP</th>
+                <th>Item ID</th>
                 <th>Tipo</th>
                 <th>Sub-tipo</th>
                 <th>Marca</th>
@@ -101,6 +114,7 @@
             {% for item in output_items %}
                 <tr class="rounded-3">
                     <td>{{ item.item.sap }}</td>
+                    <td>{{ item.item.pk }}</td>
                     <td>{{ item.item.subtype.type }}</td>
                     <td>{{ item.item.subtype }}</td>
                     <td>{{ item.item.brand }}</td>
@@ -111,7 +125,7 @@
                 </tr>
             {% empty %}
                 <tr class="bg-red-200 text-red-700">
-                    <td colspan="8" >No se retiro ningun item</td>
+                    <td colspan="9" >No se retiro ningun item</td>
                 </tr>
             {% endfor %}
         </tbody>
