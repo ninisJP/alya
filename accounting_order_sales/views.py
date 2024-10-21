@@ -214,7 +214,6 @@ def edit_purchase_order(request, order_id):
         'order': order,
     })
 
-
 # Bank 
 def index_bank(request):
     if request.method == 'POST':
@@ -535,5 +534,42 @@ def purchase_conciliations(request):
 
     return render(request, 'conciliations/conciliations.html', context)
 
-
 # renditions
+def purchase_renditions(request):
+    today = localdate()
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if not start_date and not end_date:
+        # Aquí es donde está el error, debe ser un punto (.) no una coma (,)
+        items = PurchaseOrderItem.objects.filter(purchaseorder__scheduled_date=today).select_related(
+            'purchaseorder', 'sales_order_item__salesorder', 'supplier'
+        )
+    else:
+        if not end_date:
+            end_date = today
+
+        items = PurchaseOrderItem.objects.filter(
+            purchaseorder__scheduled_date__range=[start_date, end_date]
+        ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
+
+    context = {
+        'items': items,
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+
+    return render(request, 'renditions/renditions.html', context)
+
+
+
+
+
+
+
+
+
+
+
+
+

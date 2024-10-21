@@ -115,6 +115,18 @@ class PurchaseOrderItem(models.Model):
 
     def __str__(self):
         return f"Item {self.sap_code} - {self.quantity_requested} units - Total {self.price_total}"
+
+class Rendition(models.Model):
+    purchase_order_item = models.ForeignKey(PurchaseOrderItem, on_delete=models.CASCADE, related_name="renditions")
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Rendido")
+    photo = models.ImageField(upload_to='renditions/', blank=True, null=True, verbose_name="Foto de la Factura/Recibo")
+    date = models.DateField(auto_now_add=True, verbose_name="Fecha de Rendición")
+
+    def __str__(self):
+        return f"Rendición por {self.amount} - {self.purchase_order_item.sap_code} el {self.date}"
+
+
+
     
     
 class Bank(models.Model):

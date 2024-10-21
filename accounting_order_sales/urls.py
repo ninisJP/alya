@@ -1,6 +1,6 @@
 from django.urls import path
 from accounting_order_sales.forms import supplier_autocomplete
-from .views import purchase_conciliations, salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder, edit_purchase_order, general_purchaseorder, quick_create_purchaseorder, petty_cash, index_bank,edit_bank,delete_bank,bank_statements,BankStatementUploadView, AccountingRequirementOrderListView, accounting_requirement_order_detail_view, update_requirement_order_items, update_requirement_order_state
+from .views import purchase_renditions, purchase_conciliations, salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder, edit_purchase_order, general_purchaseorder, quick_create_purchaseorder, petty_cash, index_bank,edit_bank,delete_bank,bank_statements,BankStatementUploadView, AccountingRequirementOrderListView, accounting_requirement_order_detail_view, update_requirement_order_items, update_requirement_order_state
 from . import views
 
 urlpatterns = [
@@ -16,6 +16,8 @@ urlpatterns = [
     path("general_purchaseorder/", general_purchaseorder, name='general_purchaseorder'),
     # purchases reconcilations
     path("reconciliations/", purchase_conciliations, name='purchase_conciliations'),
+    # purchases renditions
+    path("renditions/", purchase_renditions, name='purchase_renditions'),
     # logistic requirements to accounting
     path('requirement-orders-accounting/', AccountingRequirementOrderListView.as_view(), name='requirement_orders_accounting'),
     path('requirement-order/detail/<int:pk>/', accounting_requirement_order_detail_view, name='requirement_order_detail_accounting'),
