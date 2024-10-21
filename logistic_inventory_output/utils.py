@@ -33,19 +33,44 @@ def check_items(order_id):
 
 def search_salesorder(model_all, form):
 
-    model_list = model_all
+	model_list = model_all
 
-    if form.cleaned_data['sapcode'] :
-        status, model_list = utils.search_model(model_list, 'sapcode', form.cleaned_data['sapcode'], accept_all=True)
+	if form.cleaned_data['sapcode'] :
+		status, model_list = utils.search_model(model_list, 'sapcode', form.cleaned_data['sapcode'], accept_all=True)
 
-    if form.cleaned_data['project'] :
-        status, model_list = utils.search_model(model_list, 'project', form.cleaned_data['project'], accept_all=True)
+	if form.cleaned_data['project'] :
+		status, model_list = utils.search_model(model_list, 'project', form.cleaned_data['project'], accept_all=True)
 
-    if form.cleaned_data['detail'] :
-        status, model_list = utils.search_model(model_list, 'detail', form.cleaned_data['detail'], accept_all=True)
+	if form.cleaned_data['detail'] :
+		status, model_list = utils.search_model(model_list, 'detail', form.cleaned_data['detail'], accept_all=True)
 
-    status = 0
-    if len(model_list) == 0:
-        status = -2
+	status = 0
+	if len(model_list) == 0:
+		status = -2
 
-    return status, model_list
+	return status, model_list
+
+def search_salesorder_item(form):
+	# Get salesorder items
+	status_temp, saleorder_items = utils.search_model(SalesOrderItem.objects.all(), 'sap_code', form.cleaned_data['sap_code'], accept_all=True)
+
+	if saleorder_items != {} :
+		saleorder_items = saleorder_items.order_by('sap_code')
+
+	# Valid search: 1 item in salesorder and inventory
+	status = "no"
+
+	# Only search in logistic/item
+	if (3<len(saleorder_items)) or (saleorder_items=={}) :
+		return status, saleorder_items, {}
+
+	list_items = []
+	for item in saleorder_items :
+		inventory_item = Item.objects.filter(sap=item.sap_code)
+		if inventory_item :
+			list_items.append(inventory_item[0])
+
+	if (len(saleorder_items)==1) and (len(list_items)==1) :
+		status = "yes"
+
+	return status, saleorder_items, list_items

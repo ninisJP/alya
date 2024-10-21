@@ -49,8 +49,8 @@ def search_item(model_all, form):
     if form.cleaned_data['description'] :
         status, model_list = utils.search_model(model_list, 'description', form.cleaned_data['description'], accept_all=True)
 
-    if form.cleaned_data['item_id'] :
-        status, model_list = utils.search_model(model_list, 'item_id', form.cleaned_data['item_id'], accept_all=True)
+    if form.cleaned_data['sap'] :
+        status, model_list = utils.search_model(model_list, 'sap', form.cleaned_data['sap'], accept_all=True)
 
     status = 0
     if len(model_list) == 0:

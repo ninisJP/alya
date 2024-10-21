@@ -30,7 +30,7 @@ class Subtype(models.Model):
         return self.name
 
 class Item(models.Model):
-    item_id = models.CharField(max_length=100, unique=True)
+    sap = models.CharField(max_length=100, unique=True)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, null=True)
     description = models.CharField(max_length=100, null=True)
     quantity = models.PositiveIntegerField(default=0)

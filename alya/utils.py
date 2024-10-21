@@ -12,6 +12,10 @@ def search_model(model_all, column, name, accept_all=False):
 
     regex_str = str(name)
 
+    # If void
+    if regex_str == "" :
+        return 0, model_all
+
     list_find = []
     for element in model_list:
         match = re.findall(regex_str, str(element[column]), re.IGNORECASE)

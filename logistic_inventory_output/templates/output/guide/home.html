@@ -42,19 +42,24 @@
         <div class="p-4">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <p><strong>Orden de Venta (Código SAP):</strong> {{ output.sales_order.sapcode }}</p>
-                    <p><strong>Descripción de la orden de venta:</strong> {{ output.sales_order.detail }}</p>
+                    <p><strong>Orden de Venta (Código SAP):</strong> {{ output.sale_order.sapcode }}</p>
+                    <p><strong>Descripción de la orden de venta:</strong> {{ output.sale_order.detail }}</p>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <p><strong>Fecha:</strong> {{ output.date_create }}</p>
-                    <p><strong>Fecha de retorno:</strong> {{ requirement_order.date_returned }}</p>
+                    <p><strong>Fecha de creación:</strong> {{ output.date_create }}</p>
                 </div>
 
             </div>
         </div>
     </div>
 
+    <ul id="logistic_inventory_output_new_search" class="mt-8 space-y-4">
+        {% include 'output/guide/search.html' %}
+    </ul>
 
+    <ul id="logistic_inventory_output_new_list" class="mt-8 space-y-4">
+        {% include 'output/guide/list.html' %}
+    </ul>
 
 </div>
