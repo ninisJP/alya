@@ -2,13 +2,9 @@ from logistic_requirements.models import RequirementOrder, RequirementOrderItem
 from accounting_order_sales.models import SalesOrderItem
 from django import forms
 from django.forms import inlineformset_factory
-
 from logistic_suppliers.models import Suppliers
 from django.core.exceptions import ValidationError
 from datetime import date, timedelta
-
-
-
 
 # Formulario para la creación de RequirementOrder (sin estado)
 class CreateRequirementOrderForm(forms.ModelForm):
@@ -92,3 +88,30 @@ CreateRequirementOrderItemFormSet = inlineformset_factory(
     extra=0,
     can_delete=True  # Permitir eliminar ítems en la creación
 )
+
+
+class PrepopulatedRequirementOrderItemForm(forms.ModelForm):
+    class Meta:
+        model = RequirementOrderItem
+        fields = ['sales_order_item', 'quantity_requested']
+        widgets = {
+            'sales_order_item': forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.sales_order = kwargs.pop('sales_order', None)
+        super().__init__(*args, **kwargs)
+
+        if self.sales_order:
+            # Limit the queryset to items from the specific sales order
+            self.fields['sales_order_item'].queryset = SalesOrderItem.objects.filter(salesorder=self.sales_order)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        sales_order_item = cleaned_data.get('sales_order_item')
+
+        # Validate that the sales_order_item belongs to the sales_order
+        if sales_order_item and self.sales_order and sales_order_item.salesorder != self.sales_order:
+            raise ValidationError("El ítem de orden de venta no es válido.")
+
+        return cleaned_data

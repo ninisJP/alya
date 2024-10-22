@@ -1,21 +1,52 @@
+<!-- templates/requests/create_prepopulated_request.html -->
+
 {% extends 'base_requests.html' %}
 {% load widget_tweaks %}
 
 {% block content %}
 <div class="container-fluid">
     <div class="p-4 bg-white rounded shadow">
-        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">CREAR ORDEN DE REQUERIMIENTO (PRE-POBLADO)</h1>
+        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">
+            CREAR ORDEN DE REQUERIMIENTO (PRE-POBLADO)
+        </h1>
 
+        <!-- Display Messages -->
         {% if messages %}
         <div class="alert alert-danger" role="alert">
             <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
             </ul>
         </div>
         {% endif %}
 
+        <!-- Display Form Errors -->
+        {% if order_form.errors %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for field in order_form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in order_form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Display Formset Errors -->
+        {% if formset.non_form_errors %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for error in formset.non_form_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
 
         <form method="post">
             {% csrf_token %}
@@ -23,12 +54,14 @@
             <!-- Formulario para RequirementOrder -->
             <div class="p-3 mb-4">
                 <div class="row">
+                    <!-- Sales Order Field -->
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="id_sales_order">Orden de Venta</label>
                             {{ order_form.sales_order|add_class:"form-control" }}
                         </div>
                     </div>
+                    <!-- Requested Date Field -->
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="id_requested_date">Fecha Solicitada</label>
@@ -36,93 +69,68 @@
                         </div>
                     </div>
                 </div>
+                <!-- Notes Field -->
                 <div class="form-group">
                     {{ order_form.notes|add_class:"form-control form-control-sm" |attr:"placeholder=Detalles notas (opcional)" |attr:"rows:2" }}
                 </div>
             </div>
 
-            <!-- Tabla de Ítems -->
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover table-striped table-sm">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Item</th>
-                            <th>Cantidad</th>
-                            <th>Notas</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{ formset.management_form }}
-                        {% for form in formset %}
-                        <tr>
-                            <td>{{ form.sales_order_item|add_class:"form-control" }}</td>
-                            <td>{{ form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}</td>
-                            <td>{{ form.notes|add_class:"form-control" |attr:"placeholder=Añadir notas del ítem (opcional)" }}</td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-danger btn-sm" onclick="removeForm(this)">
-                                    <i class="fas fa-trash-alt"></i> Eliminar
-                                </button>
-                            </td>
-                        </tr>
+            <!-- Items Table -->
+<div class="table-responsive">
+    <table class="table table-bordered table-hover table-striped table-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Item</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ formset.management_form }}
+            {% for form in formset %}
+            <tr>
+                <!-- Item Description and Hidden Field -->
+                <td>
+                    {{ form.item_description }}
+                    {{ form.sales_order_item }}
+                </td>
+                <!-- Quantity Field -->
+                <td>
+                    {{ form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}
+                </td>
+            </tr>
+            <!-- Display Errors for This Form -->
+            {% if form.non_field_errors or form.quantity_requested.errors %}
+            <tr>
+                <td colspan="2" class="text-danger">
+                    {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                    {% endif %}
+                    {% if form.quantity_requested.errors %}
+                        {% for error in form.quantity_requested.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-            <!-- Botones al final en una sola fila -->
-            <div class="d-flex justify-content-between mt-4">
-                <!-- Botón para agregar más ítems -->
-                <button type="button" class="btn btn-secondary" id="add-item-btn">
-                    <i class="fas fa-plus-circle"></i> Agregar Ítem
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar Orden de Requerimiento
                 </button>
-
-                <!-- Botones de acción -->
-                <div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Guardar Orden de Requerimiento
-                    </button>
-                    <a href="{% url 'requirement_order_list' %}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Cancelar
-                    </a>
-                </div>
+                <a href="{% url 'requirement_order_list' %}" class="btn btn-secondary ml-2">
+                    <i class="fas fa-arrow-left"></i> Cancelar
+                </a>
             </div>
         </form>
     </div>
 </div>
-
-<script>
-// Script para agregar un nuevo formulario de ítem dinámicamente
-document.getElementById('add-item-btn').addEventListener('click', function() {
-    var formIdx = document.querySelectorAll('tbody tr').length;
-    var emptyFormHtml = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, formIdx);
-    var newRow = document.createElement('tr');
-    newRow.innerHTML = emptyFormHtml;
-    document.querySelector('tbody').appendChild(newRow);
-
-    // Incrementar el valor de total_forms en el management_form
-    var totalForms = document.getElementById('id_items-TOTAL_FORMS');
-    totalForms.value = formIdx + 1;
-});
-
-// Script para eliminar un formulario de ítem
-function removeForm(btn) {
-    btn.closest('tr').remove();
-}
-</script>
-
-<!-- Formulario vacío para clonar -->
-<template id="empty-form">
-    <tr>
-        <td>{{ formset.empty_form.sales_order_item|add_class:"form-control" }}</td>
-        <td>{{ formset.empty_form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}</td>
-        <td>{{ formset.empty_form.notes|add_class:"form-control" |attr:"maxlength:255" |attr:"placeholder=Añadir notas del ítem (opcional)" }}</td>
-        <td class="text-center">
-            <button type="button" class="btn btn-danger btn-sm" onclick="removeForm(this)">
-                <i class="fas fa-trash-alt"></i> Eliminar
-            </button>
-        </td>
-    </tr>
-</template>
-
 {% endblock %}

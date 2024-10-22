@@ -12,7 +12,6 @@ def limpiar_valor(valor):
         except ValueError:
             return None
     return valor
-
 def procesar_archivo_excel(archivo_excel, salesorder_id):
     workbook = load_workbook(archivo_excel)
     sheet = workbook.active
@@ -26,16 +25,21 @@ def procesar_archivo_excel(archivo_excel, salesorder_id):
     col_cantidad = 'Cantidad'
     col_precio_bruto = 'Precio bruto'
     col_total_bruto = 'Total bruto (ML)'
-    col_unidad_medida = 'Unidad de medida'  # Nueva columna para la unidad de medida
+    col_unidad_medida = 'Unidad de medida'  # Nueva columna para la unidad de medida (opcional)
 
     # Encuentra los índices de las columnas
     header = [cell.value for cell in sheet[1]]
+    
+    # Manejar la columna de unidad de medida de forma opcional
+    idx_unidad_medida = None
+    if col_unidad_medida in header:
+        idx_unidad_medida = header.index(col_unidad_medida)
+
     idx_nro_articulo = header.index(col_nro_articulo)
     idx_desc_articulo = header.index(col_desc_articulo)
     idx_cantidad = header.index(col_cantidad)
     idx_precio_bruto = header.index(col_precio_bruto)
     idx_total_bruto = header.index(col_total_bruto)
-    idx_unidad_medida = header.index(col_unidad_medida)  # Índice de la unidad de medida
 
     for row in sheet.iter_rows(min_row=2, values_only=True):
         if row[idx_nro_articulo] is None or row[idx_desc_articulo] is None or row[idx_cantidad] is None:
@@ -44,7 +48,9 @@ def procesar_archivo_excel(archivo_excel, salesorder_id):
         cantidad = limpiar_valor(row[idx_cantidad])
         precio_bruto = limpiar_valor(row[idx_precio_bruto])
         total_bruto = limpiar_valor(row[idx_total_bruto])
-        unidad_medida = row[idx_unidad_medida]  # Obtener unidad de medida directamente
+
+        # Obtener unidad de medida solo si la columna está presente
+        unidad_medida = row[idx_unidad_medida] if idx_unidad_medida is not None else 'N/A'
 
         if cantidad is None:
             continue  # Si no se puede convertir la cantidad, saltar esta fila
@@ -56,6 +62,5 @@ def procesar_archivo_excel(archivo_excel, salesorder_id):
             amount=cantidad,
             price=precio_bruto,
             price_total=total_bruto,
-            unit_of_measurement=unidad_medida  # Guardar la unidad de medida
+            unit_of_measurement=unidad_medida  # Guardar la unidad de medida si existe, o 'N/A' si no
         )
-

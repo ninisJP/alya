@@ -80,22 +80,41 @@ def create_requests(request, order_id):
         'referencia_ordenventa': referencia_ordenventa
     })
 
+# views.py
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.forms import inlineformset_factory
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from .forms import CreateRequirementOrderForm, PrepopulatedRequirementOrderItemForm
+
 def create_prepopulated_request(request, order_id):
     sales_order = get_object_or_404(SalesOrder, id=order_id)
     sales_order_items = SalesOrderItem.objects.filter(salesorder=sales_order)
-    num_items = sales_order_items.count()
 
-    DynamicRequirementOrderItemFormSet = inlineformset_factory(
+    # Prepare initial data
+    initial_items = [
+        {
+            'sales_order_item': item.id,
+            'quantity_requested': item.amount,
+        }
+        for item in sales_order_items
+    ]
+
+    PrepopulatedFormSet = inlineformset_factory(
         RequirementOrder,
         RequirementOrderItem,
-        form=CreateRequirementOrderItemForm,
-        extra=num_items,
-        can_delete=True
+        form=PrepopulatedRequirementOrderItemForm,
+        extra=len(initial_items),
+        can_delete=True  # Allow users to delete items
     )
 
     if request.method == "POST":
         order_form = CreateRequirementOrderForm(request.POST)
-        formset = DynamicRequirementOrderItemFormSet(request.POST)
+        formset = PrepopulatedFormSet(
+            request.POST,
+            form_kwargs={'sales_order': sales_order}
+        )
 
         if order_form.is_valid() and formset.is_valid():
             try:
@@ -107,13 +126,7 @@ def create_prepopulated_request(request, order_id):
                 items = formset.save(commit=False)
                 for item in items:
                     item.requirement_order = requirement_order
-                    try:
-                        item.clean()  # Validación manual
-                        item.save()
-                    except ValidationError as e:
-                        item_name = item.sales_order_item.description
-                        for message in e.messages:
-                            messages.error(request, f"Error en el ítem '{item_name}': {message}")
+                    item.save()
 
                 messages.success(request, "Pedido creado exitosamente.")
                 return redirect('index_requests')
@@ -121,26 +134,28 @@ def create_prepopulated_request(request, order_id):
             except ValidationError as e:
                 messages.error(request, str(e))
         else:
-            for form in formset:
-                if form.errors:
-                    item_name = form.cleaned_data.get('sales_order_item', 'Sin nombre')
-                    for field, errors in form.errors.items():
-                        for error in errors:
-                            messages.error(request, f"Error en {item_name}: {field} - {error}")
+            # Display errors for debugging
+            print("Order form errors:", order_form.errors)
+            print("Formset errors:", formset.errors)
             messages.error(request, "Por favor, corrija los errores en el formulario.")
     else:
         order_form = CreateRequirementOrderForm(initial={'sales_order': sales_order})
-        initial_items = [{'sales_order_item': item.id, 'quantity_requested': item.amount} for item in sales_order_items]
-        formset = DynamicRequirementOrderItemFormSet(
+        formset = PrepopulatedFormSet(
             queryset=RequirementOrderItem.objects.none(),
-            initial=initial_items
+            initial=initial_items,
+            form_kwargs={'sales_order': sales_order}
         )
+
+    # Attach item descriptions to each form
+    for form, item in zip(formset.forms, sales_order_items):
+        form.item_description = item.description
 
     return render(request, 'requests/create_prepopulated_request.html', {
         'order_form': order_form,
         'formset': formset,
-        'sales_order': sales_order
+        'sales_order': sales_order,
     })
+
 
 class MyRequestDetail(DetailView):
     model = RequirementOrder

@@ -169,9 +169,6 @@ class Rendition(models.Model):
     def __str__(self):
         return f"Rendition for {self.amount} - {self.purchase_order_item.sap_code} on {self.date}"
 
-
-
-    
 class Bank(models.Model):
     bank_name = models.CharField(max_length=70, verbose_name='Banco')
     bank_account = models.CharField(max_length=30, verbose_name='Número de cuenta bancaria')
