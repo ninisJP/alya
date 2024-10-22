@@ -46,7 +46,7 @@ class SalesOrderItem(models.Model):
         """
         Sobrescribe el método save para inicializar remaining_requirement al valor de amount cuando se crea el objeto.
         """
-        # Solo inicializar el remaining_requirement cuando el objeto se crea por primera vez
+
         if self.pk is None:  # Si el objeto aún no ha sido guardado (nuevo objeto)
             self.remaining_requirement = self.amount
 
@@ -66,6 +66,9 @@ class PurchaseOrder(models.Model):
 
     def __str__(self):
         return f"Orden de Compra {self.id} para la Orden de Venta {self.salesorder.sapcode} - Solicitada el {self.requested_date}"
+
+from django.db.models import Sum
+from django.db import models
 
 class PurchaseOrderItem(models.Model):
     CLASS_PAY_CHOICES = [
@@ -106,6 +109,9 @@ class PurchaseOrderItem(models.Model):
     mov_number = models.CharField(max_length=255, null=True, blank=True, default='')
     bank = models.CharField(max_length=100, null=True, blank=True)
     
+    # Campo que almacenará el total de las rendiciones
+    total_renditions = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Total Renditions")
+
     def save(self, *args, **kwargs):
         if self.price is not None and self.quantity_requested is not None:
             self.price_total = self.price * self.quantity_requested
@@ -115,8 +121,54 @@ class PurchaseOrderItem(models.Model):
 
     def __str__(self):
         return f"Item {self.sap_code} - {self.quantity_requested} units - Total {self.price_total}"
+
+    def update_total_renditions(self):
+        # Recalcula la suma de todas las rendiciones y la guarda en el campo correspondiente
+        total = self.renditions.aggregate(total=Sum('amount'))['total'] or 0
+        self.total_renditions = total
+        self.save()
+
+from django.core.exceptions import ValidationError
+from django.db.models import Sum
+
+from django.core.exceptions import ValidationError
+
+class Rendition(models.Model):
+    purchase_order_item = models.ForeignKey(PurchaseOrderItem, on_delete=models.CASCADE, related_name="renditions")
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Rendition Amount")
+    photo = models.ImageField(upload_to='renditions/', blank=True, null=True, verbose_name="Invoice/Receipt Photo")
+    date = models.DateField(verbose_name="Rendition Date", blank=True, null=True)
+    accepted = models.BooleanField(default=False, verbose_name="Accepted")
     
-    
+    # Campos series y correlativo en inglés
+    series = models.CharField(max_length=50, null=True, blank=True, verbose_name="Series")
+    correlative = models.CharField(max_length=50, null=True, blank=True, verbose_name="Correlative Number")
+
+    # Método para evitar registros duplicados
+    def clean(self):
+        # Solo verificar si series y correlative tienen valores
+        if self.series and self.correlative:
+            # Verificar si ya existe una rendición con el mismo series y correlative para el mismo ítem
+            if Rendition.objects.filter(series=self.series, correlative=self.correlative).exclude(pk=self.pk).exists():
+                raise ValidationError('Ya existe una factura o boleta registrada con esta serie y correlativo.')
+
+    def update_total_renditions(self):
+        # Recalcula la suma de todas las rendiciones y la guarda en el campo correspondiente
+        total = self.purchase_order_item.renditions.aggregate(total=Sum('amount'))['total'] or 0
+        self.purchase_order_item.total_renditions = total
+        self.purchase_order_item.save()
+
+    def save(self, *args, **kwargs):
+        # Verifica antes de guardar si hay duplicados
+        self.clean()
+        # Guardar la rendición
+        super(Rendition, self).save(*args, **kwargs)
+        # Actualizar el total de rendiciones en el PurchaseOrderItem relacionado
+        self.update_total_renditions()
+
+    def __str__(self):
+        return f"Rendition for {self.amount} - {self.purchase_order_item.sap_code} on {self.date}"
+
 class Bank(models.Model):
     bank_name = models.CharField(max_length=70, verbose_name='Banco')
     bank_account = models.CharField(max_length=30, verbose_name='Número de cuenta bancaria')

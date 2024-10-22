@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .models import Suppliers
 from .forms import SuppliersForm
+from accounting_order_sales.models import PurchaseOrderItem
 from django.shortcuts import render,get_object_or_404
 from django.views.decorators.http import require_POST, require_http_methods
 from django.http import HttpResponse, JsonResponse
@@ -51,3 +52,15 @@ def delete_suppliers(request, supplier_id):
         suppliers.delete()  
         return render(request, 'suppliers/suppliers_list.html')  
     return HttpResponse(status=405) 
+
+def supplier_detail(request, supplier_id):
+    supplier = get_object_or_404(Suppliers, id=supplier_id)
+    # Obtener todas las órdenes de compra asociadas a este proveedor
+    purchase_orders = PurchaseOrderItem.objects.filter(supplier=supplier)
+
+    context = {
+        'supplier': supplier,
+        'purchase_orders': purchase_orders
+    }
+
+    return render(request, 'suppliers/supplier_detail.html', context)

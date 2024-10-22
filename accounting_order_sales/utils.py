@@ -64,5 +64,3 @@ def procesar_archivo_excel(archivo_excel, salesorder_id):
             price_total=total_bruto,
             unit_of_measurement=unidad_medida  # Guardar la unidad de medida si existe, o 'N/A' si no
         )
-
-

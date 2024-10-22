@@ -20,7 +20,7 @@ class RequirementOrder(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     total_order = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     purchase_order_created = models.BooleanField(default=False)
-    state = models.CharField(max_length=10,choices=STATE_CHOICES,default='NO REVISADO')
+    state = models.CharField(max_length=20,choices=STATE_CHOICES,default='NO REVISADO')
 
     def delete(self, *args, **kwargs):
         # Obtener los SalesOrderItems afectados antes de eliminar

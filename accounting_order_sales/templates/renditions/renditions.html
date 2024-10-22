@@ -1,0 +1,249 @@
+{% extends 'base_accounting.html' %}
+
+{% block title %}RENDITIONS - Ítems de Órdenes de Compra{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <header class="bg-light p-4 rounded shadow-sm mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0 fw-bold text-primary" style="font-size: 1.8rem;">
+                Rendiciones de Órdenes de Compra
+            </h2>
+            <div class="d-flex justify-content-end gap-2">
+                <button onclick="exportToExcel()" class="btn btn-outline-success">
+                    <i class="fas fa-file-excel"></i> Descargar Excel
+                </button>
+                <button onclick="exportToPDF()" class="btn btn-outline-danger">
+                    <i class="fas fa-file-pdf"></i> Descargar PDF
+                </button>
+            </div>
+
+            <!-- Formulario de filtros de fecha -->
+            <form method="GET" class="row g-2 mt-3">
+                <div class="col-auto">
+                    <label for="start_date" class="visually-hidden">Desde:</label>
+                    <input type="date" name="start_date" id="start_date" class="form-control" value="{{ start_date }}">
+                </div>
+                <div class="col-auto">
+                    <label for="end_date" class="visually-hidden">Hasta:</label>
+                    <input type="date" name="end_date" id="end_date" class="form-control" value="{{ end_date }}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url 'purchase_renditions' %}" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </header>
+
+    <!-- Tabla de Ítems de Órdenes de Compra -->
+    <div class="table-responsive mt-3">
+        <table class="table table-bordered table-striped table-hover shadow-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Proveedor</th>
+                    <th>Moneda</th>
+                    <th>Fecha de Pago</th>
+                    <th>Rendiciones</th>
+                    <th>Total Asignado</th> <!-- Total asignado a la orden de compra -->
+                    <th>Total Rendido</th> <!-- Suma de rendiciones -->
+                    <th>Total Restante</th> <!-- Diferencia entre el total asignado y lo rendido -->
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if items %}
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.supplier.name }}</td>
+                        <td>{{ item.supplier.currency }}</td>
+                        <td>{{ item.purchaseorder.scheduled_date }}</td>
+                        
+                        <!-- Mostrar rendiciones para cada ítem -->
+                        <td>
+                            {% if item.renditions.all %}
+                                <button type="button" class="btn btn-sm btn-link text-primary" data-bs-toggle="modal" data-bs-target="#renditionsModal-{{ item.id }}">
+                                    Ver Rendiciones
+                                </button>
+                        
+                                <!-- Modal para rendiciones -->
+                                <div class="modal fade" id="renditionsModal-{{ item.id }}" tabindex="-1" aria-labelledby="renditionsModalLabel-{{ item.id }}" aria-hidden="true">
+                                  <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                      <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title" id="renditionsModalLabel-{{ item.id }}">Rendiciones de {{ item.supplier.name }}</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <ul class="list-group">
+                                            {% for rendition in item.renditions.all %}
+                                                <li class="list-group-item">
+                                                    <strong>Monto:</strong> {{ rendition.amount }}<br>
+                                                    <strong>Fecha:</strong> {{ rendition.date }}<br>
+                                                    <strong>Serie:</strong> {{ rendition.series }}<br>
+                                                <strong>Correlativo:</strong> {{ rendition.correlative }}<br>
+                                                    <strong>Factura:</strong>
+                                                    {% if rendition.photo %}
+                                                        <a href="{{ rendition.photo.url }}" target="_blank">Ver Foto</a>
+                                                    {% else %}
+                                                        No disponible
+                                                    {% endif %}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            <i class="fas fa-times"></i> Cerrar
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                            {% else %}
+                                <span class="text-muted">No hay rendiciones registradas</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Mostrar total asignado -->
+                        <td>{{ item.price_total }}</td>
+
+                        <!-- Mostrar el total de rendiciones -->
+                        <td>{{ item.total_renditions }}</td>
+
+                        <!-- Mostrar el total restante -->
+                        <td>{{ item.total_remaining|floatformat:2 }}</td>
+
+                        <!-- Botón para añadir una nueva rendición -->
+                        <td>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#renditionModal"
+                                    data-item-id="{{ item.id }}">
+                                <i class="fas fa-plus"></i> Añadir Rendición
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No hay ítems para mostrar</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para añadir una nueva rendición -->
+<div class="modal fade" id="renditionModal" tabindex="-1" aria-labelledby="renditionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="renditionModalLabel">Añadir Rendición</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="renditionForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" id="itemId" name="item_id" value="">
+
+            <!-- Monto de la rendición -->
+            <div class="mb-3">
+                <label for="amount" class="form-label">Monto de la Rendición</label>
+                <input type="number" class="form-control" id="amount" name="amount" step="0.01" placeholder="Ingrese el monto">
+            </div>
+
+            <!-- Serie -->
+            <div class="mb-3">
+                <label for="series" class="form-label">Serie</label>
+                <input type="text" class="form-control" id="series" name="series" placeholder="Ingrese la serie">
+            </div>
+
+            <!-- Correlativo -->
+            <div class="mb-3">
+                <label for="correlative" class="form-label">Correlativo</label>
+                <input type="text" class="form-control" id="correlative" name="correlative" placeholder="Ingrese el correlativo">
+            </div>
+
+            <!-- Fecha de la rendición -->
+            <div class="mb-3">
+                <label for="date" class="form-label">Fecha del comprobante</label>
+                <input type="date" class="form-control" id="date" name="date" placeholder="Seleccione la fecha">
+            </div>
+
+            <!-- Foto de la factura o recibo -->
+            <div class="mb-3">
+                <label for="photo" class="form-label">Foto de la Factura/Recibo</label>
+                <input type="file" class="form-control" id="photo" name="photo">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="fas fa-times"></i> Cerrar
+          </button>
+          <button type="button" class="btn btn-primary" id="saveRenditionButton">
+              <i class="fas fa-save"></i> Guardar Rendición
+          </button>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function exportToPDF() {
+        alert('Lógica para exportar a PDF');
+    }
+
+    function exportToExcel() {
+        alert('Lógica para exportar a Excel');
+    }
+
+    // Set the item ID in the modal
+    var renditionModal = document.getElementById('renditionModal');
+    renditionModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var itemId = button.getAttribute('data-item-id');
+        var modalBodyInput = renditionModal.querySelector('.modal-body input#itemId');
+        modalBodyInput.value = itemId;
+    });
+
+    // Guardar rendición usando AJAX
+    document.getElementById('saveRenditionButton').addEventListener('click', function () {
+        var form = document.getElementById('renditionForm');
+
+        // Enviar los datos del formulario usando fetch con AJAX
+        fetch('/contabilidad-ordenventa/add-rendition/', {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+        }).then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+            alert('Rendición añadida correctamente');
+            location.reload();
+            } else if (data.status === 'error') {
+            // Mostrar el mensaje de error al usuario
+            alert('Error: ' + data.message);
+            } else {
+            alert('Ocurrió un error inesperado. Por favor, intenta nuevamente.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ocurrió un error al procesar la solicitud.');
+        });
+    });
+
+</script>
+{% endblock %}

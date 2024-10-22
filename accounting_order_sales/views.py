@@ -2,7 +2,7 @@ import traceback
 from django.forms import ValidationError, modelformset_factory
 from django.shortcuts import render
 from logistic_suppliers.models import Suppliers
-from .models import SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem,Bank,BankStatements
+from .models import SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem,Bank,BankStatements, Rendition
 from .utils import procesar_archivo_excel
 from .forms import PurchaseOrderForm, PurchaseOrderItemForm, SalesOrderForm, ItemSalesOrderExcelForm, ItemSalesOrderForm, BankForm,UploadBankStatementForm
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
@@ -14,6 +14,8 @@ from django.contrib import messages
 from django.db.models import Q
 from datetime import datetime
 from django.utils.timezone import localdate
+from django.db.models import Sum
+from .models import BankStatements
 
 # libs accounting
 from django.shortcuts import render, redirect, get_object_or_404
@@ -214,7 +216,6 @@ def edit_purchase_order(request, order_id):
         'order': order,
     })
 
-
 # Bank 
 def index_bank(request):
     if request.method == 'POST':
@@ -294,28 +295,24 @@ def bank_statements(request, bank_id):
     statements = BankStatements.objects.filter(bank=bank)
     return render(request, 'bankstatement/BankStatements_list.html', {'bank': bank, 'statements': statements})
 
+from datetime import datetime
+
 class BankStatementUploadView(FormView):
     template_name = 'bankstatement/upload_bank_statements.html'
     form_class = UploadBankStatementForm
-    success_url = reverse_lazy('bank_index')  # Ajusta esto según tus necesidades
+    success_url = reverse_lazy('bank_index')
 
     def form_valid(self, form):
-        # Obtener el banco seleccionado y el archivo del formulario
+        # Obtener el banco seleccionado del formulario
         bank = form.cleaned_data['bank']
         uploaded_file = self.request.FILES['excel_file']
 
-        # Verificar que el archivo haya sido recibido
-        print("Archivo recibido:", uploaded_file.name)
-
         try:
-            # Intentar leer como CSV
-            if uploaded_file.name.endswith('.csv'):
+            # Leer el archivo como Excel
+            if uploaded_file.name.endswith(('.xls', '.xlsx')):
+                df = pd.read_excel(uploaded_file, engine='openpyxl')
+            elif uploaded_file.name.endswith('.csv'):
                 df = pd.read_csv(uploaded_file)
-                print("Archivo CSV procesado correctamente.")
-            # Intentar leer como Excel
-            elif uploaded_file.name.endswith(('.xls', '.xlsx')):
-                df = pd.read_excel(uploaded_file, engine='openpyxl')  # Especificar el motor openpyxl para archivos .xlsx
-                print("Archivo Excel procesado correctamente.")
             else:
                 raise ValueError("Formato de archivo no soportado.")
 
@@ -328,28 +325,32 @@ class BankStatementUploadView(FormView):
                 'Num.Mvto': 'number_moviment',
             }
 
-            # Renombrar columnas y limpiar el DataFrame
+            # Renombrar columnas
             df.rename(columns=column_mapping, inplace=True)
-            df = df[list(column_mapping.values())]
 
-            # Crear BankStatements desde el DataFrame
+            # Crear los registros de BankStatements
             for _, row in df.iterrows():
-                BankStatements.objects.create(
-                    bank=bank,
-                    operation_date=row['operation_date'],
-                    reference=row['reference'],
-                    amount=row['amount'],
-                    itf=row['itf'],
-                    number_moviment=row['number_moviment'],
-                )
+                # Verifica si el banco está asignado
+                if bank:
+                    BankStatements.objects.create(
+                        bank=bank,  # Asegúrate de que el banco se pase aquí
+                        operation_date=row['operation_date'],
+                        reference=row['reference'],
+                        amount=row['amount'],
+                        itf=row['itf'],
+                        number_moviment=row['number_moviment'],
+                    )
+                else:
+                    print("El banco no está asignado correctamente.")
 
-            # Mostrar un mensaje de éxito
             messages.success(self.request, 'Extractos bancarios subidos exitosamente.')
         except Exception as e:
             print("Error procesando archivo:", e)
-            messages.error(self.request, 'Hubo un error procesando el archivo. Por favor, revisa el formato.')
+            messages.error(self.request, 'Hubo un error procesando el archivo.')
 
         return super().form_valid(form)
+
+
 
 #caja chica
 def petty_cash(request):
@@ -513,11 +514,12 @@ def purchase_conciliations(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
-    # Si no se han proporcionado fechas, mostrar ítems del día actual
+    # Si no se han proporcionado fechas, mostrar ítems y movimientos del día actual
     if not start_date and not end_date:
         items = PurchaseOrderItem.objects.filter(purchaseorder__scheduled_date=today).select_related(
             'purchaseorder', 'sales_order_item__salesorder', 'supplier'
         )
+        bank_statements = BankStatements.objects.filter(operation_date=today)
     else:
         # Si se proporcionan fechas, buscar entre esas dos fechas
         if not end_date:
@@ -526,9 +528,14 @@ def purchase_conciliations(request):
         items = PurchaseOrderItem.objects.filter(
             purchaseorder__scheduled_date__range=[start_date, end_date]
         ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
+        
+        bank_statements = BankStatements.objects.filter(
+            operation_date__range=[start_date, end_date]
+        )
 
     context = {
         'items': items,
+        'bank_statements': bank_statements,
         'start_date': start_date,
         'end_date': end_date,
     }
@@ -537,3 +544,99 @@ def purchase_conciliations(request):
 
 
 # renditions
+from django.db.models import Sum
+from django.utils.timezone import localdate
+
+# renditions
+def purchase_renditions(request):
+    today = localdate()
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if not start_date and not end_date:
+        items = PurchaseOrderItem.objects.filter(purchaseorder__scheduled_date=today).select_related(
+            'purchaseorder', 'sales_order_item__salesorder', 'supplier'
+        )
+    else:
+        if not end_date:
+            end_date = today
+
+        items = PurchaseOrderItem.objects.filter(
+            purchaseorder__scheduled_date__range=[start_date, end_date]
+        ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
+
+    # Calcular el total restante para cada item
+    for item in items:
+        total_renditions = item.renditions.aggregate(total=Sum('amount'))['total'] or 0
+        item.total_remaining = item.price_total - total_renditions if item.price_total else 0
+
+    context = {
+        'items': items,
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+
+    return render(request, 'renditions/renditions.html', context)
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404
+from .models import PurchaseOrderItem
+
+from django.core.exceptions import ValidationError
+
+from django.core.exceptions import ValidationError
+
+@require_POST
+def add_rendition(request):
+    # Extraer los datos del formulario
+    item_id = request.POST.get('item_id')
+    amount = request.POST.get('amount')
+    series = request.POST.get('series')  # Obtener la serie del formulario
+    correlative = request.POST.get('correlative')  # Obtener el correlativo del formulario
+    date = request.POST.get('date') 
+    photo = request.FILES.get('photo')
+
+
+    # Obtener el ítem o devolver un error 404 si no existe
+    item = get_object_or_404(PurchaseOrderItem, id=item_id)
+
+    try:
+        # Crear la rendición con los datos recibidos
+        rendition = Rendition(
+            purchase_order_item=item,
+            amount=amount,
+            series=series,  # Guardar la serie
+            correlative=correlative,  # Guardar el correlativo
+            date=date if date else None,
+            photo=photo,
+
+        )
+
+        # Intentar guardar la rendición
+        rendition.save()
+
+        # Si todo va bien, devolver un mensaje de éxito
+        return JsonResponse({'status': 'success', 'message': 'Rendición añadida correctamente'})
+
+    except ValidationError as e:
+        # Captura el error y envía el primer mensaje de error de la lista
+        return JsonResponse({'status': 'error', 'message': str(e.message or e.messages[0])})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
