@@ -12,16 +12,16 @@ class CreateRequirementOrderForm(forms.ModelForm):
         model = RequirementOrder
         fields = ['sales_order', 'requested_date', 'notes']  # El campo 'estado' se elimina
         widgets = {
-            'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=3)).isoformat()}),
+            # 'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=3)).isoformat()}),
             'notes': forms.Textarea(attrs={'required': 'required'})
         }
 
-    def clean_requested_date(self):
-        requested_date = self.cleaned_data.get('requested_date')
-        min_date = date.today() + timedelta(days=3) 
-        if requested_date and requested_date < min_date:
-            raise ValidationError(f"La fecha solicitada no puede ser anterior a {min_date.isoformat()}.")
-        return requested_date
+    # def clean_requested_date(self):
+    #     requested_date = self.cleaned_data.get('requested_date')
+    #     min_date = date.today() + timedelta(days=3) 
+    #     if requested_date and requested_date < min_date:
+    #         raise ValidationError(f"La fecha solicitada no puede ser anterior a {min_date.isoformat()}.")
+    #     return requested_date
     
     def clean_notes(self):
         notes = self.cleaned_data.get('notes')
@@ -44,17 +44,17 @@ class CreateRequirementOrderItemForm(forms.ModelForm):
         model = RequirementOrderItem
         fields = ['sales_order_item', 'quantity_requested', 'notes', 'supplier', 'price', 'file_attachment']
         widgets = {
-            'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=3)).isoformat()}),
+            # 'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=3)).isoformat()}),
             'notes': forms.TextInput(attrs={'required': 'required', 'placeholder': 'Detalles (opcional)', 'class': 'form-control-sm'}),
         }
 
 
-    def clean_requested_date(self):
-        requested_date = self.cleaned_data.get('requested_date')
-        min_date = date.today() + timedelta(days=3) 
-        if requested_date and requested_date < min_date:
-            raise ValidationError(f"La fecha solicitada no puede ser anterior a {min_date.isoformat()}.")
-        return requested_date
+    # def clean_requested_date(self):
+    #     requested_date = self.cleaned_data.get('requested_date')
+    #     min_date = date.today() + timedelta(days=3) 
+    #     if requested_date and requested_date < min_date:
+    #         raise ValidationError(f"La fecha solicitada no puede ser anterior a {min_date.isoformat()}.")
+    #     return requested_date
 
     def __init__(self, *args, **kwargs):
         sales_order = kwargs.pop('sales_order', None)
