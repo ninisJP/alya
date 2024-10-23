@@ -9,6 +9,7 @@ from accounting_order_sales.models import SalesOrder, SalesOrderItem
 class InventoryOutput(models.Model):
     sale_order = models.OneToOneField(SalesOrder, on_delete=models.CASCADE, primary_key=True)
     date_create = models.DateTimeField(auto_now_add=True)
+    returned = models.BooleanField(default=False)
 
 class InventoryOutputItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)

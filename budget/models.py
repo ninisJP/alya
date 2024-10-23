@@ -100,5 +100,3 @@ class BudgetItem(models.Model):
         super().save(*args, **kwargs)
         # Guardar el presupuesto para que sus valores también se actualicen
         self.budget.save()
-
-

@@ -35,7 +35,7 @@ urlpatterns = [
     path('logistic/inventory/', include('logistic_inventory.urls')),
     path('logistic/inventory/api/', include('logistic_inventory_api.urls')),
     path('logistic/inventory/output/', include('logistic_inventory_output.urls')),
-    #path('logistic/inventory/input/', include('logistic_inventory_input.urls')),
+    path('logistic/inventory/input/', include('logistic_inventory_input.urls')),
     path('logistic/requirements/', include('logistic_requirements.urls')),
     path('logistic/suppliers/', include('logistic_suppliers.urls')),
     path('logistic/api/', include('logistic_api.urls')),

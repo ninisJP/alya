@@ -21,25 +21,18 @@
 {% endblock %}
 
 {% block content %}
-<div id="logistic_inventory_output_window">
+<div id="logistic_inventory_input_window">
     <div class="container-fluid">
         <header class="bg-light p-4 rounded shadow-sm mb-2">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="mb-0 fw-bold" style="font-size: 1.5rem;">
-                    Guia de Salida
+                    Guia de Entrada: Solo para items retirados previamente
                 </h2>
-                <button class="btn w-100"
-                    hx-get="{% url 'logistic_inventory_output_new_salesorder_search' %}"
-                    hx-target="#logistic_inventory_output_window"
-                    data-bs-toggle="button"
-                    aria-pressed="false">
-                    <i class="fa-solid fa-plus-circle"></i> Nuevo guia de salida
-                </button>
             </div>
         </header>
 
-        <ul id="logistic_inventory_output_list" class="mt-8 space-y-4">
-            {% include 'output/list.html' %}
+        <ul id="logistic_inventory_input_list" class="mt-8 space-y-4">
+            {% include 'input/list.html' %}
         </ul>
 
     </div>
