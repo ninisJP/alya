@@ -1,0 +1,58 @@
+<tr id="order-details-{{ requirement_order.id }}">
+    <td colspan="10">
+        <div class="custom-table">
+            <form id="requirement-order-form">
+                <table class="table table-bordered table-hover text-center">
+                    <thead class="table-info custom-thead-rounded">
+                        <tr>
+                            <th>SAP</th>
+                            <th>ITEM</th>
+                            <th style="width: 20%;">Detalle</th>
+                            <th style="width: 8%;">Cantidad Solicitada</th>
+                            <th style="width: 8%;">Precio Unitario</th>
+                            <th style="width: 8%;">Precio Total</th>
+                            <th>Proveedor</th>
+                            <th>Doc</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr id="item-row-{{ item.id }}">
+                            <td>{{ item.sap_code }}</td>
+                            <td>{{ item.sales_order_item.description }}</td>
+                            <td>{{ item.notes }}</td>
+                            <td>{{ item.quantity_requested }}</td>
+                            <td>{{ item.price }}</td>
+                            <td>{{ item.total_price }}</td>
+                            <td>
+                                {% if item.supplier %}
+                                    {{ item.supplier.name }}
+                                {% else %}
+                                    No asignado
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.file_attachment %}
+                                    <a href="{{ item.file_attachment.url }}" target="_blank">Archivo</a>
+                                {% else %}
+                                    No disponible
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.estado == 'L' %}
+                                    Listo
+                                {% elif item.estado == 'P' %}
+                                    Pendiente
+                                {% elif item.estado == 'C' %}
+                                    Comprando
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </td>
+</tr>

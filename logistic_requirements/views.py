@@ -1,6 +1,5 @@
 from django.shortcuts import render, get_object_or_404
 from .forms import RequirementOrderForm, RequirementOrderItemFormSet
-from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView
 from .models import RequirementOrder, RequirementOrderItem
@@ -13,6 +12,7 @@ from django.views.decorators.http import require_POST
 from django.db import transaction
 from .models import RequirementOrder, RequirementOrderItem
 from django.http import HttpResponse
+from django.db.models import Q
 
 
 # # Vista para listar todas las RequirementOrders
@@ -22,7 +22,7 @@ class RequirementOrderListView(ListView):
     context_object_name = 'requirement_orders'
 
     def get_queryset(self):
-        queryset = RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
+        queryset = RequirementOrder.objects.filter(Q(state='APROBADO') | Q(state='RECHAZADO')).order_by('-id').prefetch_related('items')
         
         for order in queryset:
             items = order.items.all()
@@ -132,14 +132,17 @@ def ajax_load_suppliers(request):
     return JsonResponse({'results': supplier_list})
 
 # Requirements order approved 
-
 class RequirementOrderApprovedListView(ListView):
     model = RequirementOrder
     template_name = 'requirements_approved/requirement_order_approved_list.html'
     context_object_name = 'requirement_orders'
-
+    
     def get_queryset(self):
-        queryset = RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
+        # Filtra solo las órdenes que están aprobadas
+        queryset = RequirementOrder.objects.filter(state='APROBADO').order_by('-id').prefetch_related('items')
+        
+        # Lista para almacenar las órdenes que cumplen con la condición
+        filtered_orders = []
         
         for order in queryset:
             items = order.items.all()
@@ -148,8 +151,8 @@ class RequirementOrderApprovedListView(ListView):
                 order.global_state = "No tiene ítems"
                 continue
 
-            ready_count = items.filter(estado='L').count()
-            buying_count = items.filter(estado='C').count()
+            ready_count = items.filter(estado='L').count()  # 'L' para Listo
+            buying_count = items.filter(estado='C').count()  # 'C' para Comprando
 
             # Determinar el estado general
             if ready_count == total_items:
@@ -158,5 +161,18 @@ class RequirementOrderApprovedListView(ListView):
                 order.global_state = "Comprando"
             else:
                 order.global_state = "Pendiente"
-                
-        return queryset
+            
+            # Solo incluir las órdenes que están en estado 'Comprando' o 'Pendiente'
+            if order.global_state in ['Comprando', 'Pendiente']:
+                filtered_orders.append(order)
+
+        return filtered_orders
+
+
+def requirement_order_detail_partial(request, pk):
+    requirement_order = get_object_or_404(RequirementOrder, pk=pk)
+    items = requirement_order.items.all()  # Obtener los ítems relacionados
+    return render(request, 'requirements_approved/requirement_order_detail_partial.html', {
+        'requirement_order': requirement_order,
+        'items': items,  # Pasamos los ítems a la plantilla parcial
+    })

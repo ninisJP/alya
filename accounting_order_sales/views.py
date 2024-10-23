@@ -392,7 +392,8 @@ class AccountingRequirementOrderListView(ListView):
     context_object_name = 'requirement_orders'
 
     def get_queryset(self):
-        return RequirementOrder.objects.all().order_by('-id')
+        return RequirementOrder.objects.filter(state='NO REVISADO').order_by('-id').prefetch_related('items')
+
     
 def accounting_requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
