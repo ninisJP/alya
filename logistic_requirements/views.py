@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from .forms import RequirementOrderForm, RequirementOrderItemFormSet
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -7,10 +7,13 @@ from .models import RequirementOrder, RequirementOrderItem
 from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
 from django.db import transaction
 from logistic_suppliers.models import Suppliers
-from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse
 from logistic_requirements.models import RequirementOrder, RequirementOrderItem
 from django.views.decorators.http import require_POST
+from django.db import transaction
+from .models import RequirementOrder, RequirementOrderItem
+from django.http import HttpResponse
+
 
 # # Vista para listar todas las RequirementOrders
 class RequirementOrderListView(ListView):
@@ -70,13 +73,7 @@ def update_requirement_order_items(request, pk):
     # Retornar un mensaje de éxito sin crear la PurchaseOrder
     return JsonResponse({'message': 'Items actualizados con éxito'}, status=200)
 
-from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect
-from django.http import JsonResponse
-from .models import RequirementOrder, RequirementOrderItem
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.db import transaction
+
 
 def create_purchase_order(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
@@ -133,3 +130,33 @@ def ajax_load_suppliers(request):
     suppliers = Suppliers.objects.filter(name__icontains=term)[:20]
     supplier_list = [{'id': supplier.id, 'text': supplier.name} for supplier in suppliers]
     return JsonResponse({'results': supplier_list})
+
+# Requirements order approved 
+
+class RequirementOrderApprovedListView(ListView):
+    model = RequirementOrder
+    template_name = 'requirements_approved/requirement_order_approved_list.html'
+    context_object_name = 'requirement_orders'
+
+    def get_queryset(self):
+        queryset = RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
+        
+        for order in queryset:
+            items = order.items.all()
+            total_items = items.count()
+            if total_items == 0:
+                order.global_state = "No tiene ítems"
+                continue
+
+            ready_count = items.filter(estado='L').count()
+            buying_count = items.filter(estado='C').count()
+
+            # Determinar el estado general
+            if ready_count == total_items:
+                order.global_state = "Listo"
+            elif buying_count >= total_items / 2:
+                order.global_state = "Comprando"
+            else:
+                order.global_state = "Pendiente"
+                
+        return queryset
