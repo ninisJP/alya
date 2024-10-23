@@ -58,7 +58,7 @@ class ItemForm(DynamicFormMixin, forms.ModelForm):
         if commit:
             instance.save()
             # Get id
-            sap = str(instance.id)
+            sap = str(instance.item.sap)
             # Create QR
             qrcode = segno.make_qr(sap)
             name = settings.MEDIA_ROOT + "item_qr/"+sap+".png"
