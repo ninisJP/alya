@@ -13,13 +13,11 @@ urlpatterns = [
     path('create_sales_order/<int:budget_id>/', create_sales_order_from_budget, name='create_sales_order'),
     path('ajax/catalog-item-search/', catalog_item_search, name='catalog_item_search'),
 
-
-   
     # Catalog
     path('catalog/', views.catalog, name='budget_catalog'),
     path('catalog/new/', views.catalog_new, name='budget_catalog_new'),
     path('catalog/search/', views.catalog_search, name='budget_catalog_search'),
     path('catalog/edit/<int:catalog_id>/', views.catalog_edit, name='catalog_edit'),
-    path('catalog/new/', views.catalog_new, name='budget_catalog_new'), 
+    path('catalog/new/', views.catalog_new, name='budget_catalog_new'),
     path('catalog/excel/', views.upload_excel, name='budget_catalog_excel'),
 ]
