@@ -41,29 +41,33 @@
         <table class="table table-striped table-hover table-sm text-center"> <!-- Añadimos 'text-center' a la tabla -->
             <thead>
                 <tr class="text-center"> <!-- Centramos las cabeceras -->
-                    <th>O. Venta</th>
-                    <th>Proyecto</th>
-                    <th>Ítem</th>
-                    <th>Detalle</th>
-                    <th>Precio T.</th>
-                    <th>Proveedor</th>
-                    <th>Banco</th>
-                    <th>Número de Cuenta</th>
-                    <th>Cuenta Interbancaria</th>
+                    <th>USR</th>
+                    <th>O. VENTA</th>
+                    <th>PROYECTO</th>
+                    <th>PROVEED</th>
+                    <th>DESC</th>
+                    <th>OBS</th>
+                    <th>BANK</th>
+                    <th>NRO CUENTA</th>
+                    <th>CCI</th>
+                    <th>MONEDA</th>
+                    <th>TOTAL</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in items %}
                 <tr class="align-middle"> <!-- Centramos las celdas verticalmente con 'align-middle' -->
+                    <td>{{ item.purchaseorder.requested_by }}</td>
                     <td>{{ item.sales_order_item.salesorder.sapcode }}</td>
                     <td>{{ item.sales_order_item.salesorder.project.name }}</td>
+                    <td>{{ item.supplier.name }}</td>
                     <td>{{ item.sales_order_item.description }}</td>
                     <td>{{ item.notes }}</td>
-                    <td>{{ item.price_total }}</td>
-                    <td>{{ item.supplier.name }}</td>
                     <td>{{ item.supplier.bank }}</td>
                     <td>{{ item.supplier.account }}</td>
                     <td>{{ item.supplier.interbank_currency }}</td>
+                    <td>{{ item.supplier.currency }}</td>
+                    <td>{{ item.price_total }}</td>
                 </tr>
                 {% empty %}
                 <tr>
@@ -114,11 +118,11 @@
     function exportToExcel() {
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet("Caja Chica");
-
+    
         // Definir los encabezados con estilo
-        const headers = ["O. Venta", "Proyecto", "Ítem", "Detalle", "Precio T.", "Proveedor", "Banco", "Número de Cuenta", "Cuenta Interbancaria"];
+        const headers = ["USR", "O. Venta", "Proyecto", "Proveedor", "Ítem", "Detalle", "Banco", "Número de Cuenta", "Cuenta Interbancaria", "Moneda", "Total"];
         sheet.addRow(headers);
-
+    
         // Estilos para los encabezados
         sheet.getRow(1).eachCell(cell => {
             cell.font = { bold: true, color: { argb: 'FFFFFF' } };
@@ -131,14 +135,26 @@
                 right: { style: 'thin' }
             };
         });
-
+    
         // Seleccionar todas las filas de la tabla
         const rows = Array.from(document.querySelectorAll("table tbody tr"));
         
         rows.forEach(row => {
-            const rowData = Array.from(row.querySelectorAll("td")).map(cell => cell.innerText);
+            const rowData = [
+                row.querySelectorAll("td")[0].innerText,  // USR
+                row.querySelectorAll("td")[1].innerText,  // O. Venta
+                row.querySelectorAll("td")[2].innerText,  // Proyecto
+                row.querySelectorAll("td")[3].innerText,  // Proveedor
+                row.querySelectorAll("td")[4].innerText,  // Ítem
+                row.querySelectorAll("td")[5].innerText,  // Detalle
+                row.querySelectorAll("td")[6].innerText,  // Banco
+                row.querySelectorAll("td")[7].innerText,  // Número de Cuenta
+                row.querySelectorAll("td")[8].innerText,  // Cuenta Interbancaria
+                row.querySelectorAll("td")[9].innerText,  // Moneda
+                row.querySelectorAll("td")[10].innerText  // Total
+            ];
             const addedRow = sheet.addRow(rowData);
-
+    
             // Estilos de cada fila
             addedRow.eachCell(cell => {
                 cell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -150,8 +166,8 @@
                 };
             });
         });
-
-        // Ajustar ancho de las columnas automáticamente y hacerlas un poco más anchas
+    
+        // Ajustar ancho de las columnas automáticamente
         sheet.columns.forEach(column => {
             let maxWidth = 10; // Valor inicial mínimo
             column.eachCell({ includeEmpty: true }, cell => {
@@ -160,7 +176,7 @@
             });
             column.width = maxWidth;
         });
-
+    
         // Descargar el archivo Excel
         workbook.xlsx.writeBuffer().then(buffer => {
             const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
@@ -170,6 +186,7 @@
             link.click();
         });
     }
+    
 </script>
 
 
