@@ -97,10 +97,9 @@ def output_new_item(request, output_pk, saleorder_item_pk):
     context.update(context_items)
     return render(request, 'output/guide/list.html', context)
 
-def output_see(request, output_id):
-    outputs = get_object_or_404(InventoryOutput, id=output_id)
-    items = InventoryOutputItem.objects.filter(output=output)
+def output_see(request, output_pk):
     context = {}
-    context['outputs'] = outputs
-    context['items'] = items
+    context_items, item_missing = get_all_items(output_pk)
+    context.update(context_items)
+
     return render(request, 'output/see.html', context)

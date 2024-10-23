@@ -67,30 +67,7 @@
         </div>
     </div>
 
-    <!-- Ítems de la Orden -->
-    <div class="custom-table">
-        <table class="table table-bordered table-hover text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th>SAP</th>
-                    <th>Descripción</th>
-                    <th>Detalle</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                    <tr>
-                        <td>{{ item.item.item_id }}</td>
-                        <td>{{ item.item.description }}</td>
-                        <td>{{ item.item.quantity }}</td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="8">No hay ítems en esta orden.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <!-- Ítems de la Guia de salida -->
+    {% include 'output/guide/list_element.html' %}
 
 </div>

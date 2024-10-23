@@ -56,8 +56,6 @@
                     <tr>
                         <th>Orden de Venta</th>
                         <th>Fecha de creación</th>
-                        <th>Usuario</th>
-                        <th>Retornado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -66,13 +64,14 @@
                     <tr class="rounded-3">
                         <td>{{ output.sale_order }}</td>
                         <td>{{ output.date_create }}</td>
-                        <td>{{ output.user }}</td>
                         <td>
-                            {% if output.returned %}
-                                Si
-                            {% else %}
-                                No
-                            {% endif %}
+                            <button class="btn btn-info btn-sm"
+                                hx-get="{% url 'logistic_inventory_output_see' output.pk %}"
+                                hx-target="#logistic_inventory_output_window"
+                                data-bs-toggle="button"
+                                aria-pressed="false">
+                                <i class="fas fa-info-circle"></i> Detalles
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}
