@@ -71,15 +71,14 @@ class CatalogItem(models.Model):
         MANODEOBRA = 'Mano de obra'
 
     category = models.CharField(max_length=100, choices=Category.choices, default=Category.EQUIPO)
-    description = models.CharField(max_length=256, db_index=True)  # Índice añadido
+    description = models.CharField(max_length=256, db_index=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    sap = models.CharField(max_length=100, unique=True, db_index=True)  # Índice añadido
+    sap = models.CharField(max_length=100, unique=True, db_index=True)
     unit = models.CharField(max_length=100, default='UND')
 
     def __str__(self):
         return f'{self.sap} <{self.description}> precio: {self.price}'
-
 
 
 class BudgetItem(models.Model):

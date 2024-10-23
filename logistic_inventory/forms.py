@@ -71,11 +71,11 @@ class ItemForm(DynamicFormMixin, forms.ModelForm):
 
     class Meta:
         model = Item
-        fields = ('brand', 'description', 'sap', 'quantity', 'unit', 'subtype')
+        fields = ('brand', 'description', 'item', 'quantity', 'unit', 'subtype')
         labels = {
             'brand': 'Marca',
             'description': 'Descripcion',
-            'sap': 'SAP',
+            'item': 'SAP',
             'quantity': 'Cantidad',
             'unit': 'Unidad de medida',
             'subtype': 'Sub-tipo',

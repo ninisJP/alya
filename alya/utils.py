@@ -13,6 +13,7 @@ def search_model(model_all, column, name, accept_all=False):
     regex_str = str(name)
 
     # If void
+    print(regex_str+"<")
     if regex_str == "" :
         return 0, model_all
 

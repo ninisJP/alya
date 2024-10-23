@@ -1,4 +1,5 @@
 from django.db import models
+from budget.models import CatalogItem
 
 
 class Brand(models.Model):
@@ -30,7 +31,7 @@ class Subtype(models.Model):
         return self.name
 
 class Item(models.Model):
-    sap = models.CharField(max_length=100, unique=True)
+    item = models.OneToOneField(CatalogItem, on_delete=models.CASCADE, primary_key=True)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, null=True)
     description = models.CharField(max_length=100, null=True)
     quantity = models.PositiveIntegerField(default=0)

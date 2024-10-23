@@ -13,21 +13,8 @@ def index(request):
 
 def brand(request):
     context = {'form': BrandForm(), 'search': SearchForm()}
+    context['brands'] = Brand.objects.all()
     return render(request, 'inventory/brand/home.html', context)
-
-def brand_edit(request, brand_id):
-    brand = get_object_or_404(Brand, id=brand_id)
-    if request.method == 'POST':
-        form = BrandForm(request.POST, instance=brand)
-        if form.is_valid():
-            form.save()
-            # Después de guardar, renderizar el ítem
-            brand = get_object_or_404(Brand, id=brand_id)
-            return render(request, 'inventory/brand/list_element.html', {'brand': brand})
-    # Create view to edit
-    form = BrandForm(instance=brand)
-    context = {'form': form, 'brand': brand}
-    return render(request, 'inventory/brand/edit.html', context)
 
 def brand_new(request):
     context = {}
@@ -49,6 +36,7 @@ def brand_search(request):
         form = SearchForm(request.POST)
         if form.is_valid():
             status, brands = utils.search_model(Brand.objects.all(), 'name', form.cleaned_data['name'])
+            print(brands)
             if brands != {} :
                 brands = brands.order_by('name')
 
@@ -62,26 +50,6 @@ def item(request):
     context = {'form': ItemForm(), 'search': SearchItemForm()}
     context['items'] = Item.objects.all()
     return render(request, 'inventory/item.html', context)
-
-def item_edit(request, item_id):
-    item = get_object_or_404(Item, id=item_id)
-    context = {}
-    if request.method == 'POST':
-        form = ItemForm(request.POST, instance=item)
-        status="no"
-        if form.is_valid():
-            form.save()
-            status="yes"
-        # nani
-        context['status'] = status
-        form = ItemForm(instance=item)
-        context['item'] = item
-        context['form'] = form
-        return render(request, 'inventory/item_form_template.html', context)
-
-    form = ItemForm(instance=item)
-    context = {'form': form, 'item': item}
-    return render(request, 'inventory/item_edit.html', context)
 
 def item_new(request):
     context = {}
@@ -116,19 +84,8 @@ def item_search(request):
 
 def subtype(request):
     context = {'form': SubtypeForm(), 'search': SearchForm()}
+    context['subtypes'] = Subtype.objects.all()
     return render(request, 'inventory/subtype/home.html', context)
-
-def subtype_edit(request, subtype_id):
-    subtype = get_object_or_404(Subtype, id=subtype_id)
-    if request.method == 'POST':
-        form = SubtypeForm(request.POST, instance=subtype)
-        if form.is_valid():
-            form.save()
-            return render(request, 'inventory/subtype/list_element.html', {'subtype': subtype})
-    # Create view to edit
-    form = SubtypeForm(instance=subtype)
-    context = {'form': form, 'subtype': subtype}
-    return render(request, 'inventory/subtype/edit.html', context)
 
 def subtype_new(request):
     context = {}
@@ -161,6 +118,7 @@ def subtype_search(request):
 
 def type(request):
     context = {'form': TypeForm(), 'search': SearchForm()}
+    context['types'] = Type.objects.all()
     return render(request, 'inventory/type/home.html', context)
 
 def type_edit(request, type_id):
