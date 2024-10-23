@@ -5,3 +5,6 @@ db.sqlite3
 .env
 **/migrations/*.py
 !**/migrations/__init__.py
+
+
+media/item_qr/*.png

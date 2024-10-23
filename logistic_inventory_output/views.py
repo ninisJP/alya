@@ -10,10 +10,10 @@ from .utils import check_items, search_salesorder, search_saleorder_item, get_al
 
 # Create your views here.
 
-def output_list(request):
+def output_index(request):
     outputs = InventoryOutput.objects.all()
     context = {'outputs': outputs}
-    return render(request, 'output/list.html', context)
+    return render(request, 'output/home.html', context)
 
 def output_new_salesorder(request):
     context = {}
