@@ -66,12 +66,13 @@
         </div>
     </div>
 
-    <!-- Formset de Ítems -->
+    <!-- Formset de Ítems existentes -->
     <div class="container">
+        <h3 class="text-center">Ítems del Presupuesto</h3>
         <div class="row font-weight-bold border-bottom pb-1 mb-2" style="border-bottom: 2px solid #ddd;">
             <div class="col-md-4 text-center">ITEM</div>
             <div class="col-md-1 text-center">CANT</div>
-            <div class="col-md-2 text-center">UND</div>  <!-- Campo de Unidad -->
+            <div class="col-md-2 text-center">UND</div>
             <div class="col-md-2 text-center">PRECIO U.</div>
             <div class="col-md-2 text-center">PRECIO D.</div>
             <div class="col-md-1 text-center">ELIMINAR</div>
@@ -88,7 +89,7 @@
                     {{ form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
                 </div>
                 <div class="col-md-2">
-                    {{ form.unit|add_class:"form-control text-center text-dark"|attr:"placeholder=Unidad" }}  <!-- Campo editable -->
+                    {{ form.unit|add_class:"form-control text-center text-dark"|attr:"placeholder=Unidad" }}
                 </div>
                 <div class="col-md-2">
                     {{ form.custom_price|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio Unitario" }}
@@ -104,26 +105,27 @@
         </div>
     </div>
 
-    <!-- Formulario vacío oculto para clonar -->
-    <div id="empty-form" style="display:none;">
-        <div class="form-row row align-items-center p-1" style="margin-bottom: 4px;">
+    <!-- Formulario para agregar nuevos ítems -->
+    <div class="container">
+        <h3 class="text-center">Agregar Nuevo Ítem</h3>
+        <div class="form-row row align-items-center p-1">
             <div class="col-md-4">
-                {{ formset.empty_form.item|add_class:"form-control select2-ajax text-dark"|attr:"placeholder=Seleccione un ítem" }}
+                {{ new_item_form.item|add_class:"form-control select2-ajax text-dark"|attr:"placeholder=Seleccione un ítem" }}
             </div>
             <div class="col-md-1">
-                {{ formset.empty_form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
+                {{ new_item_form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
             </div>
             <div class="col-md-2">
-                {{ formset.empty_form.unit|add_class:"form-control text-center text-dark"|attr:"placeholder=Unidad" }}
+                {{ new_item_form.unit|add_class:"form-control text-center text-dark"|attr:"placeholder=Unidad" }}
             </div>
             <div class="col-md-2">
-                {{ formset.empty_form.custom_price|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio Unitario" }}
+                {{ new_item_form.custom_price|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio Unitario" }}
             </div>
             <div class="col-md-2">
-                {{ formset.empty_form.custom_price_per_day|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio por Día" }}
+                {{ new_item_form.custom_price_per_day|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio por Día" }}
             </div>
             <div class="col-md-1 text-center">
-                <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="add-new-item"><i class="fas fa-plus-circle"></i></button>
             </div>
         </div>
     </div>
@@ -132,11 +134,6 @@
     <div class="container mt-3">
         <div class="row">
             <div class="col-6 pr-1">
-                <button type="button" id="add-item" class="btn btn-outline-secondary w-100">
-                    <i class="fas fa-plus-circle"></i> Agregar Ítem
-                </button>
-            </div>
-            <div class="col-6 pl-1">
                 <button type="submit" class="btn btn-primary w-100">
                     <i class="fas fa-save"></i> Guardar
                 </button>
@@ -161,7 +158,7 @@
                     ajax: {
                         url: $(selector).data('ajax--url'),
                         dataType: 'json',
-                        delay: 150,
+                        delay: 250,
                         data: function(params) {
                             return { term: params.term };
                         },
@@ -175,41 +172,40 @@
             }
         }
 
-    // Agregar formularios al hacer clic en "Agregar Ítem"
-    $('#add-item').click(function(e) {
-        e.preventDefault();
-        
-        // Número de formularios a agregar (3 en este caso)
-        var numFormsToAdd = 3;
-        var formCount = parseInt($('#id_items-TOTAL_FORMS').val());
-        
-        for (var i = 0; i < numFormsToAdd; i++) {
-            var $emptyForm = $('#empty-form .form-row').clone();
-            $emptyForm.find(':input').each(function() {
-                var name = $(this).attr('name');
-                if (name) $(this).attr('name', name.replace('__prefix__', formCount));
-                var id = $(this).attr('id');
-                if (id) $(this).attr('id', id.replace('__prefix__', formCount));
-            });
+        // Iniciar Select2 en todos los campos
+        initializeSelect2('.select2-ajax');
 
-            // Agregar el formulario clonado al formset
-            $('#item-formset').append($emptyForm);
-            initializeSelect2($emptyForm.find('.select2-ajax'));
-            
-            // Incrementar el contador de formularios
-            formCount++;
+        // Agregar nuevo ítem
+        $('#add-new-item').click(function(e) {
+            e.preventDefault();
+            // Aquí puedes implementar la lógica para agregar un nuevo ítem dinámicamente si es necesario
+            console.log("Agregando nuevo ítem...");
+        });
+
+        // Función para reindexar formularios (para eliminar ítems existentes)
+        function reindexForms() {
+            $('#item-formset .form-row').each(function(index, element) {
+                $(element).find(':input').each(function() {
+                    var name = $(this).attr('name');
+                    if (name) {
+                        var newName = name.replace(/\d+/, index);  // Reemplaza el índice anterior por el nuevo
+                        $(this).attr('name', newName);
+                    }
+                    var id = $(this).attr('id');
+                    if (id) {
+                        var newId = id.replace(/\d+/, index);  // Reemplaza el índice anterior por el nuevo
+                        $(this).attr('id', newId);
+                    }
+                });
+            });
+            $('#id_items-TOTAL_FORMS').val($('#item-formset .form-row').length);  // Actualiza el TOTAL_FORMS
         }
-        
-        // Actualizar el valor de TOTAL_FORMS después de agregar los formularios
-        $('#id_items-TOTAL_FORMS').val(formCount);
-    });
 
         // Eliminar formularios
         $(document).on('click', '.remove-form', function(e) {
             e.preventDefault();
             $(this).closest('.form-row').remove();
-            var totalForms = $('#id_items-TOTAL_FORMS');
-            totalForms.val(parseInt(totalForms.val()) - 1);
+            reindexForms();  // Reindexa los formularios después de eliminar uno
         });
     });
 </script>
