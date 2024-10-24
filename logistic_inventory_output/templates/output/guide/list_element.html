@@ -1,0 +1,112 @@
+{% load widget_tweaks %}
+
+<!-- Order sale items -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th colspan="4">ITEMS REQUERIDOS POR LA ORDEN DE VENTA</th>
+            </tr>
+            <tr>
+                <th>SAP</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Unidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in saleorder_items %}
+                <tr class="rounded-3">
+                    <td>{{ item.sap_code }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.amount }}</td>
+                    <td>{{ item.unit_of_measurement }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="4" >No se encontró ninguna coincidencia</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Logistic items: only if search-->
+{% if search_active %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+            <thead class="table-dark custom-thead-rounded">
+                <tr>
+                    <th colspan="7">ITEMS DISPONIBLES EN EL INVENTARIO</th>
+                </tr>
+                <tr>
+                    <th>SAP</th>
+                    <th>Item ID</th>
+                    <th>Tipo</th>
+                    <th>Sub-tipo</th>
+                    <th>Marca</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in inventory_items %}
+                    <tr class="rounded-3">
+                        <td>{{ item.sap }}</td>
+                        <td>{{ item.pk }}</td>
+                        <td>{{ item.subtype.type }}</td>
+                        <td>{{ item.subtype }}</td>
+                        <td>{{ item.brand }}</td>
+                        <td>{{ item.description }}</td>
+                        <td>{{ item.quantity }}</td>
+                    </tr>
+                {% empty %}
+                    <tr class="bg-red-200 text-red-700">
+                        <td colspan="7" >No se encontró ninguna coincidencia</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+<!-- Output items -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th colspan="9">ITEMS RETIRADOS</th>
+            </tr>
+            <tr>
+                <th>SAP</th>
+                <th>Item ID</th>
+                <th>Tipo</th>
+                <th>Sub-tipo</th>
+                <th>Marca</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Fecha de retirada</th>
+                <th>Fecha de retorno</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in output_items %}
+                <tr class="rounded-3">
+                    <td>{{ item.item.sap }}</td>
+                    <td>{{ item.item.pk }}</td>
+                    <td>{{ item.item.subtype.type }}</td>
+                    <td>{{ item.item.subtype }}</td>
+                    <td>{{ item.item.brand }}</td>
+                    <td>{{ item.item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.date_create }}</td>
+                    <td>{{ item.date_returned }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="9" >No se retiro ningun item</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

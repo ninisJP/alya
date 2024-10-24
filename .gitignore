@@ -3,8 +3,8 @@ venv
 __pycache__
 db.sqlite3
 .env
-**/migrations/*
+**/migrations/*.py
 !**/migrations/__init__.py
-*/migrations/*.py
 *png
 *pdf
+media/item_qr/*.png

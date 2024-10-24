@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'logistic_inventory',
     'logistic_inventory_api',
     'logistic_inventory_output',
+    'logistic_inventory_input',
     'logistic_requirements',
     'logistic_suppliers',
     'project',

@@ -8,8 +8,8 @@ from django.db.models.functions import TruncMonth
 
 
 class SalesOrder(models.Model):
-    sapcode = models.PositiveBigIntegerField(default=0) 
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)  
+    sapcode = models.PositiveBigIntegerField(default=0)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     detail = models.CharField(max_length=255)
     date = models.DateField()
 
@@ -23,7 +23,7 @@ class SalesOrder(models.Model):
 
 class SalesOrderItem(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="items")
-    sap_code = models.CharField(max_length=255, default="") 
+    sap_code = models.CharField(max_length=255, default="", unique=True)
     description = models.CharField(max_length=255, default="")
     amount = models.IntegerField(null=True, default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
@@ -39,7 +39,7 @@ class SalesOrderItem(models.Model):
         Calcula el remaining_requirement basado en las cantidades solicitadas en las RequirementOrderItems asociadas.
         """
         cantidad_solicitada = sum(item.quantity_requested for item in self.requirementorderitem_set.all())
-        self.remaining_requirement = max(self.amount - cantidad_solicitada, 0) 
+        self.remaining_requirement = max(self.amount - cantidad_solicitada, 0)
         self.save()
 
     def save(self, *args, **kwargs):
@@ -57,7 +57,7 @@ class SalesOrderItem(models.Model):
 
 class PurchaseOrder(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE,related_name="purchase_orders")
-    description = models.CharField(max_length=255) 
+    description = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     requested_date = models.DateField(blank=True, null=True)
     scheduled_date = models.DateField(blank=True, null=True)
@@ -108,8 +108,6 @@ class PurchaseOrderItem(models.Model):
     supplier = models.ForeignKey(Suppliers, on_delete=models.SET_NULL, blank=True, null=True)
     mov_number = models.CharField(max_length=255, null=True, blank=True, default='')
     bank = models.CharField(max_length=100, null=True, blank=True)
-    
-    # Campo que almacenará el total de las rendiciones
     total_renditions = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Total Renditions")
 
     def save(self, *args, **kwargs):
@@ -139,7 +137,7 @@ class Rendition(models.Model):
     photo = models.ImageField(upload_to='renditions/', blank=True, null=True, verbose_name="Invoice/Receipt Photo")
     date = models.DateField(verbose_name="Rendition Date", blank=True, null=True)
     accepted = models.BooleanField(default=False, verbose_name="Accepted")
-    
+
     # Campos series y correlativo en inglés
     series = models.CharField(max_length=50, null=True, blank=True, verbose_name="Series")
     correlative = models.CharField(max_length=50, null=True, blank=True, verbose_name="Correlative Number")
@@ -174,11 +172,11 @@ class Bank(models.Model):
     bank_account = models.CharField(max_length=30, verbose_name='Número de cuenta bancaria')
     bank_detail = models.CharField(max_length=200,verbose_name='Detalles')
     bank_current_mount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name='Monto Total');
-    
+
     def __str__(self):
         return f'Banco: {self.bank_name} - Cuenta:{self.bank_account}'
-    
-    
+
+
 class BankStatements(models.Model):
     bank = models.ForeignKey(Bank, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Banco')
     operation_date = models.DateField(verbose_name='Fecha de Operación', null=True, blank=True)
@@ -188,12 +186,12 @@ class BankStatements(models.Model):
     number_moviment = models.CharField(max_length=50, verbose_name='Número de Movimiento', default='')
 
     def __str__(self):
-        return f'Movimiento: {self.number_moviment} - Referencia: {self.reference}'   
-    
+        return f'Movimiento: {self.number_moviment} - Referencia: {self.reference}'
+
 class BankStatementManager(models.Manager):
     def by_month(self, year, month):
         return self.annotate(
-            month=TruncMonth('operation_date') 
+            month=TruncMonth('operation_date')
         ).filter(
             operation_date__year=year,
             operation_date__month=month,

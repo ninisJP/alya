@@ -1,5 +1,3 @@
-{% load widget_tweaks %}
-
 <div class="table-responsive">
     <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
         <thead class="table-dark custom-thead-rounded">
@@ -14,15 +12,6 @@
             <tr class="rounded-3">
                 <td>{{ output.sale_order }}</td>
                 <td>{{ output.date_create }}</td>
-                <td>
-                    <button class="btn btn-info btn-sm"
-                        hx-get="{% url 'logistic_inventory_output_see' output.pk %}"
-                        hx-target="#logistic_inventory_output_window"
-                        data-bs-toggle="button"
-                        aria-pressed="false">
-                        <i class="fas fa-info-circle"></i> Detalles
-                    </button>
-                </td>
             </tr>
             {% endfor %}
         </tbody>

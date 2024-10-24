@@ -58,10 +58,10 @@ class ItemForm(DynamicFormMixin, forms.ModelForm):
         if commit:
             instance.save()
             # Get id
-            item_id = str(instance.id)
+            sap = str(instance.item.sap)
             # Create QR
-            qrcode = segno.make_qr(item_id)
-            name = settings.MEDIA_ROOT + "item_qr/"+item_id+".png"
+            qrcode = segno.make_qr(sap)
+            name = settings.MEDIA_ROOT + "item_qr/"+sap+".png"
             qrcode.save(name, scale=10)
             # Save QR
             instance.code_qr = name
@@ -71,11 +71,11 @@ class ItemForm(DynamicFormMixin, forms.ModelForm):
 
     class Meta:
         model = Item
-        fields = ('brand', 'description', 'item_id', 'quantity', 'unit', 'subtype')
+        fields = ('brand', 'description', 'item', 'quantity', 'unit', 'subtype')
         labels = {
             'brand': 'Marca',
             'description': 'Descripcion',
-            'item_id': 'ID del item',
+            'item': 'SAP',
             'quantity': 'Cantidad',
             'unit': 'Unidad de medida',
             'subtype': 'Sub-tipo',
@@ -84,4 +84,4 @@ class ItemForm(DynamicFormMixin, forms.ModelForm):
 class SearchItemForm(forms.Form):
     type = forms.CharField(label="type", max_length=100, required=False)
     description = forms.CharField(label="description", max_length=100, required=False)
-    item_id = forms.CharField(label="item_id", max_length=100, required=False)
+    sap = forms.CharField(label="SAP", max_length=100, required=False)

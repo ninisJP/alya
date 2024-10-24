@@ -1,0 +1,24 @@
+{% load widget_tweaks %}
+
+{% if valid_item == "yes" %}
+    <button class="btn w-100"
+        hx-get="{% url 'logistic_inventory_output_new_item' output.pk saleorder_items.0.pk %}"
+        hx-target="#logistic_inventory_output_new_list"
+        data-bs-toggle="button"
+        aria-pressed="false">
+        <i class="fa-solid fa-plus-circle"></i> ITEM VALIDO: RETIRAR
+    </button>
+</div>
+{% elif valid_item == "quantity" %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-button custom-rounded-top">
+        <tbody>
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="4" >CANTIDAD INSUFICIENTE</td>
+                </tr>
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% include 'output/guide/list_element.html' %}
