@@ -2,7 +2,7 @@
 
 {% if valid_item == "yes" %}
     <button class="btn w-100"
-        hx-get="{% url 'logistic_inventory_output_new_item' output.pk saleorder_items.0.pk %}"
+        hx-get="{% url 'logistic_inventory_output_new_item' output.pk saleorder_items.0.pk inventory_items.0.pk %}"
         hx-target="#logistic_inventory_output_new_list"
         data-bs-toggle="button"
         aria-pressed="false">

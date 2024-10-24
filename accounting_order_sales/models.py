@@ -23,7 +23,7 @@ class SalesOrder(models.Model):
 
 class SalesOrderItem(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="items")
-    sap_code = models.CharField(max_length=255, default="", unique=True)
+    sap_code = models.CharField(max_length=255, default="")
     description = models.CharField(max_length=255, default="")
     amount = models.IntegerField(null=True, default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
