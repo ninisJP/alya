@@ -20,8 +20,8 @@
     <div id="information" class="mt-4 text-lg text-gray-800"></div>
 
     <!-- Main modal -->
-    <div x-show="showModal" id="user-modal" tabindex="-1" aria-hidden="true" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div @click.outside="showModal = false" class="relative p-6 w-full max-w-lg bg-white rounded-lg shadow-lg">
+    <div x-show="showModal" id="user-modal" tabindex="-1" aria-hidden="true" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto">
+        <div @click.outside="showModal = false" class="relative p-6 w-full max-w-2xl max-h-screen bg-white rounded-lg shadow-lg overflow-y-auto">
             <!-- Modal header -->
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-gray-900">
@@ -47,14 +47,16 @@
                             {% render_field field class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5" %}
                         </div>
                     {% endfor %}
-                    <button type="submit" @click.debounce.1000ms="showModal = false" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Guardar Empleado</button>
+                    <div class="mt-4">
+                        <button type="submit" @click.debounce.1000ms="showModal = false" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Guardar Empleado</button>
+                    </div>
                 </form>                
             </div>
         </div>
     </div>
 
     <ul id="user-list" class="mt-8 space-y-4">
-        {% include 'partials/user_list.html' %} <!-- Asegúrate de que esta ruta sea correcta -->
+        {% include 'partials/user_list.html' %}
     </ul>
 </div>
 <script>
