@@ -5,6 +5,7 @@ from .models import InventoryOutput, InventoryOutputItem
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from alya import utils
 from logistic_inventory.models import Item
+from logistic_requirements.models import RequirementOrder, RequirementOrderItem
 
 
 def check_items(order_id):
@@ -82,15 +83,24 @@ def search_saleorder_item(form, item_missing):
 
 def get_all_items(output_pk):
 	output = get_object_or_404(InventoryOutput, pk=output_pk)
-	output_saleorder_items = InventoryOutputItem.objects.filter(output=output.pk)
-	saleorder_items = SalesOrderItem.objects.filter(salesorder=output.sale_order)
+	output_items = InventoryOutputItem.objects.filter(output=output.pk)
+
+	requirements = RequirementOrder.objects.filter(sales_order=output.sale_order)
+	requirement_items = []
+	for requirement_one in requirements :
+		print(requirement_one)
+		requirement_items.append(RequirementOrderItem.objects.filter(requirement_order=requirement_one, estado='L'))
+
+	print(requirement_items)
 
 	item_missing = []
 
-	for sale_item in saleorder_items :
-		item_exist = output_saleorder_items.filter(item_saleorder=sale_item)
+	for item_requirement in requirement_items :
+		item_exist = output_items.filter(item_requirement=item_requirement)
 		if not item_exist :
-			item_missing.append(sale_item)
+			item_missing.append(item_requirement)
+
+	print(item_missing)
 
 	list_id = []
 	for item in item_missing :

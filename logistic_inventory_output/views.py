@@ -12,7 +12,6 @@ from .utils import check_items, search_salesorder, search_saleorder_item, get_al
 
 def output_index(request):
     outputs = InventoryOutput.objects.all()
-    print(outputs)
     context = {'outputs': outputs}
     return render(request, 'output/home.html', context)
 

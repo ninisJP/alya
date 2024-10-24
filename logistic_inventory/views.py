@@ -36,7 +36,6 @@ def brand_search(request):
         form = SearchForm(request.POST)
         if form.is_valid():
             status, brands = utils.search_model(Brand.objects.all(), 'name', form.cleaned_data['name'])
-            print(brands)
             if brands != {} :
                 brands = brands.order_by('name')
 
