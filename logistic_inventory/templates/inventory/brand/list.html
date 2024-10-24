@@ -1,13 +1,36 @@
+{% load widget_tweaks %}
+
 {% if search_status == -1 %}
-    <div class="inline bg-red-200 p-2 border border-red-400 text-red-700 px-4 py-3 rounded">
-        Se requiere al menos 4 caracteres para la búsqueda.
-    </div>
-{% elif search_status == -2 %}
-    <div class="inline bg-red-200 p-2 border border-red-400 text-red-700 px-4 py-3 rounded">
-        No se encontró ninguna coincidencia
-    </div>
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-button custom-rounded-top">
+        <tbody>
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="1" >
+                        Se requiere al menos 4 caracteres para la búsqueda.
+                    </td>
+                </tr>
+        </tbody>
+    </table>
+</div>
 {% endif %}
 
-{% for brand in brands %}
-    {% include 'inventory/brand/list_element.html' %}
-{% endfor %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th>Marca</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for brand in brands %}
+                <tr class="rounded-3">
+                    <td>{{ brand.name }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="1" >No se encontró ninguna coincidencia</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

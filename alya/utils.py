@@ -14,6 +14,10 @@ def search_model(model_all, column, name, accept_all=False):
 
     regex_str = str(name)
 
+    # If void
+    if regex_str == "" :
+        return 0, model_all
+
     list_find = []
     for element in model_list:
         match = re.findall(regex_str, str(element[column]), re.IGNORECASE)
@@ -24,7 +28,8 @@ def search_model(model_all, column, name, accept_all=False):
     # Get model id
     list_id = []
     for item in list_find :
-        list_id.append(item['id'])
+        id_name =list(item.keys())[0]
+        list_id.append(item[id_name])
 
     # Get model
     model_list = model_all.filter(pk__in=list_id)

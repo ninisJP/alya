@@ -34,19 +34,34 @@ class BudgetForm(forms.ModelForm):
             'budget_date': forms.DateInput(attrs={'type': 'date'}),
             'client': forms.Select(attrs={'class': 'form-control'}),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super(BudgetForm, self).__init__(*args, **kwargs)
         self.fields['client'].empty_label = 'Seleccione un cliente'
+        
+        # Etiquetas en español
+        self.fields['client'].label = 'Cliente'
+        self.fields['budget_name'].label = 'Nombre del Presupuesto'
+        self.fields['budget_number'].label = 'Número del Presupuesto'
+        self.fields['budget_days'].label = 'Días del Presupuesto'
+        self.fields['budget_date'].label = 'Fecha del Presupuesto'
+        self.fields['budget_expenses'].label = 'Gastos'
+        self.fields['budget_utility'].label = 'Utilidad'
+        self.fields['budget_deliverytime'].label = 'Tiempo de Entrega'
+        self.fields['budget_servicetime'].label = 'Tiempo de Servicio'
+        self.fields['budget_warrantytime'].label = 'Tiempo de Garantía'
 
 
 class BudgetItemForm(forms.ModelForm):
     class Meta:
         model = BudgetItem
-        fields = ('item', 'quantity')
+        fields = ('item', 'quantity', 'custom_price', 'custom_price_per_day', 'unit')
         widgets = {
             'item': Select2AjaxWidget(),
-            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad'}),
+            'custom_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio Unitario'}),
+            'custom_price_per_day': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio por Día'}),
+            'unit': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unidad de medida'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -54,12 +69,64 @@ class BudgetItemForm(forms.ModelForm):
         if 'DELETE' in self.fields:
             self.fields['DELETE'].widget = forms.HiddenInput()
 
+        # Etiquetas en español para los campos
+        self.fields['item'].label = 'Ítem'
+        self.fields['quantity'].label = 'Cantidad'
+        self.fields['custom_price'].label = 'Precio Unitario'
+        self.fields['custom_price_per_day'].label = 'Precio por Día'
+        self.fields['unit'].label = 'Unidad de Medida'
+
+
+# Configuración del formset
 BudgetItemFormSet = inlineformset_factory(
     Budget,
     BudgetItem,
     form=BudgetItemForm,
     extra=0,
 )
+
+
+
+class NewBudgetItemForm(forms.ModelForm):
+    class Meta:
+        model = BudgetItem
+        fields = ('item', 'quantity', 'custom_price', 'custom_price_per_day', 'unit')
+        widgets = {
+            'item': Select2AjaxWidget(),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad'}),
+            'custom_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio Unitario'}),
+            'custom_price_per_day': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio por Día'}),
+            'unit': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unidad de medida'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super(NewBudgetItemForm, self).__init__(*args, **kwargs)
+        # Configura las etiquetas en español
+        self.fields['item'].label = 'Ítem'
+        self.fields['quantity'].label = 'Cantidad'
+        self.fields['custom_price'].label = 'Precio Unitario'
+        self.fields['custom_price_per_day'].label = 'Precio por Día'
+        self.fields['unit'].label = 'Unidad de Medida'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class CatalogItemForm(forms.ModelForm):
     class Meta:

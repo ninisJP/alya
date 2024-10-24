@@ -44,11 +44,11 @@ class CreateRequirementOrderItemForm(forms.ModelForm):
         model = RequirementOrderItem
         fields = ['sales_order_item', 'quantity_requested', 'notes', 'supplier', 'price', 'file_attachment']
         widgets = {
-            # 'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=3)).isoformat()}),
+            #'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=3)).isoformat()}),
             'notes': forms.TextInput(attrs={'required': 'required', 'placeholder': 'Detalles (opcional)', 'class': 'form-control-sm'}),
         }
 
-
+    # TODO: YOLOLO
     # def clean_requested_date(self):
     #     requested_date = self.cleaned_data.get('requested_date')
     #     min_date = date.today() + timedelta(days=3) 

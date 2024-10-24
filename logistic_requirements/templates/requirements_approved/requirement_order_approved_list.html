@@ -1,0 +1,75 @@
+{% extends 'base_logistic.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Sección de lista de órdenes -->
+    <div class="table-responsive mb-4">
+        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+            <thead class="table-dark custom-thead-rounded">
+                <tr>
+                    <th>ID</th>
+                    <th>Proyecto</th>
+                    <th>Cliente</th>
+                    <th>Orden de Venta</th>
+                    <th>F. Creada</th>
+                    <th>F. Solicitada</th>
+                    <th>Detalles</th>
+                    <th>Aprobado por Contabilidad</th>
+                    <th>Estado de Ítems</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in requirement_orders %}
+                <tr class="rounded-3">
+                    <td>{{ order.order_number }}</td>
+                    <td>{{ order.sales_order.project.name }}</td>
+                    <td>{{ order.sales_order.project.client.legal_name }}</td>
+                    <td>{{ order.sales_order.sapcode }}</td>
+                    <td>{{ order.requested_date }}</td>
+                    <td>{{ order.created_at }}</td>
+                    <td>{{ order.notes }}</td>
+                    <td>
+                        {% if order.state == "NO REVISADO" %}
+                            <span class="badge bg-warning text-dark rounded-pill">No Revisado</span>
+                        {% elif order.state == "APROBADO" %}
+                            <span class="badge bg-success rounded-pill">Aprobado</span>
+                        {% elif order.state == "RECHAZADO" %}
+                            <span class="badge bg-danger rounded-pill">Rechazado</span>
+                        {% else %}
+                            <span class="badge bg-secondary rounded-pill">{{ order.state }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if order.global_state == "Listo" %}
+                            <span class="badge bg-success">Listo</span>
+                        {% elif order.global_state == "Comprando" %}
+                            <span class="badge bg-primary">Comprando</span>
+                        {% elif order.global_state == "Pendiente" %}
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ order.global_state }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button hx-get="{% url 'requirement_order_detail_partial' order.id %}"
+                            hx-target="#order-details-{{ order.id }}"
+                            hx-swap="outerHTML"
+                            class="btn btn-info btn-sm">
+                        <i class="fas fa-info-circle"></i> Previsualizar
+                            </button>
+                        </div>
+                        <a href="{% url 'requirement_order_detail' order.id %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-info-circle"></i> Detalles
+                        </a>
+                    </td>
+                </tr>
+                <!-- Contenedor donde se cargarán los detalles -->
+                <tr id="order-details-{{ order.id }}"></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

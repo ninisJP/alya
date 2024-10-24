@@ -1,6 +1,8 @@
 {% load widget_tweaks %}
 
-<form hx-post="{% url 'budget_catalog_new' %}" hx-target="#budget_catalog_form" hx-swap="outerHTML" class="w-100 mb-5 p-4 border rounded shadow-sm">
-    {% csrf_token %}
-    {% include 'catalog/form_template.html' %}
-</form>
+<div id="budget_catalog_form" class="w-100">
+    <form hx-post="{% url 'budget_catalog_new' %}" hx-target="#budget_catalog_form" hx-swap="outerHTML" class="w-100 mb-5 p-4 border rounded shadow-sm">
+        {% csrf_token %}
+        {% include 'catalog/form_template.html' %}
+    </form>
+</div>

@@ -71,34 +71,41 @@ class CatalogItem(models.Model):
         MANODEOBRA = 'Mano de obra'
 
     category = models.CharField(max_length=100, choices=Category.choices, default=Category.EQUIPO)
-    description = models.CharField(max_length=256, db_index=True)  # Índice añadido
+    description = models.CharField(max_length=256, db_index=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    sap = models.CharField(max_length=100, unique=True, db_index=True)  # Índice añadido
+    sap = models.CharField(max_length=100, unique=True, db_index=True)
     unit = models.CharField(max_length=100, default='UND')
 
     def __str__(self):
         return f'{self.sap} <{self.description}> precio: {self.price}'
 
-
-
 class BudgetItem(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey(CatalogItem, on_delete=models.CASCADE, related_name='budget_items')
     quantity = models.PositiveIntegerField(default=1)
+    custom_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    custom_price_per_day = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
+    unit = models.CharField(max_length=100, blank=True, null=True)  # Campo unit editable, puede ser nulo
 
     def save(self, *args, **kwargs):
+        # Si no se ha especificado una unidad, utilizar la unidad del catálogo
+        if not self.unit:
+            self.unit = self.item.unit
+
+        # Si no se ha especificado un precio personalizado, utiliza los del catálogo
+        price = self.custom_price if self.custom_price is not None else self.item.price
+        price_per_day = self.custom_price_per_day if self.custom_price_per_day is not None else self.item.price_per_day
+
         # Determinar si se aplica precio por día en función de la categoría
         if self.item.category not in [CatalogItem.Category.EQUIPO, CatalogItem.Category.CONSUMIBLE, CatalogItem.Category.MATERIAL]:
             # Aplica precio por día para categorías que no sean EQUIPO, CONSUMIBLE o MATERIAL
-            self.total_price = self.item.price_per_day * self.quantity * self.budget.budget_days
+            self.total_price = price_per_day * self.quantity * self.budget.budget_days
         else:
             # No aplica precio por día
-            self.total_price = self.item.price * self.quantity
+            self.total_price = price * self.quantity
 
         super().save(*args, **kwargs)
         # Guardar el presupuesto para que sus valores también se actualicen
         self.budget.save()
-
-

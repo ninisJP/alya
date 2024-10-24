@@ -1,0 +1,18 @@
+{% load widget_tweaks %}
+
+<form hx-post="{% url 'logistic_inventory_output_new_salesorder_search' %}" hx-target="#logistic_inventory_output_new_salesorder_list" hx-swap="innerHTML" hx-trigger="keyup delay:0.2s" class="w-100 mb-5 p-4 border rounded shadow-sm">
+    <div class="row">
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ search.sapcode.id_for_label }}" > Por SAP: </label>
+            {{ search.sapcode }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ search.project.id_for_label }}" > Por proyecto: </label>
+            {{ search.project }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ search.detail.id_for_label }}" > Por descripción: </label>
+            {{ search.detail }}
+        </div>
+    </div>
+</form>

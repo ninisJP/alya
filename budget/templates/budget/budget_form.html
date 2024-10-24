@@ -69,26 +69,61 @@
     <!-- Formset de Ítems -->
     <div class="container">
         <div class="row font-weight-bold border-bottom pb-1 mb-2" style="border-bottom: 2px solid #ddd;">
-            <div class="col-md-7 text-center">Ítem</div>
-            <div class="col-md-3 text-center">Cantidad</div>
-            <div class="col-md-2 text-center">Eliminar</div>
+            <div class="col-md-4 text-center">ITEM</div>
+            <div class="col-md-1 text-center">CANT</div>
+            <div class="col-md-2 text-center">UND</div>  <!-- Campo de Unidad -->
+            <div class="col-md-2 text-center">PRECIO U.</div>
+            <div class="col-md-2 text-center">PRECIO D.</div>
+            <div class="col-md-1 text-center">ELIMINAR</div>
         </div>
 
         <div id="item-formset">
             {{ formset.management_form }}
-            <div id="empty-form" style="display: none;">
-                <!-- Eliminación del fondo blanco y margen reducido para compactar los ítems -->
-                <div class="form-row row align-items-center p-1" style="margin-bottom: 4px;">
-                    <div class="col-md-7">
-                        {{ formset.empty_form.item|add_class:"form-control select2-ajax text-dark"|attr:"placeholder=Ítem" }}
-                    </div>
-                    <div class="col-md-3">
-                        {{ formset.empty_form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
-                    </div>
-                    <div class="col-md-2 text-center">
-                        <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
-                    </div>
+            {% for form in formset %}
+            <div class="form-row row align-items-center p-1" style="margin-bottom: 4px;">
+                <div class="col-md-4">
+                    {{ form.item|add_class:"form-control select2-ajax text-dark"|attr:"placeholder=Seleccione un ítem" }}
                 </div>
+                <div class="col-md-1">
+                    {{ form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.unit|add_class:"form-control text-center text-dark"|attr:"placeholder=Unidad" }}  <!-- Campo editable -->
+                </div>
+                <div class="col-md-2">
+                    {{ form.custom_price|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio Unitario" }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.custom_price_per_day|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio por Día" }}
+                </div>
+                <div class="col-md-1 text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Formulario vacío oculto para clonar -->
+    <div id="empty-form" style="display:none;">
+        <div class="form-row row align-items-center p-1" style="margin-bottom: 4px;">
+            <div class="col-md-4">
+                {{ formset.empty_form.item|add_class:"form-control select2-ajax text-dark"|attr:"placeholder=Seleccione un ítem" }}
+            </div>
+            <div class="col-md-1">
+                {{ formset.empty_form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
+            </div>
+            <div class="col-md-2">
+                {{ formset.empty_form.unit|add_class:"form-control text-center text-dark"|attr:"placeholder=Unidad" }}
+            </div>
+            <div class="col-md-2">
+                {{ formset.empty_form.custom_price|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio Unitario" }}
+            </div>
+            <div class="col-md-2">
+                {{ formset.empty_form.custom_price_per_day|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio por Día" }}
+            </div>
+            <div class="col-md-1 text-center">
+                <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
             </div>
         </div>
     </div>
@@ -126,7 +161,7 @@
                     ajax: {
                         url: $(selector).data('ajax--url'),
                         dataType: 'json',
-                        delay: 250,
+                        delay: 150,
                         data: function(params) {
                             return { term: params.term };
                         },
@@ -140,26 +175,36 @@
             }
         }
 
-        // Agregar tres formularios al hacer clic en "Agregar Ítem"
-        $('#add-item').click(function(e) {
-            e.preventDefault();
-            var formCount = parseInt($('#id_items-TOTAL_FORMS').val());
-            for (var i = 0; i < 3; i++) {
-                var $emptyForm = $('#empty-form .form-row').clone();
-                $emptyForm.find(':input').each(function() {
-                    var name = $(this).attr('name');
-                    if (name) $(this).attr('name', name.replace('__prefix__', formCount));
-                    var id = $(this).attr('id');
-                    if (id) $(this).attr('id', id.replace('__prefix__', formCount));
-                });
+    // Agregar formularios al hacer clic en "Agregar Ítem"
+    $('#add-item').click(function(e) {
+        e.preventDefault();
+        
+        // Número de formularios a agregar (3 en este caso)
+        var numFormsToAdd = 3;
+        var formCount = parseInt($('#id_items-TOTAL_FORMS').val());
+        
+        for (var i = 0; i < numFormsToAdd; i++) {
+            var $emptyForm = $('#empty-form .form-row').clone();
+            $emptyForm.find(':input').each(function() {
+                var name = $(this).attr('name');
+                if (name) $(this).attr('name', name.replace('__prefix__', formCount));
+                var id = $(this).attr('id');
+                if (id) $(this).attr('id', id.replace('__prefix__', formCount));
+            });
 
-                $('#item-formset').append($emptyForm);
-                $('#id_items-TOTAL_FORMS').val(formCount + 1);
-                initializeSelect2($emptyForm.find('.select2-ajax'));        
-                formCount++;
-            }
-        });
+            // Agregar el formulario clonado al formset
+            $('#item-formset').append($emptyForm);
+            initializeSelect2($emptyForm.find('.select2-ajax'));
+            
+            // Incrementar el contador de formularios
+            formCount++;
+        }
+        
+        // Actualizar el valor de TOTAL_FORMS después de agregar los formularios
+        $('#id_items-TOTAL_FORMS').val(formCount);
+    });
 
+        // Eliminar formularios
         $(document).on('click', '.remove-form', function(e) {
             e.preventDefault();
             $(this).closest('.form-row').remove();

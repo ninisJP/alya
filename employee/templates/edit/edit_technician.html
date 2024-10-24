@@ -1,0 +1,48 @@
+{% extends "base_employee.html" %}
+
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2 class="card-title mb-0">Editar Técnico</h2>
+    </div>
+    <div class="card-body">
+      <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <!-- Form fields -->
+        <div class="row g-3">
+          <div class="col-md-6">
+            {{ form.first_name|as_crispy_field }}
+          </div>
+          <div class="col-md-6">
+            {{ form.last_name|as_crispy_field }}
+          </div>
+          <div class="col-md-6">
+            {{ form.position|as_crispy_field }}
+          </div>
+          <div class="col-md-6">
+            {{ form.status|as_crispy_field }}
+          </div>
+          <div class="col-md-6">
+            {{ form.email|as_crispy_field }}
+          </div>
+          <div class="col-md-6">
+            {{ form.dni|as_crispy_field }}
+          </div>
+          <div class="col-md-6">
+            {{ form.role|as_crispy_field }}
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn btn-success btn-lg px-4">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

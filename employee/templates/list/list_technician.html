@@ -31,6 +31,7 @@
                     <p class="mb-2 font-semibold"><i class="fas fa-id-card"></i> DNI: <span class="font-bold">{{ technician.dni }}</span></p>
                     <p class="mb-2 font-semibold"><i class="fas fa-info-circle"></i> Status: <span class="font-bold">{{ technician.get_status_display }}</span></p>
                 </div>
+                <a href="{% url 'edit_technician' technician.pk %}" class="btn btn-primary btn-sm">Editar</a>
             </div>
         </div>
         {% endfor %}

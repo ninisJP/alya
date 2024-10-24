@@ -1,13 +1,48 @@
+{% load widget_tweaks %}
+
 {% if search_status == -1 %}
-    <div class="inline bg-red-200 p-2 border border-red-400 text-red-700 px-4 py-3 rounded">
-        Se requiere al menos 4 caracteres para la búsqueda.
-    </div>
-{% elif search_status == -2 %}
-    <div class="inline bg-red-200 p-2 border border-red-400 text-red-700 px-4 py-3 rounded">
-        No se encontró ninguna coincidencia
-    </div>
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-button custom-rounded-top">
+        <tbody>
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="1" >
+                        Se requiere al menos 4 caracteres para la búsqueda.
+                    </td>
+                </tr>
+        </tbody>
+    </table>
+</div>
 {% endif %}
 
-{% for item in items %}
-    {% include 'inventory/item_list_element.html' %}
-{% endfor %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th>SAP</th>
+                <th>Categoría</th>
+                <th>Tipo</th>
+                <th>Sub-tipo</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Unidad de medida</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr class="rounded-3">
+                    <td>{{ item.item.sap }}</td>
+                    <td>{{ item.subtype.type.category}}</td>
+                    <td>{{ item.subtype.type }}</td>
+                    <td>{{ item.subtype }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.unit }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="8" >No se encontró ninguna coincidencia</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
