@@ -66,7 +66,6 @@ def item_new(request):
 
     return render(request, 'inventory/item_form.html', context)
 
-
 def item_search(request):
     context = {}
     if request.method == 'POST':
@@ -120,19 +119,6 @@ def type(request):
     context = {'form': TypeForm(), 'search': SearchForm()}
     context['types'] = Type.objects.all()
     return render(request, 'inventory/type/home.html', context)
-
-def type_edit(request, type_id):
-    ttype = get_object_or_404(Type, id=type_id)
-    if request.method == 'POST':
-        form = TypeForm(request.POST, instance=ttype)
-        if form.is_valid():
-            form.save()
-            ttype = get_object_or_404(Type, id=type_id)
-            return render(request, 'inventory/type/list_element.html', {'type': ttype})
-    # Create view to edit
-    form = TypeForm(instance=ttype)
-    context = {'form': form, 'type': ttype}
-    return render(request, 'inventory/type/edit.html', context)
 
 def type_new(request):
     context = {}

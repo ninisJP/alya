@@ -13,7 +13,6 @@ def search_model(model_all, column, name, accept_all=False):
     regex_str = str(name)
 
     # If void
-    print(regex_str+"<")
     if regex_str == "" :
         return 0, model_all
 
@@ -27,7 +26,8 @@ def search_model(model_all, column, name, accept_all=False):
     # Get model id
     list_id = []
     for item in list_find :
-        list_id.append(item['id'])
+        id_name =list(item.keys())[0]
+        list_id.append(item[id_name])
 
     # Get model
     model_list = model_all.filter(pk__in=list_id)

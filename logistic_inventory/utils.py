@@ -16,7 +16,7 @@ def sort_item(model):
                 "subtype" : str(item.subtype),
                 "brand" : str(item.brand),
                 "description" : item.description,
-                "id" : item.id,
+                "id" : item.pk,
                 }
         sort_type.append(element)
 
@@ -41,16 +41,26 @@ def search_item(model_all, form):
         list_type = []
         for item in model_list :
             item_type = str(item.subtype.type)
-            find_type = re.search(type, item_type)
+            find_type = re.search(type, item_type, re.IGNORECASE)
             if find_type != None :
-                list_type.append(item.id)
+                list_type.append(item.pk)
         model_list = model_all.filter(pk__in=list_type)
 
     if form.cleaned_data['description'] :
         status, model_list = utils.search_model(model_list, 'description', form.cleaned_data['description'], accept_all=True)
 
     if form.cleaned_data['sap'] :
-        status, model_list = utils.search_model(model_list, 'sap', form.cleaned_data['sap'], accept_all=True)
+        sap = form.cleaned_data['sap']
+        # Get keys to sort
+        r = re.compile(".*sap.*", re.IGNORECASE)
+
+        list_sap = []
+        for item in model_list :
+            item_sap = str(item.item.sap)
+            find_sap = re.search(sap, item_sap, re.IGNORECASE)
+            if find_sap != None :
+                list_sap.append(item.pk)
+        model_list = model_all.filter(pk__in=list_sap)
 
     status = 0
     if len(model_list) == 0:

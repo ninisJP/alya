@@ -3,16 +3,16 @@
 <form hx-post="{% url 'logistic_inventory_item_search' %}" hx-target="#logistic_inventory_item_list" hx-swap="innerHTML" hx-trigger="keyup delay:0.2s" class="w-100 mb-5 p-4 border rounded shadow-sm">
     <div class="row">
         <div class="col-6 col-md-2 mb-3">
+            <label for="{{ search.sap.id_for_label }}" > Por SAP: </label>
+            {{ search.sap }}
+        </div>
+        <div class="col-6 col-md-2 mb-3">
             <label for="{{ search.type.id_for_label }}" > Por tipo: </label>
             {{ search.type }}
         </div>
         <div class="col-6 col-md-2 mb-3">
             <label for="{{ search.description.id_for_label }}" > Por descripción: </label>
             {{ search.description }}
-        </div>
-        <div class="col-6 col-md-2 mb-3">
-            <label for="{{ search.sap.id_for_label }}" > Por SAP: </label>
-            {{ search.sap }}
         </div>
     </div>
 </form>
