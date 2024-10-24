@@ -5,11 +5,14 @@ from .forms import *
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from follow_control_card.utils import create_monthly_cards_for_user
-from django.shortcuts import render
-from django.urls import reverse_lazy
 from django.views.decorators.http import require_GET
 from django.db.models import Q
 from django.http import JsonResponse
+from django.views.generic.edit import UpdateView
+from .forms import *
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+
 
 class Login(LoginView):
     template_name = 'registration/login.html'
@@ -47,6 +50,7 @@ class RegisterView(FormView):
 
 
 # Render supervisor & technician
+
 def supervisor_list_view(request):
     supervisors = Supervisor.objects.all()
     return render(request, 'list/list_supervisor.html', {'supervisors': supervisors})
@@ -55,3 +59,36 @@ def technician_list_view(request):
     technicians = Technician.objects.all()
     return render(request, 'list/list_technician.html', {'technicians': technicians})
 
+
+# Edit Supervisor & Technician
+def edit_supervisor(request, pk):
+    supervisor = get_object_or_404(Supervisor, pk=pk)
+    if request.method == 'POST':
+        form = SupervisorEditForm(request.POST, instance=supervisor)
+        if form.is_valid():
+            supervisor = form.save()
+            messages.success(request, 'Supervisor actualizado exitosamente.')
+            return redirect('supervisor')
+    else:
+        form = SupervisorEditForm(instance=supervisor)
+    
+    return render(request, 'edit/edit_supervisor.html', {
+        'form': form,
+        'supervisor': supervisor
+    })
+    
+def edit_technician(request, pk):
+    technician = get_object_or_404(Technician, pk=pk)
+    if request.method == 'POST':
+        form = TechnicianEditForm(request.POST, instance=technician)
+        if form.is_valid():
+            technician = form.save()
+            messages.success(request, 'Técnico actualizado exitosamente.')
+            return redirect('technician')
+    else:
+        form = TechnicianEditForm(instance=technician)
+    
+    return render(request, 'edit/edit_technician.html', {
+        'form': form,
+        'technician': technician
+    })
