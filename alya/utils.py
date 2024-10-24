@@ -55,15 +55,24 @@ def send_order_notification(requirement_order, user, extra_recipients=None):
         f"El pedido ha sido creado por {user.username} y está pendiente de aprobación.\n\n"
         f"Detalles del Pedido:\n"
         f"- Orden de Venta: {requirement_order.sales_order}\n"
-        #f"- Usuario: {user.get_full_name()} ({user.email})\n\n"
+        # f"- Usuario: {user.get_full_name()} ({user.email})\n\n"
         f"Saludos,\n"
         f"Equipo de Gestión"
     )
 
+    # Correos predefinidos
+    default_recipients = [
+        "contabilidad@jpingenieria.pe",
+        "logistica@jpingenieria.pe",
+        "noelia.gonzales@jpingenieria.pe",
+    ]
+    
     # Lista de destinatarios
     recipient_list = [user.email]  # Correo del usuario
+    recipient_list.extend(default_recipients)  # Añadir los correos predeterminados
+
     if extra_recipients:
-        recipient_list.extend(extra_recipients)  # Añade correos adicionales si los hay
+        recipient_list.extend(extra_recipients)  # Añadir correos adicionales si los hay
 
     # Enviar el correo
     try:
@@ -78,6 +87,7 @@ def send_order_notification(requirement_order, user, extra_recipients=None):
     except Exception as e:
         print(f"Error al enviar el correo: {e}")
         return False
+            
 
 def send_state_change_email(requirement_order):
     """
