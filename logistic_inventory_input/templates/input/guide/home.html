@@ -1,0 +1,65 @@
+{% block extra_css %}
+<style>
+    .custom-card {
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+    .custom-table {
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+    /* Badge más grande */
+    .badge-large {
+        font-size: 1rem; /* Aumenta el tamaño de la fuente */
+        padding: 0.5rem 1rem; /* Aumenta el padding */
+        line-height: 1.5; /* Asegura que el texto se vea bien */
+    }
+    .badge-listo {
+        background-color: #28a745;
+        color: white;
+    }
+    .badge-pendiente {
+        background-color: #ffc107;
+        color: black;
+    }
+    .badge-comprando {
+        background-color: #17a2b8;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+<div class="container-fluid mt-5">
+    <!-- Información General -->
+    <div class="custom-card mb-4">
+        <div class="custom-card-header bg-dark text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Detalles de la Guia de Salida #{{ output.pk }}</h4>
+            </div>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <p><strong>Orden de Venta (Código SAP):</strong> {{ output.sale_order.sapcode }}</p>
+                    <p><strong>Descripción de la orden de venta:</strong> {{ output.sale_order.detail }}</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <p><strong>Fecha de creación:</strong> {{ output.date_create }}</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <ul id="logistic_inventory_input_new_search" class="mt-8 space-y-4">
+        {% include 'input/guide/search.html' %}
+    </ul>
+
+    <ul id="logistic_inventory_input_new_list" class="mt-8 space-y-4">
+        {% include 'input/guide/list.html' %}
+    </ul>
+
+</div>

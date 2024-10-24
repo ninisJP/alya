@@ -1,0 +1,44 @@
+{% load widget_tweaks %}
+
+<!-- Output items -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th colspan="10">ITEMS RETIRADOS</th>
+            </tr>
+            <tr>
+                <th>SAP</th>
+                <th>Item ID</th>
+                <th>Tipo</th>
+                <th>Sub-tipo</th>
+                <th>Marca</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Fecha de retirada</th>
+                <th>Fecha de retorno</th>
+                <th>Requerimiento</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in output_items %}
+                <tr class="rounded-3">
+                    <td>{{ item.item.item.sap }}</td>
+                    <td>{{ item.item.pk }}</td>
+                    <td>{{ item.item.subtype.type }}</td>
+                    <td>{{ item.item.subtype }}</td>
+                    <td>{{ item.item.brand }}</td>
+                    <td>{{ item.item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.date_create }}</td>
+                    <td>{{ item.date_returned }}</td>
+                    <td>{{ item.item_requirement.requirement_order.order_number }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="10" >No se retiro ningun item</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
