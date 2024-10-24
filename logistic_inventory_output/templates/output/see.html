@@ -40,7 +40,7 @@
                 <div class="d-flex align-items-center">
                     <!-- Estado de la orden en Badge (badge-large aplicado) -->
                     <span class="badge badge-large
-                        {% if requirement_order.returned %} badge-listo
+                        {% if output.returned %} badge-listo
                         {% else %} badge-pendiente {% endif %} me-3">
                         {% if output.returned %}
                             Retornado

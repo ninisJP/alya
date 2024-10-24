@@ -9,22 +9,22 @@
             </tr>
             <tr>
                 <th>SAP</th>
+                <th>Requerimiento</th>
                 <th>Descripción</th>
                 <th>Cantidad</th>
-                <th>Unidad</th>
             </tr>
         </thead>
         <tbody>
-            {% for item in saleorder_items %}
+            {% for item in requirements_items %}
                 <tr class="rounded-3">
                     <td>{{ item.sap_code }}</td>
-                    <td>{{ item.description }}</td>
-                    <td>{{ item.amount }}</td>
-                    <td>{{ item.unit_of_measurement }}</td>
+                    <td>{{ item.requirement_order.order_number }}</td>
+                    <td>{{ item.notes }}</td>
+                    <td>{{ item.quantity_requested }}</td>
                 </tr>
             {% empty %}
                 <tr class="bg-red-200 text-red-700">
-                    <td colspan="4" >No se encontró ninguna coincidencia</td>
+                    <td colspan="3" >No se encontró ninguna coincidencia</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -41,7 +41,6 @@
                 </tr>
                 <tr>
                     <th>SAP</th>
-                    <th>Item ID</th>
                     <th>Tipo</th>
                     <th>Sub-tipo</th>
                     <th>Marca</th>
@@ -52,8 +51,7 @@
             <tbody>
                 {% for item in inventory_items %}
                     <tr class="rounded-3">
-                        <td>{{ item.sap }}</td>
-                        <td>{{ item.pk }}</td>
+                        <td>{{ item.item.sap }}</td>
                         <td>{{ item.subtype.type }}</td>
                         <td>{{ item.subtype }}</td>
                         <td>{{ item.brand }}</td>
@@ -75,7 +73,7 @@
     <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
         <thead class="table-dark custom-thead-rounded">
             <tr>
-                <th colspan="9">ITEMS RETIRADOS</th>
+                <th colspan="10">ITEMS RETIRADOS</th>
             </tr>
             <tr>
                 <th>SAP</th>
@@ -87,12 +85,13 @@
                 <th>Cantidad</th>
                 <th>Fecha de retirada</th>
                 <th>Fecha de retorno</th>
+                <th>Requerimiento</th>
             </tr>
         </thead>
         <tbody>
             {% for item in output_items %}
                 <tr class="rounded-3">
-                    <td>{{ item.item.sap }}</td>
+                    <td>{{ item.item.item.sap }}</td>
                     <td>{{ item.item.pk }}</td>
                     <td>{{ item.item.subtype.type }}</td>
                     <td>{{ item.item.subtype }}</td>
@@ -101,10 +100,11 @@
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.date_create }}</td>
                     <td>{{ item.date_returned }}</td>
+                    <td>{{ item.item_requirement.requirement_order.order_number }}</td>
                 </tr>
             {% empty %}
                 <tr class="bg-red-200 text-red-700">
-                    <td colspan="9" >No se retiro ningun item</td>
+                    <td colspan="10" >No se retiro ningun item</td>
                 </tr>
             {% endfor %}
         </tbody>

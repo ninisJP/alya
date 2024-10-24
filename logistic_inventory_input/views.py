@@ -1,11 +1,12 @@
 from django.shortcuts import render
 
-
-from .utils import get_inputs
-
+from logistic_inventory_output.models import InventoryOutput
 
 def input_index(request):
-    outputs = get_inputs()
-    context = {}
-    context['outputs'] = outputs
-    return render(request, 'input/home.html', context)
+	context = {}
+	context['outputs'] = InventoryOutput.objects.filter(returned=False)
+	print(context['outputs'])
+	return render(request, 'input/home.html', context)
+
+def input_new(request, output_pk):
+	return
