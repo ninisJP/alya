@@ -1,40 +1,9 @@
 {% extends 'base_logistic.html' %}
 
-{% block extra_css %}
-<style>
-    .custom-rounded-top {
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-        overflow: hidden;
-    }
-    .custom-thead-rounded {
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-    }
-    .btn-group .btn {
-        padding: 0.375rem 0.75rem; /* Aumenta el padding de los botones */
-        font-size: 0.875rem; /* Ajusta el tamaño de la fuente */
-    }
-    .alert-custom-warning {
-        background-color: #fff3cd;
-        color: #856404;
-        border: 1px solid #ffeeba;
-        border-radius: 5px;
-        padding: 10px;
-        margin-bottom: 15px;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="container-fluid">
-    <!-- Nota en amarillo -->
-    <div class="alert-custom-warning">
-        <strong>Nota:</strong> Si tu orden de requerimiento no está aquí, es porque no está aprobada por contabilidad.
-    </div>
-
-    <!-- Tabla de órdenes -->
-    <div class="table-responsive">
+    <!-- Sección de lista de órdenes -->
+    <div class="table-responsive mb-4">
         <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
             <thead class="table-dark custom-thead-rounded">
                 <tr>
@@ -54,9 +23,9 @@
                 {% for order in requirement_orders %}
                 <tr class="rounded-3">
                     <td>{{ order.order_number }}</td>
-                    <td>{{ order.sales_order.sapcode }}</td>
                     <td>{{ order.sales_order.project.name }}</td>
                     <td>{{ order.sales_order.project.client.legal_name }}</td>
+                    <td>{{ order.sales_order.sapcode }}</td>
                     <td>{{ order.requested_date }}</td>
                     <td>{{ order.created_at }}</td>
                     <td>{{ order.notes }}</td>
@@ -71,7 +40,6 @@
                             <span class="badge bg-secondary rounded-pill">{{ order.state }}</span>
                         {% endif %}
                     </td>
-                    <!-- Columna para mostrar los estados de los ítems -->
                     <td>
                         {% if order.global_state == "Listo" %}
                             <span class="badge bg-success">Listo</span>
@@ -82,29 +50,25 @@
                         {% else %}
                             <span class="badge bg-secondary">{{ order.global_state }}</span>
                         {% endif %}
-                    </td>                   
+                    </td>
                     <td>
-                        <div class="btn-group" role="group" aria-label="Acciones">
-                            <!-- Siempre se puede previsualizar -->
+                        <div class="btn-group" role="group">
                             <button hx-get="{% url 'requirement_order_detail_partial' order.id %}"
                             hx-target="#order-details-{{ order.id }}"
                             hx-swap="outerHTML"
-                            class="btn btn-warning btn-sm">
-                            <i class="fas fa-info-circle"></i> Previsualizar
+                            class="btn btn-info btn-sm">
+                        <i class="fas fa-info-circle"></i> Previsualizar
                             </button>
-
-                            <!-- Solo mostrar el botón de detalles si está aprobado -->
-                            {% if order.state == "APROBADO" %}
-                            <a href="{% url 'requirement_order_detail' order.id %}" class="btn btn-info btn-sm">
-                                <i class="fas fa-info-circle"></i> Detalles
-                            </a>
-                            {% endif %}
                         </div>
+                        <a href="{% url 'requirement_order_detail' order.id %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-info-circle"></i> Detalles
+                        </a>
                     </td>
                 </tr>
+                <!-- Contenedor donde se cargarán los detalles -->
                 <tr id="order-details-{{ order.id }}"></tr>
                 {% endfor %}
-            </tbody>            
+            </tbody>
         </table>
     </div>
 </div>
