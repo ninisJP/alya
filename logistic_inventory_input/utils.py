@@ -43,10 +43,16 @@ def search_items(form, list_items):
 def get_all_items(output_pk):
 	output = get_object_or_404(InventoryOutput, pk=output_pk)
 	items = InventoryOutputItem.objects.filter(output=output.pk, returned=False)
+	output_items_returned = InventoryOutputItem.objects.filter(output=output.pk, returned=True)
+
+	items_returned = []
+	for item in output_items_returned :
+		items_returned.append(InventoryInput.objects.get(output_item=item))
 
 	context = {}
 	context['output'] = output
 	context['output_items'] = items
+	context['output_items_returned'] = items_returned
 	return context, items
 
 def new_item(outputitem_pk, quantity):
@@ -63,6 +69,7 @@ def new_item(outputitem_pk, quantity):
 	# Create Input
 	input_item = InventoryInput(
 			output_item = output_item,
+			quantity = quantity
 			)
 	input_item.save();
 

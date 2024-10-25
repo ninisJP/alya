@@ -24,7 +24,7 @@
                 </tr>
             {% empty %}
                 <tr class="bg-red-200 text-red-700">
-                    <td colspan="3" >No se encontró ninguna coincidencia</td>
+                    <td colspan="4" >No se encontró ninguna coincidencia</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -84,7 +84,6 @@
                 <th>Descripción</th>
                 <th>Cantidad</th>
                 <th>Fecha de retirada</th>
-                <th>Fecha de retorno</th>
                 <th>Requerimiento</th>
             </tr>
         </thead>
@@ -99,7 +98,6 @@
                     <td>{{ item.item.description }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.date_create }}</td>
-                    <td>{{ item.date_returned }}</td>
                     <td>{{ item.item_requirement.requirement_order.order_number }}</td>
                 </tr>
             {% empty %}
@@ -110,3 +108,50 @@
         </tbody>
     </table>
 </div>
+
+<!-- Input items returned -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th colspan="10">ITEMS DEVUELTOS</th>
+            </tr>
+            <tr>
+                <th>SAP</th>
+                <th>Item ID</th>
+                <th>Tipo</th>
+                <th>Sub-tipo</th>
+                <th>Marca</th>
+                <th>Descripción</th>
+                <th>Cantidad Extraída</th>
+                <th>Cantidad Devuelva</th>
+                <th>Fecha de devolución</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in output_items_returned %}
+                <tr class="rounded-3">
+                    <td>{{ item.output_item.item.item.sap }}</td>
+                    <td>{{ item.output_item.item.pk }}</td>
+                    <td>{{ item.output_item.item.subtype.type }}</td>
+                    <td>{{ item.output_item.item.subtype }}</td>
+                    <td>{{ item.output_item.item.brand }}</td>
+                    <td>{{ item.output_item.item.description }}</td>
+                    <td>{{ item.output_item.quantity }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.date_create }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="10" >No se retiro ningun item</td>
+                </tr>
+            {% endfor %}
+            {% if newitem_status == "no" %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="10" >ERROR AL CREAR LA GUIA DE ENTRADA</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
