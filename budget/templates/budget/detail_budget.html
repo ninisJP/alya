@@ -94,13 +94,9 @@
                                 <td>{{ item.item.description }}</td>
                                 <td>{{ item.quantity }}</td>
                                 <td>
-                                    {% if item.item.apply_price_per_day %}
-                                        {{ item.item.price_per_day }}
-                                    {% else %}
-                                        No aplica
-                                    {% endif %}
+                                        {{ item.custom_price_per_day }}
                                 </td>
-                                <td>{{ item.item.price }}</td>
+                                <td>{{ item.custom_price }}</td>
                                 <td>{{ item.total_price }}</td>
                             </tr>
                             {% endfor %}
