@@ -7,9 +7,9 @@ from logistic_inventory_output.models import InventoryOutput, InventoryOutputIte
 
 from .models import InventoryInput
 
-def search_items(form, list_items):
+def search_items(form, list_items_origin):
 	# Get missing inventory items
-	list_items = list(list_items.values('item'))
+	list_items = list(list_items_origin.values('item'))
 
 	regex_str = str(form.cleaned_data['sap_code'])
 
@@ -33,7 +33,15 @@ def search_items(form, list_items):
 		list_id.append(item[id_name])
 
 	# Get model
-	model_list = InventoryOutputItem.objects.filter(pk__in=list_id)
+	list_output = []
+	for item in list_items_origin :
+		item_id = item.item.pk
+
+		for temp_id in list_id :
+			if temp_id == item_id :
+				list_output.append(item.pk)
+
+	model_list = list_items_origin.filter(pk__in=list_output)
 
 	if len(model_list)==1 :
 		status = "yes"
@@ -82,3 +90,17 @@ def new_item(outputitem_pk, quantity):
 	status = "yes"
 
 	return status
+
+def get_all_outputs():
+	outputs_items = InventoryOutputItem.objects.filter(returned=False)
+	outputs_all = InventoryOutput.objects.filter(returned=False)
+
+	list_id = []
+	for item in outputs_items :
+		output_temp = outputs_all.filter(pk=item.output.pk)
+		if output_temp :
+			list_id.append(output_temp[0].pk)
+
+	outputs = InventoryOutput.objects.filter(pk__in=list_id)
+
+	return outputs

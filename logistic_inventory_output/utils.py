@@ -6,7 +6,7 @@ from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from alya import utils
 from budget.models import CatalogItem
 from logistic_inventory.models import Item
-from logistic_inventory_input.models import InventoryInput
+from logistic_inventory_input.models import InventoryInput, InventoryOutputItem
 from logistic_requirements.models import RequirementOrder, RequirementOrderItem
 
 
@@ -85,9 +85,11 @@ def search_saleorder_item(form, item_missing):
 
 def get_all_items(output_pk):
 	output = get_object_or_404(InventoryOutput, pk=output_pk)
-	output_items = InventoryOutputItem.objects.filter(output=output.pk, returned=False)
+	output_items = InventoryOutputItem.objects.filter(output=output.pk)
 	requirements = RequirementOrder.objects.filter(sales_order=output.sale_order)
 	output_items_returned = InventoryOutputItem.objects.filter(output=output.pk, returned=True)
+
+	print(output_items)
 
 	# Get requirement items was approve
 	requirement_items = []
@@ -116,6 +118,21 @@ def get_all_items(output_pk):
 	context['output'] = output
 	context['output_items'] = InventoryOutputItem.objects.filter(output=output.pk, returned=False)
 	context['requirements_items'] = item_missing
+	print(item_missing)
 	context['output_items_returned'] = items_returned
 
 	return context, item_missing
+
+def get_all_outputs():
+	outputs_items = InventoryOutputItem.objects.filter(returned=False)
+	outputs_all = InventoryOutput.objects.filter(returned=False)
+
+	list_id = []
+	for item in outputs_items :
+		output_temp = outputs_all.filter(pk=item.output.pk)
+		if output_temp :
+			list_id.append(output_temp[0].pk)
+
+	outputs = InventoryOutput.objects.filter(pk__in=list_id)
+
+	return outputs

@@ -3,11 +3,13 @@ from django.shortcuts import render, get_object_or_404
 from logistic_inventory_output.models import InventoryOutput, InventoryOutputItem
 
 from .forms import SearchOutputItemForm, RetornedOutputItemForm
-from .utils import get_all_items, search_items, new_item
+from .utils import get_all_items, search_items, new_item, get_all_outputs
 
 def input_index(request):
 	context = {}
-	context['outputs'] = InventoryOutput.objects.filter(returned=False)
+	#context['outputs'] = InventoryOutput.objects.filter(returned=False)
+	outputs = get_all_outputs()
+	context['outputs'] = outputs
 	return render(request, 'input/home.html', context)
 
 def input_new(request, output_pk):

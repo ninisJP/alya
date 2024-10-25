@@ -7,12 +7,12 @@ from logistic_requirements.models import RequirementOrder, RequirementOrderItem
 
 from .forms import InventoryOutputForm, SearchSalesOrderForm, SearchSalesOrderItemForm
 from .models import InventoryOutput, InventoryOutputItem
-from .utils import check_items, search_salesorder, search_saleorder_item, get_all_items
+from .utils import check_items, search_salesorder, search_saleorder_item, get_all_items, get_all_outputs
 
 # Create your views here.
 
 def output_index(request):
-    outputs = InventoryOutput.objects.filter(returned=False)
+    outputs = get_all_outputs()
     context = {'outputs': outputs}
     return render(request, 'output/home.html', context)
 

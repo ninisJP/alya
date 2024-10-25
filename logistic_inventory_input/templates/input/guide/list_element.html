@@ -9,7 +9,6 @@
             </tr>
             <tr>
                 <th>SAP</th>
-                <th>Item ID</th>
                 <th>Tipo</th>
                 <th>Sub-tipo</th>
                 <th>Marca</th>
@@ -23,7 +22,6 @@
             {% for item in output_items %}
                 <tr class="rounded-3">
                     <td>{{ item.item.item.sap }}</td>
-                    <td>{{ item.item.pk }}</td>
                     <td>{{ item.item.subtype.type }}</td>
                     <td>{{ item.item.subtype }}</td>
                     <td>{{ item.item.brand }}</td>
@@ -55,7 +53,6 @@
             </tr>
             <tr>
                 <th>SAP</th>
-                <th>Item ID</th>
                 <th>Tipo</th>
                 <th>Sub-tipo</th>
                 <th>Marca</th>
@@ -69,7 +66,6 @@
             {% for item in output_items_returned %}
                 <tr class="rounded-3">
                     <td>{{ item.output_item.item.item.sap }}</td>
-                    <td>{{ item.output_item.item.pk }}</td>
                     <td>{{ item.output_item.item.subtype.type }}</td>
                     <td>{{ item.output_item.item.subtype }}</td>
                     <td>{{ item.output_item.item.brand }}</td>
