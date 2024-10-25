@@ -94,16 +94,26 @@ class BudgetItem(models.Model):
         if not self.unit:
             self.unit = self.item.unit
 
-        # Si no se ha especificado un precio personalizado, utiliza los del catálogo
-        price = self.custom_price if self.custom_price is not None else self.item.price
-        price_per_day = self.custom_price_per_day if self.custom_price_per_day is not None else self.item.price_per_day
+        # Si no hay custom_price, asignar el precio del catálogo
+        if self.custom_price is None:
+            self.custom_price = self.item.price
 
-        # Determinar si se aplica precio por día en función de la categoría
-        if self.item.category not in [CatalogItem.Category.EQUIPO, CatalogItem.Category.CONSUMIBLE, CatalogItem.Category.MATERIAL]:
-            # Aplica precio por día para categorías que no sean EQUIPO, CONSUMIBLE o MATERIAL
+        # Si no hay custom_price_per_day, asignar el precio por día del catálogo
+        if self.custom_price_per_day is None:
+            self.custom_price_per_day = self.item.price_per_day
+
+        # Ahora siempre usamos los valores custom para el cálculo
+        price = self.custom_price
+        price_per_day = self.custom_price_per_day
+
+        # Debug: Mostrar los valores que se están utilizando
+        print(f"Usando precio personalizado: {price}, Precio por día personalizado: {price_per_day}")
+
+        # Aplicar precio por día solo si la categoría es HERRAMIENTA, MANODEOBRA o EPPS
+        if self.item.category in [CatalogItem.Category.HERRAMIENTA, CatalogItem.Category.MANODEOBRA, CatalogItem.Category.EPPS]:
             self.total_price = price_per_day * self.quantity * self.budget.budget_days
         else:
-            # No aplica precio por día
+            # No aplica precio por día para EQUIPO, CONSUMIBLE y MATERIAL
             self.total_price = price * self.quantity
 
         super().save(*args, **kwargs)
