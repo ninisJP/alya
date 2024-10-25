@@ -16,7 +16,6 @@
                 <th>Descripción</th>
                 <th>Cantidad</th>
                 <th>Fecha de retirada</th>
-                <th>Fecha de retorno</th>
                 <th>Requerimiento</th>
             </tr>
         </thead>
@@ -31,7 +30,6 @@
                     <td>{{ item.item.description }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.date_create }}</td>
-                    <td>{{ item.date_returned }}</td>
                     <td>{{ item.item_requirement.requirement_order.order_number }}</td>
                 </tr>
             {% empty %}
@@ -39,6 +37,11 @@
                     <td colspan="10" >No se retiro ningun item</td>
                 </tr>
             {% endfor %}
+            {% if newitem_status == "no" %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="10" >ERROR AL CREAR LA GUIA DE ENTRADA</td>
+                </tr>
+            {% endif %}
         </tbody>
     </table>
 </div>

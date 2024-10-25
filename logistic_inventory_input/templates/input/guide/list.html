@@ -1,4 +1,47 @@
 {% load widget_tweaks %}
 
+{% if search_status == "yes" %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-button custom-rounded-top">
+            <tbody>
+                    <tr class="bg-red-200 text-red-700">
+                        <td colspan="4" >CUIDADO: SOLO SE PUEDE HACER UNA GUIA DE ENTRADA POR ITEM</td>
+                    </tr>
+                    <tr class="bg-red-200 text-red-700">
+                        <td colspan="4" >CUIDADO: SE ACEPTAN CANTIDADES MENORES</td>
+                    </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="logistic_inventory_type_forms" class="w-100">
+        <form hx-post="{% url 'logistic_inventory_input_new_item' output_items.0.pk %}" hx-target="#logistic_inventory_input_new_list" hx-swap="innerHTML" class="w-100m b-5 p-4 border rounded shadow-sm">
+            {% csrf_token %}
+            <div class="row mb-4">
+
+                <div class="col-6 col-md-2 mb-3">
+                    <label for="{{ newitem.quantity.id_for_label }}" > Por {{newitem.quantity.label}}: </label>
+                    {{ newitem.quantity }}
+                </div>
+                <div class="col-4 col-md-2 ml-8 d-flex align-items-end d-flex justify-content-start">
+                    <button type="submit" class="btn btn-primary">Devolver item</button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+{% endif %}
+
+{% if newitem_status == "no" %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-button custom-rounded-top">
+            <tbody>
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="4" >CANTIDAD DEVUELTA MAYOR A LA EXTRAÍDA</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endif %}
 
 {% include 'input/guide/list_element.html' %}
