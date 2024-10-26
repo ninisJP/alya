@@ -1,0 +1,15 @@
+<tr id="item-{{ item.id }}">
+    <td>{{ item.item.description }}</td>
+    <td>{{ item.quantity }}</td>
+    <td>{{ item.custom_price_per_day }}</td>
+    <td>{{ item.custom_price }}</td>
+    <td>{{ item.total_price }}</td>
+    <td>
+        <button class="btn btn-primary btn-sm" hx-get="{% url 'edit_budget_item_htmx' item.id %}" hx-target="#item-{{ item.id }}" hx-swap="outerHTML">
+            Editar
+        </button>
+        <button class="btn btn-danger btn-sm" hx-delete="{% url 'delete_budget_item_htmx' item.id %}" hx-target="#item-list" hx-swap="outerHTML">
+            Eliminar
+        </button>
+    </td>
+</tr>

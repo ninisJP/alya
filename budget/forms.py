@@ -148,3 +148,26 @@ class SearchCatalogItemForm(forms.Form):
 
 class ExcelUploadForm(forms.Form):
     file = forms.FileField(label="Selecciona el archivo Excel")
+    
+class AddBudgetItemForm(forms.ModelForm):
+    class Meta:
+        model = BudgetItem
+        fields = ['item', 'quantity', 'custom_price', 'custom_price_per_day']
+        widgets = {
+            'item': Select2AjaxWidget(),  # Usa el mismo widget select2-ajax
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad'}),
+            'custom_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio Unitario'}),
+            'custom_price_per_day': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio por Día'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(AddBudgetItemForm, self).__init__(*args, **kwargs)
+        self.fields['item'].label = 'Ítem'
+        self.fields['quantity'].label = 'Cantidad'
+        self.fields['custom_price'].label = 'Precio Unitario'
+        self.fields['custom_price_per_day'].label = 'Precio por Día'
+
+class EditBudgetItemForm(forms.ModelForm):
+    class Meta:
+        model = BudgetItem
+        fields = ['quantity', 'custom_price', 'custom_price_per_day']
