@@ -7,12 +7,12 @@ from logistic_requirements.models import RequirementOrder, RequirementOrderItem
 
 from .forms import InventoryOutputForm, SearchSalesOrderForm, SearchSalesOrderItemForm
 from .models import InventoryOutput, InventoryOutputItem
-from .utils import check_items, search_salesorder, search_saleorder_item, get_all_items
+from .utils import check_items, search_salesorder, search_saleorder_item, get_all_items, get_all_outputs
 
 # Create your views here.
 
 def output_index(request):
-    outputs = InventoryOutput.objects.filter(returned=False)
+    outputs = get_all_outputs()
     context = {'outputs': outputs}
     return render(request, 'output/home.html', context)
 
@@ -63,8 +63,8 @@ def output_new_list(request, output_pk):
         # If search camp is void
         if form.is_valid() and (form.cleaned_data['sap_code']!="") :
             # Get search list
-            status, saleorder_items, inventory_items = search_saleorder_item(form, item_missing)
-            context['saleorder_items'] = saleorder_items
+            status, requirements_items, inventory_items = search_saleorder_item(form, item_missing)
+            context['requirements_items'] = requirements_items
             context['inventory_items'] = inventory_items
             context['valid_item'] = status
             context['search_active'] = "yes"
@@ -103,4 +103,22 @@ def output_see(request, output_pk):
     context_items, item_missing = get_all_items(output_pk)
     context.update(context_items)
 
+    context['search'] = SearchSalesOrderItemForm()
+
     return render(request, 'output/see.html', context)
+
+def output_see_list(request, output_pk):
+    context = {}
+    context_items, item_missing = get_all_items(output_pk)
+    context.update(context_items)
+
+    if request.method == 'POST':
+        form = SearchSalesOrderItemForm(request.POST)
+        # If search camp is void
+        if form.is_valid() and (form.cleaned_data['sap_code']!="") :
+            # Get search list
+            status, requirements_items, inventory_items = search_saleorder_item(form, item_missing)
+            context['requirements_items'] = requirements_items
+
+    context['search'] = SearchSalesOrderItemForm()
+    return render(request, 'output/guide/list.html', context)
