@@ -1,6 +1,7 @@
-import re
 from django.core.mail import send_mail
 from django.conf import settings
+
+import re
 
 # Example: search_model(Brand.objects.all(), 'name', form.cleaned_data['name'])
 # Return status, list_model
@@ -41,7 +42,7 @@ def search_model(model_all, column, name, accept_all=False):
 def send_order_notification(requirement_order, user, extra_recipients=None):
     """
     Envía un correo electrónico notificando que se ha creado un nuevo pedido.
-    
+
     Parameters:
     - requirement_order: La orden de requerimiento creada.
     - user: El usuario que creó la orden.

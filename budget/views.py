@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from collections import defaultdict
 from django.http import HttpResponse, JsonResponse
 from follow_control_card.forms import TaskForm
-from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm, NewBudgetItemForm
+from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm, NewBudgetItemForm, EditBudgetItemForm
 from .models import Budget, BudgetItem, CatalogItem
 from .utils import export_budget_report_to_excel
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
@@ -73,114 +73,88 @@ def create_budget(request):
         'form': form,
         'formset': formset,
     })
-    
-def edit_budget(request, pk):
-    budget = get_object_or_404(Budget, pk=pk)
-    
-    if request.method == 'POST':
-        form = BudgetForm(request.POST, instance=budget)
-        formset = BudgetItemFormSet(request.POST, instance=budget)
 
-        if form.is_valid() and formset.is_valid():
-            # Guardar el presupuesto
-            budget_saved = form.save()
-
-            # Guardar los ítems del formset
-            items = formset.save(commit=False)
-            for item in items:
-                item.budget = budget_saved
-                item.save()
-
-            # Eliminar los ítems marcados para eliminar
-            for item in formset.deleted_objects:
-                item.delete()
-
-            return redirect('detail_budget', pk=budget.pk)
-        else:
-            # Si hay errores, los imprimimos en el log para revisar
-            print("Form Errors:", form.errors)
-            print("Formset Errors:", formset.errors)
-            for form in formset.forms:
-                print(form.errors)  # Mostrar errores de cada formulario dentro del formset
-
-    else:
-        form = BudgetForm(instance=budget)
-        formset = BudgetItemFormSet(instance=budget)
-
-    return render(request, 'budget/budget_edit.html', {
-        'form': form,
-        'formset': formset,
-    })
-
-
-def edit_budget_with_new_item(request, pk):
-    budget = get_object_or_404(Budget, pk=pk)
-
-    # Formulario para editar el presupuesto existente
-    form = BudgetForm(request.POST or None, instance=budget)
-    
-    # Formset para editar ítems del presupuesto
-    formset = BudgetItemFormSet(request.POST or None, instance=budget)
-
-    # Formulario para agregar nuevos ítems
-    new_item_form = NewBudgetItemForm(request.POST or None)
-    
-    if request.method == 'POST':
-        if form.is_valid() and formset.is_valid() and new_item_form.is_valid():
-            # Guardar el presupuesto
-            budget_saved = form.save()
-
-            # Guardar los ítems del formset
-            items = formset.save(commit=False)
-            for item in items:
-                item.budget = budget_saved
-                item.save()
-
-            # Guardar el nuevo ítem si se ha añadido uno
-            new_item = new_item_form.save(commit=False)
-            new_item.budget = budget_saved
-            new_item.save()
-
-            # Eliminar los ítems marcados para eliminar
-            for item in formset.deleted_objects:
-                item.delete()
-
-            return redirect('detail_budget', pk=budget.pk)
-        else:
-            print("Form Errors:", form.errors)
-            print("Formset Errors:", formset.errors)
-            print("New Item Form Errors:", new_item_form.errors)
-
-    return render(request, 'budget/budget_edit_with_new_item.html', {
-        'form': form,
-        'formset': formset,
-        'new_item_form': new_item_form,
-    })
-
-
-
-
-
-
-
-
-
-
-
-
+from .forms import AddBudgetItemForm
+from collections import defaultdict
 
 def detail_budget(request, pk):
+    # Obtener el presupuesto por su primary key (pk)
     budget = get_object_or_404(Budget, pk=pk)
     items_by_category = defaultdict(list)
 
-    # Agrupar ítems por categoría
+    # Agrupar los ítems del presupuesto por categoría
     for item in budget.items.all():
         items_by_category[item.item.category].append(item)
 
+    # Inicializar el formulario vacío
+    form = AddBudgetItemForm()
+
+    # Renderizar la plantilla principal
     return render(request, 'budget/detail_budget.html', {
         'budget': budget,
-        'items_by_category': dict(items_by_category),  # Pasamos el diccionario a la plantilla
+        'items_by_category': dict(items_by_category),
+        'form': form  # Pasar el formulario a la plantilla
     })
+
+    
+def add_budget_item_htmx(request, pk):
+    budget = get_object_or_404(Budget, pk=pk)
+
+    if request.method == 'POST':
+        form = AddBudgetItemForm(request.POST)
+        if form.is_valid():
+            new_item = form.save(commit=False)
+            new_item.budget = budget
+            new_item.save()
+
+            # Agrupar los ítems del presupuesto por categoría
+            items_by_category = defaultdict(list)
+            for item in budget.items.all():
+                items_by_category[item.item.category].append(item)
+
+            # Renderizar solo el fragmento con los ítems actualizados
+            return render(request, 'budget/item_list.html', {
+                'items_by_category': dict(items_by_category),
+                'budget': budget  # Asegúrate de pasar también el presupuesto si es necesario
+            })
+    else:
+        return redirect('detail_budget', pk=pk)
+    
+def delete_budget_item_htmx(request, item_id):
+    item = get_object_or_404(BudgetItem, id=item_id)
+    budget = item.budget  # Obtenemos el presupuesto al que pertenece el ítem
+
+    # Eliminar el ítem
+    item.delete()
+
+    # Volver a agrupar los ítems restantes por categoría
+    items_by_category = defaultdict(list)
+    for remaining_item in budget.items.all():
+        items_by_category[remaining_item.item.category].append(remaining_item)
+
+    # Renderizar solo el fragmento actualizado con los ítems
+    return render(request, 'budget/item_list.html', {
+        'items_by_category': dict(items_by_category),
+        'budget': budget,
+    })
+    
+def edit_budget_item_htmx(request, item_id):
+    item = get_object_or_404(BudgetItem, id=item_id)
+    
+    print("Método HTTP:", request.method)  # Para depurar el método HTTP
+    if request.method == 'POST':
+        form = EditBudgetItemForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            # Después de guardar, renderizamos nuevamente el ítem actualizado
+            return render(request, 'budget/item_row.html', {'item': item})
+    else:
+        form = EditBudgetItemForm(instance=item)
+
+    # Devolver el formulario para edición
+    return render(request, 'budget/edit_item_form.html', {'form': form, 'item': item})
+
+
 
 def delete_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
@@ -329,11 +303,13 @@ def catalog_search(request):
     return render(request, 'catalog/list.html', context)
 
 import pandas as pd
-import pandas as pd
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ExcelUploadForm
 from .models import CatalogItem
+import re  # Biblioteca para manejar expresiones regulares
+
+from django.db import transaction
 
 def upload_excel(request):
     if request.method == "POST":
@@ -342,72 +318,71 @@ def upload_excel(request):
             file = request.FILES['file']
             
             try:
-                # Leer el archivo Excel
-                df = pd.read_excel(file)
+                df = pd.read_csv(file)
                 
-                # Confirmar que el archivo fue leído
-                print("Archivo Excel leído exitosamente. Número de filas: ", len(df))
-                
-                # Mostrar los primeros registros para asegurarnos de que las columnas se están leyendo correctamente
-                print(df.head())
-
-                # Verificar si las columnas esperadas están presentes en el archivo
-                required_columns = ['Número de artículo', 'Descripción del artículo', 'Grupo de artículos', 'Unidad de medida de inventario', 'Último precio de compra']
-                if not all(column in df.columns for column in required_columns):
-                    messages.error(request, "El archivo Excel no tiene las columnas necesarias.")
+                if df.empty:
+                    messages.error(request, "El archivo está vacío.")
                     return redirect('budget_catalog_excel')
 
-                # Procesar cada fila y crear o actualizar el objeto CatalogItem
-                for _, row in df.iterrows():
-                    try:
-                        # Validar que los campos requeridos no sean nulos
-                        if pd.isnull(row['Número de artículo']) or pd.isnull(row['Descripción del artículo']):
-                            print("Fila inválida, saltando...")
+                required_columns = ['Número de artículo', 'Descripción del artículo', 'Grupo de artículos', 'Unidad de medida de inventario', 'Último precio de compra']
+                missing_columns = [col for col in required_columns if col not in df.columns]
+                if missing_columns:
+                    messages.error(request, f"El archivo CSV no contiene las columnas necesarias: {', '.join(missing_columns)}")
+                    return redirect('budget_catalog_excel')
+
+                items_to_create = []
+
+                # Usar una transacción para manejar todas las inserciones
+                with transaction.atomic():
+                    for _, row in df.iterrows():
+                        try:
+                            if pd.isnull(row['Número de artículo']) or pd.isnull(row['Descripción del artículo']):
+                                continue
+                            
+                            sap = str(row['Número de artículo']).strip()
+                            description = str(row['Descripción del artículo']).strip()
+                            category = str(row['Grupo de artículos']).strip()
+                            unit = str(row['Unidad de medida de inventario']).strip() if pd.notnull(row['Unidad de medida de inventario']) else 'UND'
+                            
+                            price_str = str(row['Último precio de compra']).strip()
+                            price_cleaned = re.sub(r'[^\d.,]', '', price_str).replace(',', '')
+                            price = float(price_cleaned) if price_cleaned else 0.0
+
+                            item, created = CatalogItem.objects.update_or_create(
+                                sap=sap,
+                                defaults={
+                                    'description': description,
+                                    'category': category,
+                                    'unit': unit,
+                                    'price': price,
+                                    'price_per_day': 0.0
+                                }
+                            )
+                            items_to_create.append(item)
+
+                        except Exception as e:
+                            print(f"Error procesando la fila: {e}")
                             continue
-                        
-                        sap = str(row['Número de artículo']).strip()
-                        description = str(row['Descripción del artículo']).strip()
-                        category = str(row['Grupo de artículos']).strip()
-                        unit = str(row['Unidad de medida de inventario']).strip() if pd.notnull(row['Unidad de medida de inventario']) else 'UND'
-                        price = float(row['Último precio de compra']) if pd.notnull(row['Último precio de compra']) else 0.0
 
-                        # Depurar información de la fila
-                        print(f"Procesando: SAP={sap}, Descripción={description}, Categoría={category}, Unidad={unit}, Precio={price}")
-
-                        # Actualizar si el SAP ya existe, o crear un nuevo registro
-                        CatalogItem.objects.update_or_create(
-                            sap=sap,
-                            defaults={
-                                'description': description,
-                                'category': category,
-                                'unit': unit,
-                                'price': price,
-                                'price_per_day': 0.0
-                            }
-                        )
-                        print(f"Ítem con SAP={sap} procesado correctamente.")
-
-                    except Exception as e:
-                        # Capturar cualquier error en el procesamiento de la fila
-                        print(f"Error procesando la fila: {e}")
-                        continue
+                if items_to_create:
+                    CatalogItem.objects.bulk_create(items_to_create, ignore_conflicts=True)
                 
-                # Mensaje de éxito si todo el archivo se procesa correctamente
-                messages.success(request, "El archivo Excel se ha procesado y los datos se han guardado o actualizado exitosamente.")
+                messages.success(request, "El archivo CSV se ha procesado y los datos se han guardado o actualizado exitosamente.")
+                return redirect('budget_catalog_excel')
+
+            except pd.errors.ParserError as e:
+                messages.error(request, f"Error de formato en el archivo CSV: {e}")
                 return redirect('budget_catalog_excel')
 
             except ValueError as e:
-                print(f"Error de valor: {e}")
                 messages.error(request, f"Error de valor: {e}")
                 return redirect('budget_catalog_excel')
 
             except KeyError as e:
-                print(f"Columna no encontrada: {e}")
                 messages.error(request, f"Columna no encontrada: {e}")
                 return redirect('budget_catalog_excel')
 
             except Exception as e:
-                print(f"Error inesperado: {e}")
                 messages.error(request, f"Error inesperado: {e}")
                 return redirect('budget_catalog_excel')
 

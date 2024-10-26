@@ -73,8 +73,6 @@ def update_requirement_order_items(request, pk):
     # Retornar un mensaje de éxito sin crear la PurchaseOrder
     return JsonResponse({'message': 'Items actualizados con éxito'}, status=200)
 
-
-
 def create_purchase_order(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
 
@@ -133,40 +131,23 @@ def ajax_load_suppliers(request):
 
 # Requirements order approved 
 class RequirementOrderApprovedListView(ListView):
-    model = RequirementOrder
+    model = RequirementOrderItem
     template_name = 'requirements_approved/requirement_order_approved_list.html'
-    context_object_name = 'requirement_orders'
-    
+    context_object_name = 'requirement_order_items'
+
     def get_queryset(self):
-        # Filtra solo las órdenes que están aprobadas
-        queryset = RequirementOrder.objects.filter(state='APROBADO').order_by('-id').prefetch_related('items')
-        
-        # Lista para almacenar las órdenes que cumplen con la condición
-        filtered_orders = []
-        
-        for order in queryset:
-            items = order.items.all()
-            total_items = items.count()
-            if total_items == 0:
-                order.global_state = "No tiene ítems"
-                continue
+        # Filtra los ítems cuyas órdenes de requerimiento están aprobadas
+        queryset = RequirementOrderItem.objects.filter(
+            requirement_order__state='APROBADO'
+        ).select_related(
+            'sales_order_item', 
+            'sales_order_item__salesorder',  # Para obtener detalles de la orden de venta
+            'sales_order_item__salesorder__project',  # Para obtener detalles del proyecto
+            'supplier'
+        ).order_by('-requirement_order__created_at')
 
-            ready_count = items.filter(estado='L').count()  # 'L' para Listo
-            buying_count = items.filter(estado='C').count()  # 'C' para Comprando
+        return queryset
 
-            # Determinar el estado general
-            if ready_count == total_items:
-                order.global_state = "Listo"
-            elif buying_count >= total_items / 2:
-                order.global_state = "Comprando"
-            else:
-                order.global_state = "Pendiente"
-            
-            # Solo incluir las órdenes que están en estado 'Comprando' o 'Pendiente'
-            if order.global_state in ['Comprando', 'Pendiente']:
-                filtered_orders.append(order)
-
-        return filtered_orders
 
 
 def requirement_order_detail_partial(request, pk):
