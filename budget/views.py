@@ -303,11 +303,13 @@ def catalog_search(request):
     return render(request, 'catalog/list.html', context)
 
 import pandas as pd
-import pandas as pd
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ExcelUploadForm
 from .models import CatalogItem
+import re  # Biblioteca para manejar expresiones regulares
+
+from django.db import transaction
 
 def upload_excel(request):
     if request.method == "POST":
@@ -316,72 +318,71 @@ def upload_excel(request):
             file = request.FILES['file']
             
             try:
-                # Leer el archivo Excel
-                df = pd.read_excel(file)
+                df = pd.read_csv(file)
                 
-                # Confirmar que el archivo fue leído
-                print("Archivo Excel leído exitosamente. Número de filas: ", len(df))
-                
-                # Mostrar los primeros registros para asegurarnos de que las columnas se están leyendo correctamente
-                print(df.head())
-
-                # Verificar si las columnas esperadas están presentes en el archivo
-                required_columns = ['Número de artículo', 'Descripción del artículo', 'Grupo de artículos', 'Unidad de medida de inventario', 'Último precio de compra']
-                if not all(column in df.columns for column in required_columns):
-                    messages.error(request, "El archivo Excel no tiene las columnas necesarias.")
+                if df.empty:
+                    messages.error(request, "El archivo está vacío.")
                     return redirect('budget_catalog_excel')
 
-                # Procesar cada fila y crear o actualizar el objeto CatalogItem
-                for _, row in df.iterrows():
-                    try:
-                        # Validar que los campos requeridos no sean nulos
-                        if pd.isnull(row['Número de artículo']) or pd.isnull(row['Descripción del artículo']):
-                            print("Fila inválida, saltando...")
+                required_columns = ['Número de artículo', 'Descripción del artículo', 'Grupo de artículos', 'Unidad de medida de inventario', 'Último precio de compra']
+                missing_columns = [col for col in required_columns if col not in df.columns]
+                if missing_columns:
+                    messages.error(request, f"El archivo CSV no contiene las columnas necesarias: {', '.join(missing_columns)}")
+                    return redirect('budget_catalog_excel')
+
+                items_to_create = []
+
+                # Usar una transacción para manejar todas las inserciones
+                with transaction.atomic():
+                    for _, row in df.iterrows():
+                        try:
+                            if pd.isnull(row['Número de artículo']) or pd.isnull(row['Descripción del artículo']):
+                                continue
+                            
+                            sap = str(row['Número de artículo']).strip()
+                            description = str(row['Descripción del artículo']).strip()
+                            category = str(row['Grupo de artículos']).strip()
+                            unit = str(row['Unidad de medida de inventario']).strip() if pd.notnull(row['Unidad de medida de inventario']) else 'UND'
+                            
+                            price_str = str(row['Último precio de compra']).strip()
+                            price_cleaned = re.sub(r'[^\d.,]', '', price_str).replace(',', '')
+                            price = float(price_cleaned) if price_cleaned else 0.0
+
+                            item, created = CatalogItem.objects.update_or_create(
+                                sap=sap,
+                                defaults={
+                                    'description': description,
+                                    'category': category,
+                                    'unit': unit,
+                                    'price': price,
+                                    'price_per_day': 0.0
+                                }
+                            )
+                            items_to_create.append(item)
+
+                        except Exception as e:
+                            print(f"Error procesando la fila: {e}")
                             continue
-                        
-                        sap = str(row['Número de artículo']).strip()
-                        description = str(row['Descripción del artículo']).strip()
-                        category = str(row['Grupo de artículos']).strip()
-                        unit = str(row['Unidad de medida de inventario']).strip() if pd.notnull(row['Unidad de medida de inventario']) else 'UND'
-                        price = float(row['Último precio de compra']) if pd.notnull(row['Último precio de compra']) else 0.0
 
-                        # Depurar información de la fila
-                        print(f"Procesando: SAP={sap}, Descripción={description}, Categoría={category}, Unidad={unit}, Precio={price}")
-
-                        # Actualizar si el SAP ya existe, o crear un nuevo registro
-                        CatalogItem.objects.update_or_create(
-                            sap=sap,
-                            defaults={
-                                'description': description,
-                                'category': category,
-                                'unit': unit,
-                                'price': price,
-                                'price_per_day': 0.0
-                            }
-                        )
-                        print(f"Ítem con SAP={sap} procesado correctamente.")
-
-                    except Exception as e:
-                        # Capturar cualquier error en el procesamiento de la fila
-                        print(f"Error procesando la fila: {e}")
-                        continue
+                if items_to_create:
+                    CatalogItem.objects.bulk_create(items_to_create, ignore_conflicts=True)
                 
-                # Mensaje de éxito si todo el archivo se procesa correctamente
-                messages.success(request, "El archivo Excel se ha procesado y los datos se han guardado o actualizado exitosamente.")
+                messages.success(request, "El archivo CSV se ha procesado y los datos se han guardado o actualizado exitosamente.")
+                return redirect('budget_catalog_excel')
+
+            except pd.errors.ParserError as e:
+                messages.error(request, f"Error de formato en el archivo CSV: {e}")
                 return redirect('budget_catalog_excel')
 
             except ValueError as e:
-                print(f"Error de valor: {e}")
                 messages.error(request, f"Error de valor: {e}")
                 return redirect('budget_catalog_excel')
 
             except KeyError as e:
-                print(f"Columna no encontrada: {e}")
                 messages.error(request, f"Columna no encontrada: {e}")
                 return redirect('budget_catalog_excel')
 
             except Exception as e:
-                print(f"Error inesperado: {e}")
                 messages.error(request, f"Error inesperado: {e}")
                 return redirect('budget_catalog_excel')
 

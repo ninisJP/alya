@@ -36,19 +36,7 @@
     <div class="custom-card mb-4">
         <div class="custom-card-header bg-dark text-white p-3">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Detalles de la Guia de Salida #{{ output.id }}</h4>
-                <div class="d-flex align-items-center">
-                    <!-- Estado de la orden en Badge (badge-large aplicado) -->
-                    <span class="badge badge-large
-                        {% if output.returned %} badge-listo
-                        {% else %} badge-pendiente {% endif %} me-3">
-                        {% if output.returned %}
-                            Retornado
-                        {% else %}
-                            NO retornado
-                        {% endif %}
-                    </span>
-                </div>
+                <h4 class="mb-0">Detalles de la Guia de Salida #{{ output.pk }}</h4>
             </div>
         </div>
         <div class="p-4">
@@ -59,21 +47,19 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <p><strong>Fecha:</strong> {{ output.date_create }}</p>
-                    <p><strong>Fecha de retorno:</strong> {{ requirement_order.date_returned }}</p>
+                    <p><strong>Fecha de creación:</strong> {{ output.date_create }}</p>
                 </div>
 
             </div>
         </div>
     </div>
 
-    <ul id="logistic_inventory_output_see_search" class="mt-8 space-y-4">
-        {% include 'output/see_search.html' %}
+    <ul id="logistic_inventory_input_new_search" class="mt-8 space-y-4">
+        {% include 'input/guide/search.html' %}
     </ul>
 
-    <!-- Ítems de la Guia de salida -->
-    <ul id="logistic_inventory_output_see_list" class="mt-8 space-y-4">
-        {% include 'output/guide/list_element.html' %}
+    <ul id="logistic_inventory_input_new_list" class="mt-8 space-y-4">
+        {% include 'input/guide/list.html' %}
     </ul>
 
 </div>
