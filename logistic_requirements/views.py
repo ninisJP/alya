@@ -140,8 +140,10 @@ class RequirementOrderApprovedListView(ListView):
         queryset = RequirementOrderItem.objects.filter(
             requirement_order__state='APROBADO'
         ).select_related(
-            'requirement_order__sales_order',  # Para obtener detalles de la orden de venta
-            'requirement_order__sales_order__project'  # Para obtener detalles del proyecto
+            'sales_order_item', 
+            'sales_order_item__salesorder',  # Para obtener detalles de la orden de venta
+            'sales_order_item__salesorder__project',  # Para obtener detalles del proyecto
+            'supplier'
         ).order_by('-requirement_order__created_at')
 
         return queryset

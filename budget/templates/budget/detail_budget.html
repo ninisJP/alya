@@ -5,7 +5,8 @@
 {% block content %}
 <div class="container-fluid mt-2">
     <div class="row">
-        <div class="col-12">
+        <!-- Columna izquierda con los detalles del presupuesto -->
+        <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-header bg-secondary text-white p-2">
                     <h1>Detalle del Presupuesto: {{ budget.budget_name }}</h1>
@@ -15,101 +16,146 @@
                         <table class="table table-bordered table-sm mb-0" style="table-layout: fixed; width: 100%;">
                             <tbody>
                                 <tr>
-                                    <th class="bg-light p-1" style="width: 15%;">Cliente</th>
-                                    <td class="p-1" style="width: 85%;">{{ budget.client }}</td>
+                                    <th class="bg-light p-1" style="width: 25%;">Cliente</th>
+                                    <td class="p-1">{{ budget.client }}</td>
                                 </tr>
                                 <tr>
-                                    <th class="bg-light p-1" style="width: 30%;">Nombre del Presupuesto</th>
-                                    <td class="p-1" style="width: 70%;">{{ budget.budget_name }}</td>
+                                    <th class="bg-light p-1">Nombre del Presupuesto</th>
+                                    <td class="p-1">{{ budget.budget_name }}</td>
                                 </tr>
                                 <tr>
-                                    <th class="bg-light p-1" style="width: 30%;">Días del Presupuesto</th>
-                                    <td class="p-1" style="width: 70%;">{{ budget.budget_days }}</td>
+                                    <th class="bg-light p-1">Días del Presupuesto</th>
+                                    <td class="p-1">{{ budget.budget_days }}</td>
                                 </tr>
                                 <tr>
-                                    <th class="bg-light p-1" style="width: 30%;">Precio parcial (S/.)</th>
-                                    <td class="p-1" style="width: 70%;">{{ budget.budget_price }}</td>
+                                    <th class="bg-light p-1">Precio parcial (S/.)</th>
+                                    <td class="p-1">{{ budget.budget_price }}</td>
                                 </tr>
                                 <tr>
-                                    <th class="bg-light p-1" style="width: 30%;">Precio completo sin IGV (S/.)</th>
-                                    <td class="p-1" style="width: 70%;">{{ budget.budget_final_price }}</td>
+                                    <th class="bg-light p-1">Precio completo sin IGV (S/.)</th>
+                                    <td class="p-1">{{ budget.budget_final_price }}</td>
                                 </tr>
                                 <tr>
-                                    <th class="bg-light p-1" style="width: 30%;">Fecha</th>
-                                    <td class="p-1" style="width: 70%;">{{ budget.budget_date }}</td>
+                                    <th class="bg-light p-1">Fecha</th>
+                                    <td class="p-1">{{ budget.budget_date }}</td>
                                 </tr>
                                 <tr>
-                                    <th class="bg-light p-1" style="width: 30%;">Tiempo de Entrega	</th>
-                                    <td class="p-1" style="width: 70%;">{{ budget.budget_deliverytime }}</td>
+                                    <th class="bg-light p-1">Tiempo de Entrega</th>
+                                    <td class="p-1">{{ budget.budget_deliverytime }}</td>
                                 </tr>
                                 <tr>
-                                    <th class="bg-light p-1" style="width: 30%;">Tiempo de Servicio	</th>
-                                    <td class="p-1" style="width: 70%;">{{ budget.budget_servicetime}}</td>
+                                    <th class="bg-light p-1">Tiempo de Servicio</th>
+                                    <td class="p-1">{{ budget.budget_servicetime }}</td>
                                 </tr>
                                 <tr>
-                                    <th class="bg-light p-1" style="width: 30%;">Tiempo de Garantía	</th>
-                                    <td class="p-1" style="width: 70%;">{{ budget.budget_warrantytime}}</td>
+                                    <th class="bg-light p-1">Tiempo de Garantía</th>
+                                    <td class="p-1">{{ budget.budget_warrantytime }}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="button-container text-left mt-4">
-                <a href="{% url 'index_budget' %}" class="btn btn-success mx-2">Volver a la Lista de Presupuestos</a>
-                <a href="{% url 'export_budget_report' budget.pk %}" class="btn btn-success">
-                    <i class="fas fa-file-excel"></i> Descargar en Excel
-                </a>
-
-                <a href="{% url 'edit_budget' budget.id %}" class="btn btn-warning mx-2">Editar Presupuesto</a>
-                <a href="{% url 'edit_budget_with_new_item' budget.id %}" class="btn btn-warning mx-2">EDITAR Presupuesto</a>
-                <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger mx-2">Eliminar Presupuesto</a>
-                
-                <!-- Botón para crear la orden de venta -->
-                <a href="{% url 'create_sales_order' budget.id %}" class="btn btn-primary mx-2">
-                    Crear Orden de Venta
-                </a>
-            </div>
-
-            {% for category, items in items_by_category.items %}
-            <div class="card mt-4 shadow-sm">
-                <div class="card-header bg-secondary text-white">
-                    <h3>{{ category }}</h3>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-hover mb-0">
-                        <thead class="thead-dark">
-                            <tr>
-                                <th>Ítem</th>
-                                <th>Cantidad</th>
-                                <th>Precio Diario (S/.)</th>
-                                <th>Precio Unitario (S/.)</th>
-                                <th>Precio Proyecto (S/.)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in items %}
-                            <tr>
-                                <td>{{ item.item.description }}</td>
-                                <td>{{ item.quantity }}</td>
-                                <td>
-                                    {% if item.item.apply_price_per_day %}
-                                        {{ item.item.price_per_day }}
-                                    {% else %}
-                                        No aplica
-                                    {% endif %}
-                                </td>
-                                <td>{{ item.item.price }}</td>
-                                <td>{{ item.total_price }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <!-- Columna derecha con los botones de acción -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="button-container text-left p-3">
+                    <a href="{% url 'index_budget' %}" class="btn btn-success mb-2 w-100">Volver a la Lista de Presupuestos</a>
+                    <a href="{% url 'export_budget_report' budget.pk %}" class="btn btn-success mb-2 w-100">
+                        <i class="fas fa-file-excel"></i> Descargar en Excel
+                    </a>
+                    <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger mb-2 w-100">Eliminar Presupuesto</a>
+                    <a href="{% url 'create_sales_order' budget.id %}" class="btn btn-primary w-100">Crear Orden de Venta</a>
                 </div>
             </div>
-            {% endfor %}
         </div>
     </div>
+    <!-- Fila con el formulario para agregar ítem, movido abajo -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-secondary text-white">
+                    <h3>Agregar nuevo ítem</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" hx-post="{% url 'add_budget_item_htmx' budget.pk %}" hx-target="#item-list" hx-swap="outerHTML">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-3">
+                                {{ form.item.label_tag }}
+                                {{ form.item }}
+                            </div>
+                            <div class="col-md-2">
+                                {{ form.quantity.label_tag }}
+                                {{ form.quantity }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form.custom_price.label_tag }}
+                                {{ form.custom_price }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form.custom_price_per_day.label_tag }}
+                                {{ form.custom_price_per_day }}
+                            </div>
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-primary mt-4 w-100">Agregar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fila con la lista de ítems -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div id="item-list">
+                {% include 'budget/item_list.html' %}
+            </div>
+        </div>
+    </div>
+
+    
 </div>
+
+<!-- Librerías de Select2 y jQuery -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- JavaScript para manejar Select2 y la adición/eliminación de formularios -->
+<script>
+    $(document).ready(function() {
+        function initializeSelect2(selector) {
+            if (!$(selector).hasClass("select2-hidden-accessible")) {
+                $(selector).select2({
+                    placeholder: 'Seleccione un ítem',
+                    allowClear: true,
+                    ajax: {
+                        url: $(selector).data('ajax--url'),
+                        dataType: 'json',
+                        delay: 150,
+                        data: function(params) {
+                            return { term: params.term };
+                        },
+                        processResults: function(data) {
+                            return { results: data.results };
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 3
+                });
+            }
+        }
+
+        // Inicializar Select2 en todos los campos select2-ajax
+        $('.select2-ajax').each(function() {
+            initializeSelect2(this);
+        });
+    });
+</script>
+
 {% endblock %}

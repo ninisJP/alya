@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*', 'alya-production.up.railway.app']
 
@@ -95,12 +95,10 @@ WSGI_APPLICATION = 'alya.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 20,  # 20 segundos de tiempo de espera
-        }# Aquí defines el nombre de la base de datos
+        'NAME': BASE_DIR / 'db.sqlite3',  # Ruta donde se almacenará el archivo de la base de datos
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
