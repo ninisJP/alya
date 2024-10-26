@@ -1,5 +1,6 @@
 from django.db import models
 from client.models import Client
+from decimal import Decimal
 
 class Budget(models.Model):
     PERCENTAGE_CHOICES = [
@@ -80,10 +81,12 @@ class CatalogItem(models.Model):
     def __str__(self):
         return f'{self.sap} <{self.description}> precio: {self.price}'
 
+from decimal import Decimal
+
 class BudgetItem(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey(CatalogItem, on_delete=models.CASCADE, related_name='budget_items')
-    quantity = models.PositiveIntegerField(default=1)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1.00)  # Cambiado a DecimalField
     custom_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     custom_price_per_day = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
@@ -94,30 +97,33 @@ class BudgetItem(models.Model):
         if not self.unit:
             self.unit = self.item.unit
 
-        # Si no hay custom_price, asignar el precio del catálogo
-        if self.custom_price is None:
-            self.custom_price = self.item.price
-
-        # Si no hay custom_price_per_day, asignar el precio por día del catálogo
-        if self.custom_price_per_day is None:
-            self.custom_price_per_day = self.item.price_per_day
-
-        # Ahora siempre usamos los valores custom para el cálculo
-        price = self.custom_price
-        price_per_day = self.custom_price_per_day
-
-        # Debug: Mostrar los valores que se están utilizando
-        print(f"Usando precio personalizado: {price}, Precio por día personalizado: {price_per_day}")
-
-        # Aplicar precio por día solo si la categoría es HERRAMIENTA, MANODEOBRA o EPPS
-        if self.item.category in [CatalogItem.Category.HERRAMIENTA, CatalogItem.Category.MANODEOBRA, CatalogItem.Category.EPPS]:
-            self.total_price = price_per_day * self.quantity * self.budget.budget_days
+        # Si ya tenemos el precio total desde el Excel, no recalculamos.
+        if self.total_price:
+            print(f"Usando el precio total proporcionado: {self.total_price}")
         else:
-            # No aplica precio por día para EQUIPO, CONSUMIBLE y MATERIAL
-            self.total_price = price * self.quantity
+            # Si no hay custom_price, asignar el precio del catálogo
+            if self.custom_price is None:
+                self.custom_price = self.item.price
+
+            # Si no hay custom_price_per_day, asignar el precio por día del catálogo
+            if self.custom_price_per_day is None:
+                self.custom_price_per_day = self.item.price_per_day
+
+            # Convertir a Decimal para evitar problemas al realizar operaciones
+            price = Decimal(self.custom_price)
+            price_per_day = Decimal(self.custom_price_per_day)
+
+            # Debug: Mostrar los valores que se están utilizando
+            print(f"Usando precio personalizado: {price}, Precio por día personalizado: {price_per_day}")
+
+            # Aplicar precio por día solo si la categoría es HERRAMIENTA, MANODEOBRA o EPPS
+            if self.item.category in [CatalogItem.Category.HERRAMIENTA, CatalogItem.Category.MANODEOBRA, CatalogItem.Category.EPPS]:
+                self.total_price = price_per_day * Decimal(self.quantity) * Decimal(self.budget.budget_days)
+            else:
+                # No aplica precio por día para EQUIPO, CONSUMIBLE y MATERIAL
+                self.total_price = price * Decimal(self.quantity)
 
         super().save(*args, **kwargs)
         # Guardar el presupuesto para que sus valores también se actualicen
         self.budget.save()
-
 

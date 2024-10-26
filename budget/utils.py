@@ -4,6 +4,11 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from .models import Budget, BudgetItem
 from django.conf import settings
+import pandas as pd
+from decimal import Decimal
+from .models import CatalogItem
+
+
 
 def export_budget_report_to_excel(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
@@ -198,3 +203,140 @@ def _create_quote(plantilla, budget):
     sheet['D35'] = f'{budget.budget_deliverytime}'
     sheet['D36'] = f'{budget.budget_servicetime}'
     sheet['D38'] = f'{budget.budget_warrantytime}'
+
+def process_budget_excel(excel_file, budget_id):
+    # Obtener la instancia de Budget por su ID
+    budget = Budget.objects.get(id=budget_id)
+
+    # Procesar el archivo Excel
+    xls = pd.ExcelFile(excel_file)
+    if 'listado' not in xls.sheet_names:
+        raise ValueError("El archivo no contiene una hoja llamada 'listado'.")
+
+    # Leer la hoja "listado" del archivo Excel
+    df = pd.read_excel(xls, sheet_name='listado')
+
+    # Verificar que las columnas esperadas existan
+    expected_columns = ['DESCRIPCION DE PARTIDA', 'UND', 'CANT.', 'P.U.']
+    if not all(col in df.columns for col in expected_columns):
+        raise ValueError("El archivo Excel no tiene el formato esperado.")
+
+    # Iterar sobre cada fila y procesar los datos
+    for index, row in df.iterrows():
+        description = row['DESCRIPCION DE PARTIDA']
+        unit = row['UND']
+        quantity = row['CANT.']
+        custom_price = row['P.U.']
+
+        # Buscar el ítem en el catálogo por coincidencia exacta
+        catalog_item = CatalogItem.objects.filter(description__iexact=description).first()
+
+        # Si encuentra una coincidencia exacta, crear el BudgetItem
+        if catalog_item:
+            BudgetItem.objects.create(
+                budget=budget,
+                item=catalog_item,
+                quantity=quantity,
+                custom_price=custom_price,
+                custom_price_per_day=catalog_item.price_per_day,  # Si es necesario
+                unit=unit
+            )
+        else:
+            # Si no se encuentra coincidencia exacta, continuar con el siguiente ítem
+            print(f"No se encontró el ítem exacto para: {description}")
+            continue
+
+def determine_category(sap_code):
+    """Determina la categoría del ítem basado en las primeras letras del código SAP."""
+    if sap_code.startswith('HER'):
+        return CatalogItem.Category.HERRAMIENTA
+    elif sap_code.startswith('CON'):
+        return CatalogItem.Category.CONSUMIBLE
+    elif sap_code.startswith('MOB'):
+        return CatalogItem.Category.MANODEOBRA
+    elif sap_code.startswith('MAT'):
+        return CatalogItem.Category.MATERIAL
+    elif sap_code.startswith('EPPS'):
+        return CatalogItem.Category.EPPS
+    elif sap_code.startswith('EQU'):
+        return CatalogItem.Category.EQUIPO
+    else:
+        return CatalogItem.Category.EQUIPO  # Asignar una categoría por defecto si no coincide
+
+def process_sap_excel(excel_file, budget):
+    # Procesar el archivo Excel
+    xls = pd.ExcelFile(excel_file)
+    if 'listado' not in xls.sheet_names:
+        raise ValueError("El archivo no contiene una hoja llamada 'listado'.")
+
+    # Leer la hoja "listado" del archivo Excel
+    df = pd.read_excel(xls, sheet_name='listado')
+
+    # Verificar que las columnas esperadas existan
+    expected_columns = ['Número de artículo', 'Descripción del artículo', 'Nombre de unidad de medida', 'Cantidad', 'Precio por unidad', 'Total (ML)']
+    if not all(col in df.columns for col in expected_columns):
+        raise ValueError("El archivo Excel no tiene el formato esperado.")
+
+    # Iterar sobre cada fila y procesar los datos
+    for index, row in df.iterrows():
+        sap_code = row['Número de artículo']
+
+        # Verificar si el código SAP es válido (no nulo)
+        if pd.isna(sap_code) or pd.isnull(sap_code):
+            print(f"Fila {index} sin código SAP. Saltando esta fila.")
+            continue
+
+        description = row['Descripción del artículo']
+        unit = row['Nombre de unidad de medida']
+
+        try:
+            # Manejar cantidad (quantity)
+            quantity = Decimal(row['Cantidad']) if not pd.isna(row['Cantidad']) else Decimal(0)
+
+            # Manejar custom_price (Precio por unidad)
+            custom_price_value = row['Precio por unidad']
+            if isinstance(custom_price_value, str):
+                custom_price = Decimal(custom_price_value.replace('S/', '').strip())
+            elif isinstance(custom_price_value, (float, int)):
+                custom_price = Decimal(custom_price_value)
+            else:
+                custom_price = Decimal(0)
+
+            # Manejar total_price (Total)
+            total_price_value = row['Total (ML)']
+            if isinstance(total_price_value, str):
+                total_price = Decimal(total_price_value.replace('S/', '').strip())
+            elif isinstance(total_price_value, (float, int)):
+                total_price = Decimal(total_price_value)
+            else:
+                total_price = Decimal(0)
+
+        except Exception as e:
+            print(f"Error al convertir los valores numéricos en la fila {index}: {str(e)}")
+            continue  # Saltar esta fila si hay un error de conversión
+
+        # Buscar el ítem en el catálogo por su código SAP o crear uno nuevo
+        try:
+            catalog_item = CatalogItem.objects.get(sap=sap_code)
+        except CatalogItem.DoesNotExist:
+            print(f"No se encontró el ítem con SAP {sap_code}. Creando uno nuevo.")
+            category = determine_category(str(sap_code))  # Asegurarse de que el sap_code es cadena
+            catalog_item = CatalogItem.objects.create(
+                sap=sap_code,
+                description=description,
+                unit=unit,
+                price=custom_price,
+                price_per_day=custom_price / Decimal(30),  # Puedes ajustar esta lógica si es necesario
+                category=category
+            )
+
+        # Crear un nuevo BudgetItem con los datos procesados
+        BudgetItem.objects.create(
+            budget=budget,  # Pasar la instancia de Budget directamente
+            item=catalog_item,
+            quantity=quantity,
+            custom_price=custom_price,
+            unit=unit,
+            total_price=total_price  # Usar el total proporcionado por el archivo Excel
+        )
+

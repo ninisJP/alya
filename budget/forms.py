@@ -109,6 +109,12 @@ class NewBudgetItemForm(forms.ModelForm):
         self.fields['unit'].label = 'Unidad de Medida'
 
 
+from django import forms
+
+class BudgetUploadForm(forms.Form):
+    excel_file = forms.FileField(label='Subir Excel')
+
+
 
 
 
