@@ -12,6 +12,10 @@ from django.http import HttpResponse
 from django.contrib import messages
 from alya import utils
 from django.core.paginator import Paginator
+import pandas as pd
+from decimal import Decimal
+from .models import CatalogItem
+
 
 
 def index_budget(request):
@@ -153,6 +157,53 @@ def edit_budget_item_htmx(request, item_id):
 
     # Devolver el formulario para edición
     return render(request, 'budget/edit_item_form.html', {'form': form, 'item': item})
+
+from django.shortcuts import render, redirect
+from django.core.files.storage import FileSystemStorage
+from .forms import BudgetUploadForm
+from .utils import process_budget_excel
+
+def upload_budget_excel(request, budget_id):
+    if request.method == 'POST' and request.FILES['excel_file']:
+        excel_file = request.FILES['excel_file']
+
+        # Guardar temporalmente el archivo subido
+        fs = FileSystemStorage()
+        filename = fs.save(excel_file.name, excel_file)
+        uploaded_file_url = fs.url(filename)
+
+        # Procesar el archivo de Excel
+        process_budget_excel(excel_file, budget_id)
+
+        return redirect('detail_budget', pk=budget_id)
+
+    return render(request, 'budget/upload_excel.html', {
+        'budget_id': budget_id
+    })
+
+from .utils import process_sap_excel  # Importa la función para procesar el nuevo Excel
+
+def upload_sap_excel(request, budget_id):
+    budget = get_object_or_404(Budget, id=budget_id)
+
+    if request.method == 'POST' and request.FILES.get('excel_file'):
+        excel_file = request.FILES['excel_file']
+        print("Archivo recibido:", excel_file)  # Verificar si el archivo se recibe
+
+        try:
+            # Llamar a la función que procesará el archivo
+            print("Iniciando procesamiento del archivo SAP")
+            process_sap_excel(excel_file, budget)  # Pasa la instancia `budget` en lugar de su `id`
+            print("Procesamiento completado")
+
+            return redirect('detail_budget', pk=budget_id)
+
+        except Exception as e:
+            print(f"Error al procesar el archivo: {str(e)}")
+            return redirect('detail_budget', pk=budget_id)
+
+    print("No se recibió un archivo Excel o no es un POST")
+    return redirect('detail_budget', pk=budget_id)
 
 
 
