@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from alya import utils
 from logistic_inventory.models import Item
+from logistic_requirements.models import RequirementOrder, RequirementOrderItem
 
 from .forms import InventoryOutputForm, SearchSalesOrderForm, SearchSalesOrderItemForm
 from .models import InventoryOutput, InventoryOutputItem
@@ -11,7 +12,7 @@ from .utils import check_items, search_salesorder, search_saleorder_item, get_al
 # Create your views here.
 
 def output_index(request):
-    outputs = InventoryOutput.objects.all()
+    outputs = InventoryOutput.objects.filter(returned=False)
     context = {'outputs': outputs}
     return render(request, 'output/home.html', context)
 
@@ -71,25 +72,25 @@ def output_new_list(request, output_pk):
     context['search'] = SearchSalesOrderItemForm()
     return render(request, 'output/guide/list.html', context)
 
-def output_new_item(request, output_pk, saleorder_item_pk):
+def output_new_item(request, output_pk, requirement_item_pk, logistic_item_pk):
     output = get_object_or_404(InventoryOutput, pk=output_pk)
-    saleorder_item = get_object_or_404(SalesOrderItem, pk=saleorder_item_pk)
-    logistic_item = get_object_or_404(Item, sap=saleorder_item.sap_code)
+    requirement_item = get_object_or_404(RequirementOrderItem, pk=requirement_item_pk)
+    logistic_item = get_object_or_404(Item, pk=logistic_item_pk)
 
     context = {}
-    # Valid quantity: never is 1
-    if logistic_item.quantity < saleorder_item.amount :
+    # Valid quantity: never is major to available
+    if logistic_item.quantity < requirement_item.quantity_requested :
         return render(request, 'output/guide/list.html', context)
     # Create Output Item
     output_item = InventoryOutputItem(
             item = logistic_item,
-            item_saleorder = saleorder_item,
+            item_requirement = requirement_item,
             output = output,
-            quantity = saleorder_item.amount
+            quantity = requirement_item.quantity_requested
             )
     output_item.save()
-    # Retirate quantity
-    logistic_item.quantity = logistic_item.quantity - saleorder_item.amount
+
+    logistic_item.quantity = logistic_item.quantity - requirement_item.quantity_requested
     logistic_item.save()
     # Get quantity
     context = {}

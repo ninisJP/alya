@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from .models import InventoryOutput, InventoryOutputItem
 
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
+from budget.models import CatalogItem
 from alya import utils
 from logistic_inventory.models import Item
 from logistic_requirements.models import RequirementOrder, RequirementOrderItem
@@ -54,64 +55,62 @@ def search_salesorder(model_all, form):
 
 def search_saleorder_item(form, item_missing):
 	# Get salesorder items
-	status_temp, saleorder_items = utils.search_model(item_missing, 'sap_code', form.cleaned_data['sap_code'], accept_all=True)
+	status_temp, requirements_items = utils.search_model(item_missing, 'sap_code', form.cleaned_data['sap_code'], accept_all=True)
 
-	if saleorder_items != {} :
-		saleorder_items = saleorder_items.order_by('sap_code')
-
-	# Valid search: 1 item in salesorder and inventory
+	# Valid search: 1 item in requeriments and inventory
 	status = "no"
 
 	# Only search in logistic/item
-	if (3<len(saleorder_items)) or (saleorder_items=={}) :
-		return status, saleorder_items, {}
+	if (3<len(requirements_items)) or (requirements_items=={}) :
+		return status, requirements_items, {}
 
 	list_items = []
-	for item in saleorder_items :
-		inventory_item = Item.objects.filter(sap=item.sap_code)
-		if inventory_item :
-			list_items.append(inventory_item[0])
+	for item in requirements_items :
+		item_sap = item.sap_code
+		catalog_item = CatalogItem.objects.filter(sap=item_sap)
+		if catalog_item :
+			inventory_item = Item.objects.filter(item=catalog_item[0])
+			if inventory_item :
+				list_items.append(inventory_item[0])
 
 	# Valid item
-	if (len(saleorder_items)==1) and (len(list_items)==1) :
+	if (len(requirements_items)==1) and (len(list_items)==1) :
 		# Quantity is valid
 		status = "quantity"
-		if (saleorder_items[0].amount<=list_items[0].quantity) :
+		if (requirements_items[0].quantity_requested<=list_items[0].quantity) :
 			status = "yes"
 
-	return status, saleorder_items, list_items
+	return status, requirements_items, list_items
 
 def get_all_items(output_pk):
 	output = get_object_or_404(InventoryOutput, pk=output_pk)
-	output_items = InventoryOutputItem.objects.filter(output=output.pk)
-
+	output_items = InventoryOutputItem.objects.filter(output=output.pk, returned=False)
 	requirements = RequirementOrder.objects.filter(sales_order=output.sale_order)
+
+	# Get requirement items was approve
 	requirement_items = []
 	for requirement_one in requirements :
-		print(requirement_one)
-		requirement_items.append(RequirementOrderItem.objects.filter(requirement_order=requirement_one, estado='L'))
+		list_items = RequirementOrderItem.objects.filter(requirement_order=requirement_one, estado='L')
+		for item in list_items :
+			requirement_items.append(item)
 
-	print(requirement_items)
-
+	# Get missing inventory items
 	item_missing = []
-
-	for item_requirement in requirement_items :
-		item_exist = output_items.filter(item_requirement=item_requirement)
+	for item in requirement_items :
+		item_exist = output_items.filter(item_requirement=item)
 		if not item_exist :
-			item_missing.append(item_requirement)
-
-	print(item_missing)
+			item_missing.append(item)
 
 	list_id = []
 	for item in item_missing :
 		list_id.append(item.id)
 
 	# Get model
-	item_missing = saleorder_items.filter(pk__in=list_id)
+	item_missing = RequirementOrderItem.objects.filter(pk__in=list_id)
 
 	context = {}
 	context['output'] = output
-	context['output_items'] = output_saleorder_items
-	context['saleorder_items'] = item_missing
+	context['output_items'] = output_items
+	context['requirements_items'] = item_missing
 
 	return context, item_missing

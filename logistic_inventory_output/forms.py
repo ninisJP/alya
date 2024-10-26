@@ -14,19 +14,6 @@ class InventoryOutputForm(forms.ModelForm):
             'sale_order': 'Orden de venta',
         }
 
-    def save(self, commit=True):
-        instance = super(InventoryOutputForm, self).save(commit=False)
-        if commit:
-            instance.save()
-            # Create QR
-            all_items = SalesOrderItem.objects.filter(salesorder=instance.sale_order)
-            for item in all_items:
-                inventory_item = Item.objects.filter(item_id=item.sap_code)
-                item_save = InventoryOutputItem(item=inventory_item[0], output=instance, quantity=item.amount)
-                item_save.save()
-
-        return instance
-
 class SearchSalesOrderForm(forms.Form):
     sapcode = forms.CharField(label="SAP", max_length=100, required=False)
     project = forms.CharField(label="Proyecto", max_length=100, required=False)
