@@ -58,19 +58,58 @@
             </div>
         </div>
 
-        <!-- Columna derecha con los botones de acción -->
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="button-container text-left p-3">
-                    <a href="{% url 'index_budget' %}" class="btn btn-success mb-2 w-100">Volver a la Lista de Presupuestos</a>
-                    <a href="{% url 'export_budget_report' budget.pk %}" class="btn btn-success mb-2 w-100">
-                        <i class="fas fa-file-excel"></i> Descargar en Excel
-                    </a>
-                    <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger mb-2 w-100">Eliminar Presupuesto</a>
-                    <a href="{% url 'create_sales_order' budget.id %}" class="btn btn-primary w-100">Crear Orden de Venta</a>
+<!-- Columna derecha con los botones de acción -->
+<div class="col-md-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white p-2">
+            <h5>Acciones</h5>
+        </div>
+        <div class="button-container p-3">
+            <!-- Botones principales -->
+            <div class="mb-3">
+                <a href="{% url 'index_budget' %}" class="btn btn-success mb-2 w-100">Volver a la Lista de Presupuestos</a>
+                <a href="{% url 'export_budget_report' budget.pk %}" class="btn btn-success mb-2 w-100">
+                    <i class="fas fa-file-excel"></i> Descargar en Excel
+                </a>
+                <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger mb-2 w-100">Eliminar Presupuesto</a>
+                <a href="{% url 'create_sales_order' budget.id %}" class="btn btn-primary w-100">Crear Orden de Venta</a>
+            </div>
+
+            <!-- Subida de archivo Excel (normal) -->
+            <div class="card mb-3">
+                <div class="card-header bg-light p-2">
+                    <h6>Subir archivo Excel (Normal)</h6>
+                </div>
+                <div class="card-body p-2">
+                    <form method="POST" enctype="multipart/form-data" action="{% url 'upload_budget_excel' budget.id %}">
+                        {% csrf_token %}
+                        <div class="mb-2">
+                            <input type="file" name="excel_file" accept=".xlsx" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Subir</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Subida de archivo Excel (SAP) -->
+            <div class="card">
+                <div class="card-header bg-light p-2">
+                    <h6>Subir archivo Excel (SAP)</h6>
+                </div>
+                <div class="card-body p-2">
+                    <form method="POST" enctype="multipart/form-data" action="{% url 'upload_sap_excel' budget.id %}">
+                        {% csrf_token %}
+                        <div class="mb-2">
+                            <input type="file" name="excel_file" accept=".xlsx" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Subir</button>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
     </div>
     <!-- Fila con el formulario para agregar ítem, movido abajo -->
     <div class="row mt-4">
