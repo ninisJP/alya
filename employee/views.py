@@ -67,7 +67,6 @@ def edit_supervisor(request, pk):
         form = SupervisorEditForm(request.POST, instance=supervisor)
         if form.is_valid():
             supervisor = form.save()
-            messages.success(request, 'Supervisor actualizado exitosamente.')
             return redirect('supervisor')
     else:
         form = SupervisorEditForm(instance=supervisor)
@@ -83,7 +82,6 @@ def edit_technician(request, pk):
         form = TechnicianEditForm(request.POST, instance=technician)
         if form.is_valid():
             technician = form.save()
-            messages.success(request, 'Técnico actualizado exitosamente.')
             return redirect('technician')
     else:
         form = TechnicianEditForm(instance=technician)
