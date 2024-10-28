@@ -52,15 +52,19 @@ class RequirementOrderListView(ListView):
         return queryset
 
     
+from django.shortcuts import get_object_or_404, render
+
 def requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
-    items = requirement_order.items.all()
+    # Filtrar solo los ítems en estado "Pendiente"
+    items = requirement_order.items.filter(estado='P')
     suppliers = Suppliers.objects.all()
     return render(request, 'requirement_order_detail.html', {
         'requirement_order': requirement_order,
         'items': items,
         'suppliers': suppliers,
     })
+
 
 @require_POST
 def update_requirement_order_items(request, pk):
