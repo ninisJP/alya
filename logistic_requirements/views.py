@@ -130,23 +130,110 @@ def ajax_load_suppliers(request):
     return JsonResponse({'results': supplier_list})
 
 # Requirements order approved 
-class RequirementOrderApprovedListView(ListView):
-    model = RequirementOrderItem
-    template_name = 'requirements_approved/requirement_order_approved_list.html'
-    context_object_name = 'requirement_order_items'
+def requirement_order_approved_list(request):
+    # Obtener los ítems cuyas órdenes de requerimiento están aprobadas
+    requirement_order_items = RequirementOrderItem.objects.filter(
+        requirement_order__state='APROBADO'
+    ).select_related(
+        'sales_order_item', 
+        'sales_order_item__salesorder',
+        'sales_order_item__salesorder__project',
+        'supplier'
+    ).order_by('-requirement_order__created_at')
 
-    def get_queryset(self):
-        # Filtra los ítems cuyas órdenes de requerimiento están aprobadas
-        queryset = RequirementOrderItem.objects.filter(
-            requirement_order__state='APROBADO'
-        ).select_related(
-            'sales_order_item', 
-            'sales_order_item__salesorder',  # Para obtener detalles de la orden de venta
-            'sales_order_item__salesorder__project',  # Para obtener detalles del proyecto
-            'supplier'
-        ).order_by('-requirement_order__created_at')
+    # Obtener la lista de proveedores
+    suppliers = Suppliers.objects.all()
 
-        return queryset
+    # Pasar los ítems aprobados y los proveedores al contexto para ser utilizados en el template
+    context = {
+        'requirement_order_items': requirement_order_items,
+        'suppliers': suppliers,  # Aquí añadimos los proveedores
+    }
+
+    return render(request, 'requirements_approved/requirement_order_approved_list.html', context)
+
+    
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .models import RequirementOrderItem
+
+@require_POST
+def update_approved_items(request):
+    updated_items = []
+    errors = []
+
+    # Imprimir los datos POST recibidos para depuración
+    print("POST data recibida:", request.POST)
+
+    # Iterar sobre los datos POST
+    for key, value in request.POST.items():
+        try:
+            # Validar que la clave tenga al menos 3 partes tras el split y que el tercer elemento sea un número
+            parts = key.split('_')
+            if len(parts) == 2 and parts[1].isdigit():
+                # Obtener el ID del ítem desde el nombre del campo
+                item_id = int(parts[1])
+                print(f"Procesando el item con ID: {item_id}")
+
+                # Obtener el ítem correspondiente de la base de datos
+                try:
+                    item = RequirementOrderItem.objects.get(id=item_id)
+                except RequirementOrderItem.DoesNotExist:
+                    errors.append(f"El ítem con ID {item_id} no existe.")
+                    continue
+
+                # Actualizar los campos según la clave
+                if key.startswith('quantity_'):
+                    try:
+                        item.quantity_requested = int(value) if value else 0
+                        print(f"Item ID: {item_id}, Cantidad después de conversión: {item.quantity_requested}")
+                    except ValueError:
+                        errors.append(f"Error al convertir la cantidad para el ítem {item_id}: {value}")
+                        continue
+
+                elif key.startswith('price_'):
+                    try:
+                        item.price = float(value) if value else 0.0
+                    except ValueError:
+                        errors.append(f"Error al convertir el precio para el ítem {item_id}: {value}")
+                        continue
+
+                elif key.startswith('notes_'):
+                    item.notes = value
+
+                elif key.startswith('supplier_'):
+                    item.supplier_id = value
+
+                elif key.startswith('estado_'):
+                    item.estado = value
+
+                # Guardar el ítem actualizado
+                item.save()
+                updated_items.append(item)
+                print(f"Item {item_id} guardado exitosamente.")
+            else:
+                # Si no tiene la estructura adecuada, añade un error
+                errors.append(f"ID no válido: {parts[1] if len(parts) > 1 else 'desconocido'}")
+        
+        except Exception as e:
+            errors.append(f"Error procesando el ítem: {str(e)}")
+            continue
+
+    # Si hubo errores, devolver un mensaje con los errores
+    if errors:
+        print("Errores encontrados:", errors)  # Depuración de errores
+        return JsonResponse({'message': 'Hubo errores al actualizar los ítems.', 'errors': errors}, status=400)
+
+    # Si todo fue bien, devolver éxito
+    return JsonResponse({'message': 'Ítems actualizados con éxito', 'updated_items': [item.id for item in updated_items]}, status=200)
+
+
+
+
+
+
+
+
 
 
 
