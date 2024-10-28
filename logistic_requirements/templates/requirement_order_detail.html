@@ -50,21 +50,30 @@
 
 {% block content %}
 <div class="container-fluid mt-5">
-    <!-- Información General -->
-    <div class="custom-card mb-4">
-        <div class="custom-card-header bg-dark text-white p-3">
-            <h4 class="mb-0">Detalles de la Orden de Requerimiento #{{ requirement_order.order_number }}</h4>
+    <!-- Barra superior de acciones y fecha -->
+    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-dark text-white rounded">
+        <h4 class="mb-0">Detalles de la Orden de Requerimiento #{{ requirement_order.order_number }}</h4>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-warning">Fecha Solicitada: {{ requirement_order.requested_date }}</span>
+            <span class="badge {% if requirement_order.estado == 'L' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                {% if requirement_order.estado == 'L' %}Listo{% else %}Pendiente{% endif %}
+            </span>
+            <a href="{% url 'requirement_order_list' %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
         </div>
-        <div class="p-4">
-            <div class="row">
-                <div class="col-md-6 mb-3"><p><strong>Orden de Venta (Código SAP):</strong> {{ requirement_order.sales_order.sapcode }}</p></div>
-                <div class="col-md-6 mb-3"><p><strong>Total de la Orden:</strong> S/. {{ requirement_order.total_order }}</p></div>
-                <div class="col-md-6 mb-3"><p><strong>Cliente:</strong> {{ requirement_order.sales_order.project.client.legal_name }}</p></div>
-                <div class="col-md-6 mb-3"><p><strong>Pedido por:</strong> {{ requirement_order.user }}</p></div>
-                <div class="col-md-6 mb-3"><p><strong>Proyecto:</strong> {{ requirement_order.sales_order.project.name }}</p></div>
-                <div class="col-md-6 mb-3"><p><strong>Fecha Creada:</strong> {{ requirement_order.created_at }}</p></div>
-                <div class="col-md-12 mb-3"><p><strong>Detalles:</strong> {{ requirement_order.notes }}</p></div>
-            </div>
+    </div>
+
+    <!-- Información General -->
+    <div class="custom-card mb-4 p-4">
+        <div class="row">
+            <div class="col-md-6 mb-3"><strong>Orden de Venta (Código SAP):</strong> {{ requirement_order.sales_order.sapcode }}</div>
+            <div class="col-md-6 mb-3"><strong>Total de la Orden:</strong> S/. {{ requirement_order.total_order }}</div>
+            <div class="col-md-6 mb-3"><strong>Cliente:</strong> {{ requirement_order.sales_order.project.client.legal_name }}</div>
+            <div class="col-md-6 mb-3"><strong>Pedido por:</strong> {{ requirement_order.user }}</div>
+            <div class="col-md-6 mb-3"><strong>Proyecto:</strong> {{ requirement_order.sales_order.project.name }}</div>
+            <div class="col-md-6 mb-3"><strong>Fecha Creada:</strong> {{ requirement_order.created_at }}</div>
+            <div class="col-md-12 mb-3"><strong>Detalles:</strong> {{ requirement_order.notes }}</div>
         </div>
     </div>
 
@@ -141,9 +150,6 @@
                 </button>
                 <button type="button" class="btn btn-danger" onclick="downloadPDF()">Descargar PDF</button>
                 <button type="button" class="btn btn-info" onclick="downloadExcel()">Descargar Excel</button>
-                <a href="{% url 'requirement_order_list' %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Volver
-                </a>
             </div>
             <div id="response-message" class="alert-message mt-2"></div>
         </form>
