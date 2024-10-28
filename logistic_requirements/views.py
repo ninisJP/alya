@@ -14,34 +14,41 @@ from .models import RequirementOrder, RequirementOrderItem
 from django.http import HttpResponse
 from django.db.models import Q
 
-
-# # Vista para listar todas las RequirementOrders
+# Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente
 class RequirementOrderListView(ListView):
     model = RequirementOrder
     template_name = 'requirement_order_list.html'
     context_object_name = 'requirement_orders'
 
     def get_queryset(self):
-        queryset = RequirementOrder.objects.filter(Q(state='APROBADO') | Q(state='RECHAZADO')).order_by('-id').prefetch_related('items')
-        
+        # Filtrar las órdenes aprobadas que tengan al menos un ítem pendiente
+        queryset = RequirementOrder.objects.filter(
+            state='APROBADO',
+            items__estado='P'
+        ).distinct().order_by('-id').prefetch_related('items')
+
         for order in queryset:
             items = order.items.all()
             total_items = items.count()
+
             if total_items == 0:
                 order.global_state = "No tiene ítems"
                 continue
 
             ready_count = items.filter(estado='L').count()
             buying_count = items.filter(estado='C').count()
+            pending_count = items.filter(estado='P').count()
 
             # Determinar el estado general
             if ready_count == total_items:
                 order.global_state = "Listo"
             elif buying_count >= total_items / 2:
                 order.global_state = "Comprando"
-            else:
+            elif pending_count > 0:
                 order.global_state = "Pendiente"
-                
+            else:
+                order.global_state = "Completado"  # Si no hay items pendientes, listos o comprando
+
         return queryset
 
     
