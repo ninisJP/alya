@@ -129,11 +129,11 @@ def ajax_load_suppliers(request):
     supplier_list = [{'id': supplier.id, 'text': supplier.name} for supplier in suppliers]
     return JsonResponse({'results': supplier_list})
 
-# Requirements order approved 
 def requirement_order_approved_list(request):
-    # Obtener los ítems cuyas órdenes de requerimiento están aprobadas
+    # Obtener los ítems cuyas órdenes de requerimiento están aprobadas y el estado del ítem es Pendiente
     requirement_order_items = RequirementOrderItem.objects.filter(
-        requirement_order__state='APROBADO'
+        requirement_order__state='APROBADO',
+        estado='P'  # Filtro adicional para solo obtener los ítems en estado Pendiente
     ).select_related(
         'sales_order_item', 
         'sales_order_item__salesorder',
@@ -144,13 +144,14 @@ def requirement_order_approved_list(request):
     # Obtener la lista de proveedores
     suppliers = Suppliers.objects.all()
 
-    # Pasar los ítems aprobados y los proveedores al contexto para ser utilizados en el template
+    # Pasar los ítems aprobados y pendientes, y los proveedores al contexto para ser utilizados en el template
     context = {
         'requirement_order_items': requirement_order_items,
-        'suppliers': suppliers,  # Aquí añadimos los proveedores
+        'suppliers': suppliers,
     }
 
     return render(request, 'requirements_approved/requirement_order_approved_list.html', context)
+
 
     
 from django.http import JsonResponse
