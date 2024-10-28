@@ -32,7 +32,6 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-
 {% endblock %}
 
 {% block content %}
@@ -48,7 +47,6 @@
                         {% if requirement_order.estado == 'L' %}Listo{% else %}Pendiente{% endif %}
                     </span>
                     <button id="downloadPdf" class="btn btn-danger">Descargar PDF</button>
-
                     <a href="{% url 'requirement_order_list' %}" class="btn btn-primary ms-3">
                         <i class="fas fa-arrow-left"></i> Volver
                     </a>
@@ -66,6 +64,13 @@
                 <div class="col-md-12 mb-3"><p><strong>Fecha creada:</strong> {{ requirement_order.created_at }}</p></div>
             </div>
         </div>
+    </div>
+
+    <!-- Botones para cambiar el estado de todos los ítems -->
+    <div class="text-center mt-4">
+        <button type="button" class="btn btn-secondary" onclick="updateAllItemsState('L')">Marcar todos como Listo</button>
+        <button type="button" class="btn btn-warning" onclick="updateAllItemsState('P')">Marcar todos como Pendiente</button>
+        <button type="button" class="btn btn-primary" onclick="updateAllItemsState('C')">Marcar todos como Comprando</button>
     </div>
 
     <!-- Formulario para Ítems de la Orden -->
@@ -124,7 +129,7 @@
             </table>
         </div>
         
-        <!-- Botón "Guardar Cambios" y "Crear Orden de Compra" -->
+        <!-- Botones para guardar y exportar -->
         <div class="text-center mt-4">
             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
             <button hx-post="{% url 'create_purchase_order' requirement_order.pk %}"
@@ -133,21 +138,19 @@
                     class="btn btn-success ms-2">
                 Crear Orden de Compra
             </button>
-            <!-- Botón de descarga PDF -->
             <button type="button" class="btn btn-danger ms-2" onclick="downloadPDF()">Descargar PDF</button>
-            <!-- Botón de descarga Excel -->
             <button type="button" class="btn btn-info ms-2" onclick="downloadExcel()">Descargar Excel</button>
         </div>
 
         <div id="response-message" class="alert-message mt-2"></div>
     </form>
 </div>
+
 <!-- Incluir jsPDF y SheetJS (XLSX) desde CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
-
-<!-- Script para inicializar Select2 con AJAX y calcular el total dinámicamente -->
+<!-- Script para Select2, descarga de PDF y Excel, y cambio masivo de estado -->
 <script>
     $(document).ready(function() {
         $('.select2-supplier').each(function() {
@@ -170,7 +173,6 @@
             });
         });
 
-        // Actualiza el Precio Total al cambiar la Cantidad Solicitada o el Precio Unitario
         $('input[name^="quantity_requested_"], input[name^="price_"]').on('input', function() {
             var $row = $(this).closest('tr');
             var quantity = parseFloat($row.find('input[name^="quantity_requested_"]').val()) || 0;
@@ -179,31 +181,12 @@
             $row.find('input[name^="total_price_"]').val(total);
         });
     });
-    document.getElementById('downloadPdf').addEventListener('click', function () {
-        // Selecciona el contenedor que deseas exportar a PDF
-        var element = document.querySelector('.container-fluid');
-        
-        // Configura opciones de html2pdf
-        var options = {
-            margin:       0.5,
-            filename:     'Orden_Requerimiento.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        
-        // Genera y descarga el PDF
-        html2pdf().set(options).from(element).save();
-    });
+
     function downloadPDF() {
         const { jsPDF } = window.jspdf;
         let doc = new jsPDF();
-
-        // Añadir título
         doc.setFontSize(18);
         doc.text('Detalles de la Orden de Requerimiento', 10, 10);
-
-        // Añadir contenido de la tabla
         let rows = [];
         $('#requirement-order-form tbody tr').each(function() {
             let row = [];
@@ -212,32 +195,37 @@
             });
             rows.push(row);
         });
-
-        // Añadir la tabla al PDF
         doc.autoTable({
             head: [['SAP', 'ITEM', 'Detalle', 'Cantidad', 'Precio Unitario', 'Precio Total', 'Proveedor', 'Estado']],
             body: rows
         });
-
         doc.save('Orden_de_Requerimiento.pdf');
     }
 
     function downloadExcel() {
         let workbook = XLSX.utils.book_new();
         let worksheet_data = [['SAP', 'ITEM', 'Detalle', 'Cantidad Solicitada', 'Precio Unitario', 'Precio Total', 'Proveedor', 'Estado']];
-
-        // Añadir filas de la tabla al array worksheet_data
         $('#requirement-order-form tbody tr').each(function() {
             let row = [];
-            $(this).find('td').each(function() {
-                row.push($(this).text().trim() || $(this).find('input').val() || $(this).find('select').find('option:selected').text());
-            });
+            row.push($(this).find('td:eq(0)').text().trim());
+            row.push($(this).find('td:eq(1)').text().trim());
+            row.push($(this).find('input[name^="notes_"]').val());
+            row.push($(this).find('input[name^="quantity_requested_"]').val());
+            row.push($(this).find('input[name^="price_"]').val());
+            row.push($(this).find('input[name^="total_price_"]').val());
+            row.push($(this).find('select[name^="supplier_"] option:selected').text());
+            row.push($(this).find('select[name^="estado_"] option:selected').text());
             worksheet_data.push(row);
         });
-
         let worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Orden de Requerimiento');
         XLSX.writeFile(workbook, 'Orden_de_Requerimiento.xlsx');
+    }
+
+    function updateAllItemsState(newState) {
+        $('select[name^="estado_"]').each(function() {
+            $(this).val(newState);
+        });
     }
 </script>
 {% endblock %}
