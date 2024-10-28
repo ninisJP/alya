@@ -162,18 +162,14 @@ def update_approved_items(request):
     updated_items = []
     errors = []
 
-    # Imprimir los datos POST recibidos para depuración
-    print("POST data recibida:", request.POST)
-
     # Iterar sobre los datos POST
     for key, value in request.POST.items():
         try:
-            # Validar que la clave tenga al menos 3 partes tras el split y que el tercer elemento sea un número
+            # Validar que la clave tenga al menos 2 partes tras el split y que el segundo elemento sea un número
             parts = key.split('_')
             if len(parts) == 2 and parts[1].isdigit():
                 # Obtener el ID del ítem desde el nombre del campo
                 item_id = int(parts[1])
-                print(f"Procesando el item con ID: {item_id}")
 
                 # Obtener el ítem correspondiente de la base de datos
                 try:
@@ -186,7 +182,6 @@ def update_approved_items(request):
                 if key.startswith('quantity_'):
                     try:
                         item.quantity_requested = int(value) if value else 0
-                        print(f"Item ID: {item_id}, Cantidad después de conversión: {item.quantity_requested}")
                     except ValueError:
                         errors.append(f"Error al convertir la cantidad para el ítem {item_id}: {value}")
                         continue
@@ -210,7 +205,6 @@ def update_approved_items(request):
                 # Guardar el ítem actualizado
                 item.save()
                 updated_items.append(item)
-                print(f"Item {item_id} guardado exitosamente.")
             else:
                 # Si no tiene la estructura adecuada, añade un error
                 errors.append(f"ID no válido: {parts[1] if len(parts) > 1 else 'desconocido'}")
@@ -221,16 +215,10 @@ def update_approved_items(request):
 
     # Si hubo errores, devolver un mensaje con los errores
     if errors:
-        print("Errores encontrados:", errors)  # Depuración de errores
         return JsonResponse({'message': 'Hubo errores al actualizar los ítems.', 'errors': errors}, status=400)
 
     # Si todo fue bien, devolver éxito
     return JsonResponse({'message': 'Ítems actualizados con éxito', 'updated_items': [item.id for item in updated_items]}, status=200)
-
-
-
-
-
 
 
 
