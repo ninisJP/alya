@@ -238,35 +238,49 @@ def duplicate_budget(request, pk):
     # Redirigir a la vista de detalle del nuevo presupuesto
     return redirect('detail_budget', pk=duplicated_budget.pk)
 
+from decimal import Decimal
+
 def create_sales_order_from_budget(request, budget_id):
     # Obtener el presupuesto seleccionado
     budget = get_object_or_404(Budget, id=budget_id)
     
-    # Crear la orden de venta con los datos básicos, dejando 'project' como null inicialmente y sapcode="000"
-    sales_order = SalesOrder.objects.create(
-        sapcode=0,  # Valor por defecto (SAP 000)
-        project=None,  # Proyecto nulo, será agregado más tarde
-        detail=f"Orden basada en el presupuesto {budget.budget_name}",
-        date=budget.budget_date,
-    )
+    # Verificar si ya existe una orden de venta con el mismo sapcode que el budget_number
+    existing_sales_order = SalesOrder.objects.filter(sapcode=budget.budget_number).first()
     
-    # Iterar sobre los items del presupuesto y crear items de la orden de venta
-    for budget_item in budget.items.all():
-        SalesOrderItem.objects.create(
-            salesorder=sales_order,
-            sap_code=budget_item.item.sap,
-            description=budget_item.item.description,
-            amount=budget_item.quantity,
-            price=budget_item.item.price,  # Precio unitario
-            price_total=budget_item.total_price,  # Precio total
-            unit_of_measurement=budget_item.item.unit,
+    if existing_sales_order:
+        # Si ya existe una orden de venta, aplicamos el 18% de IGV a los items
+        for item in existing_sales_order.items.all():
+            item.price_total = item.price_total * Decimal(1.18)  # Aplicar el IGV del 18%
+            item.save()  # Guardar el cambio en cada item
+        messages.success(request, f"El IGV fue agregado a la orden de venta existente con sapcode {existing_sales_order.sapcode}.")
+    else:
+        # Crear una nueva orden de venta si no existe una con ese sapcode
+        sales_order = SalesOrder.objects.create(
+            sapcode=budget.budget_number,  # Usar el budget_number como sapcode
+            project=None,  # Proyecto nulo inicialmente
+            detail=f"Orden basada en el presupuesto {budget.budget_name}",
+            date=budget.budget_date,
         )
-    
-    # Agregar un mensaje de éxito
-    messages.success(request, f"La orden de venta {sales_order.sapcode} fue creada exitosamente.")
+        
+        # Crear los items de la orden de venta
+        for budget_item in budget.items.all():
+            price_total_with_igv = budget_item.total_price * Decimal(1.18)  # Precio total con IGV del 18%
+            
+            SalesOrderItem.objects.create(
+                salesorder=sales_order,
+                sap_code=budget_item.item.sap,
+                description=budget_item.item.description,
+                amount=budget_item.quantity,
+                price=budget_item.item.price,  # Precio unitario sin IGV
+                price_total=price_total_with_igv,  # Precio total con IGV
+                unit_of_measurement=budget_item.item.unit,
+            )
+        
+        messages.success(request, f"La orden de venta {sales_order.sapcode} fue creada exitosamente con IGV incluido.")
     
     # Redirigir a la vista principal de presupuestos
     return redirect('index_budget')
+
 
 def export_budget_report(request, pk):
     return export_budget_report_to_excel(request, pk)
