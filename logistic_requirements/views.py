@@ -14,46 +14,57 @@ from .models import RequirementOrder, RequirementOrderItem
 from django.http import HttpResponse
 from django.db.models import Q
 
-
-# # Vista para listar todas las RequirementOrders
+# Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente
 class RequirementOrderListView(ListView):
     model = RequirementOrder
     template_name = 'requirement_order_list.html'
     context_object_name = 'requirement_orders'
 
     def get_queryset(self):
-        queryset = RequirementOrder.objects.filter(Q(state='APROBADO') | Q(state='RECHAZADO')).order_by('-id').prefetch_related('items')
-        
+        # Filtrar las órdenes aprobadas que tengan al menos un ítem pendiente
+        queryset = RequirementOrder.objects.filter(
+            state='APROBADO',
+            items__estado='P'
+        ).distinct().order_by('-id').prefetch_related('items')
+
         for order in queryset:
             items = order.items.all()
             total_items = items.count()
+
             if total_items == 0:
                 order.global_state = "No tiene ítems"
                 continue
 
             ready_count = items.filter(estado='L').count()
             buying_count = items.filter(estado='C').count()
+            pending_count = items.filter(estado='P').count()
 
             # Determinar el estado general
             if ready_count == total_items:
                 order.global_state = "Listo"
             elif buying_count >= total_items / 2:
                 order.global_state = "Comprando"
-            else:
+            elif pending_count > 0:
                 order.global_state = "Pendiente"
-                
+            else:
+                order.global_state = "Completado"  # Si no hay items pendientes, listos o comprando
+
         return queryset
 
     
+from django.shortcuts import get_object_or_404, render
+
 def requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
-    items = requirement_order.items.all()
+    # Filtrar solo los ítems en estado "Pendiente"
+    items = requirement_order.items.filter(estado='P')
     suppliers = Suppliers.objects.all()
     return render(request, 'requirement_order_detail.html', {
         'requirement_order': requirement_order,
         'items': items,
         'suppliers': suppliers,
     })
+
 
 @require_POST
 def update_requirement_order_items(request, pk):
@@ -129,11 +140,11 @@ def ajax_load_suppliers(request):
     supplier_list = [{'id': supplier.id, 'text': supplier.name} for supplier in suppliers]
     return JsonResponse({'results': supplier_list})
 
-# Requirements order approved 
 def requirement_order_approved_list(request):
-    # Obtener los ítems cuyas órdenes de requerimiento están aprobadas
+    # Obtener los ítems cuyas órdenes de requerimiento están aprobadas y el estado del ítem es Pendiente
     requirement_order_items = RequirementOrderItem.objects.filter(
-        requirement_order__state='APROBADO'
+        requirement_order__state='APROBADO',
+        estado='P'  # Filtro adicional para solo obtener los ítems en estado Pendiente
     ).select_related(
         'sales_order_item', 
         'sales_order_item__salesorder',
@@ -144,13 +155,14 @@ def requirement_order_approved_list(request):
     # Obtener la lista de proveedores
     suppliers = Suppliers.objects.all()
 
-    # Pasar los ítems aprobados y los proveedores al contexto para ser utilizados en el template
+    # Pasar los ítems aprobados y pendientes, y los proveedores al contexto para ser utilizados en el template
     context = {
         'requirement_order_items': requirement_order_items,
-        'suppliers': suppliers,  # Aquí añadimos los proveedores
+        'suppliers': suppliers,
     }
 
     return render(request, 'requirements_approved/requirement_order_approved_list.html', context)
+
 
     
 from django.http import JsonResponse
@@ -219,11 +231,6 @@ def update_approved_items(request):
 
     # Si todo fue bien, devolver solo un mensaje de éxito
     return JsonResponse({'message': 'Ítems actualizados con éxito'}, status=200)
-
-
-
-
-
 
 
 
