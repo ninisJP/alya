@@ -5,6 +5,8 @@ from project.models import Project
 from client.models import Client
 from decimal import Decimal
 from django.db.models.functions import TruncMonth
+from django.core.exceptions import ValidationError
+from django.db.models import Sum
 
 
 class SalesOrder(models.Model):
@@ -12,14 +14,22 @@ class SalesOrder(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     detail = models.CharField(max_length=255)
     date = models.DateField()
+    total_sales_order = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+
 
     def update_total_sales_order(self):
         self.total_sales_order = sum(item.price_total for item in self.items.all())
         self.save()
+        
+    def total_hours_man(self):
+        # Cargamos `Task` de forma diferida usando `import_string`
+        Task = import_string("follow_control_card.models.Task")
+        return Task.objects.filter(sale_order=self).aggregate(total_hours=Sum('task_time'))['total_hours'] or 0.00
+
+
 
     def __str__(self):
         return f"{self.sapcode} - {self.project if self.project else 'Sin Proyecto'} - {self.detail}"
-
 
 class SalesOrderItem(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="items")
@@ -63,6 +73,11 @@ class PurchaseOrder(models.Model):
     scheduled_date = models.DateField(blank=True, null=True)
     requested_by = models.CharField(max_length=20, verbose_name="Encargado", blank=True, null=True)
     acepted = models.BooleanField(default=True)
+    
+    @property
+    def total_purchase_order(self):
+        # Suma el campo `price_total` de todos los PurchaseOrderItem asociados a esta orden
+        return self.items.aggregate(total=Sum('price_total'))['total'] or 0
 
     def __str__(self):
         return f"Orden de Compra {self.id} para la Orden de Venta {self.salesorder.sapcode} - Solicitada el {self.requested_date}"
@@ -109,6 +124,15 @@ class PurchaseOrderItem(models.Model):
     mov_number = models.CharField(max_length=255, null=True, blank=True, default='')
     bank = models.CharField(max_length=100, null=True, blank=True)
     total_renditions = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Total Renditions")
+    
+    bank_statement = models.ForeignKey(
+        'BankStatements',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='conciliated_items',
+        verbose_name="Extracto Bancario Conciliado"
+    )
 
     def save(self, *args, **kwargs):
         if self.price is not None and self.quantity_requested is not None:
@@ -125,11 +149,6 @@ class PurchaseOrderItem(models.Model):
         total = self.renditions.aggregate(total=Sum('amount'))['total'] or 0
         self.total_renditions = total
         self.save()
-
-from django.core.exceptions import ValidationError
-from django.db.models import Sum
-
-from django.core.exceptions import ValidationError
 
 class Rendition(models.Model):
     purchase_order_item = models.ForeignKey(PurchaseOrderItem, on_delete=models.CASCADE, related_name="renditions")

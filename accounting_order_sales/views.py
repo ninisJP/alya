@@ -350,6 +350,30 @@ class BankStatementUploadView(FormView):
 
         return super().form_valid(form)
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
+
+@require_POST
+def assign_bank_statement(request, item_id, statement_id):
+    try:
+        # Obtener el ítem y el extracto bancario
+        item = PurchaseOrderItem.objects.get(id=item_id)
+        bank_statement = BankStatements.objects.get(id=statement_id)
+
+        # Asignar el extracto bancario al ítem
+        item.bank_statement = bank_statement
+        item.mov_number = bank_statement.number_moviment
+        item.save()
+
+        return JsonResponse({'success': True, 'message': 'Conciliación realizada correctamente.'})
+    except PurchaseOrderItem.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Ítem no encontrado.'})
+    except BankStatements.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Extracto bancario no encontrado.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Error: {str(e)}'})
+
 
 
 #caja chica
@@ -513,32 +537,34 @@ def ajax_load_suppliers(request):
     supplier_list = [{'id': supplier.id, 'text': supplier.name} for supplier in suppliers]
     return JsonResponse({'results': supplier_list})
 
-# conciliations
 def purchase_conciliations(request):
-    # Obtener la fecha de hoy según la zona horaria configurada
-    today = localdate()
-
-    # Obtenemos los parámetros del rango de fechas (si existen)
+    # Obtener los parámetros de fecha y nombre del banco
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
+    bank_name = request.GET.get('bank_name', '').strip()  # Tomar el nombre del banco o cadena vacía si no hay
 
-    # Si no se han proporcionado fechas, mostrar ítems y movimientos del día actual
-    if not start_date and not end_date:
-        items = PurchaseOrderItem.objects.filter(purchaseorder__scheduled_date=today).select_related(
-            'purchaseorder', 'sales_order_item__salesorder', 'supplier'
-        )
-        bank_statements = BankStatements.objects.filter(operation_date=today)
-    else:
-        # Si se proporcionan fechas, buscar entre esas dos fechas
-        if not end_date:
-            end_date = today  # Si solo hay fecha de inicio, el rango termina en el día actual
+    # Inicializar `items` y `bank_statements` como listas vacías para que la página cargue sin datos
+    items = PurchaseOrderItem.objects.none()
+    bank_statements = BankStatements.objects.none()
 
+    # Solo aplicar filtros si se proporcionan `start_date`, `end_date`, o `bank_name`
+    if start_date or end_date or bank_name:
+        # Asignar valores por defecto si las fechas están vacías
+        start_date = start_date or localdate()
+        end_date = end_date or localdate()
+
+        # Filtro para ítems sin número de movimiento y coincidencias en el nombre del banco
         items = PurchaseOrderItem.objects.filter(
-            purchaseorder__scheduled_date__range=[start_date, end_date]
-        ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
-        
+                purchaseorder__scheduled_date__range=[start_date, end_date]
+            ).filter(
+                Q(mov_number__isnull=True) | Q(mov_number=''),  # Solo ítems sin número de movimiento
+                supplier__bank__icontains=bank_name  # Coincidencia parcial en el nombre del banco del proveedor
+            ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
+
+        # Filtro para los extractos bancarios por fecha y nombre del banco
         bank_statements = BankStatements.objects.filter(
-            operation_date__range=[start_date, end_date]
+            operation_date__range=[start_date, end_date],
+            bank__bank_name__icontains=bank_name  # Coincidencia parcial en el nombre del banco de los extractos
         )
 
     context = {
@@ -546,10 +572,10 @@ def purchase_conciliations(request):
         'bank_statements': bank_statements,
         'start_date': start_date,
         'end_date': end_date,
+        'bank_name': bank_name,
     }
 
     return render(request, 'conciliations/conciliations.html', context)
-
 
 # renditions
 from django.db.models import Sum

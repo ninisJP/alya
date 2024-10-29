@@ -1,0 +1,109 @@
+{% extends 'project_base.html' %}
+
+{% block title %}Lista de Proyectos, Órdenes de Venta, Compra y Requerimiento{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <h1 class="mb-4 text-primary">Lista de Proyectos y sus Órdenes</h1>
+    <ul class="list-group list-group-flush">
+        {% for project in projects %}
+            <li class="list-group-item bg-light mb-3 rounded shadow-sm">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="h5 text-dark mb-0">{{ project.name }}</h2>
+                    <span class="badge bg-primary rounded-pill">{{ project.sales_orders.count }} Órdenes</span>
+                </div>
+                <hr class="my-2">
+                
+                {% if project.sales_orders %}
+                    <ul class="list-group list-group-flush ms-3">
+                        {% for sales_order in project.sales_orders %}
+                            <li class="list-group-item bg-white border-0 mb-1 rounded">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>Orden de Venta:</strong> {{ sales_order.sapcode }}<br>
+                                        <strong>Detalle:</strong> {{ sales_order.detail }}
+                                    </div>
+                                    <div>
+                                        <strong>Total:</strong> ${{ sales_order.total_sales_order }}<br>
+                                        <strong>Horas Hombre:</strong> {{ sales_order.total_hours_man }}
+                                    </div>
+                                </div>
+
+                                <!-- Órdenes de Compra -->
+                                {% if sales_order.purchase_orders.all %}
+                                    <ul class="list-group list-group-flush ms-3 mt-2">
+                                        <h6 class="text-secondary">Órdenes de Compra:</h6>
+                                        {% for purchase_order in sales_order.purchase_orders.all %}
+                                            <li class="list-group-item bg-light border-0 mb-1 rounded">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <strong>Orden de Compra:</strong> {{ purchase_order.id }}<br>
+                                                        <strong>Descripción:</strong> {{ purchase_order.description }}<br>
+                                                        <strong>Fecha Solicitada:</strong> {{ purchase_order.requested_date }}
+                                                    </div>
+                                                    <div>
+                                                        <strong>Total:</strong> ${{ purchase_order.total_purchase_order }}
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="text-muted ms-3">No hay órdenes de compra para esta orden de venta.</p>
+                                {% endif %}
+
+                                <!-- Órdenes de Requerimiento -->
+                                {% if sales_order.requirement_orders.all %}
+                                    <ul class="list-group list-group-flush ms-3 mt-2">
+                                        <h6 class="text-secondary">Órdenes de Requerimiento:</h6>
+                                        {% for requirement_order in sales_order.requirement_orders.all %}
+                                            <li class="list-group-item bg-light border-0 mb-1 rounded">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <strong>Orden de Requerimiento:</strong> {{ requirement_order.order_number }}<br>
+                                                        <strong>Notas:</strong> {{ requirement_order.notes }}<br>
+                                                        <strong>Fecha Solicitada:</strong> {{ requirement_order.requested_date }}
+                                                    </div>
+                                                    <div>
+                                                        <strong>Total:</strong> ${{ requirement_order.total_order }}
+                                                    </div>
+                                                </div>
+
+                                                <!-- Ítems de la Orden de Requerimiento -->
+                                                {% if requirement_order.items.all %}
+                                                    <ul class="list-group list-group-flush ms-3 mt-2">
+                                                        {% for item in requirement_order.items.all %}
+                                                            <li class="list-group-item bg-light border-0 mb-1 rounded">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <div>
+                                                                        <strong>Ítem:</strong> {{ item.sales_order_item.description }}<br>
+                                                                        <strong>Cantidad Solicitada:</strong> {{ item.quantity_requested }}<br>
+                                                                        <strong>Estado:</strong> {{ item.get_estado_display }}
+                                                                    </div>
+                                                                    <div>
+                                                                        <strong>Total:</strong> ${{ item.total_price }}
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% else %}
+                                                    <p class="text-muted ms-3">No hay ítems para esta orden de requerimiento.</p>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="text-muted ms-3">No hay órdenes de requerimiento para esta orden de venta.</p>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted ms-3">No hay órdenes de venta para este proyecto.</p>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
