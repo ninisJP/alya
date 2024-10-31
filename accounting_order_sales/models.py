@@ -26,11 +26,11 @@ class SalesOrder(models.Model):
         Task = import_string("follow_control_card.models.Task")
         return Task.objects.filter(sale_order=self).aggregate(total_hours=Sum('task_time'))['total_hours'] or 0.00
 
-
-
     def __str__(self):
         return f"{self.sapcode} - {self.project if self.project else 'Sin Proyecto'} - {self.detail}"
-
+    class Meta:
+        verbose_name = "Orden Venta"
+        verbose_name_plural = "Ordenes de Venta"
 class SalesOrderItem(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="items")
     sap_code = models.CharField(max_length=255, default="")
@@ -64,7 +64,10 @@ class SalesOrderItem(models.Model):
 
         # Actualizar la orden de venta (SalesOrder) total después de guardar
         self.salesorder.update_total_sales_order()
-
+    class Meta:
+        verbose_name = "Item Orden Venta"
+        verbose_name_plural = "Items Orden Venta"
+        
 class PurchaseOrder(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE,related_name="purchase_orders")
     description = models.CharField(max_length=255)
@@ -81,6 +84,10 @@ class PurchaseOrder(models.Model):
 
     def __str__(self):
         return f"Orden de Compra {self.id} para la Orden de Venta {self.salesorder.sapcode} - Solicitada el {self.requested_date}"
+    
+    class Meta:
+        verbose_name = "Orden Compra"
+        verbose_name_plural = "Ordenes de Compra"
 
 from django.db.models import Sum
 from django.db import models
@@ -149,6 +156,10 @@ class PurchaseOrderItem(models.Model):
         total = self.renditions.aggregate(total=Sum('amount'))['total'] or 0
         self.total_renditions = total
         self.save()
+    
+    class Meta:
+        verbose_name = "Item Orden Compra"
+        verbose_name_plural = "Items Orden Compra"
 
 class Rendition(models.Model):
     purchase_order_item = models.ForeignKey(PurchaseOrderItem, on_delete=models.CASCADE, related_name="renditions")
@@ -184,7 +195,11 @@ class Rendition(models.Model):
         self.update_total_renditions()
 
     def __str__(self):
-        return f"Rendition for {self.amount} - {self.purchase_order_item.sap_code} on {self.date}"
+        return f"Rendiciones para {self.amount} - {self.purchase_order_item.sap_code} el {self.date}"
+    
+    class Meta:
+        verbose_name = "Rendición"
+        verbose_name_plural = "Rendiciones"
 
 class Bank(models.Model):
     bank_name = models.CharField(max_length=70, verbose_name='Banco')
@@ -193,8 +208,11 @@ class Bank(models.Model):
     bank_current_mount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name='Monto Total');
 
     def __str__(self):
-        return f'Banco: {self.bank_name} - Cuenta:{self.bank_account}'
-
+        return f'Banco: {self.bank_name} - Cuenta: {self.bank_account}'
+    
+    class Meta:
+        verbose_name = "Banco"
+        verbose_name_plural = "Bancos"
 
 class BankStatements(models.Model):
     bank = models.ForeignKey(Bank, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Banco')
@@ -206,6 +224,10 @@ class BankStatements(models.Model):
 
     def __str__(self):
         return f'Movimiento: {self.number_moviment} - Referencia: {self.reference}'
+    
+    class Meta:
+        verbose_name = "Extracto de Bancos"
+        verbose_name_plural = "Extractos Bancarios"
 
 class BankStatementManager(models.Manager):
     def by_month(self, year, month):

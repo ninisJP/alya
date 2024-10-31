@@ -26,6 +26,10 @@ class Contract(models.Model):
 
     def __str__(self):
         return f"Contract {self.contract_number} - {self.client.legal_name}"
+    
+    class Meta:
+        verbose_name = "Contrato"
+        verbose_name_plural = "Contratos"
 
 class Opportunity(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='opportunities')
@@ -38,3 +42,7 @@ class Opportunity(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "Oportunidad"
+        verbose_name_plural = "Oportunidades"
