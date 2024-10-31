@@ -13,6 +13,10 @@ class TechnicianTask(models.Model):
     def __str__(self):
         return f"{self.verb} {self.object} ({self.time} {self.measurement})"
 
+    class Meta:
+        verbose_name = "Tarea de Técnico"
+        verbose_name_plural = "Tareas de Técnicos"
+
 
 class TechnicianCard(models.Model):
     technician = models.ForeignKey(Technician, on_delete=models.CASCADE)
@@ -20,6 +24,11 @@ class TechnicianCard(models.Model):
 
     def __str__(self):
         return f"{self.technician.first_name} - ({self.date})"
+    
+    class Meta:
+        verbose_name = "Tarjeta de Técnico"
+        verbose_name_plural = "Tarjetas de técnicos"
+
 
 def rename_file(instance, filename):
     # Extraer información relevante del modelo TechnicianCardTask
@@ -50,8 +59,12 @@ class TechnicianCardTask(models.Model):
 
     class Meta:
         ordering = ['order']
+        verbose_name = "Tarjeta de Tarea de Técnico"
+        verbose_name_plural = "Tarjetas de Tareas de Técnicos"
 
     def save(self, *args, **kwargs):
         # Calcular total_time como time * quantity
         self.total_time = self.task.time * self.quantity
         super().save(*args, **kwargs)
+        
+    

@@ -12,6 +12,11 @@ class InventoryOutput(models.Model):
     date_create = models.DateTimeField(auto_now_add=True)
     returned = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = "Inventario de Salida"
+        verbose_name_plural = "Inventario de Salida"
+
+
 class InventoryOutputItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     item_requirement = models.ForeignKey(RequirementOrderItem, on_delete=models.CASCADE)
@@ -20,3 +25,7 @@ class InventoryOutputItem(models.Model):
     date_create = models.DateTimeField(auto_now_add=True)
     date_returned = models.DateTimeField(null=True, blank=True)
     returned = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Item Inventario Salida"
+        verbose_name_plural = "Items Inventario Salida"

@@ -14,6 +14,10 @@ class Supervisor(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name} - {self.position}'
+    
+    class Meta:
+        verbose_name = "Supervisor"
+        verbose_name_plural = "Supervisores"
 
 
 class Technician(models.Model):
@@ -27,3 +31,7 @@ class Technician(models.Model):
 
     def __str__(self):
         return f'{self.user.first_name} {self.user.last_name} - {self.position} - {self.status}'
+
+    class Meta:
+        verbose_name = "Técnico"
+        verbose_name_plural = "Técnicos"
