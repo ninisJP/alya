@@ -1,0 +1,66 @@
+{% block extra_css %}
+<style>
+    .custom-card {
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+    .custom-table {
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+    /* Badge más grande */
+    .badge-large {
+        font-size: 1rem; /* Aumenta el tamaño de la fuente */
+        padding: 0.5rem 1rem; /* Aumenta el padding */
+        line-height: 1.5; /* Asegura que el texto se vea bien */
+    }
+    .badge-listo {
+        background-color: #28a745;
+        color: white;
+    }
+    .badge-pendiente {
+        background-color: #ffc107;
+        color: black;
+    }
+    .badge-comprando {
+        background-color: #17a2b8;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+<div class="container-fluid mt-5">
+    <!-- Información General -->
+    <div class="custom-card mb-4">
+        <div class="custom-card-header bg-dark text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Detalles de la Orden de compra #{{ output.pk }}</h4>
+            </div>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <p><strong>Orden de Compra:</strong> {{ purchase.id }}</p>
+                    <p><strong>Descripción:</strong> {{ purchase.description }}</p>
+                    <p><strong>Orden de Compra:</strong> {{ purchase.salesorder }}</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <p><strong>Fecha solicitada:</strong> {{ purchase.requested_date }}</p>
+                    <p><strong>Fecha programada:</strong> {{ purchase.scheduled_date }}</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <ul id="logistic_inventory_inputnewitem_new_search" class="mt-8 space-y-4">
+        {% include 'inputnewitem/guide/search.html' %}
+    </ul>
+    <ul id="logistic_inventory_inputnewitem_new_list" class="mt-8 space-y-4">
+        {% include 'inputnewitem/guide/list.html' %}
+    </ul>
+
+</div>
