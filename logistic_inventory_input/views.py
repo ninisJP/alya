@@ -7,7 +7,6 @@ from .utils import get_all_items, search_items, new_item, get_all_outputs
 
 def input_index(request):
 	context = {}
-	#context['outputs'] = InventoryOutput.objects.filter(returned=False)
 	outputs = get_all_outputs()
 	context['outputs'] = outputs
 	return render(request, 'input/home.html', context)

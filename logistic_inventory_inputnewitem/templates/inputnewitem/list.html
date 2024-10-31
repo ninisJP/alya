@@ -1,0 +1,39 @@
+{% load widget_tweaks %}
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th>Orden de Compra</th>
+                <th>Orden de Venta</th>
+                <th>Descripción</th>
+                <th>Fecha solicitada</th>
+                <th>Fecha programada</th>
+                <th>Fecha programada</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for purchase in purchases %}
+                <tr class="rounded-3">
+                    <td>{{ purchase.id }}</td>
+                    <td>{{ purchase.salesorder }}</td>
+                    <td>{{ purchase.description }}</td>
+                    <td>{{ purchase.requested_date }}</td>
+                    <td>{{ purchase.scheduled_date }}</td>
+                    <td>{{ purchase.requested_by }}</td>
+                    <td>
+                        <button class="btn btn-info btn-sm"
+                            hx-get="{% url 'logistic_inventory_inputnewitem_new' purchase.pk %}"
+                            hx-target="#logistic_inventory_inputnewitem_window"
+                            data-bs-toggle="button"
+                            aria-pressed="false">
+                            <i class="fas fa-info-circle"></i>
+                            Ingreso de items
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
