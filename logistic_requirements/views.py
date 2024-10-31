@@ -239,13 +239,9 @@ def update_approved_items(request):
 
 
 
-
-
-
-
 def requirement_order_detail_partial(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
-    items = requirement_order.items.all()  # Obtener los ítems relacionados
+    items = requirement_order.items.all() 
     return render(request, 'requirements_approved/requirement_order_detail_partial.html', {
         'requirement_order': requirement_order,
         'items': items,  # Pasamos los ítems a la plantilla parcial

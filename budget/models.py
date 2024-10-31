@@ -61,6 +61,9 @@ class Budget(models.Model):
     def __str__(self):
         return self.budget_name
 
+    class Meta:
+        verbose_name = "Presupuesto"
+        verbose_name_plural = "Presupuestos"
 
 class CatalogItem(models.Model):
     class Category(models.TextChoices):
@@ -80,6 +83,10 @@ class CatalogItem(models.Model):
 
     def __str__(self):
         return f'{self.sap} <{self.description}> precio: {self.price}'
+    
+    class Meta:
+        verbose_name = "Item Catálogo"
+        verbose_name_plural = "Items de Catálogo"
 
 from decimal import Decimal
 
@@ -127,3 +134,6 @@ class BudgetItem(models.Model):
         # Guardar el presupuesto para que sus valores también se actualicen
         self.budget.save()
 
+    class Meta:
+        verbose_name = "Item Presupuesto"
+        verbose_name_plural = "Items de Presupuesto"

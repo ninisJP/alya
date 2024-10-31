@@ -4,4 +4,5 @@ from .models import *
 
 admin.site.register(Task)
 admin.site.register(Card)
+admin.site.register(CardTaskOrder)
 

@@ -7,6 +7,10 @@ class Brand(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name = "Marca"
+        verbose_name_plural = "Marcas"
+
 
 class Type(models.Model):
 
@@ -22,6 +26,10 @@ class Type(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name = "Tipo"
+        verbose_name_plural = "Tipos"
+
 
 class Subtype(models.Model):
     name = models.CharField(max_length=100)
@@ -29,6 +37,11 @@ class Subtype(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name = "Subtipo"
+        verbose_name_plural = "Subtipos"
+
 
 class Item(models.Model):
     item = models.OneToOneField(CatalogItem, on_delete=models.CASCADE, primary_key=True)
@@ -41,3 +54,7 @@ class Item(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     life_time = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     code_qr = models.ImageField('img', upload_to='item_qr/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Item"
+        verbose_name_plural = "Items"

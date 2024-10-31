@@ -1,0 +1,47 @@
+<div id="budget-details-container">
+<div class="table-responsive">
+    <table class="table table-bordered table-sm mb-0" style="table-layout: fixed; width: 100%;">
+        <tbody>
+            <tr>
+                <th class="bg-light p-1" style="width: 25%;">Cliente</th>
+                <td class="p-1">{{ budget.client }}</td>
+            </tr>
+            <tr>
+                <th class="bg-light p-1">Nombre del Presupuesto</th>
+                <td class="p-1">{{ budget.budget_name }}</td>
+            </tr>
+            <tr>
+                <th class="bg-light p-1">Días del Presupuesto</th>
+                <td class="p-1">{{ budget.budget_days }}</td>
+            </tr>
+            <tr>
+                <th class="bg-light p-1">Precio parcial (S/.)</th>
+                <td class="p-1">{{ budget.budget_price }}</td>
+            </tr>
+            <tr>
+                <th class="bg-light p-1">Precio completo sin IGV (S/.)</th>
+                <td class="p-1">{{ budget.budget_final_price }}</td>
+            </tr>
+            <tr>
+                <th class="bg-light p-1">Fecha</th>
+                <td class="p-1">{{ budget.budget_date }}</td>
+            </tr>
+            <tr>
+                <th class="bg-light p-1">Tiempo de Entrega</th>
+                <td class="p-1">{{ budget.budget_deliverytime }}</td>
+            </tr>
+            <tr>
+                <th class="bg-light p-1">Tiempo de Servicio</th>
+                <td class="p-1">{{ budget.budget_servicetime }}</td>
+            </tr>
+            <tr>
+                <th class="bg-light p-1">Tiempo de Garantía</th>
+                <td class="p-1">{{ budget.budget_warrantytime }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<button class="btn btn-primary mt-3" hx-post="{% url 'update_budget_partial' budget.id %}" hx-target="#budget-details-container" hx-swap="outerHTML">
+    Editar Presupuesto
+</button>
+</div>

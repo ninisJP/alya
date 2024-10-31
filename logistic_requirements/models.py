@@ -47,6 +47,11 @@ class RequirementOrder(models.Model):
         
         # Guardar finalmente la instancia
         super().save(*args, **kwargs)
+        
+    class Meta:
+        verbose_name = "Orden de Requerimiento"
+        verbose_name_plural = "Ordenes de Requerimiento"
+
 
 class RequirementOrderItem(models.Model):
     ESTADO_CHOICES = [
@@ -108,3 +113,6 @@ class RequirementOrderItem(models.Model):
     @property
     def total_price(self):
         return self.price * self.quantity_requested
+    class Meta:
+        verbose_name = "Item Orden de Requerimiento"
+        verbose_name_plural = "Items Orden de Requerimiento"
