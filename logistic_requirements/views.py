@@ -15,18 +15,27 @@ from django.http import HttpResponse
 from django.db.models import Q
 
 # Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente
+# Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente o todas las órdenes sin filtros
 class RequirementOrderListView(ListView):
     model = RequirementOrder
     template_name = 'requirement_order_list.html'
     context_object_name = 'requirement_orders'
 
     def get_queryset(self):
-        # Filtrar las órdenes aprobadas que tengan al menos un ítem pendiente
-        queryset = RequirementOrder.objects.filter(
-            state='APROBADO',
-            items__estado='P'
-        ).distinct().order_by('-id').prefetch_related('items')
-
+        # Revisar si el parámetro GET "show_all" está presente
+        show_all = self.request.GET.get('show_all') == 'true'
+        
+        if show_all:
+            # Si show_all es true, retornar todas las órdenes sin filtros
+            queryset = RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
+        else:
+            # Filtrar solo órdenes aprobadas con al menos un ítem en estado Pendiente
+            queryset = RequirementOrder.objects.filter(
+                state='APROBADO',
+                items__estado='P'
+            ).distinct().order_by('-id').prefetch_related('items')
+        
+        # Calcular el estado general de cada orden
         for order in queryset:
             items = order.items.all()
             total_items = items.count()
@@ -51,8 +60,6 @@ class RequirementOrderListView(ListView):
 
         return queryset
 
-    
-from django.shortcuts import get_object_or_404, render
 
 def requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
@@ -64,7 +71,6 @@ def requirement_order_detail_view(request, pk):
         'items': items,
         'suppliers': suppliers,
     })
-
 
 @require_POST
 def update_requirement_order_items(request, pk):
@@ -133,7 +139,6 @@ def create_purchase_order(request, pk):
     success_message = f"<div>Orden de Compra creada para la Orden de Requerimiento #{requirement_order.order_number}.</div>"
     return HttpResponse(success_message, content_type="text/html")
 
- 
 def ajax_load_suppliers(request):
     term = request.GET.get('term', '')
     suppliers = Suppliers.objects.filter(name__icontains=term)[:20]

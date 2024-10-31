@@ -2,11 +2,73 @@
 
 {% block title %}Lista para pedidos{% endblock %}
 
-{% block content %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<style>
+    /* Estilos para la tabla */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .table thead {
+        background-color: #343a40;
+        color: #ffffff;
+    }
+    .table thead th {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
 
+    /* Estilos para los botones */
+    .btn-success, .btn-danger {
+        border: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    .btn-success {
+        background-color: #28a745;
+        color: #fff;
+        border-radius: 50px;
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        color: #fff;
+        border-radius: 50px;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .btn-danger:hover {
+        background-color: #c82333;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Personalización del campo de búsqueda */
+    #salesOrdersTable_filter input {
+        border-radius: 20px;
+        width: 300px;
+        padding: 10px;
+        border: 2px solid #ced4da;
+        transition: all 0.3s ease;
+    }
+    #salesOrdersTable_filter input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    #salesOrdersTable_filter label {
+        font-weight: bold;
+        color: #0d6efd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
 {% if sales_orders %}
     <div class="table-responsive">
-        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 rounded-3 shadow-sm">
+        <table class="table table-hover align-middle text-center bg-white shadow-sm" id="salesOrdersTable">
             <thead class="table-dark">
                 <tr>
                     <th>Código SAP</th>
@@ -18,20 +80,25 @@
             </thead>
             <tbody>
                 {% for order in sales_orders %}
-                    <tr class="rounded-3">
+                    <tr>
                         <td>{{ order.sapcode }}</td>
                         <td>{{ order.project }}</td>
                         <td>{{ order.detail }}</td>
                         <td>{{ order.date|date:"d-m-Y" }}</td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Acciones">
-                                <a href="{% url 'create_requests' order.id %}" class="btn btn-success btn-sm" style="background-color: #28a745; border: none;">
-                                    <i class="fas fa-plus-circle"></i> <span style="font-weight: bold;">Crear Pedido</span>
+                                <a href="{% url 'create_requests' order.id %}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-plus-circle"></i> Crear Pedido
                                 </a>   
                             </div>
                             <div class="btn-group" role="group" aria-label="Acciones" style="margin-left: 10px;">
-                                <a href="{% url 'create_prepopulated_request' order.id %}" class="btn btn-danger btn-sm" style="background-color: #dc3545; border: none;">
-                                    <i class="fas fa-rocket"></i> <span style="font-weight: bold;">Pedido rápido</span>
+                                <a href="{% url 'create_prepopulated_request' order.id %}" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-rocket"></i> Pedido rápido
+                                </a>
+                            </div>
+                            <div class="btn-group" role="group" aria-label="Acciones" style="margin-left: 10px;">
+                                <a href="{% url 'requests_plus' order.id %}" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-rocket"></i> Pedido ++
                                 </a>
                             </div>
                         </td>   
@@ -45,5 +112,32 @@
         No hay órdenes de venta disponibles.
     </div>
 {% endif %}
+{% endblock %}
 
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#salesOrdersTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/2.1.8/i18n/es-MX.json"
+            },
+            "pageLength": 50,  // Muestra 10 registros por defecto
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "columnDefs": [
+                { "orderable": false, "targets": [4] }  // Deshabilita la ordenación en la columna de "Acciones"
+            ]
+        });
+
+        // Personalización del campo de búsqueda
+        $("#salesOrdersTable_filter input").addClass("form-control-lg text-center")
+            .attr("placeholder", "Buscar...");
+    });
+</script>
 {% endblock %}

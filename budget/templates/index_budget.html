@@ -4,52 +4,54 @@
 
 {% block content %}
 
-<!-- Bloque para mostrar los mensajes de éxito o advertencia -->
+<!-- Mensajes de éxito o advertencia -->
 {% if messages %}
-    <div class="container mt-3">
+    <div class="container mt-4">
         {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-success{% endif %}" role="alert">
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-success{% endif %} text-center" role="alert">
                 {{ message }}
             </div>
         {% endfor %}
     </div>
 {% endif %}
 
+<!-- Tabla de presupuestos sin contenedor adicional ni bordes -->
 {% if budgets %}
+    <h2 class="text-center text-primary mb-4 fw-bold display-5">Listado de Presupuestos</h2>
     <div class="table-responsive">
-        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 rounded-3 shadow-sm" id="budgetTable">
-            <thead class="table-dark">
-                <tr>
-                    <th>Presupuestos</th>
+        <table class="table table-hover text-center align-middle w-100" id="budgetTable">
+            <thead class="table-dark text-white">
+                <tr style="border-radius: 8px 8px 0 0;">
+                    <th class="rounded-start">Presupuestos</th>
                     <th>Cliente</th>
                     <th>Días</th>
                     <th>Precio Total</th>
                     <th>Fecha</th>
-                    <th>Acciones</th>
+                    <th class="rounded-end">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for budget in budgets %}
-                    <tr class="rounded-3">
-                        <td>{{ budget.budget_name }}</td>
+                    <tr>
+                        <td class="fw-semibold">{{ budget.budget_name }}</td>
                         <td>{{ budget.client }}</td>
                         <td>
-                            <span class="badge bg-primary rounded-pill">
+                            <span class="badge bg-primary text-white rounded-pill px-2 py-1">
                                 {{ budget.budget_days }} Días
                             </span>
                         </td>
-                        <td>{{ budget.budget_final_price }}</td>
+                        <td class="text-success fw-bold">{{ budget.budget_final_price }}</td>
                         <td>{{ budget.budget_date }}</td>
                         <td>
-                            <div class="btn-group" role="group" aria-label="Acciones">
-                                <a href="{% url 'detail_budget' budget.id %}" class="btn btn-outline-info btn-sm">
-                                    <i class="fas fa-eye"></i> Ver
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'detail_budget' budget.id %}" class="btn btn-info btn-sm" title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{% url 'duplicate_budget' pk=budget.pk %}" class="btn btn-warning">
-                                    <i class="fas fa-copy"></i> Duplicar Presupuesto
+                                <a href="{% url 'duplicate_budget' pk=budget.pk %}" class="btn btn-warning btn-sm" title="Duplicar">
+                                    <i class="fas fa-copy"></i>
                                 </a>
-                                <a href="{% url 'delete_budget' budget.id %}" class="btn btn-outline-danger btn-sm">
-                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger btn-sm" title="Eliminar">
+                                    <i class="fas fa-trash-alt"></i>
                                 </a>
                             </div>
                         </td>
@@ -59,17 +61,16 @@
         </table>
     </div>
 {% else %}
-    <div class="alert alert-warning text-center" role="alert">
+    <div class="alert alert-warning text-center mt-5" role="alert">
         No hay presupuestos disponibles.
     </div>
 {% endif %}
 
-<!-- Incluir DataTables CSS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"/>
-
-<!-- Incluir jQuery y DataTables JS -->
+<!-- DataTables CSS y JavaScript -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css"/>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -77,15 +78,20 @@
             "language": {
                 "url": "//cdn.datatables.net/plug-ins/2.1.8/i18n/es-MX.json"
             },
-            "paging": false, // true para habilitar la paginacion.
+            "paging": true,
             "searching": true,  
             "ordering": true,   
+            "pageLength": 30,  
             "info": true,
-            "autoWidth": false, 
+            "autoWidth": false,
             "columnDefs": [
-                { "orderable": false, "targets": [5] } 
+                { "orderable": false, "targets": [5] }
             ]
         });
+
+        // Personalizar el campo de búsqueda para hacerlo más visible
+        $("#budgetTable_filter input").addClass("form-control form-control-lg text-center").attr("placeholder", "Buscar...").css({"border-radius": "20px", "width": "300px", "margin-left": "10px"});
+        $("#budgetTable_filter label").css({"font-weight": "bold", "color": "#0d6efd"});
     });
 </script>
 
