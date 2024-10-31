@@ -297,8 +297,6 @@ def create_sales_order_from_budget(request, budget_id):
     # Redirigir a la vista principal de presupuestos
     return redirect('index_budget')
 
-
-
 def export_budget_report(request, pk):
     return export_budget_report_to_excel(request, pk)
 

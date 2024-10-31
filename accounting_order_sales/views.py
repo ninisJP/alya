@@ -418,11 +418,7 @@ class AccountingRequirementOrderListView(ListView):
 
     def get_queryset(self):
         # Filtrar solo las órdenes en estado 'NO REVISADO' y excluir las 'RECHAZADO'
-        return RequirementOrder.objects.filter(
-            state='NO REVISADO'
-        ).exclude(
-            state='RECHAZADO'
-        ).order_by('-id').prefetch_related('items')
+        return RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
 
 
     
