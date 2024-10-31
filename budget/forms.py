@@ -114,9 +114,41 @@ from django import forms
 class BudgetUploadForm(forms.Form):
     excel_file = forms.FileField(label='Subir Excel')
 
+from django import forms
+from .models import Budget
 
-
-
+class BudgetEditNewForm(forms.ModelForm):
+    class Meta:
+        model = Budget
+        fields = [
+            'client', 'budget_name', 'budget_number', 'budget_days', 'budget_date',
+            'budget_expenses', 'budget_utility', 'budget_deliverytime',
+            'budget_servicetime', 'budget_warrantytime'
+        ]
+        widgets = {
+            'budget_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'client': forms.Select(attrs={'class': 'form-control'}),
+            'budget_days': forms.NumberInput(attrs={'class': 'form-control'}),
+            'budget_expenses': forms.Select(attrs={'class': 'form-control'}),
+            'budget_utility': forms.Select(attrs={'class': 'form-control'}),
+            'budget_deliverytime': forms.Select(attrs={'class': 'form-control'}),
+            'budget_servicetime': forms.Select(attrs={'class': 'form-control'}),
+            'budget_warrantytime': forms.Select(attrs={'class': 'form-control'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Etiquetas personalizadas en español
+        self.fields['client'].label = 'Cliente'
+        self.fields['budget_name'].label = 'Nombre del Presupuesto'
+        self.fields['budget_number'].label = 'Número del Presupuesto'
+        self.fields['budget_days'].label = 'Días del Presupuesto'
+        self.fields['budget_date'].label = 'Fecha del Presupuesto'
+        self.fields['budget_expenses'].label = 'Gastos (%)'
+        self.fields['budget_utility'].label = 'Utilidad (%)'
+        self.fields['budget_deliverytime'].label = 'Tiempo de Entrega'
+        self.fields['budget_servicetime'].label = 'Tiempo de Servicio'
+        self.fields['budget_warrantytime'].label = 'Tiempo de Garantía'
 
 
 
