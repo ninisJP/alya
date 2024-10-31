@@ -6,15 +6,22 @@ from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
 from budget.models import CatalogItem
 from logistic_inventory.models import Item
 
-from .models import InventoryInputNewItem, InventoryInputNewItem
+from .models import InventoryInputNewItem
 
 def get_all_purchase():
-	purchase = PurchaseOrder.objects.all()
+	# Get valid by date Purchase Order
+	purchase_items_all = PurchaseOrderItem.objects.all()
 	today = datetime.today().date()
-	list_purchase = []
-	for item in purchase:
+
+	list_temp_purchase = []
+	for item in purchase_items_all :
 		if item.scheduled_date <= today:
-			list_purchase.append(item)
+			item_exist = InventoryInputNewItem.objects.filter(purchase_item=item)
+			if not item_exist :
+				list_temp_purchase.append(item)
+
+	list_purchase = []
+	#for item in list_temp_purchase :
 
 	return list_purchase
 
