@@ -145,16 +145,9 @@
             </div>
             <div class="list-group list-group-flush">
                 <!-- Ordenes de Requerimiento -->
-                <a href="{% url 'requirement_order_approved_list' %}" class="list-group-item list-group-item-action">
-                    <i class="fas fa-tasks"></i> <!-- Icono más moderno para listas de tareas -->
-                    <span>Órdenes Aprobadas</span>
-                </a>
-            </div>
-            <div class="list-group list-group-flush">
-                <!-- Ordenes de Requerimiento -->
                 <a href="{% url 'requirement_order_list' %}" class="list-group-item list-group-item-action">
                     <i class="fa fa-list" aria-hidden="true"></i>
-                    <span>Órdenes de Requerimiento</span>
+                    <span>Órdenes Aprobadas</span>
                 </a>
             </div>
             <div class="list-group list-group-flush">
@@ -182,7 +175,14 @@
                 <!-- Proveedores -->
                 <a href="{% url 'logistic_inventory_input_index' %}" class="list-group-item list-group-item-action">
                     <i class="fas fa-retweet"></i>
-                    <span>Guia de Entrada</span>
+                    <span>Guia de Entrada (Items retirados)</span>
+                </a>
+            </div>
+            <div class="list-group list-group-flush">
+                <!-- Proveedores -->
+                <a href="{% url 'logistic_inventory_inputnewitem_index' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-retweet"></i>
+                    <span>Guia de Entrada (Ordenes de compra)</span>
                 </a>
             </div>
             <div class="list-group list-group-flush">

@@ -1,0 +1,56 @@
+<div id="budget-details-container">
+    <form method="POST" hx-post="{% url 'update_budget_partial' budget.id %}" hx-target="#budget-details-container" hx-swap="outerHTML">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-4">
+                {{ form.client.label_tag }}
+                {{ form.client }}
+            </div>
+            <div class="col-md-4">
+                {{ form.budget_name.label_tag }}
+                {{ form.budget_name }}
+            </div>
+            <div class="col-md-4">
+                {{ form.budget_number.label_tag }}
+                {{ form.budget_number }}
+            </div>
+            <div class="col-md-4">
+                {{ form.budget_days.label_tag }}
+                {{ form.budget_days }}
+            </div>
+            <div class="col-md-4">
+                {{ form.budget_date.label_tag }}
+                {{ form.budget_date }}
+            </div>
+            <div class="col-md-4">
+                {{ form.budget_expenses.label_tag }}
+                {{ form.budget_expenses }}
+            </div>
+            <div class="col-md-4">
+                {{ form.budget_utility.label_tag }}
+                {{ form.budget_utility }}
+            </div>
+            <div class="col-md-4">
+                {{ form.budget_deliverytime.label_tag }}
+                {{ form.budget_deliverytime }}
+            </div>
+            <div class="col-md-4">
+                {{ form.budget_servicetime.label_tag }}
+                {{ form.budget_servicetime }}
+            </div>
+            <div class="col-md-4">
+                {{ form.budget_warrantytime.label_tag }}
+                {{ form.budget_warrantytime }}
+            </div>
+            <div class="col-md-4 mt-3">
+                <button type="submit" class="btn btn-primary">Actualizar</button>
+                <button type="button" class="btn btn-secondary"
+                        hx-get="{% url 'update_budget_partial' budget.id %}"
+                        hx-target="#budget-details-container"
+                        hx-swap="outerHTML">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

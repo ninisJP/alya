@@ -8,3 +8,5 @@ db.sqlite3
 *png
 *pdf
 media/item_qr/*.png
+*xlsx
+*csv
