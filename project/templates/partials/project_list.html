@@ -1,8 +1,39 @@
+{% for project in projects %}
 <div class="bg-white py-4 px-4 rounded-lg shadow-md mb-3 flex flex-wrap items-center hover:shadow-xl transition-shadow duration-300">
     <div class="w-full sm:w-1/2">
         <p class="mb-2"><i class="fas fa-building"></i> Nombre: <span class="font-bold">{{ project.name }}</span></p>
     </div>
     <div class="w-full sm:w-1/2">
-        <p class="mb-2 font-semibold"><i class="fas fa-vcard"></i> Cliente <span class="font-bold">{{ project.client }}</span></p>
+        <p class="mb-2 font-semibold"><i class="fas fa-vcard"></i> Cliente: <span class="font-bold">{{ project.client }}</span></p>
+    </div>
+
+    <!-- Órdenes de Venta relacionadas (solo Código SAP y Detalle) -->
+    <div class="w-full mt-4">
+        <h4 class="font-bold">Órdenes de Venta:</h4>
+        <table class="table table-bordered table-hover text-center">
+            <thead>
+                <tr>
+                    <th>Código SAP</th>
+                    <th>Proyecto</th>
+                    <th>Detalle</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in project.salesorder_set.all %}
+                <tr>
+                    <td>{{ order.sapcode }}</td>
+                    <td>{{ order.project }}</td>
+                    <td>{{ order.detail }}</td>
+                    <td>{{ order.date }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">No hay órdenes de venta para este proyecto.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+{% endfor %}
