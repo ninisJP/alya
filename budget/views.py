@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from collections import defaultdict
 from django.http import HttpResponse, JsonResponse
 from follow_control_card.forms import TaskForm
-from .forms import BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm, NewBudgetItemForm, EditBudgetItemForm
+from .forms import BudgetEditNewForm, BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm, NewBudgetItemForm, EditBudgetItemForm
 from .models import Budget, BudgetItem, CatalogItem
 from .utils import export_budget_report_to_excel
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
@@ -100,6 +100,23 @@ def detail_budget(request, pk):
         'form': form  # Pasar el formulario a la plantilla
     })
 
+def update_budget_partial(request, pk):
+    budget = get_object_or_404(Budget, pk=pk)
+    form = BudgetEditNewForm(request.POST or None, instance=budget)  # Cambiamos a BudgetEditNewForm
+
+    print("Formulario enviado:", form)  # Depuración
+    print("Formulario válido:", form.is_valid())  # Depuración
+
+    if request.method == "POST" and form.is_valid():
+        form.save()  # Guarda los cambios
+        return render(request, "partials/_budget_table.html", {"budget": budget})  # Retorna la tabla actualizada
+
+    # Si es GET o si el formulario no es válido, muestra el formulario
+    return render(request, "partials/_budget_form.html", {"form": form, "budget": budget})
+
+
+
+
     
 def add_budget_item_htmx(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
@@ -150,7 +167,6 @@ def edit_budget_item_htmx(request, item_id):
         form = EditBudgetItemForm(request.POST, instance=item)
         if form.is_valid():
             form.save()
-            # Después de guardar, renderizamos nuevamente el ítem actualizado
             return render(request, 'budget/item_row.html', {'item': item})
     else:
         form = EditBudgetItemForm(instance=item)

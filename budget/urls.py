@@ -10,6 +10,7 @@ urlpatterns = [
     path('budget/<int:budget_id>/upload_sap_excel/', upload_sap_excel, name='upload_sap_excel'),
 # Nueva URL para HTMX
     path('delete-item/<int:item_id>/', views.delete_budget_item_htmx, name='delete_budget_item_htmx'),
+    path('budget/<int:pk>/update-partial/', views.update_budget_partial, name='update_budget_partial'),
     path('edit-item/<int:item_id>/', views.edit_budget_item_htmx, name='edit_budget_item_htmx'),
     path('delete_budget/<int:pk>/', delete_budget, name='delete_budget'),
     path('duplicate_budget/<int:pk>/', views.duplicate_budget, name='duplicate_budget'),
