@@ -104,9 +104,6 @@ def update_budget_partial(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
     form = BudgetEditNewForm(request.POST or None, instance=budget)  # Cambiamos a BudgetEditNewForm
 
-    print("Formulario enviado:", form)  # Depuración
-    print("Formulario válido:", form.is_valid())  # Depuración
-
     if request.method == "POST" and form.is_valid():
         form.save()  # Guarda los cambios
         return render(request, "partials/_budget_table.html", {"budget": budget})  # Retorna la tabla actualizada
