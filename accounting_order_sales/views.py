@@ -420,8 +420,6 @@ class AccountingRequirementOrderListView(ListView):
         # Filtrar solo las órdenes en estado 'NO REVISADO' y excluir las 'RECHAZADO'
         return RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
 
-
-    
 def accounting_requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
     items = requirement_order.items.all()
@@ -514,10 +512,6 @@ def update_requirement_order_state(request, pk):
     if new_state in dict(RequirementOrder.STATE_CHOICES):
         requirement_order.state = new_state
         requirement_order.save()
-
-        # Enviar correo de notificación
-        send_state_change_email(requirement_order)
-
         # Mensaje de éxito
         message = 'La orden ha sido aprobada con éxito.' if new_state == 'APROBADO' else 'La orden ha sido rechazada con éxito.'
         response_content = f"<div>{message}</div>"
