@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="table-responsive">
         <table class="table table-hover align-middle text-center bg-white shadow-sm rounded" id="requirementOrdersTable">
-            <thead class="bg-light text-dark">
+            <thead style="background: linear-gradient(to right, #007bff, #0056b3); color: white;">
                 <tr>
                     <th>ID</th>
                     <th>Proyecto</th>
@@ -40,7 +40,7 @@
                     </td>
                     <td>
                         <div class="btn-group" role="group" aria-label="Acciones">
-                            <a href="{% url 'requirement_order_detail_accounting' order.id %}" class="btn btn-primary btn-sm">
+                            <a href="{% url 'requirement_order_detail_accounting' order.id %}" class="btn btn-info btn-sm text-white rounded-pill">
                                 <i class="fas fa-info-circle"></i> Revisar
                             </a>
                         </div>
@@ -54,10 +54,42 @@
 
 <!-- Incluir DataTables CSS -->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
 
-<!-- Incluir jQuery y DataTables JS -->
+<!-- Estilos personalizados para mejorar el diseño -->
+<style>
+    /* Estilo para los botones */
+    .dt-buttons .btn {
+        border-radius: 30px;
+        padding: 5px 15px;
+        font-size: 0.9em;
+    }
+    .dt-buttons .btn:hover {
+        opacity: 0.9;
+        transform: scale(1.05);
+        transition: all 0.2s ease;
+    }
+    /* Estilo para el campo de búsqueda */
+    .dataTables_filter input[type="search"] {
+        border-radius: 20px;
+        border: 1px solid #ced4da;
+        padding: 5px 10px;
+        margin-left: 5px;
+        width: 250px;
+    }
+    /* Placeholder de búsqueda */
+    .dataTables_filter input[type="search"]::placeholder {
+        color: #6c757d;
+    }
+</style>
+
+<!-- Incluir jQuery, DataTables y Botones para DataTables -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -65,13 +97,44 @@
             "language": {
                 "url": "//cdn.datatables.net/plug-ins/2.1.8/i18n/es-MX.json"
             },
-            "paging": false, // true para habilitar la paginacion.
+            "paging": true, 
             "searching": true,  
             "ordering": true,   
             "info": true,
-            "autoWidth": false, 
+            "autoWidth": false,
             "columnDefs": [
                 { "orderable": false, "targets": [8] } 
+            ],
+            "dom": 'Bfrtip',
+            "buttons": [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy"></i> Copiar',
+                    titleAttr: 'Copiar',
+                    className: 'btn btn-outline-primary'
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Excel',
+                    titleAttr: 'Exportar a Excel',
+                    className: 'btn btn-outline-success'
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="fas fa-print"></i> Imprimir',
+                    titleAttr: 'Imprimir',
+                    className: 'btn btn-outline-secondary'
+                },
+                {
+                    text: '{% if request.GET.filter == "all" %}<i class="fas fa-filter"></i> Mostrar Solo No Revisado{% else %}<i class="fas fa-list"></i> Mostrar Todos{% endif %}',
+                    action: function ( e, dt, node, config ) {
+                        const currentUrl = new URL(window.location.href);
+                        const filter = currentUrl.searchParams.get("filter");
+                        currentUrl.searchParams.set("filter", filter === "all" ? "no_revisado" : "all");
+                        window.location.href = currentUrl.href;
+                    },
+                    className: 'btn btn-outline-info'
+                }
             ]
         });
     });

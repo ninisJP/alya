@@ -16,6 +16,7 @@ from datetime import datetime
 from django.utils.timezone import localdate
 from django.db.models import Sum
 from .models import BankStatements
+from django.views.generic import ListView
 
 # libs accounting
 from django.shortcuts import render, redirect, get_object_or_404
@@ -408,17 +409,23 @@ def petty_cash(request):
     return render(request, 'pettycash/petty_cash_items.html', context)
 
 # Import requirements views
- 
-# Vista para listar todas las RequirementOrders
-# Vista para listar todas las RequirementOrders excepto las rechazadas
 class AccountingRequirementOrderListView(ListView):
     model = RequirementOrder
     template_name = 'requirements/requirement_order_list.html'
     context_object_name = 'requirement_orders'
 
     def get_queryset(self):
-        # Filtrar solo las órdenes en estado 'NO REVISADO' y excluir las 'RECHAZADO'
-        return RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
+        # Obtiene el parámetro "filter" desde la URL
+        filter_type = self.request.GET.get('filter', 'no_revisado')
+        
+        if filter_type == 'all':
+            # Si el filtro es "all", retorna todas las órdenes
+            return RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
+        else:
+            # Por defecto muestra solo las órdenes "NO REVISADO"
+            return RequirementOrder.objects.filter(state="NO REVISADO").order_by('-id').prefetch_related('items')
+
+
 
 def accounting_requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
