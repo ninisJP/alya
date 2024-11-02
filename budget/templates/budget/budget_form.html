@@ -4,11 +4,24 @@
 {% load static %}
 
 {% block content %}
-<h2 class="text-center mb-4 pt-2" style="font-size: 2rem; font-weight: bold;">
-    {% if form.instance.pk %}Editar{% else %}Crear{% endif %} Presupuesto
-</h2>
+<div class="container mb-4">
+    <div class="row align-items-center justify-content-center">
+        <!-- Título en una columna -->
+        <div class="col-md-8 text-center">
+            <h2 class="mb-0 pt-2" style="font-size: 2rem; font-weight: bold;">
+                {% if form.instance.pk %}Editar{% else %}Crear{% endif %} Presupuesto de servicios
+            </h2>
+        </div>
+        
+        <!-- Botón en otra columna -->
+        <div class="col-md-4 text-center">
+            <a href="{% url 'create_commercial_budget' %}" class="btn btn-outline-primary btn-lg" style="font-weight: bold;">
+                <i class="fas fa-plus-circle"></i> Crear presupuesto de compra o venta
+            </a>
+        </div>
+    </div>
+</div>
 <hr class="mb-3">
-
 <form method="post" id="budget-form">
     {% csrf_token %}
     <div class="container">

@@ -1,0 +1,199 @@
+{% extends "base_budget.html" %}
+
+{% load widget_tweaks %}
+{% load static %}
+
+{% block content %}
+<div class="container mb-4">
+    <div class="row align-items-center justify-content-center">
+        <!-- Título en una columna -->
+        <div class="col-md-8 text-center">
+            <h2 class="mb-0 pt-2" style="font-size: 2rem; font-weight: bold;">
+                {% if form.instance.pk %}Editar{% else %}Crear{% endif %} Presupuesto de compra o venta
+            </h2>
+        </div>
+        
+        <!-- Botón en otra columna -->
+        <div class="col-md-4 text-center">
+            <a href="{% url 'create_budget' %}" class="btn btn-outline-primary btn-lg" style="font-weight: bold;">
+                <i class="fas fa-plus-circle"></i> Crear presupuesto de servicios
+            </a>
+        </div>
+    </div>
+</div>
+<hr class="mb-3">
+
+<form method="post" id="commercial-budget-form">
+    {% csrf_token %}
+    <div class="container">
+        <!-- Sección de campos principales -->
+        <div class="row mb-3">
+            <div class="col-md-4 form-group">
+                {{ form.client.label_tag }}
+                {{ form.client|add_class:"form-control" }}
+            </div>
+            <div class="col-md-4 form-group">
+                {{ form.budget_name.label_tag }}
+                {{ form.budget_name|add_class:"form-control"|attr:"placeholder=Nombre del Presupuesto" }}
+            </div>
+            <div class="col-md-4 form-group">
+                {{ form.budget_number.label_tag }}
+                {{ form.budget_number|add_class:"form-control"|attr:"placeholder=Número del Presupuesto" }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4 form-group">
+                {{ form.budget_type.label_tag }}
+                {{ form.budget_type|add_class:"form-control" }}
+            </div>
+            <div class="col-md-4 form-group">
+                {{ form.budget_date.label_tag }}
+                {{ form.budget_date|add_class:"form-control"|attr:"placeholder=Fecha del Presupuesto" }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Formset de Ítems -->
+    <div class="container">
+        <div class="row font-weight-bold border-bottom pb-1 mb-2" style="border-bottom: 2px solid #ddd;">
+            <div class="col-md-4 text-center">ITEM</div>
+            <div class="col-md-2 text-center">CANTIDAD</div>
+            <div class="col-md-2 text-center">UNIDAD</div>
+            <div class="col-md-2 text-center">PRECIO UNITARIO</div>
+            <div class="col-md-2 text-center">ELIMINAR</div>
+        </div>
+
+        <div id="item-formset">
+            {{ formset.management_form }}
+            {% for form in formset %}
+            <div class="form-row row align-items-center p-1" style="margin-bottom: 4px;">
+                <div class="col-md-4">
+                    {{ form.item|add_class:"form-control select2-ajax text-dark"|attr:"placeholder=Seleccione un ítem" }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.unit|add_class:"form-control text-center text-dark"|attr:"placeholder=Unidad" }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.custom_price|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio Unitario" }}
+                </div>
+                <div class="col-md-2 text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Formulario vacío oculto para clonar -->
+    <div id="empty-form" style="display:none;">
+        {{ formset.empty_form.management_form }}
+        <div class="form-row row align-items-center p-1" style="margin-bottom: 4px;">
+            <div class="col-md-4">
+                {{ formset.empty_form.item|add_class:"form-control select2-ajax text-dark"|attr:"placeholder=Seleccione un ítem" }}
+            </div>
+            <div class="col-md-2">
+                {{ formset.empty_form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
+            </div>
+            <div class="col-md-2">
+                {{ formset.empty_form.unit|add_class:"form-control text-center text-dark"|attr:"placeholder=Unidad" }}
+            </div>
+            <div class="col-md-2">
+                {{ formset.empty_form.custom_price|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio Unitario" }}
+            </div>
+            <div class="col-md-2 text-center">
+                <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-6 pr-1">
+                <button type="button" id="add-item" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-plus-circle"></i> Agregar Ítem
+                </button>
+            </div>
+            <div class="col-6 pl-1">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Librerías de Select2 y jQuery -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- JavaScript para manejar Select2 y la adición/eliminación de formularios -->
+<script>
+    $(document).ready(function() {
+        function initializeSelect2(selector) {
+            if (!$(selector).hasClass("select2-hidden-accessible")) {
+                $(selector).select2({
+                    placeholder: 'Seleccione un ítem',
+                    allowClear: true,
+                    ajax: {
+                        url: $(selector).data('ajax--url'),
+                        dataType: 'json',
+                        delay: 150,
+                        data: function(params) {
+                            return { term: params.term };
+                        },
+                        processResults: function(data) {
+                            return { results: data.results };
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 3
+                });
+            }
+        }
+
+    // Agregar formularios al hacer clic en "Agregar Ítem"
+    $('#add-item').click(function(e) {
+        e.preventDefault();
+        
+        // Número de formularios a agregar (3 en este caso)
+        var numFormsToAdd = 3;
+        var formCount = parseInt($('#id_items-TOTAL_FORMS').val());
+        
+        for (var i = 0; i < numFormsToAdd; i++) {
+            var $emptyForm = $('#empty-form .form-row').clone();
+            $emptyForm.find(':input').each(function() {
+                var name = $(this).attr('name');
+                if (name) $(this).attr('name', name.replace('__prefix__', formCount));
+                var id = $(this).attr('id');
+                if (id) $(this).attr('id', id.replace('__prefix__', formCount));
+            });
+
+            // Agregar el formulario clonado al formset
+            $('#item-formset').append($emptyForm);
+            initializeSelect2($emptyForm.find('.select2-ajax'));
+            
+            // Incrementar el contador de formularios
+            formCount++;
+        }
+        
+        // Actualizar el valor de TOTAL_FORMS después de agregar los formularios
+        $('#id_items-TOTAL_FORMS').val(formCount);
+    });
+
+        // Eliminar formularios
+        $(document).on('click', '.remove-form', function(e) {
+            e.preventDefault();
+            $(this).closest('.form-row').remove();
+            var totalForms = $('#id_items-TOTAL_FORMS');
+            totalForms.val(parseInt(totalForms.val()) - 1);
+        });
+    });
+</script>
+
+{% endblock %}

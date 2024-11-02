@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <!-- Formulario de filtros entre fechas -->
+        <!-- Formulario de filtros entre fechas y por banco -->
         <form method="GET" class="row g-2 mt-3">
             <div class="col-auto">
                 <label for="start_date" class="visually-hidden">Desde:</label>
@@ -28,6 +28,10 @@
             <div class="col-auto">
                 <label for="end_date" class="visually-hidden">Hasta:</label>
                 <input type="date" name="end_date" id="end_date" class="form-control" value="{{ end_date }}">
+            </div>
+            <div class="col-auto">
+                <label for="bank_name" class="visually-hidden">Banco:</label>
+                <input type="text" name="bank_name" id="bank_name" class="form-control" placeholder="Banco (Ej. BBVA)" value="{{ bank_name }}">
             </div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary">
@@ -52,10 +56,10 @@
                         <tr>
                             <th>Monto</th>
                             <th>Banco</th>
-                            <th>Cuenta Depositada</th>
+                            <th>Referencia</th>
                             <th>Moneda</th>
-                            <th>Fecha Pagada</th>
-                            <th>N. Movimiento</th>
+                            <th>F.Pagada</th>
+                            <th>Extracto</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,7 +71,13 @@
                                 <td>{{ item.supplier.name }}</td>
                                 <td>{{ item.supplier.currency }}</td>
                                 <td>{{ item.purchaseorder.scheduled_date }}</td>
-                                <td>{{ item.mov_number }}</td>
+                                <td class="d-flex align-items-center">
+                                    <!-- Campo para ingresar manualmente el ID del extracto -->
+                                    <input type="text" id="statementId_{{ item.id }}" class="form-control me-2" placeholder="ID Extracto" style="width: 80px;">
+                                    <button type="button" class="btn btn-outline-primary" onclick="confirmConciliation({{ item.id }})" title="Conciliar">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </td>
                             </tr>
                             {% endfor %}
                         {% else %}
@@ -87,11 +97,11 @@
                 <table class="table table-bordered table-striped table-hover">
                     <thead class="bg-info text-white">
                         <tr>
+                            <th>ID</th>
                             <th>Monto</th>
                             <th>Banco</th>
                             <th>F. Operación</th>
                             <th>Referencia</th>
-
                             <th>N. Movimiento</th>
                         </tr>
                     </thead>
@@ -99,6 +109,7 @@
                         {% if bank_statements %}
                             {% for statement in bank_statements %}
                             <tr>
+                                <td>{{ statement.id }}</td>
                                 <td>{{ statement.amount }}</td>
                                 <td>{{ statement.bank.bank_name }}</td>
                                 <td>{{ statement.operation_date }}</td>
@@ -108,7 +119,7 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="5" class="text-center text-muted">No hay extractos bancarios para mostrar</td>
+                                <td colspan="6" class="text-center text-muted">No hay extractos bancarios para mostrar</td>
                             </tr>
                         {% endif %}
                     </tbody>
@@ -129,6 +140,32 @@
     function exportToExcel() {
         alert('Exportar a Excel');
         // Aquí va la lógica para exportar a Excel
+    }
+
+    function confirmConciliation(itemId) {
+        const statementId = document.getElementById(`statementId_${itemId}`).value;
+    
+        if (!statementId) {
+            return;
+        }
+    
+        const url = `{% url 'assign_bank_statement' 0 0 %}`.replace('/0/0/', `/${itemId}/${statementId}/`);
+    
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`statementId_${itemId}`).disabled = true;
+                document.querySelector(`button[onclick="confirmConciliation(${itemId})"]`).disabled = true;
+            }
+        })
+        .catch(error => console.error('Error:', error));
     }
 </script>
 {% endblock %}

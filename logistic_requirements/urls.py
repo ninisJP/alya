@@ -15,8 +15,6 @@ htmxurlpatters = [
     path('requirement-order/update-items/', update_approved_items, name='update_approved_items'),
     path('requirement-order/update-items/<int:pk>/', update_requirement_order_items, name='update_requirement_order_items'),
     path('requirement-order/create-purchase-order/<int:pk>/', views.create_purchase_order, name='create_purchase_order'),
-
-
 ]
 
 urlpatterns += htmxurlpatters

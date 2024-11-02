@@ -34,7 +34,7 @@
 
             <!-- Modal body -->
             <div>
-                <form method="POST" action="{% url 'project_index' %}" hx-post="{% url 'project_index' %}" hx-trigger="submit" hx-target="#client-list" hx-swap="afterbegin" class="space-y-6">
+                <form method="POST" action="{% url 'project_index' %}" class="space-y-6">
                     {% csrf_token %}
                     {% for field in form %}
                         <div>
@@ -44,16 +44,16 @@
                             {% render_field field class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5" %}
                         </div>
                     {% endfor %}
-                    <button type="submit" @click.debounce.1000ms="showModal = false" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Guardar Proyecto</button>
-                </form>
+                    <button type="submit" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        Guardar Proyecto
+                    </button>
+                </form>                
             </div>
         </div>
     </div>
 
     <ul id="client-list" class="mt-8 space-y-4">
-        {% for project in projects %}
-            {% include 'partials/project_list.html' %}
-        {% endfor %}
+        {% include 'partials/project_list.html' %}
     </ul>
 </div>
 {% endblock %}

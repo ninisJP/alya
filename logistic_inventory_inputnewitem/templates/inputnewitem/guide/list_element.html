@@ -1,0 +1,97 @@
+{% load widget_tweaks %}
+
+<!-- Purchase items -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th colspan="10">ITEMS PENDIENTES EXISTENTES</th>
+            </tr>
+            <tr>
+                <th>SAP</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in purchase_items %}
+                <tr class="rounded-3">
+                    <td>{{ item.sap_code }}</td>
+                    <td>{{ item.notes }}</td>
+                    <td>{{ item.quantity_requested }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="10" >No hay coincidencias</td>
+                </tr>
+            {% endfor %}
+            {% if newitem_status == "no" %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="10" >ERROR AL CREAR LA GUIA DE ENTRADA</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+
+<!-- Purchase miss items -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th colspan="10">ITEMS NO EXISTENTES EN EL INVENTARIO (Crear un nuevo item en el inventario)</th>
+            </tr>
+            <tr>
+                <th>SAP</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in purchase_miss_items %}
+                <tr class="rounded-3">
+                    <td>{{ item.sap_code }}</td>
+                    <td>{{ item.notes }}</td>
+                    <td>{{ item.quantity_requested }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="10" >No hay coincidencias</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% if purchase_error_items %}
+<!-- Purchase error items -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th colspan="10">ITEMS CON SAP NO EXISTETE EN EL CATALOGO!!!!!</th>
+            </tr>
+            <tr>
+                <th>SAP</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in purchase_error_items %}
+                <tr class="rounded-3">
+                    <td>{{ item.sap_code }}</td>
+                    <td>{{ item.notes }}</td>
+                    <td>{{ item.quantity_requested }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="10" >No hay coincidencias</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}

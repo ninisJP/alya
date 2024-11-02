@@ -52,6 +52,10 @@ class Card(models.Model):
 
     def __str__(self):
         return f"{self.date} - {self.user.username}"
+    class Meta:
+        verbose_name = "Tarjeta"
+        verbose_name_plural = "Tarjetas"
+
 
 class Task(models.Model):
     cards = models.ManyToManyField('Card', related_name='tasks', through='CardTaskOrder')
@@ -64,6 +68,11 @@ class Task(models.Model):
 
     def __str__(self):
         return self.verb
+    
+    class Meta:
+        verbose_name = "Tarea"
+        verbose_name_plural = "Tareas"
+
 
 class CardTaskOrder(models.Model):
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
@@ -73,3 +82,7 @@ class CardTaskOrder(models.Model):
 
     class Meta:
         ordering = ['order']
+
+    class Meta:
+        verbose_name = "Orden de Tarjeta-Tarea"
+        verbose_name_plural = "Ordenes de Tarjetas-Tareas"

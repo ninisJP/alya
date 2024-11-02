@@ -1,0 +1,40 @@
+{% extends "base_budget.html" %}
+
+{% block title %}Detalle del Presupuesto Comercial{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-2">
+    <h1>Detalle del Presupuesto Comercial: {{ budget.budget_name }}</h1>
+
+    <h3>Ítems del Presupuesto</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ítem</th>
+                <th>Categoría</th>
+                <th>Cantidad</th>
+                <th>Unidad</th>
+                <th>Precio Unitario</th>
+                <th>Precio Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category, items in items_by_category.items %}
+                <tr>
+                    <td colspan="6" class="table-secondary"><strong>{{ category }}</strong></td>
+                </tr>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.item.description }}</td>
+                    <td>{{ item.item.get_category_display }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.unit }}</td>
+                    <td>${{ item.custom_price }}</td>
+                    <td>${{ item.total_price }}</td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

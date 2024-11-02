@@ -41,6 +41,11 @@ htmxurlpatters = [
     path('supplier-autocomplete/', supplier_autocomplete, name='supplier_autocomplete'),
     # pettycash
     path('caja_chica/', petty_cash, name='petty_cash'),
+    
+    # ajax concilations
+    path('assign_bank_statement/<int:item_id>/<int:statement_id>/', views.assign_bank_statement, name='assign_bank_statement'),
+
+
 ]
 
 urlpatterns += htmxurlpatters

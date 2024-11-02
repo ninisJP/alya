@@ -122,9 +122,6 @@
         }
     </style>
 
-
-
-
     {% block extra_css %}{% endblock %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
@@ -139,6 +136,10 @@
                 <a hx-get="" hx-target="#main" class="list-group-item list-group-item-action">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Proyectos</span>
+                </a>
+                <a href="{% url 'project_sales_order_list' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>NONE</span>
                 </a>
             </div>
 

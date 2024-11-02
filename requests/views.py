@@ -8,6 +8,13 @@ from django.forms import inlineformset_factory
 from .forms import CreateRequirementOrderForm, CreateRequirementOrderItemForm, CreateRequirementOrderItemFormSet
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from .forms import CreateRequirementOrderForm, PrepopulatedRequirementOrderItemForm
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.core.exceptions import ValidationError
+from logistic_suppliers.models import Suppliers
 
 def index_requests(request):
     sales_orders = SalesOrder.objects.all().order_by('-id')
@@ -79,14 +86,6 @@ def create_requests(request, order_id):
         'sales_order': sales_order,
         'referencia_ordenventa': referencia_ordenventa
     })
-
-# views.py
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.forms import inlineformset_factory
-from django.contrib import messages
-from django.core.exceptions import ValidationError
-from .forms import CreateRequirementOrderForm, PrepopulatedRequirementOrderItemForm
 
 def create_prepopulated_request(request, order_id):
     sales_order = get_object_or_404(SalesOrder, id=order_id)
@@ -161,3 +160,99 @@ class MyRequestDetail(DetailView):
     model = RequirementOrder
     template_name = 'requests/my_request_detail.html'
     context_object_name = 'order'   
+    
+def delete_requirement_order_item(request, item_id):
+    # Obtener el item a eliminar y su RequirementOrder asociado
+    item = get_object_or_404(RequirementOrderItem, id=item_id)
+    order = item.requirement_order
+    
+    # Eliminar el item
+    item.delete()
+    
+    # Re-renderizar el partial `items_table.html` con la lista de ítems actualizada
+    return render(request, 'partials/item_table.html', {'order': order})
+    
+def ajax_load_suppliers(request):
+    term = request.GET.get('term', '')  # Filtrar por nombre
+    suppliers = Suppliers.objects.filter(name__icontains=term)[:20]
+    supplier_list = [{'id': supplier.id, 'text': supplier.name} for supplier in suppliers]
+    return JsonResponse({'results': supplier_list})  
+    
+# Nueva vista para pedidos rapidos 
+def RequestSalesOrder(request, pk):
+    # Obtener la SalesOrder específica y sus ítems asociados
+    sales_order = get_object_or_404(SalesOrder, id=pk)
+    
+    # Prefetch para cargar los ítems con su información
+    sales_order_items = sales_order.items.all().prefetch_related('requirementorderitem_set')
+    
+    # Obtener todos los proveedores para el select
+    suppliers = Suppliers.objects.all()
+    
+    context = {
+        'sales_order': sales_order,
+        'sales_order_items': sales_order_items,
+        'suppliers': suppliers,
+    }
+    return render(request, 'requests_plus/requests_plus.html', context)
+
+@require_POST
+def create_requirement_order(request, order_id):
+    sales_order = get_object_or_404(SalesOrder, id=order_id)
+    
+    # Crear instancia de RequirementOrder
+    requirement_order = RequirementOrder(
+        sales_order=sales_order,
+        user=request.user,
+        requested_date=request.POST.get("requested_date"),
+        notes=request.POST.get("notes")
+    )
+    requirement_order.save()
+
+    # Procesar los ítems del formulario
+    for item_id, quantity_requested in request.POST.items():
+        if item_id.startswith("items-") and "-quantity_requested" in item_id:
+            # Extraer el ID del ítem de SalesOrderItem
+            sales_order_item_id = int(item_id.split("-")[1])
+            sales_order_item = get_object_or_404(SalesOrderItem, id=sales_order_item_id)
+
+            # Verificar `quantity_requested` es un entero
+            try:
+                quantity_requested = int(quantity_requested)
+            except ValueError:
+                messages.error(request, f"Cantidad solicitada inválida para el ítem {sales_order_item.description}. Debe ser un número entero.")
+                continue
+
+            # Verificar `price` es un decimal
+            price = request.POST.get(f"items-{sales_order_item_id}-price", sales_order_item.price)
+            try:
+                price = float(price)
+            except ValueError:
+                messages.error(request, f"Precio inválido para el ítem {sales_order_item.description}. Debe ser un número decimal.")
+                continue
+
+            # Obtener otros datos del formulario
+            supplier_id = request.POST.get(f"items-{sales_order_item_id}-supplier")
+            notes = request.POST.get(f"items-{sales_order_item_id}-notes", "")
+            file_attachment = request.FILES.get(f"items-{sales_order_item_id}-file_attachment")
+
+            # Crear el RequirementOrderItem
+            item = RequirementOrderItem(
+                requirement_order=requirement_order,
+                sales_order_item=sales_order_item,
+                quantity_requested=quantity_requested,
+                price=price,
+                notes=notes,
+                file_attachment=file_attachment,
+                supplier=Suppliers.objects.get(id=supplier_id) if supplier_id else None
+            )
+            try:
+                item.clean()  # Realizar la validación personalizada
+                item.save()
+            except ValidationError as e:
+                messages.error(request, f"Error en el ítem {sales_order_item.description}: {e}")
+
+    # Mensaje de éxito y retorno de respuesta
+    messages.success(request, "Orden de Requerimiento creada exitosamente.")
+    return JsonResponse({"message": "Orden de Requerimiento creada exitosamente."})
+
