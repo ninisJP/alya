@@ -87,6 +87,13 @@ BudgetItemFormSet = inlineformset_factory(
 
 
 
+
+
+
+
+
+
+
 class NewBudgetItemForm(forms.ModelForm):
     class Meta:
         model = BudgetItem
@@ -107,6 +114,10 @@ class NewBudgetItemForm(forms.ModelForm):
         self.fields['custom_price'].label = 'Precio Unitario'
         self.fields['custom_price_per_day'].label = 'Precio por Día'
         self.fields['unit'].label = 'Unidad de Medida'
+
+
+
+
 
 
 from django import forms

@@ -27,6 +27,7 @@ urlpatterns = [
     path('proyectos/', include('project.urls')),
     # Budget
     path('presupuestos/', include('budget.urls')),
+    path('presupuestos_comercial/', include('budget_commercial.urls')),
     # Requests
     path('pedidos/', include('requests.urls')),
     # DJANGO BROWSER RELOAD

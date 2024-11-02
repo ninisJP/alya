@@ -1,4 +1,4 @@
-{% extends 'base_budget.html' %}
+{% extends "base_budget.html" %}
 
 {% load widget_tweaks %}
 {% load static %}
@@ -9,20 +9,21 @@
         <!-- Título en una columna -->
         <div class="col-md-8 text-center">
             <h2 class="mb-0 pt-2" style="font-size: 2rem; font-weight: bold;">
-                {% if form.instance.pk %}Editar{% else %}Crear{% endif %} Presupuesto de servicios
+                {% if form.instance.pk %}Editar{% else %}Crear{% endif %} Presupuesto de compra o venta
             </h2>
         </div>
         
         <!-- Botón en otra columna -->
         <div class="col-md-4 text-center">
-            <a href="{% url 'create_commercial_budget' %}" class="btn btn-outline-primary btn-lg" style="font-weight: bold;">
-                <i class="fas fa-plus-circle"></i> Crear presupuesto de compra o venta
+            <a href="{% url 'create_budget' %}" class="btn btn-outline-primary btn-lg" style="font-weight: bold;">
+                <i class="fas fa-plus-circle"></i> Crear presupuesto de servicios
             </a>
         </div>
     </div>
 </div>
 <hr class="mb-3">
-<form method="post" id="budget-form">
+
+<form method="post" id="commercial-budget-form">
     {% csrf_token %}
     <div class="container">
         <!-- Sección de campos principales -->
@@ -43,38 +44,12 @@
 
         <div class="row mb-3">
             <div class="col-md-4 form-group">
-                {{ form.budget_days.label_tag }}
-                {{ form.budget_days|add_class:"form-control"|attr:"placeholder=Días del Presupuesto" }}
+                {{ form.budget_type.label_tag }}
+                {{ form.budget_type|add_class:"form-control" }}
             </div>
             <div class="col-md-4 form-group">
                 {{ form.budget_date.label_tag }}
                 {{ form.budget_date|add_class:"form-control"|attr:"placeholder=Fecha del Presupuesto" }}
-            </div>
-            <div class="col-md-4 form-group">
-                {{ form.budget_expenses.label_tag }}
-                {{ form.budget_expenses|add_class:"form-control"|attr:"placeholder=Gastos" }}
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-4 form-group">
-                {{ form.budget_utility.label_tag }}
-                {{ form.budget_utility|add_class:"form-control"|attr:"placeholder=Utilidad" }}
-            </div>
-            <div class="col-md-4 form-group">
-                {{ form.budget_deliverytime.label_tag }}
-                {{ form.budget_deliverytime|add_class:"form-control"|attr:"placeholder=Tiempo de Entrega" }}
-            </div>
-            <div class="col-md-4 form-group">
-                {{ form.budget_servicetime.label_tag }}
-                {{ form.budget_servicetime|add_class:"form-control"|attr:"placeholder=Tiempo de Servicio" }}
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-4 form-group">
-                {{ form.budget_warrantytime.label_tag }}
-                {{ form.budget_warrantytime|add_class:"form-control"|attr:"placeholder=Tiempo de Garantía" }}
             </div>
         </div>
     </div>
@@ -83,11 +58,10 @@
     <div class="container">
         <div class="row font-weight-bold border-bottom pb-1 mb-2" style="border-bottom: 2px solid #ddd;">
             <div class="col-md-4 text-center">ITEM</div>
-            <div class="col-md-1 text-center">CANT</div>
-            <div class="col-md-2 text-center">UND</div>  <!-- Campo de Unidad -->
-            <div class="col-md-2 text-center">PRECIO U.</div>
-            <div class="col-md-2 text-center">PRECIO D.</div>
-            <div class="col-md-1 text-center">ELIMINAR</div>
+            <div class="col-md-2 text-center">CANTIDAD</div>
+            <div class="col-md-2 text-center">UNIDAD</div>
+            <div class="col-md-2 text-center">PRECIO UNITARIO</div>
+            <div class="col-md-2 text-center">ELIMINAR</div>
         </div>
 
         <div id="item-formset">
@@ -97,19 +71,16 @@
                 <div class="col-md-4">
                     {{ form.item|add_class:"form-control select2-ajax text-dark"|attr:"placeholder=Seleccione un ítem" }}
                 </div>
-                <div class="col-md-1">
+                <div class="col-md-2">
                     {{ form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
                 </div>
                 <div class="col-md-2">
-                    {{ form.unit|add_class:"form-control text-center text-dark"|attr:"placeholder=Unidad" }}  <!-- Campo editable -->
+                    {{ form.unit|add_class:"form-control text-center text-dark"|attr:"placeholder=Unidad" }}
                 </div>
                 <div class="col-md-2">
                     {{ form.custom_price|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio Unitario" }}
                 </div>
-                <div class="col-md-2">
-                    {{ form.custom_price_per_day|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio por Día" }}
-                </div>
-                <div class="col-md-1 text-center">
+                <div class="col-md-2 text-center">
                     <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
                 </div>
             </div>
@@ -119,11 +90,12 @@
 
     <!-- Formulario vacío oculto para clonar -->
     <div id="empty-form" style="display:none;">
+        {{ formset.empty_form.management_form }}
         <div class="form-row row align-items-center p-1" style="margin-bottom: 4px;">
             <div class="col-md-4">
                 {{ formset.empty_form.item|add_class:"form-control select2-ajax text-dark"|attr:"placeholder=Seleccione un ítem" }}
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
                 {{ formset.empty_form.quantity|add_class:"form-control text-center text-dark"|attr:"placeholder=Cantidad" }}
             </div>
             <div class="col-md-2">
@@ -132,16 +104,13 @@
             <div class="col-md-2">
                 {{ formset.empty_form.custom_price|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio Unitario" }}
             </div>
-            <div class="col-md-2">
-                {{ formset.empty_form.custom_price_per_day|add_class:"form-control text-center text-dark"|attr:"placeholder=Precio por Día" }}
-            </div>
-            <div class="col-md-1 text-center">
+            <div class="col-md-2 text-center">
                 <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
             </div>
         </div>
     </div>
 
-    <!-- Botones de acción ocupando todo el ancho -->
+    <!-- Botones de acción -->
     <div class="container mt-3">
         <div class="row">
             <div class="col-6 pr-1">

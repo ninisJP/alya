@@ -22,27 +22,40 @@
     }
 
     /* Estilos para los botones */
-    .btn-success, .btn-danger {
+    .btn-success, .btn-danger, .btn-warning {
         border: none;
         font-weight: bold;
         transition: all 0.3s ease;
+        border-radius: 50px;  /* Aplicamos el estilo ovalado a todos */
     }
+
     .btn-success {
         background-color: #28a745;
         color: #fff;
-        border-radius: 50px;
     }
+
     .btn-danger {
         background-color: #dc3545;
         color: #fff;
-        border-radius: 50px;
     }
+
+    .btn-warning {
+        background-color: gold;  /* Color dorado */
+        color: black;
+    }
+
     .btn-success:hover {
         background-color: #218838;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
+
     .btn-danger:hover {
         background-color: #c82333;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-warning:hover {
+        background-color: goldenrod;  /* Color dorado más oscuro al hacer hover */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
@@ -97,10 +110,10 @@
                                 </a>
                             </div>
                             <div class="btn-group" role="group" aria-label="Acciones" style="margin-left: 10px;">
-                                <a href="{% url 'requests_plus' order.id %}" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-rocket"></i> Pedido ++
+                                <a href="{% url 'requests_plus' order.id %}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-star"></i> Pedido ++
                                 </a>
-                            </div>
+                            </div>                       
                         </td>   
                     </tr>
                 {% endfor %}
@@ -125,7 +138,7 @@
             "language": {
                 "url": "//cdn.datatables.net/plug-ins/2.1.8/i18n/es-MX.json"
             },
-            "pageLength": 50,  // Muestra 10 registros por defecto
+            "pageLength": 50,
             "searching": true,
             "ordering": true,
             "info": true,

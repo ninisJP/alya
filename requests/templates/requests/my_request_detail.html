@@ -3,6 +3,7 @@
 {% block content %}
 <div class="container-fluid">
     <div class="p-4 bg-white rounded shadow">
+        <!-- Título y botón de regresar -->
         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
             <h1 class="display-6 text-dark">Detalle del Pedido</h1>
             <div class="d-flex align-items-center">
@@ -17,6 +18,7 @@
             </div>
         </div>
 
+        <!-- Información del pedido -->
         <div class="row mb-3">
             <div class="col-md-6">
                 <strong>Orden de Venta:</strong> {{ order.sales_order }}
@@ -36,48 +38,18 @@
             </div>
         </div>
 
-        <table class="table table-bordered text-center"> <!-- Añadido text-center para centrar el contenido de la tabla -->
-            <thead class="table-dark">
-                <tr>
-                    <th>Item</th>
-                    <th>Info</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Precio Total</th>
-                    <th>Doc</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in order.items.all %}
-                <tr>
-                    <td>{{ item.sales_order_item.description }}</td>
-                    <td>{{ item.notes }}</td>
-                    <td>{{ item.quantity_requested }}</td>
-                    <td>{{ item.price }}</td>
-                    <td>{{ item.total_price }}</td>
-                    <td>
-                        {% if item.file_attachment %}
-                            <a href="{{ item.file_attachment.url }}" target="_blank">Ver Archivo</a>
-                        {% else %}
-                            No disponible
-                        {% endif %}
-                    </td>
-                    
-                    
-                    <td>
-                        {% if item.estado == 'L' %}
-                            <span class="badge bg-success">Listo</span>
-                        {% elif item.estado == 'P' %}
-                            <span class="badge bg-warning">Pendiente</span>
-                        {% elif item.estado == 'C' %}
-                            <span class="badge bg-info">Comprando</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Incluir la tabla de ítems desde el partial -->
+        <div id="order-items">
+            {% include 'partials/item_table.html' %}
+        </div>
+
+        <!-- Mostrar el total de la orden -->
+        <p>Total de la orden: <strong><span id="total-order">{{ order.total_order }}</span></strong></p>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Incluir htmx -->
+<script src="https://unpkg.com/htmx.org@1.8.4"></script>
 {% endblock %}

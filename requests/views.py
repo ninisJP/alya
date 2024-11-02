@@ -161,6 +161,16 @@ class MyRequestDetail(DetailView):
     template_name = 'requests/my_request_detail.html'
     context_object_name = 'order'   
     
+def delete_requirement_order_item(request, item_id):
+    # Obtener el item a eliminar y su RequirementOrder asociado
+    item = get_object_or_404(RequirementOrderItem, id=item_id)
+    order = item.requirement_order
+    
+    # Eliminar el item
+    item.delete()
+    
+    # Re-renderizar el partial `items_table.html` con la lista de ítems actualizada
+    return render(request, 'partials/item_table.html', {'order': order})
     
 def ajax_load_suppliers(request):
     term = request.GET.get('term', '')  # Filtrar por nombre

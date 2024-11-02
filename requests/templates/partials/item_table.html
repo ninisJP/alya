@@ -1,0 +1,49 @@
+<table class="table table-bordered text-center">
+    <thead class="table-dark">
+        <tr>
+            <th>Item</th>
+            <th>Info</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Precio Total</th>
+            <th>Doc</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in order.items.all %}
+        <tr id="item-{{ item.id }}">
+            <td>{{ item.sales_order_item.description }}</td>
+            <td>{{ item.notes }}</td>
+            <td>{{ item.quantity_requested }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.total_price }}</td>
+            <td>
+                {% if item.file_attachment %}
+                    <a href="{{ item.file_attachment.url }}" target="_blank">Ver Archivo</a>
+                {% else %}
+                    No disponible
+                {% endif %}
+            </td>
+            <td>
+                {% if item.estado == 'L' %}
+                    <span class="badge bg-success">Listo</span>
+                {% elif item.estado == 'P' %}
+                    <span class="badge bg-warning">Pendiente</span>
+                {% elif item.estado == 'C' %}
+                    <span class="badge bg-info">Comprando</span>
+                {% endif %}
+            </td>
+            <td>
+                <button class="btn btn-danger btn-sm"
+                        hx-delete="{% url 'delete_requirement_order_item' item.id %}"
+                        hx-target="#order-items"
+                        hx-swap="innerHTML">
+                    Eliminar
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
