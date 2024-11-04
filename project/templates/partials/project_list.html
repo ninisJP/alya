@@ -1,37 +1,62 @@
-{% for project in projects %}
+{% for project_data in projects_data %}
 <div class="bg-white py-4 px-4 rounded-lg shadow-md mb-3 flex flex-wrap items-center hover:shadow-xl transition-shadow duration-300">
     <div class="w-full sm:w-1/2">
-        <p class="mb-2"><i class="fas fa-building"></i> Nombre: <span class="font-bold">{{ project.name }}</span></p>
+        <p class="mb-2"><i class="fas fa-building"></i> Nombre: <span class="font-bold">{{ project_data.project.name }}</span></p>
     </div>
     <div class="w-full sm:w-1/2">
-        <p class="mb-2 font-semibold"><i class="fas fa-vcard"></i> Cliente: <span class="font-bold">{{ project.client }}</span></p>
+        <p class="mb-2 font-semibold"><i class="fas fa-vcard"></i> Cliente: <span class="font-bold">{{ project_data.project.client }}</span></p>
     </div>
 
-    <!-- Órdenes de Venta relacionadas (solo Código SAP y Detalle) -->
+    <!-- Órdenes de Venta relacionadas -->
     <div class="w-full mt-4">
         <h4 class="font-bold">Órdenes de Venta:</h4>
         <table class="table table-bordered table-hover text-center">
             <thead>
                 <tr>
                     <th>Código SAP</th>
-                    <th>Proyecto</th>
                     <th>Detalle</th>
                     <th>Fecha</th>
+                    <th>Total Orden de Venta</th>
+                    <th>Total Orden de Compra</th>
+                    <th>Utilidad</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                {% for order in project.salesorder_set.all %}
+                {% for order in project_data.filtered_sales_orders %}
                 <tr>
                     <td>{{ order.sapcode }}</td>
-                    <td>{{ order.project }}</td>
                     <td>{{ order.detail }}</td>
                     <td>{{ order.date }}</td>
+                    <td>{{ order.total_sales_order|floatformat:2 }}</td>
+                    <td>
+                        {% for purchase_order in order.purchase_orders.all %}
+                            {{ purchase_order.total_purchase_order|floatformat:2 }}<br>
+                        {% empty %}
+                            No hay órdenes de compra programadas
+                        {% endfor %}
+                    </td>
+                    <td>{{ order.get_utility|floatformat:2 }}</td>
+                    <td>
+                        <a href="{% url 'sales_order_detail' order.id %}" class="bg-blue-500 text-white font-bold py-1 px-3 rounded-full hover:bg-blue-600 inline-flex items-center">
+                            <i class="fas fa-question-circle mr-1"></i> Detalles
+                        </a>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="2">No hay órdenes de venta para este proyecto.</td>
+                    <td colspan="7">No hay órdenes de venta con órdenes de compra programadas para este proyecto.</td>
                 </tr>
                 {% endfor %}
+                
+                <!-- Fila de Totales -->
+                <tr class="font-bold">
+                    <td colspan="3">Totales:</td>
+                    <td>{{ project_data.total_sales_sum|floatformat:2 }}</td>
+                    <td>{{ project_data.total_purchase_sum|floatformat:2 }}</td>
+                    <td>{{ project_data.total_utility_sum|floatformat:2 }}</td>
+                    <td></td>
+                </tr>
             </tbody>
         </table>
     </div>
