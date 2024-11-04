@@ -7,6 +7,9 @@ from decimal import Decimal
 from django.db.models.functions import TruncMonth
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
+from django.utils.module_loading import import_string
+from django.db.models import Sum
+from django.db import models
 
 
 class SalesOrder(models.Model):
@@ -31,6 +34,7 @@ class SalesOrder(models.Model):
     class Meta:
         verbose_name = "Orden Venta"
         verbose_name_plural = "Ordenes de Venta"
+        
 class SalesOrderItem(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="items")
     sap_code = models.CharField(max_length=255, default="")
@@ -64,6 +68,7 @@ class SalesOrderItem(models.Model):
 
         # Actualizar la orden de venta (SalesOrder) total después de guardar
         self.salesorder.update_total_sales_order()
+        
     class Meta:
         verbose_name = "Item Orden Venta"
         verbose_name_plural = "Items Orden Venta"
@@ -88,9 +93,6 @@ class PurchaseOrder(models.Model):
     class Meta:
         verbose_name = "Orden Compra"
         verbose_name_plural = "Ordenes de Compra"
-
-from django.db.models import Sum
-from django.db import models
 
 class PurchaseOrderItem(models.Model):
     CLASS_PAY_CHOICES = [
@@ -237,3 +239,35 @@ class BankStatementManager(models.Manager):
             operation_date__year=year,
             operation_date__month=month,
         )
+
+class CollectionOrders(models.Model):
+    TIPO_COBRO_CHOICES = [
+        ('factoring', 'Factoring'),
+        ('directo', 'Directo'),
+    ]
+    orden_venta = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, verbose_name="Orden de Venta")
+    serie_correlativo = models.CharField(max_length=100, verbose_name="Serie y Correlativo", null=True, blank=True)
+    fecha_emision = models.DateField(verbose_name="Fecha de Emisión", null=True, blank=True)
+    cliente = models.CharField(max_length=255, verbose_name="Cliente", null=True, blank=True)
+    ruc_cliente = models.CharField(max_length=11, verbose_name="RUC Cliente", null=True, blank=True)
+    tipo_moneda = models.CharField(max_length=20, verbose_name="Tipo de Moneda", null=True, blank=True)
+    descripcion = models.TextField(verbose_name="Descripción", null=True, blank=True)
+    importe_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Importe Total", null=True, blank=True)
+    detraccion = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Detracción", null=True, blank=True)
+    monto_neto_cobrar = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Neto a Cobrar", null=True, blank=True)
+    total_cuotas = models.IntegerField(verbose_name="Total de Cuotas", null=True, blank=True)
+    fecha_vencimiento = models.DateField(verbose_name="Fecha de Vencimiento", null=True, blank=True)
+    tipo_cobro = models.CharField(max_length=20, choices=TIPO_COBRO_CHOICES, verbose_name="Tipo de Cobro", null=True, blank=True)
+    desc_factoring = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Descuento Factoring (%)", null=True, blank=True)
+    extracto_banco = models.ForeignKey(BankStatements, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Extracto Bancario")
+    factura_pagado = models.BooleanField(default=False, verbose_name="Factura Pagada")
+
+    def save(self, *args, **kwargs):
+        if self.desc_factoring and self.monto_neto_cobrar:
+            descuento = (self.desc_factoring / 100) * self.monto_neto_cobrar
+            self.monto_neto_cobrar -= descuento
+
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.serie_correlativo} - {self.cliente}"

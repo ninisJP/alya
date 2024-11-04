@@ -1,5 +1,5 @@
 from django import forms
-from .models import SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem,Bank
+from .models import SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem,Bank, CollectionOrders
 from django.forms import inlineformset_factory
 from django.http import JsonResponse
 from django import forms
@@ -117,3 +117,13 @@ class PurchaseOrderItemForm(forms.ModelForm):
             'notes': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+# Form for collection orders
+class CollectionOrdersForm(forms.ModelForm):
+    class Meta:
+        model = CollectionOrders
+        fields = [
+            'orden_venta', 'serie_correlativo', 'fecha_emision', 'cliente', 
+            'ruc_cliente', 'tipo_moneda', 'descripcion', 'importe_total', 
+            'detraccion', 'monto_neto_cobrar', 'total_cuotas', 'fecha_vencimiento', 
+            'tipo_cobro', 'desc_factoring', 'extracto_banco', 'factura_pagado'
+        ]

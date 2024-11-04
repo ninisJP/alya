@@ -24,8 +24,11 @@ urlpatterns = [
     path('requirement-order/detail/<int:pk>/', accounting_requirement_order_detail_view, name='requirement_order_detail_accounting'),
     path('requirement-order/update-items/<int:pk>/', update_requirement_order_items, name='update_requirement_order_items'),
     path('requirement-order/update-state/<int:pk>/', update_requirement_order_state, name='update_requirement_order_state'),
-
-
+    # collection orders
+    path('collection_orders/', views.collection_orders, name='collection_orders'),
+    path('collection_orders/<int:salesorder_id>/', views.collection_order_detail, name='collection_order_detail'),
+    path('collection_orders/<int:collection_order_id>/delete/', views.delete_collection_order, name='delete_collection_order'),
+    path('collection_orders/<int:collection_order_id>/edit/', views.edit_collection_order, name='edit_collection_order'),
 ]
 
 htmxurlpatters = [
