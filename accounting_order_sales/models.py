@@ -6,10 +6,10 @@ from client.models import Client
 from decimal import Decimal
 from django.db.models.functions import TruncMonth
 from django.core.exceptions import ValidationError
-from django.db.models import Sum
+from django.db.models import Sum,DecimalField
+from django.db.models.functions import Coalesce
+from decimal import Decimal, ROUND_HALF_UP
 from django.utils.module_loading import import_string
-from django.db.models import Sum
-from django.db import models
 
 
 class SalesOrder(models.Model):
@@ -28,7 +28,16 @@ class SalesOrder(models.Model):
         # Cargamos `Task` de forma diferida usando `import_string`
         Task = import_string("follow_control_card.models.Task")
         return Task.objects.filter(sale_order=self).aggregate(total_hours=Sum('task_time'))['total_hours'] or 0.00
+    
+    def get_total_price_sum(self):
+        return self.items.aggregate(total_price_sum=Sum('price_total'))['total_price_sum'] or 0.00
 
+    def get_utility(self):
+        total_purchase_orders = sum(purchase_order.total_purchase_order for purchase_order in self.purchase_orders.all())
+        utility = Decimal(self.total_sales_order) - Decimal(total_purchase_orders or 0)
+        # Redondea a 2 decimales
+        return utility.quantize(Decimal('0.00'), rounding=ROUND_HALF_UP)
+    
     def __str__(self):
         return f"{self.sapcode} - {self.project if self.project else 'Sin Proyecto'} - {self.detail}"
     class Meta:
@@ -78,15 +87,21 @@ class PurchaseOrder(models.Model):
     description = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     requested_date = models.DateField(blank=True, null=True)
-    scheduled_date = models.DateField(blank=True, null=True)
+    scheduled_date = models.DateField(blank=True, null=True)  # Fecha programada
     requested_by = models.CharField(max_length=20, verbose_name="Encargado", blank=True, null=True)
     acepted = models.BooleanField(default=True)
     
+    # @property
+    # def total_purchase_order(self):
+    #     # Suma el campo `price_total` de todos los PurchaseOrderItem asociados a esta orden
+    #     return self.items.aggregate(total=Sum('price_total'))['total'] or 0
+    
     @property
     def total_purchase_order(self):
-        # Suma el campo `price_total` de todos los PurchaseOrderItem asociados a esta orden
-        return self.items.aggregate(total=Sum('price_total'))['total'] or 0
-
+        return self.items.aggregate(
+            total=Coalesce(Sum('price_total'), Decimal(0), output_field=DecimalField())
+        )['total']
+        
     def __str__(self):
         return f"Orden de Compra {self.id} para la Orden de Venta {self.salesorder.sapcode} - Solicitada el {self.requested_date}"
     
@@ -149,6 +164,7 @@ class PurchaseOrderItem(models.Model):
         else:
             self.price_total = None
         super(PurchaseOrderItem, self).save(*args, **kwargs)
+        
 
     def __str__(self):
         return f"Item {self.sap_code} - {self.quantity_requested} units - Total {self.price_total}"
