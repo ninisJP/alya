@@ -1,6 +1,6 @@
 from django.urls import path
 from accounting_order_sales.forms import supplier_autocomplete
-from .views import add_rendition, purchase_renditions, purchase_conciliations, salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder, edit_purchase_order, general_purchaseorder, quick_create_purchaseorder, petty_cash, index_bank,edit_bank,delete_bank,bank_statements,BankStatementUploadView, AccountingRequirementOrderListView, accounting_requirement_order_detail_view, update_requirement_order_items, update_requirement_order_state
+from .views import add_rendition, delete_purchase_order, purchase_renditions, purchase_conciliations, salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder, edit_purchase_order, general_purchaseorder, quick_create_purchaseorder, petty_cash, index_bank,edit_bank,delete_bank,bank_statements,BankStatementUploadView, AccountingRequirementOrderListView, accounting_requirement_order_detail_view, update_requirement_order_items, update_requirement_order_state
 from . import views
 
 urlpatterns = [
@@ -24,8 +24,13 @@ urlpatterns = [
     path('requirement-order/detail/<int:pk>/', accounting_requirement_order_detail_view, name='requirement_order_detail_accounting'),
     path('requirement-order/update-items/<int:pk>/', update_requirement_order_items, name='update_requirement_order_items'),
     path('requirement-order/update-state/<int:pk>/', update_requirement_order_state, name='update_requirement_order_state'),
+    path('ajax/load-suppliers/', views.ajax_load_suppliers, name='ajax_load_suppliers'),
 
-
+    # collection orders
+    path('collection_orders/', views.collection_orders, name='collection_orders'),
+    path('collection_orders/<int:salesorder_id>/', views.collection_order_detail, name='collection_order_detail'),
+    path('collection_orders/<int:collection_order_id>/delete/', views.delete_collection_order, name='delete_collection_order'),
+    path('collection_orders/<int:collection_order_id>/edit/', views.edit_collection_order, name='edit_collection_order'),
 ]
 
 htmxurlpatters = [
@@ -39,6 +44,8 @@ htmxurlpatters = [
     path('salesorder/<int:salesorder_id>/purchase-orders/', views.purchase_orders, name='purchaseorders'),
     path('editar_ordencompra/<int:order_id>/', edit_purchase_order, name='edit_purchase_order'),
     path('supplier-autocomplete/', supplier_autocomplete, name='supplier_autocomplete'),
+    path('eliminar_ordencompra/<int:order_id>/', delete_purchase_order, name='delete_purchase_order'),
+
     # pettycash
     path('caja_chica/', petty_cash, name='petty_cash'),
     

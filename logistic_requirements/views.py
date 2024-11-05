@@ -14,7 +14,6 @@ from .models import RequirementOrder, RequirementOrderItem
 from django.http import HttpResponse
 from django.db.models import Q
 
-# Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente
 # Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente o todas las órdenes sin filtros
 class RequirementOrderListView(ListView):
     model = RequirementOrder

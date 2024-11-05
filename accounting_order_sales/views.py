@@ -1,46 +1,47 @@
 import traceback
-from django.forms import ValidationError, modelformset_factory
-from django.shortcuts import render
-from logistic_suppliers.models import Suppliers
-from .models import SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem,Bank,BankStatements, Rendition
-from .utils import procesar_archivo_excel
-from .forms import PurchaseOrderForm, PurchaseOrderItemForm, SalesOrderForm, ItemSalesOrderExcelForm, ItemSalesOrderForm, BankForm,UploadBankStatementForm
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render, get_object_or_404
-import pandas as pd
-from django.views.generic.edit import FormView
-from django.urls import reverse_lazy
-from django.contrib import messages
-from django.db.models import Q
+import pdfplumber
 from datetime import datetime
-from django.utils.timezone import localdate
-from django.db.models import Sum
-from .models import BankStatements
-from django.views.generic import ListView
-
-# libs accounting
+import pandas as pd
+import logging
+import re
+from decimal import Decimal, InvalidOperation
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.db.models import Q, Sum
+from django.forms import modelformset_factory
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
-from logistic_requirements.forms import RequirementOrderForm, RequirementOrderItemFormSet
-from django.shortcuts import render
-from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView
-from logistic_requirements.models import RequirementOrder, RequirementOrderItem
-from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
-from django.db import transaction
-from logistic_suppliers.models import Suppliers
-from django.shortcuts import get_object_or_404, redirect
-from django.http import JsonResponse
-from logistic_requirements.models import RequirementOrder, RequirementOrderItem
+from django.urls import reverse, reverse_lazy
+from django.utils.timezone import localdate
 from django.views.decorators.http import require_POST
-from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect
-from django.http import JsonResponse
-from logistic_requirements.models import RequirementOrder, RequirementOrderItem
-from django.http import JsonResponse
-from logistic_suppliers.models import Suppliers  # Ajusta según la ubicación de tu modelo
+from django.views.generic import ListView, DetailView, FormView
+from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
 from alya.utils import send_state_change_email
-
-# -----------------------------
+from logistic_requirements.forms import RequirementOrderForm, RequirementOrderItemFormSet
+from logistic_requirements.models import RequirementOrder, RequirementOrderItem
+from logistic_suppliers.models import Suppliers
+from .forms import (
+    PurchaseOrderForm,
+    PurchaseOrderItemForm,
+    SalesOrderForm,
+    ItemSalesOrderExcelForm,
+    ItemSalesOrderForm,
+    BankForm,
+    UploadBankStatementForm,
+    CollectionOrdersForm
+)
+from .models import (
+    Bank,
+    BankStatements,
+    CollectionOrders,
+    PurchaseOrder,
+    PurchaseOrderItem,
+    Rendition,
+    SalesOrder,
+    SalesOrderItem,
+)
+from .utils import extraer_datos_pdf, procesar_archivo_excel
 
 def salesorder(request):
     salesorders = SalesOrder.objects.all().order_by("-id")
@@ -217,6 +218,15 @@ def edit_purchase_order(request, order_id):
         'order': order,
     })
 
+def delete_purchase_order(request, order_id):
+    # Obtener y eliminar la orden de compra
+    order = get_object_or_404(PurchaseOrder, id=order_id)
+    order.delete()
+    
+    # Retornar un mensaje simple en HTML
+    return HttpResponse('<div class="alert alert-success">Orden de compra eliminada con éxito. Si quieres crear una orden nueva, tendrás que hacerlo desde el pedido.</div>', content_type="text/html")
+
+
 # Bank 
 def index_bank(request):
     if request.method == 'POST':
@@ -274,7 +284,6 @@ def edit_bank(request, bank_id):
         'bank': bank 
     }
     return render(request, 'bank/bank_edit.html', context)
-
 
 # Bank Delete
 def delete_bank(request, bank_id):
@@ -350,10 +359,6 @@ class BankStatementUploadView(FormView):
             messages.error(self.request, 'Hubo un error procesando el archivo.')
 
         return super().form_valid(form)
-
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-
 
 @require_POST
 def assign_bank_statement(request, item_id, statement_id):
@@ -609,16 +614,6 @@ def purchase_renditions(request):
 
     return render(request, 'renditions/renditions.html', context)
 
-
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.shortcuts import get_object_or_404
-from .models import PurchaseOrderItem
-
-from django.core.exceptions import ValidationError
-
-from django.core.exceptions import ValidationError
-
 @require_POST
 def add_rendition(request):
     # Extraer los datos del formulario
@@ -655,7 +650,103 @@ def add_rendition(request):
         # Captura el error y envía el primer mensaje de error de la lista
         return JsonResponse({'status': 'error', 'message': str(e.message or e.messages[0])})
 
+# Listar órdenes de cobro y procesar carga de PDF
+def collection_orders(request):
+    if request.method == "POST":
+        salesorder_id = request.POST.get("salesorder_id")
+        pdf_file = request.FILES.get("pdf_file")
 
+        if pdf_file and salesorder_id:
+            orden_venta = get_object_or_404(SalesOrder, pk=salesorder_id)
+            datos_pdf = extraer_datos_pdf(pdf_file)
+
+            # Crear instancia de CollectionOrders con los datos extraídos
+            collection_order = CollectionOrders(
+                orden_venta=orden_venta,
+                serie_correlativo=datos_pdf["serie_correlativo"],
+                fecha_emision=datos_pdf["fecha_emision"],
+                cliente=datos_pdf["cliente"],
+                ruc_cliente=datos_pdf["ruc_cliente"],
+                tipo_moneda=datos_pdf["tipo_moneda"],
+                descripcion=datos_pdf["descripcion"],
+                importe_total=datos_pdf["importe_total"],
+                detraccion=datos_pdf["detraccion"],
+                monto_neto_cobrar=datos_pdf["monto_neto_cobrar"],
+                total_cuotas=datos_pdf["total_cuotas"],
+                fecha_vencimiento=datos_pdf["fecha_vencimiento"],
+            )
+            collection_order.save()
+            messages.success(request, "PDF procesado y datos guardados exitosamente.")
+
+    # Obtener todas las SalesOrder para listarlas en la página
+    sales_orders = SalesOrder.objects.all()
+    context = {
+        'sales_orders': sales_orders,
+    }
+    return render(request, 'collectionorders/collection_orders.html', context)
+
+def collection_order_detail(request, salesorder_id):
+    # Obtiene la SalesOrder y sus CollectionOrders asociadas
+    orden_venta = get_object_or_404(SalesOrder, pk=salesorder_id)
+    collection_orders = CollectionOrders.objects.filter(orden_venta=orden_venta)
+
+    # Procesa el PDF si se carga uno
+    if request.method == "POST":
+        pdf_file = request.FILES.get("pdf_file")
+
+        if pdf_file:
+            datos_pdf = extraer_datos_pdf(pdf_file)
+
+            # Crear una nueva instancia de CollectionOrders con los datos extraídos
+            collection_order = CollectionOrders(
+                orden_venta=orden_venta,
+                serie_correlativo=datos_pdf["serie_correlativo"],
+                fecha_emision=datos_pdf["fecha_emision"],
+                cliente=datos_pdf["cliente"],
+                ruc_cliente=datos_pdf["ruc_cliente"],
+                tipo_moneda=datos_pdf["tipo_moneda"],
+                descripcion=datos_pdf["descripcion"],
+                importe_total=datos_pdf["importe_total"],
+                detraccion=datos_pdf["detraccion"],
+                monto_neto_cobrar=datos_pdf["monto_neto_cobrar"],
+                total_cuotas=datos_pdf["total_cuotas"],
+                fecha_vencimiento=datos_pdf["fecha_vencimiento"],
+            )
+            collection_order.save()
+            messages.success(request, "PDF procesado y datos guardados exitosamente.")
+            return redirect('collection_order_detail', salesorder_id=salesorder_id)
+
+    context = {
+        'orden_venta': orden_venta,
+        'collection_orders': collection_orders,
+    }
+    return render(request, 'collectionorders/collection_order_detail.html', context)
+
+# Eliminar una orden de cobro
+def delete_collection_order(request, collection_order_id):
+    collection_order = get_object_or_404(CollectionOrders, pk=collection_order_id)
+    salesorder_id = collection_order.orden_venta.id
+    collection_order.delete()
+    return redirect(reverse('collection_orders', kwargs={'salesorder_id': salesorder_id}))
+
+# Editar una orden de cobro
+def edit_collection_order(request, collection_order_id):
+    collection_order = get_object_or_404(CollectionOrders, pk=collection_order_id)
+    
+    if request.method == 'POST':
+        form = CollectionOrdersForm(request.POST, instance=collection_order)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('collection_orders', kwargs={'salesorder_id': collection_order.orden_venta.id}))
+    else:
+        form = CollectionOrdersForm(instance=collection_order)
+    
+    context = {
+        'form': form,
+        'collection_order': collection_order,
+    }
+    
+    return render(request, 'collectionorders/edit_collection_order.html', context)
 
 
 
