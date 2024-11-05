@@ -218,6 +218,15 @@ def edit_purchase_order(request, order_id):
         'order': order,
     })
 
+def delete_purchase_order(request, order_id):
+    # Obtener y eliminar la orden de compra
+    order = get_object_or_404(PurchaseOrder, id=order_id)
+    order.delete()
+    
+    # Retornar un mensaje simple en HTML
+    return HttpResponse('<div class="alert alert-success">Orden de compra eliminada con éxito. Si quieres crear una orden nueva, tendrás que hacerlo desde el pedido.</div>', content_type="text/html")
+
+
 # Bank 
 def index_bank(request):
     if request.method == 'POST':
