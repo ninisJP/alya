@@ -29,11 +29,7 @@ def search_guide(form):
 		model_list_input_purchase = model_list_input_purchase.filter(date_create__range=[date_start, date_end])
 		model_list_output = model_list_output.filter(date_create__range=[date_start, date_end])
 
-	print(model_list_input_returned)
-	print(model_list_input_purchase)
-	print(model_list_output)
-
-	context['outputsr'] = model_list_output
+	context['outputs'] = model_list_output
 	context['inputs_returned'] = model_list_input_returned
 	context['inputs_purchase'] = model_list_input_purchase
 

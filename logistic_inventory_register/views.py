@@ -10,7 +10,6 @@ def index(request):
 
 def search(request):
 	context = {}
-	print("search")
 	if request.method == 'POST':
 		form = SearchGuideForm(request.POST)
 		if form.is_valid():
