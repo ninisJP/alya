@@ -1,0 +1,62 @@
+{% extends 'base_logistic.html' %}
+
+{% block extra_css %}
+<style>
+    .custom-card {
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+    .custom-table {
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+    /* Badge más grande */
+    .badge-large {
+        font-size: 1rem; /* Aumenta el tamaño de la fuente */
+        padding: 0.5rem 1rem; /* Aumenta el padding */
+        line-height: 1.5; /* Asegura que el texto se vea bien */
+    }
+    .badge-listo {
+        background-color: #28a745;
+        color: white;
+    }
+    .badge-pendiente {
+        background-color: #ffc107;
+        color: black;
+    }
+    .badge-comprando {
+        background-color: #17a2b8;
+        color: white;
+    }
+    .custom-rounded-top {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        overflow: hidden;
+    }
+    .custom-thead-rounded {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .btn-group .btn {
+        padding: 0.375rem 0.75rem; /* Aumenta el padding de los botones */
+        font-size: 0.875rem; /* Ajusta el tamaño de la fuente */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="logistic_inventory_register_window">
+    <div class="container-fluid mt-5">
+        <ul id="logistic_inventory_register_search" class="mt-8 space-y-4">
+            {% include 'register/search.html' %}
+        </ul>
+        <ul id="logistic_inventory_register_list" class="mt-8 space-y-4">
+            {% include 'register/list.html' %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

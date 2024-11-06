@@ -1,11 +1,14 @@
+from django.core.paginator import Paginator
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from django.http import HttpResponse
+
+from alya import utils
+from alya.forms import SearchForm
+from budget.models import CatalogItem
 
 from .forms import BrandForm, TypeForm, SubtypeForm, ItemForm, SearchItemForm
 from .models import Brand, Type, Subtype, Item
 from .utils import sort_item, search_item
-from alya import utils
-from alya.forms import SearchForm
 
 
 def index(request):
@@ -151,3 +154,29 @@ def type_search(request):
 def get_all_subtypes(request):
     form = ItemForm(request.GET)
     return HttpResponse(form["subtype"])
+
+def item_new_ajax(request):
+    print("nani")
+    if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        term = request.GET.get('term', '')
+        items = CatalogItem.objects.filter(sap__icontains=term).order_by('sap')
+
+        paginator = Paginator(items, 10) # Only show 10 items
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+
+        results = []
+        for item in page_obj:
+            results.append({
+                'id': item.id,
+                'text': f'{item.sap} - {item.description}',
+            })
+
+        return JsonResponse({
+            'results': results,
+            'pagination': {
+                'more': page_obj.has_next()  # Indica si hay más resultados
+            }
+        })
+    else:
+        return JsonResponse({'results': []})

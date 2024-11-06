@@ -89,8 +89,6 @@ def get_all_items(output_pk):
 	requirements = RequirementOrder.objects.filter(sales_order=output.sale_order)
 	output_items_returned = InventoryOutputItem.objects.filter(output=output.pk, returned=True)
 
-	print(output_items)
-
 	# Get requirement items was approve
 	requirement_items = []
 	for requirement_one in requirements :
