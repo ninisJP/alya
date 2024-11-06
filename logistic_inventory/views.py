@@ -1,6 +1,10 @@
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
+
+import os
+import tarfile
 
 from alya import utils
 from alya.forms import SearchForm
@@ -155,8 +159,18 @@ def get_all_subtypes(request):
     form = ItemForm(request.GET)
     return HttpResponse(form["subtype"])
 
+def item_download_all_qr(request):
+    os.chdir(settings.MEDIA_ROOT)
+    name = "item_qr"
+
+    response = HttpResponse(content_type='application/x-xz')
+    response['Content-Disposition'] = 'attachment; filename=allqr.tar.xz'
+    tarred = tarfile.open(fileobj=response, mode='w:xz')
+    tarred.add(name)
+    tarred.close()
+    return response
+
 def item_new_ajax(request):
-    print("nani")
     if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         term = request.GET.get('term', '')
         items = CatalogItem.objects.filter(sap__icontains=term).order_by('sap')
@@ -180,3 +194,4 @@ def item_new_ajax(request):
         })
     else:
         return JsonResponse({'results': []})
+
