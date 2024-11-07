@@ -9,18 +9,15 @@
 
         {{ item_formset.management_form }}
         <div class="row mb-2 align-items-center">
-            <!-- Campo Descripción (No editable) -->
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <label><strong>Descripción:</strong></label>
                 <div>{{ order.description }}</div>
             </div>
-            <!-- Campo Por (No editable) -->
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <label><strong>Por:</strong></label>
                 <div>{{ order.requested_by }}</div>
             </div>
-            <!-- Campo Fecha Programada (Editable) -->
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 {{ order_form.scheduled_date }}
             </div>
         </div>
@@ -30,38 +27,28 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Descripción</th>
-                        <th>Cantidad</th>
-                        <th>Precio</th>
-                        <th>Total</th>
-                        <th>Proveedor</th>
-                        <th>Clase</th>
-                        <th>Tipo</th>
-                        <th>Notas</th>
+                        <th style="width: 15%;">Item</th>
+                        <th style="width: 30%;">Detalles</th>
+                        <th style="width: 8%;">Cantidad</th>
+                        <th style="width: 10%;">Precio</th>
+                        <th style="width: 10%;">Total</th>
+                        <th style="width: 10%;">Proveedor</th>
+                        <th style="width: 10%;">Clase</th>
+                        <th style="width: 12%;">Tipo</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for form in item_formset %}
                         <tr>
                             {{ form.id }}
-                            <!-- Descripción del ítem (No editable) -->
-                            <td>{{ form.sales_order_item }}</td>
-                            <!-- Cantidad solicitada (Editable) -->
+                            <td>{{ form.instance.sales_order_item }}</td>
+                            <td>{{ form.notes|add_class:"w-100" }}</td>
                             <td>{{ form.quantity_requested }}</td>
-                            <!-- Precio unitario (Editable) -->
                             <td>{{ form.price }}</td>
-                            <!-- Precio total (No editable, se calcula automáticamente) -->
                             <td>{{ form.instance.price_total }}</td>
-                            <!-- Proveedor (Editable con Select2 AJAX) -->
-                            <td>
-                                {{ form.supplier|add_class:"select2-ajax" }}
-                            </td>
-                            <!-- Clase de pago (Editable) -->
+                            <td>{{ form.supplier|add_class:"select2-ajax w-75" }}</td>
                             <td>{{ form.class_pay }}</td>
-                            <!-- Tipo de pago (Editable) -->
                             <td>{{ form.type_pay }}</td>
-                            <!-- Notas (Editable) -->
-                            <td>{{ form.notes }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -75,17 +62,15 @@
 
 <script>
     function initializeSelect2() {
-        // Destruye la instancia Select2 en el elemento solo si está activado
         $('.select2-ajax').each(function() {
             if ($(this).data('select2')) { 
                 $(this).select2('destroy');
             }
         });
 
-        // Vuelve a inicializar Select2 para los elementos con clase select2-ajax
         try {
             $('.select2-ajax').select2({
-                width: '100%',
+                width: 'resolve', // Resolve usa el ancho que ocupa el select
                 placeholder: "Selecciona un proveedor",
                 allowClear: true,
                 ajax: {
@@ -107,12 +92,10 @@
         }
     }
 
-    // Ejecuta Select2 al cargar la página
     $(document).ready(function() {
         initializeSelect2();
     });
 
-    // Re-inicializa Select2 después de cada actualización de HTMX
     document.addEventListener('htmx:afterSwap', function(event) {
         initializeSelect2();
     });
