@@ -1,0 +1,59 @@
+{% extends 'base_accounting.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Información General de la Orden de Venta -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4>Detalles de la Orden de Venta - {{ orden_venta.sapcode }}</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Proyecto:</strong> {{ orden_venta.project }}</p>
+            <p><strong>Detalle:</strong> {{ orden_venta.detail }}</p>
+        </div>
+    </div>
+
+    <!-- Lista de Órdenes de Cobro -->
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Órdenes de Cobro Asociadas</h5>
+        </div>
+        <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+                {% for order in collection_orders %}
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-md-4"><strong>Cliente:</strong> {{ order.cliente }}</div>
+                            <div class="col-md-4"><strong>RUC Cliente:</strong> {{ order.ruc_cliente }}</div>
+                            <div class="col-md-4"><strong>Fecha de Emisión:</strong> {{ order.fecha_emision }}</div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-4"><strong>Importe Total:</strong> {{ order.importe_total }}</div>
+                            <div class="col-md-4"><strong>Monto Neto a Cobrar:</strong> {{ order.monto_neto_cobrar }}</div>
+                            <div class="col-md-4"><strong>Fecha de Vencimiento:</strong> {{ order.fecha_vencimiento }}</div>
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-center">No hay órdenes de cobro asociadas a esta orden de venta.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Formulario para Cargar un Nuevo PDF -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Cargar Nuevo PDF</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="d-flex align-items-center">
+                {% csrf_token %}
+                <input type="file" name="pdf_file" accept="application/pdf" required class="form-control me-2" style="max-width: 300px;">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-upload"></i> Subir PDF
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
