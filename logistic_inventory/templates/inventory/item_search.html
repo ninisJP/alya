@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<form hx-post="{% url 'logistic_inventory_item_search' %}" hx-target="#logistic_inventory_item_list" hx-swap="innerHTML" hx-trigger="keyup delay:0.2s" class="w-100 mb-5 p-4 border rounded shadow-sm">
+<form hx-post="{% url 'logistic_inventory_register_search' %}" hx-target="#logistic_inventory_register_list" hx-swap="innerHTML" hx-trigger="keyup delay:0.2s" class="w-100 mb-5 p-4 border rounded shadow-sm">
     <div class="row">
         <div class="col-6 col-md-2 mb-3">
             <label for="{{ search.sap.id_for_label }}" > Por SAP: </label>

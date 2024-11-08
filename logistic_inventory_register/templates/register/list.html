@@ -1,0 +1,98 @@
+{% load widget_tweaks %}
+
+<!-- Guia entrada (items retirados) items -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th colspan="10">Guia de entrada (Items retirados)</th>
+            </tr>
+            <tr>
+                <th>Orden de Venta</th>
+                <th>Orden de Requerimiento</th>
+                <th>SAP del Item</th>
+                <th>Fecha de ingreso</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for input in inputs_returned %}
+                <tr class="rounded-3">
+                    <td>{{ input.output_item.item_requirement.sales_order_item.salesorder.sapcode }}</td>
+                    <td>{{ input.output_item.item_requirement.requirement_order  }}</td>
+                    <td>{{ input.output_item.item.item.sap }}</td>
+                    <td>{{ input.date_create }}</td>
+                    <td>{{ input.quantity }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="10" >No hay coincidencias</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Guia entrada (ordenes de compra) items -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th colspan="10">Guia de entrada (Ordenes de compra)</th>
+            </tr>
+            <tr>
+                <th>Orden de Compra</th>
+                <th>SAP del Item</th>
+                <th>Fecha de ingreso</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for input in inputs_purchase %}
+                <tr class="rounded-3">
+                    <td>{{ input.purchase_item.purchaseorder }}</td>
+                    <td>{{ input.purchase_item.sap_code }}</td>
+                    <td>{{ input.date_create }}</td>
+                    <td>{{ input.quantity }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="10" >No hay coincidencias</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Guia de salida items -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+        <thead class="table-dark custom-thead-rounded">
+            <tr>
+                <th colspan="10">Guia de salida</th>
+            </tr>
+            <tr>
+                <th>Orden de Venta</th>
+                <th>Orden de Requerimiento</th>
+                <th>SAP del Item</th>
+                <th>Fecha de salida</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for output in outputs %}
+                <tr class="rounded-3">
+                    <td>{{ output.output.sale_order }}</td>
+                    <td>{{ output.item_requirement.requirement_order }}</td>
+                    <td>{{ output.item.item.sap }}</td>
+                    <td>{{ output.date_create }}</td>
+                    <td>{{ output.quantity }}</td>
+                </tr>
+            {% empty %}
+                <tr class="bg-red-200 text-red-700">
+                    <td colspan="10" >No hay coincidencias</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

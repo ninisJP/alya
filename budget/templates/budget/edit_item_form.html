@@ -1,9 +1,40 @@
-<div id="item-{{ item.id }}" class="d-flex align-items-center mb-2">
-    <span class="me-2">{{ item.item.description }}</span>
-    <input type="number" name="quantity" value="{{ form.quantity.value }}" class="form-control me-2" style="width: 100px;">
-    <input type="number" step="0.01" name="custom_price_per_day" value="{{ form.custom_price_per_day.value }}" class="form-control me-2" style="width: 100px;">
-    <input type="number" step="0.01" name="custom_price" value="{{ form.custom_price.value }}" class="form-control me-2" style="width: 100px;">
-    <span class="me-2">{{ item.total_price }}</span>
-    <button type="submit" class="btn btn-success btn-sm me-2">Guardar</button>
-    <button type="button" class="btn btn-secondary btn-sm" hx-get="{% url 'edit_budget_item_htmx' item.id %}" hx-target="#item-list" hx-swap="outerHTML">Cancelar</button>
-</div>
+<tr id="item-{{ item.id }}">
+    <td colspan="8">
+        <div>
+            <form method="POST" hx-post="{% url 'edit_budget_item_htmx' item.id %}" hx-target="#item-{{ item.id }}" hx-swap="outerHTML">
+                {% csrf_token %}
+                
+                <!-- Tabla completa para el formulario de edición -->
+                <table class="table table-borderless table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>SAP</th>
+                            <th>Ítem</th>
+                            <th>UND</th>
+                            <th>Cant</th>
+                            <th>Precio Diario (S/.)</th>
+                            <th>Precio Unitario (S/.)</th>
+                            <th>Precio Proyecto (S/.)</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ item.item.sap }}</td>
+                            <td>{{ item.item.description }}</td>
+                            <td>{{ item.unit }}</td>
+                            <td>{% load widget_tweaks %}{{ form.quantity|add_class:"form-control" }}</td>
+                            <td>{{ form.custom_price_per_day|add_class:"form-control" }}</td>
+                            <td>{{ form.custom_price|add_class:"form-control" }}</td>
+                            <td>{{ item.total_price }}</td>
+                            <td>
+                                <button type="submit" class="btn btn-success btn-sm">Guardar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+            </form>
+        </div>
+    </td>
+</tr>

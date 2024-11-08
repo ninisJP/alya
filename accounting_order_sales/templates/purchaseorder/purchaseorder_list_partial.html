@@ -32,12 +32,21 @@
                 </div>
 
                 <!-- Botón para editar la orden de compra usando HTMX -->
-                <div class="col-lg-2">
+                <div class="col-lg-2 d-flex justify-content-between">
+                    <!-- Botón para editar la orden de compra usando HTMX -->
                     <button hx-get="{% url 'edit_purchase_order' order.id %}" 
-                    hx-target="#orden-{{ order.id }}" 
-                    hx-swap="outerHTML" 
-                    class="btn btn-primary">Editar</button>            
+                            hx-target="#orden-{{ order.id }}" 
+                            hx-swap="outerHTML" 
+                            class="btn btn-primary">Editar</button>            
+                    
+                    <!-- Botón para eliminar la orden de compra usando HTMX -->
+                    <button hx-delete="{% url 'delete_purchase_order' order.id %}" 
+                            hx-target="#orden-{{ order.id }}" 
+                            hx-swap="outerHTM1L" 
+                            class="btn btn-danger ms-2" 
+                            onclick="return confirm('¿Estás seguro de que deseas eliminar esta orden de compra?');">Eliminar</button>
                 </div>
+                
             </header>
 
             <!-- Detalles de los ítems relacionados con la Orden de Compra -->

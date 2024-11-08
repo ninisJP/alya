@@ -8,6 +8,8 @@ urlpatterns = [
     path('requirement-order-detail-partial/<int:pk>/', requirement_order_detail_partial, name='requirement_order_detail_partial'),
     path('requirement-order/detail/<int:pk>/', requirement_order_detail_view, name='requirement_order_detail'),
     path('ajax/load-suppliers/', views.ajax_load_suppliers, name='ajax_load_suppliers'),
+    path('export_order/<int:pk>/', views.export_order_to_excel, name='export_order_to_excel'),
+
 
 ]
 

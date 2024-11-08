@@ -1,0 +1,60 @@
+<!-- sipoc/templates/flujograms/supplier_list.html -->
+
+{% extends "base_management.html" %}
+
+{% block title %}Proveedores de {{ sipoc.name }}{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Flujograma de Proveedores en {{ sipoc.name }}</h2>
+
+<div class="d-flex justify-content-center align-items-center flex-wrap mt-4">
+    {% for supplier in suppliers %}
+        <!-- Tarjeta de cada proveedor -->
+        <div class="supplier-card d-flex align-items-center mx-3 p-3 rounded shadow-sm bg-light text-center">
+            <div class="fw-bold fs-5">{{ supplier.name }}</div>
+        </div>
+
+        <!-- Flecha estilizada entre tarjetas, solo si no es el último proveedor -->
+        {% if not forloop.last %}
+            <div class="arrow-container mx-2">
+                <i class="fas fa-arrow-right fa-2x text-primary"></i>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<style>
+    /* Estilo de las tarjetas */
+    .supplier-card {
+        min-width: 150px;
+        max-width: 200px;
+        background-color: #f8f9fa; /* Color de fondo claro */
+        border: 2px solid #007bff; /* Borde azul */
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .supplier-card .fw-bold {
+        color: #333;
+    }
+
+    /* Estilo de la flecha */
+    .arrow-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .arrow-container i {
+        color: #007bff;
+    }
+
+    /* Efecto de animación para la flecha */
+    .arrow-container i {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .arrow-container i:hover {
+        transform: scale(1.2);
+    }
+</style>
+{% endblock %}

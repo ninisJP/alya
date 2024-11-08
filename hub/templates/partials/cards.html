@@ -78,6 +78,17 @@
       </a>
   </div>
 
+    <!-- MANAGEMENT - SIPOC -->
+    <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
+        <a href="{% url 'list_sipocs' %}" class="d-flex align-items-center text-decoration-none w-100">
+            <i class="fas fa-boxes fa-3x text-danger"></i>
+            <div class="ms-3">
+                <h5 class="mb-1 text-white">Gestiones</h5>
+                <p class="mb-0 text-light">Sipoc por ahora.</p>
+            </div>
+        </a>
+    </div>
+
   <!-- Solo para el Admin -->
   {% if user.is_superuser %}
   <!-- Contabilidad -->

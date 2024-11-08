@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #DJANGO BROWSER RELOAD
-    #"django_browser_reload",
+    "django_browser_reload",
     'django_htmx',
     'rest_framework',
     'rest_framework.authtoken',
@@ -48,9 +48,10 @@ INSTALLED_APPS = [
     'logistic_api',
     'logistic_inventory',
     'logistic_inventory_api',
-    'logistic_inventory_output',
     'logistic_inventory_input',
     'logistic_inventory_inputnewitem',
+    'logistic_inventory_output',
+    'logistic_inventory_register',
     'logistic_requirements',
     'logistic_suppliers',
     'project',
@@ -71,7 +72,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.LoginRequiredMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'django_browser_reload.middleware.BrowserReloadMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
@@ -99,6 +100,9 @@ DATABASES = {
     'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
+# DATABASES = {
+#     'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+# }
 
 
 AUTH_PASSWORD_VALIDATORS = [

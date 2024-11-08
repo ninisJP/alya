@@ -1,0 +1,69 @@
+<!-- sipoc/templates/sipoc/_row.html -->
+
+<tr id="row-{{ row.id }}" class="bg-light border rounded p-3 mb-3 shadow-sm">
+    <td id="field-suppliers-{{ row.id }}" class="px-3 py-2 text-dark fs-5">
+        <strong>{{ row.suppliers.all|join:" " }}</strong>
+        <button class="btn btn-link p-0 ms-2" hx-get="{% url 'edit_suppliers' row.id %}"
+                hx-target="#field-suppliers-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-edit text-primary fs-5" title="Editar"></i>
+        </button>
+        <button class="btn btn-link p-0 ms-2 text-success" hx-get="{% url 'add_supplier' row.id %}"
+                hx-target="#field-suppliers-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-plus-circle fs-5" title="Crear y Añadir"></i>
+        </button>
+    </td>
+    <td id="field-inputs-{{ row.id }}" class="px-3 py-2 text-dark fs-5">
+        <strong>{{ row.inputs.all|join:" " }}</strong>
+        <button class="btn btn-link p-0 ms-2" hx-get="{% url 'edit_inputs' row.id %}"
+                hx-target="#field-inputs-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-edit text-primary fs-5" title="Editar"></i>
+        </button>
+        <button class="btn btn-link p-0 ms-2 text-success" hx-get="{% url 'add_input' row.id %}"
+                hx-target="#field-inputs-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-plus-circle fs-5" title="Crear y Añadir"></i>
+        </button>
+    </td>
+    <td id="field-processes-{{ row.id }}" class="px-3 py-2 text-dark fs-5">
+        <strong>{{ row.processes.all|join:" " }}</strong>
+        <button class="btn btn-link p-0 ms-2" hx-get="{% url 'edit_processes' row.id %}"
+                hx-target="#field-processes-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-edit text-primary fs-5" title="Editar"></i>
+        </button>
+        <button class="btn btn-link p-0 ms-2 text-success" hx-get="{% url 'add_process' row.id %}"
+                hx-target="#field-processes-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-plus-circle fs-5" title="Crear y Añadir"></i>
+        </button>
+    </td>
+    <td id="field-outputs-{{ row.id }}" class="px-3 py-2 text-dark fs-5">
+        <strong>{{ row.outputs.all|join:" " }}</strong>
+        <button class="btn btn-link p-0 ms-2" hx-get="{% url 'edit_outputs' row.id %}"
+                hx-target="#field-outputs-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-edit text-primary fs-5" title="Editar"></i>
+        </button>
+        <button class="btn btn-link p-0 ms-2 text-success" hx-get="{% url 'add_output' row.id %}"
+                hx-target="#field-outputs-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-plus-circle fs-5" title="Crear y Añadir"></i>
+        </button>
+    </td>
+    <td id="field-customers-{{ row.id }}" class="px-3 py-2 text-dark fs-5">
+        <strong>{{ row.customers.all|join:" " }}</strong>
+        <button class="btn btn-link p-0 ms-2" hx-get="{% url 'edit_customers' row.id %}"
+                hx-target="#field-customers-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-edit text-primary fs-5" title="Editar"></i>
+        </button>
+        <button class="btn btn-link p-0 ms-2 text-success" hx-get="{% url 'add_customer' row.id %}"
+                hx-target="#field-customers-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-plus-circle fs-5" title="Crear y Añadir"></i>
+        </button>
+    </td>
+    <td class="text-center align-middle">
+        <button class="btn btn-primary btn-sm mx-1" hx-get="{% url 'edit_row' row.id %}"
+                hx-target="#row-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-pencil-alt fs-5" title="Editar Fila"></i>
+        </button>
+        <button class="btn btn-danger btn-sm mx-1" hx-delete="{% url 'delete_row' row.id %}"
+                hx-target="#row-{{ row.id }}" hx-swap="outerHTML">
+            <i class="fas fa-trash fs-5" title="Eliminar Fila"></i>
+        </button>
+    </td>
+</tr>

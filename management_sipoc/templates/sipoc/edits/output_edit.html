@@ -1,0 +1,16 @@
+<!-- sipoc/templates/sipoc/edits/output_edit.html -->
+
+{% load widget_tweaks %}
+
+<tr id="row-{{ row.id }}">
+    <td colspan="6">
+        <form method="POST" hx-post="{% url 'edit_outputs' row.id %}" hx-target="#row-{{ row.id }}" hx-swap="outerHTML">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.outputs.label_tag }}
+                {{ form.outputs|add_class:"form-control" }}
+            </div>
+            <button type="submit" class="btn btn-success btn-sm">Guardar</button>
+        </form>
+    </td>
+</tr>

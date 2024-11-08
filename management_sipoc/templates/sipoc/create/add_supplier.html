@@ -1,0 +1,15 @@
+<!-- sipoc/templates/sipoc/create/add_supplier.html -->
+
+{% load widget_tweaks %}
+
+<td id="field-suppliers-{{ row.id }}">
+    <form method="POST" hx-post="{% url 'add_supplier' row.id %}" hx-target="#row-{{ row.id }}" hx-swap="outerHTML">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.name.label_tag }}
+            {{ form.name|add_class:"form-control" }}
+        </div>
+        <button type="submit" class="btn btn-success btn-sm">Guardar</button>
+    </form>
+</td>
+

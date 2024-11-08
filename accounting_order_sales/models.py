@@ -6,7 +6,10 @@ from client.models import Client
 from decimal import Decimal
 from django.db.models.functions import TruncMonth
 from django.core.exceptions import ValidationError
-from django.db.models import Sum
+from django.db.models import Sum,DecimalField
+from django.db.models.functions import Coalesce
+from decimal import Decimal, ROUND_HALF_UP
+from django.utils.module_loading import import_string
 
 
 class SalesOrder(models.Model):
@@ -20,17 +23,27 @@ class SalesOrder(models.Model):
     def update_total_sales_order(self):
         self.total_sales_order = sum(item.price_total for item in self.items.all())
         self.save()
-        
+
     def total_hours_man(self):
         # Cargamos `Task` de forma diferida usando `import_string`
         Task = import_string("follow_control_card.models.Task")
         return Task.objects.filter(sale_order=self).aggregate(total_hours=Sum('task_time'))['total_hours'] or 0.00
+    
+    def get_total_price_sum(self):
+        return self.items.aggregate(total_price_sum=Sum('price_total'))['total_price_sum'] or 0.00
 
+    def get_utility(self):
+        total_purchase_orders = sum(purchase_order.total_purchase_order for purchase_order in self.purchase_orders.all())
+        utility = Decimal(self.total_sales_order) - Decimal(total_purchase_orders or 0)
+        # Redondea a 2 decimales
+        return utility.quantize(Decimal('0.00'), rounding=ROUND_HALF_UP)
+    
     def __str__(self):
         return f"{self.sapcode} - {self.project if self.project else 'Sin Proyecto'} - {self.detail}"
     class Meta:
         verbose_name = "Orden Venta"
         verbose_name_plural = "Ordenes de Venta"
+        
 class SalesOrderItem(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="items")
     sap_code = models.CharField(max_length=255, default="")
@@ -64,33 +77,37 @@ class SalesOrderItem(models.Model):
 
         # Actualizar la orden de venta (SalesOrder) total después de guardar
         self.salesorder.update_total_sales_order()
+        
     class Meta:
         verbose_name = "Item Orden Venta"
         verbose_name_plural = "Items Orden Venta"
-        
+
 class PurchaseOrder(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE,related_name="purchase_orders")
     description = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     requested_date = models.DateField(blank=True, null=True)
-    scheduled_date = models.DateField(blank=True, null=True)
+    scheduled_date = models.DateField(blank=True, null=True)  # Fecha programada
     requested_by = models.CharField(max_length=20, verbose_name="Encargado", blank=True, null=True)
     acepted = models.BooleanField(default=True)
     
+    # @property
+    # def total_purchase_order(self):
+    #     # Suma el campo `price_total` de todos los PurchaseOrderItem asociados a esta orden
+    #     return self.items.aggregate(total=Sum('price_total'))['total'] or 0
+    
     @property
     def total_purchase_order(self):
-        # Suma el campo `price_total` de todos los PurchaseOrderItem asociados a esta orden
-        return self.items.aggregate(total=Sum('price_total'))['total'] or 0
-
+        return self.items.aggregate(
+            total=Coalesce(Sum('price_total'), Decimal(0), output_field=DecimalField())
+        )['total']
+        
     def __str__(self):
         return f"Orden de Compra {self.id} para la Orden de Venta {self.salesorder.sapcode} - Solicitada el {self.requested_date}"
-    
+
     class Meta:
         verbose_name = "Orden Compra"
         verbose_name_plural = "Ordenes de Compra"
-
-from django.db.models import Sum
-from django.db import models
 
 class PurchaseOrderItem(models.Model):
     CLASS_PAY_CHOICES = [
@@ -131,7 +148,7 @@ class PurchaseOrderItem(models.Model):
     mov_number = models.CharField(max_length=255, null=True, blank=True, default='')
     bank = models.CharField(max_length=100, null=True, blank=True)
     total_renditions = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Total Renditions")
-    
+
     bank_statement = models.ForeignKey(
         'BankStatements',
         on_delete=models.SET_NULL,
@@ -147,6 +164,7 @@ class PurchaseOrderItem(models.Model):
         else:
             self.price_total = None
         super(PurchaseOrderItem, self).save(*args, **kwargs)
+        
 
     def __str__(self):
         return f"Item {self.sap_code} - {self.quantity_requested} units - Total {self.price_total}"
@@ -156,7 +174,7 @@ class PurchaseOrderItem(models.Model):
         total = self.renditions.aggregate(total=Sum('amount'))['total'] or 0
         self.total_renditions = total
         self.save()
-    
+
     class Meta:
         verbose_name = "Item Orden Compra"
         verbose_name_plural = "Items Orden Compra"
@@ -196,7 +214,7 @@ class Rendition(models.Model):
 
     def __str__(self):
         return f"Rendiciones para {self.amount} - {self.purchase_order_item.sap_code} el {self.date}"
-    
+
     class Meta:
         verbose_name = "Rendición"
         verbose_name_plural = "Rendiciones"
@@ -209,7 +227,7 @@ class Bank(models.Model):
 
     def __str__(self):
         return f'Banco: {self.bank_name} - Cuenta: {self.bank_account}'
-    
+
     class Meta:
         verbose_name = "Banco"
         verbose_name_plural = "Bancos"
@@ -224,7 +242,7 @@ class BankStatements(models.Model):
 
     def __str__(self):
         return f'Movimiento: {self.number_moviment} - Referencia: {self.reference}'
-    
+
     class Meta:
         verbose_name = "Extracto de Bancos"
         verbose_name_plural = "Extractos Bancarios"
@@ -237,3 +255,35 @@ class BankStatementManager(models.Manager):
             operation_date__year=year,
             operation_date__month=month,
         )
+
+class CollectionOrders(models.Model):
+    TIPO_COBRO_CHOICES = [
+        ('factoring', 'Factoring'),
+        ('directo', 'Directo'),
+    ]
+    orden_venta = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, verbose_name="Orden de Venta")
+    serie_correlativo = models.CharField(max_length=100, verbose_name="Serie y Correlativo", null=True, blank=True)
+    fecha_emision = models.DateField(verbose_name="Fecha de Emisión", null=True, blank=True)
+    cliente = models.CharField(max_length=255, verbose_name="Cliente", null=True, blank=True)
+    ruc_cliente = models.CharField(max_length=11, verbose_name="RUC Cliente", null=True, blank=True)
+    tipo_moneda = models.CharField(max_length=20, verbose_name="Tipo de Moneda", null=True, blank=True)
+    descripcion = models.TextField(verbose_name="Descripción", null=True, blank=True)
+    importe_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Importe Total", null=True, blank=True)
+    detraccion = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Detracción", null=True, blank=True)
+    monto_neto_cobrar = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Neto a Cobrar", null=True, blank=True)
+    total_cuotas = models.IntegerField(verbose_name="Total de Cuotas", null=True, blank=True)
+    fecha_vencimiento = models.DateField(verbose_name="Fecha de Vencimiento", null=True, blank=True)
+    tipo_cobro = models.CharField(max_length=20, choices=TIPO_COBRO_CHOICES, verbose_name="Tipo de Cobro", null=True, blank=True)
+    desc_factoring = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Descuento Factoring (%)", null=True, blank=True)
+    extracto_banco = models.ForeignKey(BankStatements, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Extracto Bancario")
+    factura_pagado = models.BooleanField(default=False, verbose_name="Factura Pagada")
+
+    def save(self, *args, **kwargs):
+        if self.desc_factoring and self.monto_neto_cobrar:
+            descuento = (self.desc_factoring / 100) * self.monto_neto_cobrar
+            self.monto_neto_cobrar -= descuento
+
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.serie_correlativo} - {self.cliente}"

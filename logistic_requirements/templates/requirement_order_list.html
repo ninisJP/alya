@@ -138,6 +138,10 @@
                     </td>                   
                     <td>
                         <div class="btn-group" role="group">
+                            <a href="{% url 'export_order_to_excel' order.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-file-excel"></i> Exportar Excel
+                            </a>
+
                             <button hx-get="{% url 'requirement_order_detail_partial' order.id %}"
                                     hx-target="#order-details-{{ order.id }}"
                                     hx-swap="outerHTML"

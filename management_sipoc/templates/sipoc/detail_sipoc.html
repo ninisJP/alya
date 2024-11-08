@@ -1,0 +1,72 @@
+<!-- sipoc/templates/sipoc/detail_sipoc.html -->
+
+{% extends "base_management.html" %}
+
+{% block title %}Detalles de SIPOC{% endblock %}
+
+{% block content %}
+<h2 class="text-center text-dark mb-3 fw-bold" style="border-bottom: 2px solid #333; padding-bottom: 10px;">
+    SIPOC: {{ sipoc.name }}
+</h2>
+
+<!-- Formulario para agregar una nueva fila al SIPOC -->
+<div id="rowFormContainer" class="mb-5">
+    {% include 'sipoc/add_row_form.html' %}
+</div>
+
+<!-- Tabla de filas del SIPOC -->
+<div class="table-responsive">
+    <table class="table table-hover text-center align-middle w-100" id="rowsTable">
+        <thead class="table-dark text-white fs-2" style="border-bottom: 4px solid #000;">
+            <tr>
+                <th title="Proveedores">
+                    <a href="{% url 'supplier_list' sipoc.id %}" class="text-white">S</a>
+                </th>
+                <th title="Entradas">
+                    <a href="{% url 'input_list' sipoc.id %}" class="text-white">I</a>
+                </th>
+                <th title="Procesos">
+                    <a href="{% url 'process_list' sipoc.id %}" class="text-white">P</a>
+                </th>
+                <th title="Salidas">
+                    <a href="{% url 'output_list' sipoc.id %}" class="text-white">O</a>
+                </th>
+                <th title="Clientes">
+                    <a href="{% url 'customer_list' sipoc.id %}" class="text-white">C</a>
+                </th>
+                <th>ACT</th>
+            </tr>
+        </thead>
+        <tbody id="rowsTableBody">
+            {% for row in rows %}
+                {% include 'sipoc/_row.html' %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Inicializar Select2
+    function initializeSelect2() {
+        $('.select2-multiple').select2({
+            width: '100%',
+            placeholder: 'Seleccione opciones',
+            allowClear: true
+        });
+    }
+
+    // Inicializar al cargar la página
+    $(document).ready(function() {
+        initializeSelect2();
+    });
+
+    // Re-inicializar después de un swap de HTMX
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        if (evt.detail.target.id === 'addRowForm' || evt.detail.target.id === 'rowsTableBody') {
+            initializeSelect2();
+        }
+    });
+</script>
+{% endblock %}
