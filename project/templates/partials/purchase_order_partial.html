@@ -1,0 +1,25 @@
+<h4>Órdenes de Compra</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Descripción</th>
+            <th>Fecha Solicitada</th>
+            <th>Total Orden de Compra</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for purchase_order in purchase_orders %}
+        <tr>
+            <td>{{ purchase_order.id }}</td>
+            <td>{{ purchase_order.description }}</td>
+            <td>{{ purchase_order.requested_date }}</td>
+            <td>{{ purchase_order.total_purchase_order|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No hay órdenes de compra asociadas.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

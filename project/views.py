@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ProjectForm
 from .models import Project
-from accounting_order_sales.models import PurchaseOrderItem
+from accounting_order_sales.models import PurchaseOrderItem, SalesOrder, PurchaseOrder
 from django.views.generic import ListView
-from accounting_order_sales.models import SalesOrder
 from django.db.models import Prefetch
 
 
@@ -54,14 +53,45 @@ def sales_order_detail(request, order_id):
     # Obtener la orden de venta específica y sus ítems
     sales_order = get_object_or_404(SalesOrder, id=order_id)
     items = sales_order.items.all()  # Relación de `SalesOrderItem` con `SalesOrder`
-
+    #
     # Pasar la orden y los ítems al contexto
     context = {
         'sales_order': sales_order,
         'items': items,
     }
-    return render(request, 'partials/sales_order_detail.html', context)
+    return render(request, 'projects/sales_order_detail.html', context)
 
+def sales_order_partial_view(request, order_id):
+    # Obtener la orden de venta específica
+    sales_order = get_object_or_404(SalesOrder, id=order_id)
+    items = sales_order.items.all()  # Relación de `SalesOrderItem` con `SalesOrder`
+    
+    # Pasar la orden y los ítems al contexto
+    context = {
+        'sales_order': sales_order,
+        'items': items,
+    }
+    return render(request, 'partials/sales_order_partial.html', context)
+
+def purchase_order_partial_view(request, order_id):
+    # Obtener la orden de venta y sus órdenes de compra relacionadas
+    sales_order = get_object_or_404(SalesOrder, id=order_id)
+    purchase_orders = sales_order.purchase_orders.all()  # Relación inversa de SalesOrder a PurchaseOrder
+    
+    context = {
+        'purchase_orders': purchase_orders,
+    }
+    return render(request, 'partials/purchase_order_partial.html', context)
+
+def requirement_order_partial_view(request, order_id):
+    # Obtener la orden de venta y sus órdenes de requerimiento relacionadas
+    sales_order = get_object_or_404(SalesOrder, id=order_id)
+    requirement_orders = sales_order.requirement_orders.all()  # Relación inversa de SalesOrder a RequirementOrder
+    
+    context = {
+        'requirement_orders': requirement_orders,
+    }
+    return render(request, 'partials/requirement_order_partial.html', context)
 
 class ProjectSalesOrderListView(ListView):
     model = Project

@@ -1,0 +1,140 @@
+{% extends "project_base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles de la Orden de Venta</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://unpkg.com/htmx.org@1.5.0"></script> <!-- Incluye HTMX -->
+</head>
+<body>
+    <div class="container-fluid">
+        <article class="list-group-item mb-3" style="border: 1px solid #d1d5db; border-radius: 15px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); padding: 20px; background: linear-gradient(135deg, #ffffff, #f2f5f8);">
+            <header class="row mb-4 align-items-center">
+                <div class="col-lg-3">
+                    <label><strong>Código SAP:</strong></label>
+                    <div>{{ sales_order.sapcode }}</div>
+                </div>
+                <div class="col-lg-3">
+                    <label><strong>Detalle:</strong></label>
+                    <div>{{ sales_order.detail }}</div>
+                </div>
+                <div class="col-lg-3">
+                    <label><strong>Fecha de la Orden:</strong></label>
+                    <div>{{ sales_order.date }}</div>
+                </div>
+                <div class="col-lg-3">
+                    <label><strong>Total Orden de Venta:</strong></label>
+                    <div>{{ sales_order.total_sales_order|floatformat:2 }}</div>
+                </div>
+            </header>
+
+            <!-- Botón para alternar entre mostrar y ocultar el Partial de Orden de Venta -->
+            <div class="mt-3">
+                <button id="toggle-sales-order-btn"
+                        hx-get="{% url 'sales_order_partial' order_id=sales_order.id %}"
+                        hx-target="#sales-order-partial-container"
+                        hx-swap="innerHTML"
+                        onclick="toggleSalesOrder()"
+                        class="btn btn-info">
+                    Mostrar Orden de Venta
+                </button>
+            </div>
+
+            <!-- Contenedor donde se cargará el partial de la Orden de Venta -->
+            <div id="sales-order-partial-container" class="mt-4" style="display: none;">
+                <!-- Aquí se cargará el contenido del partial 'sales_order_partial.html' -->
+            </div>
+
+            <!-- Botón para alternar entre mostrar y ocultar el Partial de Órdenes de Compra -->
+            <div class="mt-3">
+                <button id="toggle-purchase-order-btn"
+                        hx-get="{% url 'purchase_order_partial' order_id=sales_order.id %}"
+                        hx-target="#purchase-order-partial-container"
+                        hx-swap="innerHTML"
+                        onclick="togglePurchaseOrder()"
+                        class="btn btn-secondary">
+                    Mostrar Órdenes de Compra
+                </button>
+            </div>
+
+            <!-- Contenedor donde se cargará el partial de Órdenes de Compra -->
+            <div id="purchase-order-partial-container" class="mt-4" style="display: none;">
+                <!-- Aquí se cargará el contenido del partial 'purchase_order_partial.html' -->
+            </div>
+
+            <!-- Botón para alternar entre mostrar y ocultar el Partial de Órdenes de Requerimiento -->
+            <div class="mt-3">
+                <button id="toggle-requirement-order-btn"
+                        hx-get="{% url 'requirement_order_partial' order_id=sales_order.id %}"
+                        hx-target="#requirement-order-partial-container"
+                        hx-swap="innerHTML"
+                        onclick="toggleRequirementOrder()"
+                        class="btn btn-warning">
+                    Mostrar Órdenes de Requerimiento
+                </button>
+            </div>
+
+            <!-- Contenedor donde se cargará el partial de Órdenes de Requerimiento -->
+            <div id="requirement-order-partial-container" class="mt-4" style="display: none;">
+                <!-- Aquí se cargará el contenido del partial 'requirement_order_partial.html' -->
+            </div>
+
+            <!-- Botón de regreso -->
+            <div class="mt-4">
+                <a href="{% url 'project_index' %}" class="btn btn-primary">Volver</a>
+            </div>
+        </article>
+    </div>
+
+    <script>
+        function toggleSalesOrder() {
+            const button = document.getElementById('toggle-sales-order-btn');
+            const container = document.getElementById('sales-order-partial-container');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                button.textContent = 'Ocultar Orden de Venta';
+            } else {
+                container.style.display = 'none';
+                button.textContent = 'Mostrar Orden de Venta';
+                container.innerHTML = '';
+            }
+        }
+
+        function togglePurchaseOrder() {
+            const button = document.getElementById('toggle-purchase-order-btn');
+            const container = document.getElementById('purchase-order-partial-container');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                button.textContent = 'Ocultar Órdenes de Compra';
+            } else {
+                container.style.display = 'none';
+                button.textContent = 'Mostrar Órdenes de Compra';
+                container.innerHTML = '';
+            }
+        }
+
+        function toggleRequirementOrder() {
+            const button = document.getElementById('toggle-requirement-order-btn');
+            const container = document.getElementById('requirement-order-partial-container');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                button.textContent = 'Ocultar Órdenes de Requerimiento';
+            } else {
+                container.style.display = 'none';
+                button.textContent = 'Mostrar Órdenes de Requerimiento';
+                container.innerHTML = '';
+            }
+        }
+    </script>
+</body>
+</html>
+{% endblock content %}
