@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'logistic_suppliers',
     'project',
     'requests',
-    'budget_commercial'
+    'budget_commercial',
+    'management_sipoc',
 ]
 
 
