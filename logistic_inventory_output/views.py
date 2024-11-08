@@ -9,7 +9,6 @@ from .forms import InventoryOutputForm, SearchSalesOrderForm, SearchSalesOrderIt
 from .models import InventoryOutput, InventoryOutputItem
 from .utils import check_items, search_salesorder, search_saleorder_item, get_all_items, get_all_outputs
 
-# Create your views here.
 
 def output_index(request):
     outputs = get_all_outputs()

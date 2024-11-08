@@ -21,7 +21,6 @@ def get_all_purchase():
 				list_temp_purchase.append(item.purchaseorder.pk)
 
 	list_temp_purchase = set(list_temp_purchase)
-	print(list_temp_purchase)
 	list_purchase = PurchaseOrder.objects.filter(pk__in=list_temp_purchase)
 
 	return list_purchase
