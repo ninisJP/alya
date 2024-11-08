@@ -1,6 +1,5 @@
 from django import forms
 from django.conf import settings
-from django.urls import reverse_lazy
 
 from dynamic_forms import DynamicField, DynamicFormMixin
 
@@ -12,23 +11,6 @@ import segno
 
 from .models import Brand, Type, Subtype, Item
 
-class Select2AjaxWidget(forms.Select):
-    class Media:
-        css = {
-            'all': ('https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css',)
-        }
-        js = (
-            'https://code.jquery.com/jquery-3.6.0.min.js',
-            'https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js',
-        )
-
-    def build_attrs(self, base_attrs, extra_attrs=None):
-        attrs = super().build_attrs(base_attrs, extra_attrs)
-        attrs['class'] = (attrs.get('class', '') + ' select2-ajax').strip()
-        attrs['data-placeholder'] = 'Seleccione un codigo SAP'
-        attrs['data-ajax--url'] = reverse_lazy('logistic_inventory_item_new_ajax')
-        attrs['style'] = 'width: 100%;'
-        return attrs
 
 class BrandForm(forms.ModelForm):
     class Meta:
@@ -119,9 +101,6 @@ class ItemForm(DynamicFormMixin, forms.ModelForm):
             'quantity': 'Cantidad',
             'unit': 'Unidad de medida',
             'subtype': 'Sub-tipo',
-        }
-        widgets = {
-            'item': Select2AjaxWidget(),
         }
 
 class SearchItemForm(forms.Form):

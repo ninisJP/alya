@@ -169,29 +169,3 @@ def item_download_all_qr(request):
     tarred.add(name)
     tarred.close()
     return response
-
-def item_new_ajax(request):
-    if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        term = request.GET.get('term', '')
-        items = CatalogItem.objects.filter(sap__icontains=term).order_by('sap')
-
-        paginator = Paginator(items, 10) # Only show 10 items
-        page_number = request.GET.get('page', 1)
-        page_obj = paginator.get_page(page_number)
-
-        results = []
-        for item in page_obj:
-            results.append({
-                'id': item.id,
-                'text': f'{item.sap} - {item.description}',
-            })
-
-        return JsonResponse({
-            'results': results,
-            'pagination': {
-                'more': page_obj.has_next()  # Indica si hay más resultados
-            }
-        })
-    else:
-        return JsonResponse({'results': []})
-
