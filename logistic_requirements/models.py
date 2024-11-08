@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from logistic_suppliers.models import Suppliers
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
+from decimal import Decimal
 
 class RequirementOrder(models.Model):
     STATE_CHOICES = [
@@ -62,7 +63,7 @@ class RequirementOrderItem(models.Model):
     requirement_order = models.ForeignKey(RequirementOrder, on_delete=models.CASCADE, related_name="items")
     sales_order_item = models.ForeignKey(SalesOrderItem, on_delete=models.CASCADE)
     sap_code = models.CharField(max_length=50, default="")
-    quantity_requested = models.PositiveIntegerField(default=1)
+    quantity_requested = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(1))
     notes = models.CharField(max_length=255, blank=True, null=True)
     supplier = models.ForeignKey(Suppliers, on_delete=models.SET_NULL, blank=True, null=True)
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES, default='P')
