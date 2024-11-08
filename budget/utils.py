@@ -8,8 +8,6 @@ import pandas as pd
 from decimal import Decimal
 from .models import CatalogItem
 
-
-
 def export_budget_report_to_excel(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
 
@@ -262,7 +260,6 @@ def determine_category(sap_code):
         return CatalogItem.Category.EQUIPO
     else:
         return CatalogItem.Category.EQUIPO  # Asignar una categoría por defecto si no coincide
-
 def process_sap_excel(excel_file, budget):
     # Procesar el archivo Excel
     xls = pd.ExcelFile(excel_file)
@@ -330,13 +327,19 @@ def process_sap_excel(excel_file, budget):
                 category=category
             )
 
-        # Crear un nuevo BudgetItem con los datos procesados
-        BudgetItem.objects.create(
-            budget=budget,  # Pasar la instancia de Budget directamente
+        # Actualizar o crear un nuevo BudgetItem
+        budget_item, created = BudgetItem.objects.update_or_create(
+            budget=budget,
             item=catalog_item,
-            quantity=quantity,
-            custom_price=custom_price,
-            unit=unit,
-            total_price=total_price  # Usar el total proporcionado por el archivo Excel
+            defaults={
+                'quantity': quantity,
+                'custom_price': custom_price,
+                'unit': unit,
+                'total_price': total_price
+            }
         )
+        if created:
+            print(f"Se ha creado un nuevo BudgetItem para el SAP {sap_code}.")
+        else:
+            print(f"Se ha actualizado el BudgetItem existente para el SAP {sap_code}.")
 

@@ -15,8 +15,21 @@ from django.core.paginator import Paginator
 import pandas as pd
 from decimal import Decimal
 from .models import CatalogItem
-
-
+from django.shortcuts import render, redirect
+from django.core.files.storage import FileSystemStorage
+from .forms import BudgetUploadForm
+from .utils import process_budget_excel
+from .utils import process_sap_excel  # Importa la función para procesar el nuevo Excel
+import pandas as pd
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import ExcelUploadForm
+from .models import CatalogItem
+import re  # Biblioteca para manejar expresiones regulares
+from django.db import transaction
+from decimal import Decimal
+from .forms import AddBudgetItemForm
+from collections import defaultdict
 
 def index_budget(request):
     budgets = Budget.objects.all()  # Recupera todos los presupuestos
@@ -77,9 +90,6 @@ def create_budget(request):
         'form': form,
         'formset': formset,
     })
-
-from .forms import AddBudgetItemForm
-from collections import defaultdict
 
 def detail_budget(request, pk):
     # Obtener el presupuesto por su primary key (pk)
@@ -151,8 +161,6 @@ def delete_budget_item_htmx(request, item_id):
         'items_by_category': dict(items_by_category),
         'budget': budget,
     })
-    
-from decimal import Decimal
 
 def edit_budget_item_htmx(request, item_id):
     item = get_object_or_404(BudgetItem, id=item_id)
@@ -186,13 +194,6 @@ def edit_budget_item_htmx(request, item_id):
     # Devolver el formulario para edición
     return render(request, 'budget/edit_item_form.html', {'form': form, 'item': item})
 
-
-
-from django.shortcuts import render, redirect
-from django.core.files.storage import FileSystemStorage
-from .forms import BudgetUploadForm
-from .utils import process_budget_excel
-
 def upload_budget_excel(request, budget_id):
     if request.method == 'POST' and request.FILES['excel_file']:
         excel_file = request.FILES['excel_file']
@@ -210,8 +211,6 @@ def upload_budget_excel(request, budget_id):
     return render(request, 'budget/upload_excel.html', {
         'budget_id': budget_id
     })
-
-from .utils import process_sap_excel  # Importa la función para procesar el nuevo Excel
 
 def upload_sap_excel(request, budget_id):
     budget = get_object_or_404(Budget, id=budget_id)
@@ -235,8 +234,6 @@ def upload_sap_excel(request, budget_id):
     print("No se recibió un archivo Excel o no es un POST")
     return redirect('detail_budget', pk=budget_id)
 
-
-
 def delete_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
 
@@ -246,7 +243,6 @@ def delete_budget(request, pk):
         return redirect('index_budget')  # Redirigir a la lista de presupuestos
 
     return render(request, 'budget/delete_budget.html', {'budget': budget})
-
 
 def duplicate_budget(request, pk):
     # Obtener el presupuesto original utilizando el 'pk'
@@ -268,8 +264,6 @@ def duplicate_budget(request, pk):
     # Redirigir a la vista de detalle del nuevo presupuesto
     return redirect('detail_budget', pk=duplicated_budget.pk)
 
-from decimal import Decimal
-
 def create_sales_order_from_budget(request, budget_id):
     # Obtener el presupuesto seleccionado
     budget = get_object_or_404(Budget, id=budget_id)
@@ -278,37 +272,64 @@ def create_sales_order_from_budget(request, budget_id):
     existing_sales_order = SalesOrder.objects.filter(sapcode=budget.budget_number).first()
     
     if existing_sales_order:
-        # Si ya existe una orden de venta, aplicamos el 18% de IGV a los items
-        for item in existing_sales_order.items.all():
-            item.price_total = item.price_total * Decimal(1.18)  # Aplicar el IGV del 18%
-            item.save()  # Guardar el cambio en cada item
-        messages.success(request, f"El IGV fue agregado a la orden de venta existente con sapcode {existing_sales_order.sapcode}.")
+        # Si ya existe una orden de venta, actualizamos o agregamos ítems
+        for budget_item in budget.items.all():
+            # Calcular precios con IGV
+            price_with_igv = budget_item.custom_price * Decimal(1.18) if budget_item.custom_price else budget_item.item.price * Decimal(1.18)
+            total_price_with_igv = budget_item.total_price * Decimal(1.18)
+
+            # Buscar si el item ya existe en la orden de venta
+            sales_order_item = existing_sales_order.items.filter(sap_code=budget_item.item.sap).first()
+
+            if sales_order_item:
+                # Actualizar los ítems existentes con los nuevos precios
+                sales_order_item.amount = budget_item.quantity
+                sales_order_item.price = price_with_igv
+                sales_order_item.price_total = total_price_with_igv
+                sales_order_item.unit_of_measurement = budget_item.unit or budget_item.item.unit
+                sales_order_item.save()
+                print(f"Ítem con SAP {budget_item.item.sap} actualizado en la orden de venta.")
+            else:
+                # Crear un nuevo ítem en la orden de venta si no existe
+                SalesOrderItem.objects.create(
+                    salesorder=existing_sales_order,
+                    sap_code=budget_item.item.sap,
+                    description=budget_item.item.description,
+                    amount=budget_item.quantity,
+                    price=price_with_igv,
+                    price_total=total_price_with_igv,
+                    unit_of_measurement=budget_item.unit or budget_item.item.unit,
+                )
+                print(f"Ítem con SAP {budget_item.item.sap} agregado a la orden de venta.")
+
+        # Confirmación de actualización
+        messages.success(request, f"Los precios y los ítems de la orden de venta existente con sapcode {existing_sales_order.sapcode} fueron regularizados con IGV.")
     else:
         # Crear una nueva orden de venta si no existe una con ese sapcode
         sales_order = SalesOrder.objects.create(
-            sapcode=budget.budget_number,  # Usar el budget_number como sapcode
-            project=None,  # Proyecto nulo inicialmente
+            sapcode=budget.budget_number,
+            project=None,
             detail=f"Orden basada en el presupuesto {budget.budget_name}",
             date=budget.budget_date,
         )
         
-        # Crear los items de la orden de venta
+        # Crear los ítems de la orden de venta
         for budget_item in budget.items.all():
-            price_total_with_igv = budget_item.total_price * Decimal(1.18)  # Precio total con IGV del 18%
-            
+            price_with_igv = budget_item.custom_price * Decimal(1.18) if budget_item.custom_price else budget_item.item.price * Decimal(1.18)
+            total_price_with_igv = budget_item.total_price * Decimal(1.18)
+
             SalesOrderItem.objects.create(
                 salesorder=sales_order,
                 sap_code=budget_item.item.sap,
                 description=budget_item.item.description,
                 amount=budget_item.quantity,
-                price=budget_item.item.price,  # Precio unitario sin IGV
-                price_total=price_total_with_igv,  # Precio total con IGV
-                unit_of_measurement=budget_item.item.unit,
+                price=price_with_igv,
+                price_total=total_price_with_igv,
+                unit_of_measurement=budget_item.unit or budget_item.item.unit,
             )
         
         messages.success(request, f"La orden de venta {sales_order.sapcode} fue creada exitosamente con IGV incluido.")
-    
-    # Redirigir a la vista principal de presupuestos
+        
     return redirect('index_budget')
 
 def export_budget_report(request, pk):
@@ -395,15 +416,6 @@ def catalog_search(request):
             context['search_status'] = status
     context['search'] = SearchCatalogItemForm()
     return render(request, 'catalog/list.html', context)
-
-import pandas as pd
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import ExcelUploadForm
-from .models import CatalogItem
-import re  # Biblioteca para manejar expresiones regulares
-
-from django.db import transaction
 
 def upload_excel(request):
     if request.method == "POST":

@@ -1,0 +1,28 @@
+<h4>Órdenes de Requerimiento</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Número de Orden</th>
+            <th>Fecha Solicitada</th>
+            <th>Estado</th>
+            <th>Total Orden</th>
+            <th>Notas</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for requirement_order in requirement_orders %}
+        <tr>
+            <td>{{ requirement_order.order_number }}</td>
+            <td>{{ requirement_order.requested_date }}</td>
+            <td>{{ requirement_order.state }}</td>
+            <td>{{ requirement_order.total_order|floatformat:2 }}</td>
+            <td>{{ requirement_order.notes }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No hay órdenes de requerimiento asociadas.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+

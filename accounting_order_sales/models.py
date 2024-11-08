@@ -48,7 +48,7 @@ class SalesOrderItem(models.Model):
     salesorder = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="items")
     sap_code = models.CharField(max_length=255, default="")
     description = models.CharField(max_length=255, default="")
-    amount = models.IntegerField(null=True, default=0)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=Decimal(0))
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     unit_of_measurement = models.CharField(max_length=255, default="UND")
@@ -140,7 +140,7 @@ class PurchaseOrderItem(models.Model):
     sap_code = models.CharField(max_length=255, default="")
     class_pay = models.CharField(max_length=50, choices=CLASS_PAY_CHOICES, default='proveedores')  # Elegir entre clases
     type_pay = models.CharField(max_length=50, choices=TYPE_PAY_CHOICES, default='proveedores')  # Elegir entre tipos
-    quantity_requested = models.PositiveIntegerField(default=1)
+    quantity_requested = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(1))
     notes = models.CharField(max_length=255, blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
