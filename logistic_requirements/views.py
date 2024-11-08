@@ -232,11 +232,13 @@ def update_approved_items(request):
     # Si hubo errores, devolver un mensaje con los errores
     if errors:
         return JsonResponse({'message': 'Hubo errores al actualizar los ítems.', 'errors': errors}, status=400)
+    """_summary_
 
+    Returns:
+        _type_: _description_
+    """
     # Si todo fue bien, devolver solo un mensaje de éxito
     return JsonResponse({'message': 'Ítems actualizados con éxito'}, status=200)
-
-
 
 def requirement_order_detail_partial(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)

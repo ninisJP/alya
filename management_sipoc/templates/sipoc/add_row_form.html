@@ -1,0 +1,69 @@
+<!-- sipoc/templates/sipoc/add_row_form.html -->
+
+{% load widget_tweaks %}
+
+<form id="addRowForm" method="POST"
+      hx-post="{% url 'add_row' sipoc.id %}"
+      hx-trigger="submit"
+      hx-target="#rowsTableBody"
+      hx-swap="innerHTML"
+      hx-on="htmx:afterRequest: resetForm">
+    {% csrf_token %}
+    
+    <div class="row gy-3 text-center">
+        <div class="col-md-2">
+            <label class="form-label fw-bold text-primary">
+                <i class="bi bi-people-fill"></i> {{ form.suppliers.label }}
+            </label>
+            {{ form.suppliers|add_class:"form-control select2-multiple border-primary" }}
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-bold text-primary">
+                <i class="bi bi-box-arrow-in-right"></i> {{ form.inputs.label }}
+            </label>
+            {{ form.inputs|add_class:"form-control select2-multiple border-primary" }}
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-bold text-primary">
+                <i class="bi bi-gear-fill"></i> {{ form.processes.label }}
+            </label>
+            {{ form.processes|add_class:"form-control select2-multiple border-primary" }}
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-bold text-primary">
+                <i class="bi bi-box-arrow-up-right"></i> {{ form.outputs.label }}
+            </label>
+            {{ form.outputs|add_class:"form-control select2-multiple border-primary" }}
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-bold text-primary">
+                <i class="bi bi-people"></i> {{ form.customers.label }}
+            </label>
+            {{ form.customers|add_class:"form-control select2-multiple border-primary" }}
+        </div>
+        
+        <!-- Botones para Guardar Fila y Agregar Fila Vacía -->
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-success w-50 fw-bold me-2">
+                <i class="bi bi-check-circle"></i> Guardar Fila
+            </button>
+            <button type="button" class="btn btn-outline-secondary w-50 fw-bold"
+                    hx-get="{% url 'add_empty_row' sipoc.id %}" 
+                    hx-target="#rowsTableBody" 
+                    hx-swap="beforebegin">
+                <i class="bi bi-plus-circle"></i> <span class="fw-bold">Fila Vacía</span>
+            </button>
+        </div>
+    </div>
+</form>
+
+<script>
+    function resetForm(evt) {
+        if (evt.detail.successful) {
+            // Resetear el formulario
+            document.getElementById('addRowForm').reset();
+            // Re-inicializar Select2
+            initializeSelect2();
+        }
+    }
+</script>

@@ -110,10 +110,6 @@ def update_budget_partial(request, pk):
 
     # Si es GET o si el formulario no es válido, muestra el formulario
     return render(request, "partials/_budget_form.html", {"form": form, "budget": budget})
-
-
-
-
     
 def add_budget_item_htmx(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
@@ -156,20 +152,41 @@ def delete_budget_item_htmx(request, item_id):
         'budget': budget,
     })
     
+from decimal import Decimal
+
 def edit_budget_item_htmx(request, item_id):
     item = get_object_or_404(BudgetItem, id=item_id)
     
     print("Método HTTP:", request.method)  # Para depurar el método HTTP
     if request.method == 'POST':
         form = EditBudgetItemForm(request.POST, instance=item)
+        
         if form.is_valid():
+            # Actualizar valores de total_price en función de los datos actuales
+            quantity = form.cleaned_data.get('quantity')
+            custom_price = form.cleaned_data.get('custom_price') or item.item.price  # Usar precio del catálogo si está vacío
+            custom_price_per_day = form.cleaned_data.get('custom_price_per_day') or item.item.price_per_day
+            
+            # Realizar el cálculo de total_price según la categoría del ítem
+            if item.item.category in [CatalogItem.Category.HERRAMIENTA, CatalogItem.Category.MANODEOBRA, CatalogItem.Category.EPPS]:
+                item.total_price = Decimal(custom_price_per_day) * Decimal(quantity) * Decimal(item.budget.budget_days)
+            else:
+                item.total_price = Decimal(custom_price) * Decimal(quantity)
+            
+            # Guardar el formulario con el total_price actualizado
             form.save()
+            
+            # Renderizar el template actualizado con el item editado
             return render(request, 'budget/item_row.html', {'item': item})
+        else:
+            print(form.errors)  # Imprimir errores del formulario si los hay
     else:
         form = EditBudgetItemForm(instance=item)
 
     # Devolver el formulario para edición
     return render(request, 'budget/edit_item_form.html', {'form': form, 'item': item})
+
+
 
 from django.shortcuts import render, redirect
 from django.core.files.storage import FileSystemStorage

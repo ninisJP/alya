@@ -1,0 +1,66 @@
+<!-- sipoc/templates/sipoc/_row_edit_form.html -->
+
+{% load widget_tweaks %}
+
+<tr id="row-{{ row.id }}" class="editable-row">
+    <td colspan="6">
+        <form method="POST"
+              hx-post="{% url 'edit_row' row.id %}"
+              hx-target="#row-{{ row.id }}"
+              hx-swap="outerHTML">
+            {% csrf_token %}
+            <div class="row gy-2">
+                <div class="col-md-2">
+                    <label class="form-label text-primary fw-semibold">Proveedores</label>
+                    {{ form.suppliers|add_class:"form-control select2-multiple border-primary" }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-primary fw-semibold">Entradas</label>
+                    {{ form.inputs|add_class:"form-control select2-multiple border-primary" }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-primary fw-semibold">Procesos</label>
+                    {{ form.processes|add_class:"form-control select2-multiple border-primary" }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-primary fw-semibold">Salidas</label>
+                    {{ form.outputs|add_class:"form-control select2-multiple border-primary" }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-primary fw-semibold">Clientes</label>
+                    {{ form.customers|add_class:"form-control select2-multiple border-primary" }}
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success btn-sm fw-bold w-100 me-1">
+                        <i class="bi bi-check-circle"></i> Guardar
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm fw-bold w-100"
+                            hx-get="{% url 'cancel_edit_row' row.id %}"
+                            hx-target="#row-{{ row.id }}"
+                            hx-swap="outerHTML">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </td>
+</tr>
+<script>
+    function initializeSelect2() {
+        $('.select2-multiple').select2({
+            width: '100%',
+            placeholder: 'Seleccione opciones',
+            allowClear: true
+        });
+    }
+
+    // Inicializar al cargar la página
+    $(document).ready(function() {
+        initializeSelect2();
+    });
+
+    // Re-inicializar después de cada intercambio HTMX
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        initializeSelect2();
+    });
+</script>

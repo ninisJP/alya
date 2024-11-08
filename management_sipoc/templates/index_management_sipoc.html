@@ -1,0 +1,114 @@
+{% extends "base_management.html" %}
+
+{% block title %}SIPOCs{% endblock %}
+
+{% block content %}
+
+<!-- Mensajes de éxito o advertencia -->
+{% if messages %}
+    <div class="container mt-4">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-success{% endif %} text-center" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Botón para abrir el modal de creación de SIPOC -->
+<button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createSipocModal">
+    Crear Nuevo SIPOC
+</button>
+
+<!-- Modal de creación de SIPOC -->
+<div class="modal fade" id="createSipocModal" tabindex="-1" aria-labelledby="createSipocModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createSipocModalLabel">Crear Nuevo SIPOC</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'create_sipoc' %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-success">Crear SIPOC</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de SIPOCs -->
+{% if sipocs %}
+    <h2 class="text-center text-primary mb-4 fw-bold display-5">Listado de SIPOCs</h2>
+    <div class="table-responsive">
+        <table class="table table-hover text-center align-middle w-100" id="sipocTable">
+            <thead class="table-dark text-white">
+                <tr>
+                    <th class="rounded-start">SIPOC</th>
+                    <th>Creación</th>
+                    <th>Última Modificación</th>
+                    <th class="rounded-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sipoc in sipocs %}
+                    <tr>
+                        <td class="fw-semibold">{{ sipoc.name }}</td>
+                        <td>{{ sipoc.created_at|date:"d/m/Y" }}</td>
+                        <td>{{ sipoc.updated_at|date:"d/m/Y" }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'detail_sipoc' sipoc.id %}" class="btn btn-info btn-sm" title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="" class="btn btn-warning btn-sm" title="Duplicar">
+                                    <i class="fas fa-copy"></i>
+                                </a>
+                                <a href="" class="btn btn-danger btn-sm" title="Eliminar">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-warning text-center mt-5" role="alert">
+        No hay SIPOCs disponibles.
+    </div>
+{% endif %}
+
+<!-- DataTables CSS y JavaScript -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css"/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#sipocTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/2.1.8/i18n/es-MX.json"
+            },
+            "paging": true,
+            "searching": true,
+            "ordering": true,
+            "pageLength": 30,
+            "info": true,
+            "autoWidth": false,
+            "columnDefs": [
+                { "orderable": false, "targets": [3] }
+            ]
+        });
+
+        // Personalizar el campo de búsqueda para hacerlo más visible
+        $("#sipocTable_filter input").addClass("form-control form-control-lg text-center").attr("placeholder", "Buscar...").css({"border-radius": "20px", "width": "300px", "margin-left": "10px"});
+        $("#sipocTable_filter label").css({"font-weight": "bold", "color": "#0d6efd"});
+    });
+</script>
+
+{% endblock %}

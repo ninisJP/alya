@@ -120,9 +120,6 @@ class BudgetItem(models.Model):
             price = Decimal(self.custom_price)
             price_per_day = Decimal(self.custom_price_per_day)
 
-            # Debug: Mostrar los valores que se están utilizando
-            print(f"Usando precio personalizado: {price}, Precio por día personalizado: {price_per_day}")
-
             # Aplicar precio por día solo si la categoría es HERRAMIENTA, MANODEOBRA o EPPS
             if self.item.category in [CatalogItem.Category.HERRAMIENTA, CatalogItem.Category.MANODEOBRA, CatalogItem.Category.EPPS]:
                 self.total_price = price_per_day * Decimal(self.quantity) * Decimal(self.budget.budget_days)

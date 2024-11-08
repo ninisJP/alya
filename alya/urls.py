@@ -42,6 +42,8 @@ urlpatterns = [
     path('logistic/requirements/', include('logistic_requirements.urls')),
     path('logistic/suppliers/', include('logistic_suppliers.urls')),
     path('logistic/api/', include('logistic_api.urls')),
+    # MANAGMENTE
+    path('management/sipoc/', include('management_sipoc.urls')),   
 ]
 
 if settings.DEBUG:

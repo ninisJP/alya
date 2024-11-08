@@ -1,0 +1,38 @@
+<style>
+    /* Estilo de las tarjetas */
+    .input-card, .process-card, .output-card, .customer-card, .supplier-card {
+        min-width: 150px;
+        max-width: 200px;
+        background-color: #f8f9fa;
+        border: 2px solid #007bff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .input-card .fw-bold, 
+    .process-card .fw-bold, 
+    .output-card .fw-bold, 
+    .customer-card .fw-bold, 
+    .supplier-card .fw-bold {
+        color: #333;
+    }
+
+    /* Estilo de la flecha */
+    .arrow-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .arrow-container i {
+        color: #007bff;
+    }
+
+    /* Efecto de animación para la flecha */
+    .arrow-container i {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .arrow-container i:hover {
+        transform: scale(1.2);
+    }
+</style>
