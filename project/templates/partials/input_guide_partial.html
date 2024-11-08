@@ -1,0 +1,27 @@
+<h4>Guida de entrada</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>SAP</th>
+            <th>Descripción</th>
+            <th>Cantidad</th>
+            <th>Fecha de salida</th>
+            <th>Fecha de retorno</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in input_items %}
+        <tr>
+            <td>{{ item.item.item.sap }}</td>
+            <td>{{ item.item.item.description }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.date_create }}</td>
+            <td>{{ item.date_returned }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No hay Guias de salida asociadas.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

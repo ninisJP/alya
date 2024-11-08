@@ -2,6 +2,7 @@ from django.urls import path
 
 
 from .views import project_index, ProjectSalesOrderListView,sales_order_detail, sales_order_partial_view, purchase_order_partial_view, requirement_order_partial_view
+from . import views
 
 urlpatterns = [
     path('', project_index, name='project_index'),
@@ -10,8 +11,6 @@ urlpatterns = [
     path('sales-order-partial/<int:order_id>/', sales_order_partial_view, name='sales_order_partial'),
     path('purchase-order-partial/<int:order_id>/', purchase_order_partial_view, name='purchase_order_partial'),
     path('requirement-order-partial/<int:order_id>/', requirement_order_partial_view, name='requirement_order_partial'),
-
-
-
-
+    path('input-guide-partial/<int:order_id>/', views.input_guide_partial_view, name='project_detail_guide_input'),
+    path('output-guide-partial/<int:order_id>/', views.output_guide_partial_view, name='project_detail_guide_output'),
 ]

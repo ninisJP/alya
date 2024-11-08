@@ -4,6 +4,8 @@ from .models import Project
 from accounting_order_sales.models import PurchaseOrderItem, SalesOrder, PurchaseOrder
 from django.views.generic import ListView
 from django.db.models import Prefetch
+from logistic_inventory_output.models import InventoryOutputItem
+from logistic_requirements.models import RequirementOrderItem
 
 
 def project_index(request):
@@ -25,7 +27,7 @@ def project_index(request):
         filtered_sales_orders = project.salesorder_set.filter(
             purchase_orders__scheduled_date__isnull=False
         ).distinct()
-        
+
         # Calcular los totales del proyecto
         total_sales_sum = sum(order.total_sales_order for order in filtered_sales_orders)
         total_purchase_sum = sum(
@@ -65,7 +67,7 @@ def sales_order_partial_view(request, order_id):
     # Obtener la orden de venta específica
     sales_order = get_object_or_404(SalesOrder, id=order_id)
     items = sales_order.items.all()  # Relación de `SalesOrderItem` con `SalesOrder`
-    
+
     # Pasar la orden y los ítems al contexto
     context = {
         'sales_order': sales_order,
@@ -77,7 +79,7 @@ def purchase_order_partial_view(request, order_id):
     # Obtener la orden de venta y sus órdenes de compra relacionadas
     sales_order = get_object_or_404(SalesOrder, id=order_id)
     purchase_orders = sales_order.purchase_orders.all()  # Relación inversa de SalesOrder a PurchaseOrder
-    
+
     context = {
         'purchase_orders': purchase_orders,
     }
@@ -87,7 +89,7 @@ def requirement_order_partial_view(request, order_id):
     # Obtener la orden de venta y sus órdenes de requerimiento relacionadas
     sales_order = get_object_or_404(SalesOrder, id=order_id)
     requirement_orders = sales_order.requirement_orders.all()  # Relación inversa de SalesOrder a RequirementOrder
-    
+
     context = {
         'requirement_orders': requirement_orders,
     }
@@ -97,7 +99,7 @@ class ProjectSalesOrderListView(ListView):
     model = Project
     template_name = 'projects/project_sales_order_list.html'
     context_object_name = 'projects'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Accedemos a las órdenes de venta relacionadas para cada proyecto
@@ -111,3 +113,37 @@ class ProjectSalesOrderListView(ListView):
         return Project.objects.prefetch_related(
             Prefetch('salesorder_set', queryset=SalesOrder.objects.all())
         )
+
+def input_guide_partial_view(request, order_id):
+    # Obtener la orden de venta y sus órdenes de compra relacionadas
+    sales_order = get_object_or_404(SalesOrder, id=order_id)
+    items_sale_order = sales_order.items.all()
+    list_item_output = []
+    for item in items_sale_order :
+        item_requirement = RequirementOrderItem.objects.filter(sales_order_item=item)
+        if not item_requirement :
+            continue
+        item_output = InventoryOutputItem.objects.filter(item_requirement=item_requirement[0])
+        if item_output :
+            list_item_output.append(item_output[0])
+
+    context = {}
+
+    return render(request, 'partials/input_guide_partial.html', context)
+
+def output_guide_partial_view(request, order_id):
+    # Obtener la orden de venta y sus órdenes de compra relacionadas
+    sales_order = get_object_or_404(SalesOrder, id=order_id)
+    items_sale_order = sales_order.items.all()
+    list_item_output = []
+    for item in items_sale_order :
+        item_requirement = RequirementOrderItem.objects.filter(sales_order_item=item)
+        if not item_requirement :
+            continue
+        item_output = InventoryOutputItem.objects.filter(item_requirement=item_requirement[0])
+        if item_output :
+            list_item_output.append(item_output[0])
+
+    context = {}
+    context['output_items'] = list_item_output
+    return render(request, 'partials/output_guide_partial.html', context)
