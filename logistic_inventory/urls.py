@@ -15,6 +15,7 @@ htmxurlpatters = [
     path('item/', views.item, name='logistic_inventory_item'),
     path('item/new/', views.item_new, name='logistic_inventory_item_new'),
     path('item/search/', views.item_search, name='logistic_inventory_item_search'),
+    path('item/download/qr/all/', views.item_download_all_qr, name='logistic_inventory_item_download_all_qr'),
     # Subtype
     path('subtype/', views.subtype, name='logistic_inventory_subtype'),
     path('subtype/new/', views.subtype_new, name='logistic_inventory_subtype_new'),

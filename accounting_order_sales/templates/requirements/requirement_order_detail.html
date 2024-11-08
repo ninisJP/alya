@@ -148,3 +148,37 @@
 </style>
 
 {% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        initSelect2Supplier(); 
+
+        document.addEventListener("htmx:afterSwap", (event) => {
+            if (event.detail.target.id === "requirement-order-form" || event.detail.target.id === "order-response-message") {
+                initSelect2Supplier();
+            }
+        });
+    });
+
+    function initSelect2Supplier() {
+        $('.select2-supplier').select2({
+            ajax: {
+                url: function() { return $(this).data('ajax-url'); },
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return { term: params.term };
+                },
+                processResults: function(data) {
+                    return { results: data.results };
+                },
+                cache: true
+            },
+            placeholder: 'Seleccionar proveedor',
+            allowClear: true,
+            minimumInputLength: 3
+        });
+    }
+</script>
+{% endblock %}

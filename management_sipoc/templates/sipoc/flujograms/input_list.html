@@ -1,0 +1,24 @@
+{% extends "base_management.html" %}
+
+{% block title %}Entradas de {{ sipoc.name }}{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Flujograma de Entradas en {{ sipoc.name }}</h2>
+
+<div class="d-flex justify-content-center align-items-center flex-wrap mt-4">
+    {% for input in inputs %}
+        <!-- Tarjeta de cada entrada -->
+        <div class="input-card d-flex align-items-center mx-3 p-3 rounded shadow-sm bg-light text-center">
+            <div class="fw-bold fs-5">{{ input.content }}</div>
+        </div>
+
+        <!-- Flecha estilizada entre tarjetas -->
+        {% if not forloop.last %}
+            <div class="arrow-container mx-2">
+                <i class="fas fa-arrow-right fa-2x text-primary"></i>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% include 'sipoc/flujograms/flowchart_styles.html' %}
+{% endblock %}

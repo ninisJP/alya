@@ -15,13 +15,13 @@ def get_all_purchase():
 
 	list_temp_purchase = []
 	for item in purchase_items_all :
-		if item.scheduled_date <= today:
+		if item.purchaseorder.scheduled_date <= today:
 			item_exist = InventoryInputNewItem.objects.filter(purchase_item=item)
 			if not item_exist :
-				list_temp_purchase.append(item)
+				list_temp_purchase.append(item.purchaseorder.pk)
 
-	list_purchase = []
-	#for item in list_temp_purchase :
+	list_temp_purchase = set(list_temp_purchase)
+	list_purchase = PurchaseOrder.objects.filter(pk__in=list_temp_purchase)
 
 	return list_purchase
 
