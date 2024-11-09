@@ -16,15 +16,16 @@ class CommercialBudget(models.Model):
     budget_date = models.DateField()
     budget_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     budget_final_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-
+    
     def calculate_budget_price(self):
-        return sum(item.total_price for item in self.items.all())
+        result = sum(item.total_price for item in self.commercial_items.all())
+        print(result)
+        return result
 
     def calculate_final_price(self):
-        return self.budget_price  # Si no tienes descuentos adicionales, el precio final es el mismo.
+        return self.budget_price  
 
     def save(self, *args, **kwargs):
-        # Solo calcula el precio si la instancia ya tiene un ID asignado
         if self.pk:
             self.budget_price = self.calculate_budget_price()
             self.budget_final_price = self.calculate_final_price()
