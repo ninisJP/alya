@@ -8,6 +8,7 @@ crispy-bootstrap5==2024.2
 cryptography==43.0.3
 dj-database-url==2.2.0
 Django==5.1.1
+django-appconf==1.0.6
 django-browser-reload==1.15.0
 django-crispy-forms==2.3
 django-forms-dynamic==1.0.0
@@ -32,6 +33,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2
 segno==1.6.1
+segno-pil==1.0.0
 setuptools==75.1.0
 six==1.16.0
 sqlparse==0.5.1

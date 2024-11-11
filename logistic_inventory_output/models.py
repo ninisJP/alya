@@ -19,7 +19,7 @@ class InventoryOutput(models.Model):
 
 class InventoryOutputItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    item_requirement = models.ForeignKey(RequirementOrderItem, on_delete=models.CASCADE)
+    item_requirement = models.ForeignKey(RequirementOrderItem, on_delete=models.CASCADE, related_name="input")
     output = models.ForeignKey(InventoryOutput, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
     date_create = models.DateTimeField(auto_now_add=True)

@@ -19,7 +19,7 @@ def get_all_purchase():
 		if item_date == None :
 			item_date = today
 		if item_date <= today:
-			item_exist = InventoryInputNewItem.objects.filter(purchase_item=item)
+			item_exist = InventoryInputNewItem.objects.filter(pk=item.pk)
 			if not item_exist :
 				list_temp_purchase.append(item.purchaseorder.pk)
 
@@ -76,7 +76,8 @@ def new_item(purchase_item_pk, quantity):
 	# Create Input
 	input_item = InventoryInputNewItem(
 			purchase_item = purchase_item,
-			quantity = quantity
+			quantity = quantity,
+			item = inventory_item
 			)
 	input_item.save();
 

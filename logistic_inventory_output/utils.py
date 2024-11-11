@@ -116,7 +116,6 @@ def get_all_items(output_pk):
 	context['output'] = output
 	context['output_items'] = InventoryOutputItem.objects.filter(output=output.pk, returned=False)
 	context['requirements_items'] = item_missing
-	print(item_missing)
 	context['output_items_returned'] = items_returned
 
 	return context, item_missing

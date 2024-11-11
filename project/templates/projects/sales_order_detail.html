@@ -80,10 +80,56 @@
                 </button>
             </div>
 
-            <!-- Contenedor donde se cargará el partial de Órdenes de Requerimiento -->
+            <!-- Contenedor donde se cargará el partial de Órdenes de Compra -->
             <div id="requirement-order-partial-container" class="mt-4" style="display: none;">
-                <!-- Aquí se cargará el contenido del partial 'requirement_order_partial.html' -->
+                <!-- Aquí se cargará el contenido del partial 'purchase_order_partial.html' -->
             </div>
+
+            <!-- Input guide by Sale Order -->
+            <div class="mt-3">
+                <button id="toggle-saleorder-input-guide-btn"
+                        hx-get="{% url 'project_detail_guide_input_saleorder' order_id=sales_order.id %}"
+                        hx-target="#saleorder-input-guide-partial-container"
+                        hx-swap="innerHTML"
+                        onclick="toggleSaleorderInputGuide()"
+                        class="btn btn-warning">
+                    Mostrar Guia de Entrada (Generado por Ordenes de Compra)
+                </button>
+            </div>
+
+            <div id="saleorder-input-guide-partial-container" class="mt-4" style="display: none;">
+            </div>
+
+            <!-- Input guide -->
+            <div class="mt-3">
+                <button id="toggle-input-guide-btn"
+                        hx-get="{% url 'project_detail_guide_input' order_id=sales_order.id %}"
+                        hx-target="#input-guide-partial-container"
+                        hx-swap="innerHTML"
+                        onclick="toggleInputGuide()"
+                        class="btn btn-warning">
+                    Mostrar Guia de Entrada
+                </button>
+            </div>
+
+            <div id="input-guide-partial-container" class="mt-4" style="display: none;">
+            </div>
+
+            <!-- Output guide -->
+            <div class="mt-3">
+                <button id="toggle-output-guide-btn"
+                        hx-get="{% url 'project_detail_guide_output' order_id=sales_order.id %}"
+                        hx-target="#output-guide-partial-container"
+                        hx-swap="innerHTML"
+                        onclick="toggleOutputGuide()"
+                        class="btn btn-warning">
+                    Mostrar Guia de Salida
+                </button>
+            </div>
+
+            <div id="output-guide-partial-container" class="mt-4" style="display: none;">
+            </div>
+
 
             <!-- Botón de regreso -->
             <div class="mt-4">
@@ -96,7 +142,7 @@
         function toggleSalesOrder() {
             const button = document.getElementById('toggle-sales-order-btn');
             const container = document.getElementById('sales-order-partial-container');
-            
+
             if (container.style.display === 'none') {
                 container.style.display = 'block';
                 button.textContent = 'Ocultar Orden de Venta';
@@ -110,7 +156,7 @@
         function togglePurchaseOrder() {
             const button = document.getElementById('toggle-purchase-order-btn');
             const container = document.getElementById('purchase-order-partial-container');
-            
+
             if (container.style.display === 'none') {
                 container.style.display = 'block';
                 button.textContent = 'Ocultar Órdenes de Compra';
@@ -124,7 +170,7 @@
         function toggleRequirementOrder() {
             const button = document.getElementById('toggle-requirement-order-btn');
             const container = document.getElementById('requirement-order-partial-container');
-            
+
             if (container.style.display === 'none') {
                 container.style.display = 'block';
                 button.textContent = 'Ocultar Órdenes de Requerimiento';
@@ -134,6 +180,49 @@
                 container.innerHTML = '';
             }
         }
+
+        function toggleSaleorderInputGuide() {
+            const button = document.getElementById('toggle-saleorder-input-guide-btn');
+            const container = document.getElementById('saleorder-input-guide-partial-container');
+
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                button.textContent = 'Ocultar Guia de entrada (Generado por Ordenes de Compra)';
+            } else {
+                container.style.display = 'none';
+                button.textContent = 'Mostrar Guia de entrada (Generado por Ordenes de Compra)';
+                container.innerHTML = '';
+            }
+        }
+
+        function toggleInputGuide() {
+            const button = document.getElementById('toggle-input-guide-btn');
+            const container = document.getElementById('input-guide-partial-container');
+
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                button.textContent = 'Ocultar Guia de entrada';
+            } else {
+                container.style.display = 'none';
+                button.textContent = 'Mostrar Guia de entrada';
+                container.innerHTML = '';
+            }
+        }
+
+        function toggleOutputGuide() {
+            const button = document.getElementById('toggle-output-guide-btn');
+            const container = document.getElementById('output-guide-partial-container');
+
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                button.textContent = 'Ocultar Guia de salida';
+            } else {
+                container.style.display = 'none';
+                button.textContent = 'Mostrar Guia de salida';
+                container.innerHTML = '';
+            }
+        }
+
     </script>
 </body>
 </html>
