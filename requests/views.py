@@ -149,11 +149,24 @@ def create_prepopulated_request(request, order_id):
     for form, item in zip(formset.forms, sales_order_items):
         form.item_description = item.description
 
+    # Crear lista combinada para pasar a la plantilla
+    combined_data = [
+        {
+            'form': form,
+            'unit_of_measurement': item.unit_of_measurement,
+            'price': item.price,
+            'price_total': item.price_total,
+        }
+        for form, item in zip(formset.forms, sales_order_items)
+    ]
+
     return render(request, 'requests/create_prepopulated_request.html', {
         'order_form': order_form,
         'formset': formset,
         'sales_order': sales_order,
+        'combined_data': combined_data,  # Lista combinada para la plantilla
     })
+
 
 
 class MyRequestDetail(DetailView):

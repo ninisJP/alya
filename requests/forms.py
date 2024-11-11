@@ -30,7 +30,6 @@ class CreateRequirementOrderForm(forms.ModelForm):
         return notes
 
 # Formulario para la creación de RequirementOrderItem (sin estado)
-# Formulario para la creación de RequirementOrderItem (sin estado)
 class CreateRequirementOrderItemForm(forms.ModelForm):
     price = forms.DecimalField(
         max_digits=10,
@@ -85,13 +84,16 @@ CreateRequirementOrderItemFormSet = inlineformset_factory(
     can_delete=True  # Permitir eliminar ítems en la creación
 )
 
-
 class PrepopulatedRequirementOrderItemForm(forms.ModelForm):
     class Meta:
         model = RequirementOrderItem
-        fields = ['sales_order_item', 'quantity_requested']
+        fields = ['sales_order_item', 'quantity_requested', 'notes']  # Incluye 'notes' aquí
         widgets = {
             'sales_order_item': forms.HiddenInput(),
+            'notes': forms.TextInput(attrs={
+                'placeholder': 'Detalles adicionales (opcional)',
+                'class': 'form-control'
+            }),  # Personaliza el widget para 'notes'
         }
 
     def __init__(self, *args, **kwargs):
@@ -99,15 +101,16 @@ class PrepopulatedRequirementOrderItemForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.sales_order:
-            # Limit the queryset to items from the specific sales order
+            # Limita el queryset a ítems específicos de la orden de venta
             self.fields['sales_order_item'].queryset = SalesOrderItem.objects.filter(salesorder=self.sales_order)
 
     def clean(self):
         cleaned_data = super().clean()
         sales_order_item = cleaned_data.get('sales_order_item')
 
-        # Validate that the sales_order_item belongs to the sales_order
+        # Valida que el ítem de la orden de venta pertenezca a la orden correcta
         if sales_order_item and self.sales_order and sales_order_item.salesorder != self.sales_order:
             raise ValidationError("El ítem de orden de venta no es válido.")
 
         return cleaned_data
+

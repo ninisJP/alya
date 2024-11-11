@@ -39,9 +39,9 @@
     }
     body {
         overflow: hidden;
-        background: url("{% static 'firewatch.png' %}") no-repeat center center/cover;
-
-    }
+        background: linear-gradient(135deg, #ECEFF1, #B0BEC5, #78909C); /* Gradiente en tonos grises y azulados */
+        color: #2E3B4E; /* Texto en un tono azul oscuro para mejor legibilidad */
+    }  
     #wrapper {
         height: 100vh;
         display: flex;
@@ -160,7 +160,10 @@
                     <i class="fa-solid fa-user-tie"></i><span>Supervisores</span>
                 </a>
                 <a href="{% url 'technicians_month' mes=9 anio=2024 %}" class="list-group-item list-group-item-action">
-                    <i class="fa-solid fa-hard-hat"></i><span>Tecnicos</span>
+                    <i class="fa-solid fa-hard-hat"></i><span>Tarjeta Tecnicos</span>
+                </a>
+                <a href="{% url 'technician_calendar' %}" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-hard-hat"></i><span>Calendario Tecnicos</span>
                 </a>
             </div>
             <!-- Contenedor específico para el botón de logout -->

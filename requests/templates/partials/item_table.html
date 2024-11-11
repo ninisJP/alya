@@ -33,6 +33,8 @@
                     <span class="badge bg-warning">Pendiente</span>
                 {% elif item.estado == 'C' %}
                     <span class="badge bg-info">Comprando</span>
+                    {% elif item.estado == 'R' %}
+                    <span class="badge bg-danger">Rechazado</span>
                 {% endif %}
             </td>
             <td>
