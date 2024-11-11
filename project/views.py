@@ -1,11 +1,15 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ProjectForm
-from .models import Project
-from accounting_order_sales.models import PurchaseOrderItem, SalesOrder, PurchaseOrder
-from django.views.generic import ListView
 from django.db.models import Prefetch
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView
+
+from accounting_order_sales.models import PurchaseOrderItem, SalesOrder, PurchaseOrder
+from logistic_inventory_input.models import InventoryInput
+from logistic_inventory_inputnewitem.models import InventoryInputNewItem
 from logistic_inventory_output.models import InventoryOutputItem
 from logistic_requirements.models import RequirementOrderItem
+
+from .forms import ProjectForm
+from .models import Project
 
 
 def project_index(request):
@@ -118,18 +122,41 @@ def input_guide_partial_view(request, order_id):
     # Obtener la orden de venta y sus órdenes de compra relacionadas
     sales_order = get_object_or_404(SalesOrder, id=order_id)
     items_sale_order = sales_order.items.all()
-    list_item_output = []
+    list_item_input = []
     for item in items_sale_order :
+        # Get requirement
         item_requirement = RequirementOrderItem.objects.filter(sales_order_item=item)
         if not item_requirement :
             continue
+        # Get OutputItem
         item_output = InventoryOutputItem.objects.filter(item_requirement=item_requirement[0])
+        if not item_output :
+            continue
+        # Get InputItem
+        item_input = InventoryInput.objects.filter(output_item=item_output[0])
         if item_output :
-            list_item_output.append(item_output[0])
+            list_item_input.append(item_input[0])
 
     context = {}
-
+    context['input_items'] = list_item_input
     return render(request, 'partials/input_guide_partial.html', context)
+
+def saleorder_input_guide_partial_view(request, order_id):
+    # Obtener la orden de venta y sus órdenes de compra relacionadas
+    sales_order = get_object_or_404(SalesOrder, id=order_id)
+    items_sale_order = sales_order.items.all()
+
+    list_item_input = []
+    for item in items_sale_order :
+        item_purchase = PurchaseOrderItem.objects.filter(sales_order_item=item)
+        if not item_purchase :
+            continue
+        item_input = InventoryInputNewItem.objects.filter(purchase_item=item_purchase[0])
+        if item_input :
+            list_item_input.append(item_input[0])
+    context = {}
+    context['input_items'] = list_item_input
+    return render(request, 'partials/saleorder_input_guide_partial.html', context)
 
 def output_guide_partial_view(request, order_id):
     # Obtener la orden de venta y sus órdenes de compra relacionadas

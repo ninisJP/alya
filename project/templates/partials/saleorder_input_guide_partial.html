@@ -4,19 +4,17 @@
         <tr>
             <th>SAP</th>
             <th>Descripción</th>
-            <th>Orden de Requerimiento</th>
-            <th>Cantidad Retirada</th>
-            <th>Cantidad Devuelta</th>
-            <th>Fecha de retorno</th>
+            <th>ID de la Orden Compra</th>
+            <th>Cantidad</th>
+            <th>Fecha de ingreso</th>
         </tr>
     </thead>
     <tbody>
         {% for item in input_items %}
         <tr>
-            <td>{{ item.output_item.item.item.sap }}</td>
-            <td>{{ item.output_item.item.item.description }}</td>
-            <td>{{ item.output_item.item_requirement.requirement_order.order_number }}</td>
-            <td>{{ item.output_item.quantity }}</td>
+            <td>{{ item.item.item.sap }}</td>
+            <td>{{ item.item.item.description }}</td>
+            <td>{{ item.purchase_item.purchaseorder.id }}</td>
             <td>{{ item.quantity }}</td>
             <td>{{ item.date_create }}</td>
         </tr>

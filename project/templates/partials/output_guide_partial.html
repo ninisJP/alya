@@ -4,6 +4,7 @@
         <tr>
             <th>SAP</th>
             <th>Descripción</th>
+            <th>Orden de Requerimiento</th>
             <th>Cantidad</th>
             <th>Fecha de salida</th>
             <th>Fecha de retorno</th>
@@ -14,6 +15,7 @@
         <tr>
             <td>{{ item.item.item.sap }}</td>
             <td>{{ item.item.item.description }}</td>
+            <td>{{ item.item_requirement.requirement_order.order_number }}</td>
             <td>{{ item.quantity }}</td>
             <td>{{ item.date_create }}</td>
             <td>{{ item.date_returned }}</td>
