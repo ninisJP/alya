@@ -1,5 +1,5 @@
 from django.urls import path
-
+from . import views
 from .views import technician_task_state, TechniciansMonth, create_technician_card, view_technician_card, edit_technician_card, technician_task, create_technician_task, delete_technician_task, edit_technician_task, delete_technician_card
 
 urlpatterns = [
@@ -10,6 +10,8 @@ urlpatterns = [
     path('delete-technician-card/<int:card_id>/', delete_technician_card, name='delete_technician_card'),
     path('technician-tasks/', technician_task, name='technician_task'),
     path('technician-task-state/<int:pk>/', technician_task_state, name='technician-task-state'),
+    path('technician/calendar/', views.technician_calendar, name='technician_calendar'),
+
 ]
 
 htmxurlpatters = [
@@ -17,7 +19,7 @@ htmxurlpatters = [
     path('create-tasks/', create_technician_task, name='create-technician-tasks' ),
     path('delete-task/<int:task_id>/', delete_technician_task, name='delete-technician-task'),
     path('edit-task/<int:task_id>/', edit_technician_task, name='edit-technician-task'),  # Asegúrate de que el nombre sea correcto
-
+    
     
 ]
 

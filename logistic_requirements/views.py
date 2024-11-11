@@ -1,4 +1,6 @@
 from django.shortcuts import render, get_object_or_404
+
+from logistic_inventory.models import Item
 from .forms import RequirementOrderForm, RequirementOrderItemFormSet
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView
@@ -59,16 +61,30 @@ class RequirementOrderListView(ListView):
 
         return queryset
 
-
 def requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
-    # Filtrar solo los ítems en estado "Pendiente"
-    items = requirement_order.items.filter(estado='P')
+    filtrar = request.GET.get('filtrar')  # Se captura el parámetro sin valor por defecto
+
+    # Filtrar los ítems en estado 'P' si se requiere, o cargar todos los ítems
+    if filtrar == 'P':
+        items = requirement_order.items.filter(estado='P').select_related('sales_order_item')
+    else:
+        items = requirement_order.items.all().select_related('sales_order_item')
+
     suppliers = Suppliers.objects.all()
+    
+    # Crear un diccionario de inventario disponible, usando sap como clave
+    inventory_data = {item.item.sap: item.quantity for item in Item.objects.select_related('item').all()}
+    
+    # Agregar disponibilidad a cada item en el queryset
+    for item in items:
+        item.disponible_inventario = inventory_data.get(item.sap_code, 0)
+
     return render(request, 'requirement_order_detail.html', {
         'requirement_order': requirement_order,
         'items': items,
         'suppliers': suppliers,
+        'filtrar': filtrar,  # Pasar el estado de filtro actual al template
     })
 
 @require_POST

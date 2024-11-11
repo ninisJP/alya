@@ -156,44 +156,48 @@
                 });
             }
         }
-
-    // Agregar formularios al hacer clic en "Agregar Ítem"
-    $('#add-item').click(function(e) {
-        e.preventDefault();
-        
-        // Número de formularios a agregar (3 en este caso)
-        var numFormsToAdd = 3;
-        var formCount = parseInt($('#id_items-TOTAL_FORMS').val());
-        
-        for (var i = 0; i < numFormsToAdd; i++) {
-            var $emptyForm = $('#empty-form .form-row').clone();
-            $emptyForm.find(':input').each(function() {
+    
+        // Función para agregar un nuevo formulario al formset
+        $('#add-item').click(function(e) {
+            e.preventDefault();
+    
+            // Obtener el número actual de formularios y clonar el formulario vacío
+            var formCount = parseInt($('#id_commercial_items-TOTAL_FORMS').val());
+            var $newForm = $('#empty-form .form-row').clone();
+    
+            // Actualizar los nombres e IDs de cada campo en el nuevo formulario
+            $newForm.find(':input').each(function() {
                 var name = $(this).attr('name');
-                if (name) $(this).attr('name', name.replace('__prefix__', formCount));
                 var id = $(this).attr('id');
-                if (id) $(this).attr('id', id.replace('__prefix__', formCount));
+                
+                // Solo reemplazar si name o id no son undefined
+                if (name) {
+                    $(this).attr('name', name.replace('__prefix__', formCount));
+                }
+                if (id) {
+                    $(this).attr('id', id.replace('__prefix__', formCount));
+                }
             });
-
-            // Agregar el formulario clonado al formset
-            $('#item-formset').append($emptyForm);
-            initializeSelect2($emptyForm.find('.select2-ajax'));
-            
+    
+            // Agregar el formulario clonado al formset y reinicializar Select2
+            $('#item-formset').append($newForm);
+            initializeSelect2($newForm.find('.select2-ajax'));
+    
             // Incrementar el contador de formularios
-            formCount++;
-        }
-        
-        // Actualizar el valor de TOTAL_FORMS después de agregar los formularios
-        $('#id_items-TOTAL_FORMS').val(formCount);
-    });
-
+            $('#id_commercial_items-TOTAL_FORMS').val(formCount + 1);
+        });
+    
         // Eliminar formularios
         $(document).on('click', '.remove-form', function(e) {
             e.preventDefault();
             $(this).closest('.form-row').remove();
-            var totalForms = $('#id_items-TOTAL_FORMS');
+    
+            // Actualizar el valor de TOTAL_FORMS después de eliminar un formulario
+            var totalForms = $('#id_commercial_items-TOTAL_FORMS');
             totalForms.val(parseInt(totalForms.val()) - 1);
         });
     });
+    
 </script>
 
 {% endblock %}

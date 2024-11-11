@@ -1,120 +1,141 @@
 {% extends 'base_logistic.html' %}
 
-{% block extra_css %}
-<style>
-    .custom-card {
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .custom-thead-rounded {
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-    }
-    .alert-message {
-        margin-top: 20px;
-        border-radius: 10px;
-        padding: 0.75rem 1.25rem;
-        text-align: center;
-        font-weight: bold;
-    }
-    .alert-success {
-        color: #155724;
-        background-color: #d4edda;
-        border-color: #c3e6cb;
-    }
-    .alert-danger {
-        color: #721c24;
-        background-color: #f8d7da;
-        border-color: #f5c6cb;
-    }
-    /* Estilos adicionales para botones y tablas */
-    .btn-group-custom {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 20px;
-    }
-    .btn-group-custom button {
-        min-width: 180px;
-    }
-    .table-responsive {
-        overflow-x: auto;
-        margin-top: 20px;
-    }
-</style>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-{% endblock %}
-
 {% block content %}
-<div class="container-fluid mt-5">
-    <!-- Barra superior de acciones y fecha -->
-    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-dark text-white rounded">
-        <h4 class="mb-0">Detalles de la Orden de Requerimiento #{{ requirement_order.order_number }}</h4>
-        <div class="d-flex align-items-center gap-3">
-            <span class="badge bg-warning">Fecha Solicitada: {{ requirement_order.requested_date }}</span>
-            <span class="badge {% if requirement_order.estado == 'L' %}bg-success{% else %}bg-warning text-dark{% endif %}">
-                {% if requirement_order.estado == 'L' %}Listo{% else %}Pendiente{% endif %}
-            </span>
-            <a href="{% url 'requirement_order_list' %}" class="btn btn-primary">
-                <i class="fas fa-arrow-left"></i> Volver
-            </a>
+<div class="container-fluid">
+    <!-- Encabezado en una sola fila -->
+    <div class="card shadow-sm mb-4 rounded" style="background-color: #f8f9fa;">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8 d-flex flex-column">
+                    <h4 class="mb-2">Detalles de la Orden de Requerimiento #{{ requirement_order.order_number }}</h4>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-light text-dark border">Fecha Solicitada: {{ requirement_order.requested_date }}</span>
+                        <span class="badge {{ requirement_order.estado }}">
+                            {{ requirement_order.estado }}
+                        </span>
+                        
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Información General -->
-    <div class="custom-card mb-4 p-4">
-        <div class="row">
-            <div class="col-md-6 mb-3"><strong>Orden de Venta (Código SAP):</strong> {{ requirement_order.sales_order.sapcode }}</div>
-            <div class="col-md-6 mb-3"><strong>Total de la Orden:</strong> S/. {{ requirement_order.total_order }}</div>
-            <div class="col-md-6 mb-3"><strong>Cliente:</strong> {{ requirement_order.sales_order.project.client.legal_name }}</div>
-            <div class="col-md-6 mb-3"><strong>Pedido por:</strong> {{ requirement_order.user }}</div>
-            <div class="col-md-6 mb-3"><strong>Proyecto:</strong> {{ requirement_order.sales_order.project.name }}</div>
-            <div class="col-md-6 mb-3"><strong>Fecha Creada:</strong> {{ requirement_order.created_at }}</div>
-            <div class="col-md-12 mb-3"><strong>Detalles:</strong> {{ requirement_order.notes }}</div>
+    <!-- Información General en Tabla -->
+    <div class="card shadow-sm mb-4 rounded" style="background-color: #f8f9fa;">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm mb-0 w-100">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Orden de Venta</th>
+                            <th>Cliente</th>
+                            <th>Proyecto</th>
+                            <th>Total</th>
+                            <th>F. Creada</th>
+                            <th>Detalles</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ requirement_order.user }}</td>
+                            <td>{{ requirement_order.sales_order.sapcode }}</td>
+                            <td>{{ requirement_order.sales_order.project.client.legal_name }}</td>
+                            <td>{{ requirement_order.sales_order.project.name }}</td>
+                            <td>S/. {{ requirement_order.total_order }}</td>
+                            <td>{{ requirement_order.created_at }}</td>
+                            <td>{{ requirement_order.notes }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- Botones para cambiar el estado de todos los ítems -->
-    <div class="btn-group-custom">
-        <button type="button" class="btn btn-secondary" onclick="updateAllItemsState('L')">Marcar todos como Listo</button>
-        <button type="button" class="btn btn-warning" onclick="updateAllItemsState('P')">Marcar todos como Pendiente</button>
-        <button type="button" class="btn btn-primary" onclick="updateAllItemsState('C')">Marcar todos como Comprando</button>
+    <!-- Botones de Filtrado y Acción en una sola fila -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <!-- Botones de Filtrado -->
+        <div class="d-flex gap-2">
+            <a href="{% url 'requirement_order_detail' requirement_order.pk %}"
+               class="btn btn-outline-secondary {% if not filtrar %}active{% endif %}">Ver Todos</a>
+            <a href="{% url 'requirement_order_detail' requirement_order.pk %}?filtrar=P"
+               class="btn btn-outline-secondary {% if filtrar == 'P' %}active{% endif %}">Ver Pendientes</a>
+        </div>
+        <!-- Botones de Acción -->
+        <div class="d-flex gap-2">
+            <!-- Botones de Descarga -->
+            <button type="button" class="btn btn-outline-primary" onclick="downloadExcel()">
+                <i class="fas fa-file-excel"></i>
+            </button>
+            <button type="button" class="btn btn-outline-danger" onclick="downloadPDF()">
+                <i class="fas fa-file-pdf"></i>
+            </button>
+            <!-- Botones para cambiar el estado de todos los ítems -->
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-success" onclick="updateAllItemsState('L')">L</button>
+                <button type="button" class="btn btn-outline-primary" onclick="updateAllItemsState('C')">C</button>
+                <button type="button" class="btn btn-outline-warning" onclick="updateAllItemsState('P')">P</button>
+                <button type="button" class="btn btn-outline-danger" onclick="updateAllItemsState('R')">R</button>
+            </div>
+        </div>
     </div>
 
     <!-- Tabla de Ítems -->
-    <div class="table-responsive">
+    <div class="table-responsive w-100">
         <form hx-post="{% url 'update_requirement_order_items' requirement_order.pk %}"
               hx-target="#response-message"
               hx-swap="innerHTML"
               id="requirement-order-form">
-            <table class="table table-bordered table-hover text-center">
-                <thead class="table-dark custom-thead-rounded">
+            <table class="table table-bordered table-hover align-middle w-100">
+                <thead class="table-dark">
                     <tr>
-                        <th>SAP</th>
-                        <th>ITEM</th>
-                        <th>Detalle</th>
-                        <th>Cantidad Solicitada</th>
-                        <th>Precio Unitario</th>
-                        <th>Precio Total</th>
-                        <th>Proveedor</th>
-                        <th>Doc</th>
-                        <th>Estado</th>
+                        <th style="width: 80px;">SAP</th>
+                        <th style="width: 200px;">ITEM</th>
+                        <th style="width: 250px;">DETALLE</th>
+                        <th style="width: 80px;">CANT</th>  <!-- Espacio extra para CANT -->
+                        <th style="width: 80px;">UND</th>   <!-- Espacio extra para UND -->
+                        <th style="width: 80px;">INVENTARIO</th>
+                        {% if not filtrar == 'P' %}
+                            <th style="width: 100px;">P. UNIT</th>
+                            <th style="width: 100px;">P. TOTAL</th>
+                        {% endif %}
+                        <th style="width: 150px;">PROV</th>
+                        <th style="width: 60px;">DOC</th>
+                        <th style="width: 100px;">ESTADO</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in items %}
                     <tr id="item-row-{{ item.id }}">
                         <td>{{ item.sap_code }}</td>
-                        <td>{{ item.sales_order_item.description }}</td>
-                        <td><input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control"></td>
-                        <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="1"></td>
-                        <td><input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" min="0" step="0.01"></td>
-                        <td><input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" readonly></td>
+                        <td style="white-space: normal;">
+                            {{ item.sales_order_item.description }}
+                        </td>
                         <td>
-                            <select name="supplier_{{ item.id }}" class="form-select select2-supplier" data-ajax-url="{% url 'ajax_load_suppliers' %}" data-placeholder="Seleccionar proveedor">
+                            <input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control" style="min-height: 50px;">
+                        </td>
+                        <td>
+                            <input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" style="width: 80px;" min="0" step="1">
+                        </td>
+                        <td>
+                            <input type="text" name="unit_{{ item.id }}" value="{{ item.sales_order_item.unit_of_measurement }}" class="form-control text-center" style="width: 80px;">
+                        </td>
+                        <td>{{ item.disponible_inventario }}</td>
+                        {% if not filtrar == 'P' %}
+                            <td>
+                                <input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" style="width: 100px;" min="0" step="0.01">
+                            </td>
+                            <td>
+                                <input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" style="width: 100px;" readonly>
+                            </td>
+                        {% endif %}
+                        <td>
+                            <select name="supplier_{{ item.id }}" class="form-select select2-supplier" style="width: 100%;" data-ajax-url="{% url 'ajax_load_suppliers' %}" data-placeholder="Seleccionar proveedor">
                                 {% if item.supplier %}
                                     <option value="{{ item.supplier.id }}" selected>{{ item.supplier.name }}</option>
                                 {% endif %}
@@ -122,118 +143,44 @@
                         </td>
                         <td>
                             {% if item.file_attachment %}
-                                <a href="{{ item.file_attachment.url }}" target="_blank">Archivo</a>
+                                <a href="{{ item.file_attachment.url }}" target="_blank"><i class="fas fa-file-alt"></i></a>
                             {% else %}
-                                No disponible
+                                <i class="fas fa-times text-muted"></i>
                             {% endif %}
                         </td>
                         <td>
-                            <select name="estado_{{ item.id }}" class="form-select">
-                                <option value="L" {% if item.estado == 'L' %}selected{% endif %}>Listo</option>
-                                <option value="P" {% if item.estado == 'P' %}selected{% endif %}>Pendiente</option>
-                                <option value="C" {% if item.estado == 'C' %}selected{% endif %}>Comprando</option>
-                            </select>
+                            <div class="btn-group" role="group" aria-label="Estado">
+                                <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
+                                <button type="button" class="btn btn-sm {% if item.estado == 'L' %}btn-success{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'L')">L</button>
+                                <button type="button" class="btn btn-sm {% if item.estado == 'C' %}btn-primary{% else %}btn-outline-primary{% endif %}" onclick="setEstado('{{ item.id }}', 'C')">C</button>
+                                <button type="button" class="btn btn-sm {% if item.estado == 'P' %}btn-warning{% else %}btn-outline-warning{% endif %}" onclick="setEstado('{{ item.id }}', 'P')">P</button>
+                                <button type="button" class="btn btn-sm {% if item.estado == 'R' %}btn-danger{% else %}btn-outline-danger{% endif %}" onclick="setEstado('{{ item.id }}', 'R')">R</button>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
 
-            <!-- Botones de Acción -->
-            <div class="btn-group-custom">
-                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <!-- Botones al final ocupando todo el ancho -->
+            <div class="d-flex justify-content-between mt-4">
+                <button type="submit" class="btn btn-primary flex-grow-1 me-2">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
                 <button hx-post="{% url 'create_purchase_order' requirement_order.pk %}"
                         hx-target="#response-message"
                         hx-swap="innerHTML"
-                        class="btn btn-success">
-                    Crear Orden de Compra
+                        class="btn btn-success flex-grow-1 ms-2">
+                    <i class="fas fa-shopping-cart"></i> Crear Orden de Compra
                 </button>
-                <button type="button" class="btn btn-danger" onclick="downloadPDF()">Descargar PDF</button>
-                <button type="button" class="btn btn-info" onclick="downloadExcel()">Descargar Excel</button>
             </div>
+
             <div id="response-message" class="alert-message mt-2"></div>
         </form>
     </div>
 </div>
 
-<!-- Scripts para Select2, PDF, Excel, y cambio masivo de estado -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('.select2-supplier').each(function() {
-            $(this).select2({
-                ajax: {
-                    url: $(this).data('ajax-url'),
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return { term: params.term };
-                    },
-                    processResults: function(data) {
-                        return { results: data.results };
-                    },
-                    cache: true
-                },
-                placeholder: $(this).data('placeholder'),
-                allowClear: true,
-                minimumInputLength: 3
-            });
-        });
+<!-- Incluir el partial de scripts -->
+{% include 'partials/scripts_requirement_order.html' %}
 
-        $('input[name^="quantity_requested_"], input[name^="price_"]').on('input', function() {
-            var $row = $(this).closest('tr');
-            var quantity = parseFloat($row.find('input[name^="quantity_requested_"]').val()) || 0;
-            var price = parseFloat($row.find('input[name^="price_"]').val()) || 0;
-            var total = (quantity * price).toFixed(2);
-            $row.find('input[name^="total_price_"]').val(total);
-        });
-    });
-
-    function downloadPDF() {
-        const { jsPDF } = window.jspdf;
-        let doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.text('Detalles de la Orden de Requerimiento', 10, 10);
-        let rows = [];
-        $('#requirement-order-form tbody tr').each(function() {
-            let row = [];
-            $(this).find('td').each(function() {
-                row.push($(this).text().trim() || $(this).find('input').val() || $(this).find('select').find('option:selected').text());
-            });
-            rows.push(row);
-        });
-        doc.autoTable({
-            head: [['SAP', 'ITEM', 'Detalle', 'Cantidad', 'Precio Unitario', 'Precio Total', 'Proveedor', 'Estado']],
-            body: rows
-        });
-        doc.save('Orden_de_Requerimiento.pdf');
-    }
-
-    function downloadExcel() {
-        let workbook = XLSX.utils.book_new();
-        let worksheet_data = [['SAP', 'ITEM', 'Detalle', 'Cantidad Solicitada', 'Precio Unitario', 'Precio Total', 'Proveedor', 'Estado']];
-        $('#requirement-order-form tbody tr').each(function() {
-            let row = [];
-            row.push($(this).find('td:eq(0)').text().trim());
-            row.push($(this).find('td:eq(1)').text().trim());
-            row.push($(this).find('input[name^="notes_"]').val());
-            row.push($(this).find('input[name^="quantity_requested_"]').val());
-            row.push($(this).find('input[name^="price_"]').val());
-            row.push($(this).find('input[name^="total_price_"]').val());
-            row.push($(this).find('select[name^="supplier_"] option:selected').text());
-            row.push($(this).find('select[name^="estado_"] option:selected').text());
-            worksheet_data.push(row);
-        });
-        let worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Orden de Requerimiento');
-        XLSX.writeFile(workbook, 'Orden_de_Requerimiento.xlsx');
-    }
-
-    function updateAllItemsState(newState) {
-        $('select[name^="estado_"]').each(function() {
-            $(this).val(newState);
-        });
-    }
-</script>
 {% endblock %}

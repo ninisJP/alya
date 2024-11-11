@@ -3,12 +3,11 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404, render, redirect
 from datetime import date, timedelta
+from accounting_order_sales.models import SalesOrder
 from employee.models import Technician
 from .models import TechnicianCard, TechnicianTask
 from .forms import TechnicianCardForm, TechnicianCardTaskFormSet, TechnicianCardTask, TechnicianTaskForm
 from django.views.decorators.http import require_http_methods
-
-
 from django.utils.timezone import now
 
 class TechniciansMonth(TemplateView):
@@ -152,8 +151,6 @@ def technician_task_state(request, pk):
 
     return JsonResponse({"message": "Estado de la tarea actualizado correctamente."})
 
-
-
 #Technicians tasks HTMX
 def technician_task(request):
     technicians_tasks = TechnicianTask.objects.all()
@@ -187,10 +184,31 @@ def edit_technician_task(request, task_id):
             return render(request, 'technician_task/technician-task-list.html', {'tasks': technician_tasks})
     return HttpResponse(status=405)
 
-
 def delete_technician_task(request, task_id):
     task = get_object_or_404(TechnicianTask, id=task_id)  
     if request.method == 'DELETE':
         task.delete()
         return render(request, 'technician_task/technician-task-list.html')
     return HttpResponse(status=405)
+
+def technician_calendar(request):
+    sales_order_id = request.GET.get('sales_order')
+    sales_orders = SalesOrder.objects.all()  # Menú de selección de órdenes de venta
+
+    tasks_by_date = {}
+    if sales_order_id:
+        tasks = TechnicianCardTask.objects.filter(saler_order_id=sales_order_id)
+        print("Tasks found:", tasks)  # Verifica las tareas encontradas
+        for task in tasks:
+            task_date = task.technician_card.date
+            if task_date not in tasks_by_date:
+                tasks_by_date[task_date] = []
+            tasks_by_date[task_date].append(task)
+
+    print("Tasks by date:", tasks_by_date)  # Verifica el diccionario organizado por fecha
+
+    return render(request, 'technician_calendar/technician_calendar.html', {
+        'sales_orders': sales_orders,
+        'selected_sales_order': sales_order_id,
+        'tasks_by_date': tasks_by_date,
+    })

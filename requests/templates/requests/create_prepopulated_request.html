@@ -76,50 +76,65 @@
             </div>
 
             <!-- Items Table -->
-<div class="table-responsive">
-    <table class="table table-bordered table-hover table-striped table-sm">
-        <thead class="table-dark">
-            <tr>
-                <th>Item</th>
-                <th>Cantidad</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{ formset.management_form }}
-            {% for form in formset %}
-            <tr>
-                <!-- Item Description and Hidden Field -->
-                <td>
-                    {{ form.item_description }}
-                    {{ form.sales_order_item }}
-                </td>
-                <!-- Quantity Field -->
-                <td>
-                    {{ form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}
-                </td>
-            </tr>
-            <!-- Display Errors for This Form -->
-            {% if form.non_field_errors or form.quantity_requested.errors %}
-            <tr>
-                <td colspan="2" class="text-danger">
-                    {% if form.non_field_errors %}
-                        {% for error in form.non_field_errors %}
-                            <div>{{ error }}</div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped table-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Item</th>
+                            <th>Unidad de Medida</th>
+                            <th>Precio Unitario</th>
+                            <th>Cantidad</th>
+                            <th>Notas</th>
+                            <th>Eliminar</th> <!-- Nueva columna para marcar ítems a eliminar -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ formset.management_form }}
+                        {% for data in combined_data %}
+                        <tr>
+                            <!-- Descripción del ítem desde el formulario -->
+                            <td>
+                                {{ data.form.item_description }}
+                                {{ data.form.sales_order_item }}
+                            </td>
+                            <!-- Unidad de Medida como referencia visual -->
+                            <td>{{ data.unit_of_measurement }}</td>
+                            <!-- Precio Unitario como referencia visual -->
+                            <td>{{ data.price }}</td>
+                            <!-- Campo de Cantidad -->
+                            <td>
+                                {{ data.form.quantity_requested|add_class:"form-control text-center" |attr:"min:1" }}
+                            </td>
+                            <!-- Campo de Notas -->
+                            <td>
+                                {{ data.form.notes|add_class:"form-control" }}
+                            </td>
+                            <!-- Casilla para marcar ítems a eliminar -->
+                            <td class="text-center">
+                                {{ data.form.DELETE }} <!-- Campo DELETE para eliminar ítems -->
+                            </td>
+                        </tr>
+                        <!-- Mostrar errores específicos de este formulario -->
+                        {% if data.form.non_field_errors or data.form.quantity_requested.errors or data.form.notes.errors %}
+                        <tr>
+                            <td colspan="6" class="text-danger">
+                                {% for error in data.form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                                {% for error in data.form.quantity_requested.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                                {% for error in data.form.notes.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endif %}
                         {% endfor %}
-                    {% endif %}
-                    {% if form.quantity_requested.errors %}
-                        {% for error in form.quantity_requested.errors %}
-                            <div>{{ error }}</div>
-                        {% endfor %}
-                    {% endif %}
-                </td>
-            </tr>
-            {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
+                    </tbody>
+                </table>
+            </div>
+            
 
             <!-- Action Buttons -->
             <div class="d-flex justify-content-end mt-4">

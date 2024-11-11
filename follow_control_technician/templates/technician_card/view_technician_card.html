@@ -61,6 +61,11 @@
                     {% endfor %}
                 </div>
 
+                <!-- Botón para descargar el Excel -->
+                <button onclick="downloadExcel()" class="btn btn-success mt-3">
+                    <i class="fas fa-file-excel"></i> Descargar Excel
+                </button>
+
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{% url 'technicians_month' mes=fecha.month anio=fecha.year %}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Volver al Informe
@@ -94,4 +99,81 @@
         }, 3000); // Oculta la notificación después de 3 segundos
     }
 </script>
+
+<!-- Incluir SheetJS para generar el archivo Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+<!-- Script para generar el archivo Excel -->
+<!-- Script para generar el archivo Excel con estilos adicionales -->
+<script>
+    function downloadExcel() {
+        const workbook = XLSX.utils.book_new();
+        const worksheet_data = [
+            ["Técnico:", "{{ tecnico.first_name }} {{ tecnico.last_name }}", "", "Fecha:", "{{ fecha }}"],
+            [],
+            ["Tarea", "Cantidad", "Orden de Venta", "Estado"],  // Encabezados sin "Foto"
+            {% for tarea in tareas_con_foto %}
+                [
+                    "{{ tarea.task.verb }} {{ tarea.task.object }}",
+                    "{{ tarea.quantity }}",
+                    "{{ tarea.saler_order }}",
+                    "{{ tarea.status|yesno:'Completado,Pendiente' }}"  // Estado sin condicional
+                ],
+            {% endfor %}
+        ];
+
+        const worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
+
+        // Aplicar estilos a los encabezados
+        const header_range = XLSX.utils.decode_range("A3:D3");
+        for (let C = header_range.s.c; C <= header_range.e.c; ++C) {
+            const cell_address = XLSX.utils.encode_cell({ c: C, r: 2 });
+            if (!worksheet[cell_address]) continue;
+            worksheet[cell_address].s = {
+                font: { bold: true, color: { rgb: "FFFFFF" } },  // Texto en blanco
+                fill: { fgColor: { rgb: "4F81BD" } },            // Fondo azul oscuro
+                alignment: { vertical: "center", horizontal: "center" },
+                border: {
+                    top: { style: "thin" },
+                    bottom: { style: "thin" },
+                    left: { style: "thin" },
+                    right: { style: "thin" }
+                }
+            };
+        }
+
+        // Estilo para el contenido de las celdas
+        const content_range = XLSX.utils.decode_range("A4:D{{ worksheet_data.length }}");
+        for (let R = content_range.s.r; R <= content_range.e.r; ++R) {
+            for (let C = content_range.s.c; C <= content_range.e.c; ++C) {
+                const cell_address = XLSX.utils.encode_cell({ c: C, r: R });
+                if (!worksheet[cell_address]) continue;
+                worksheet[cell_address].s = {
+                    alignment: { vertical: "center", horizontal: "left", wrapText: true },
+                    border: {
+                        top: { style: "thin" },
+                        bottom: { style: "thin" },
+                        left: { style: "thin" },
+                        right: { style: "thin" }
+                    }
+                };
+            }
+        }
+
+        // Ajuste de ancho de columnas
+        worksheet['!cols'] = [
+            { wch: 30 }, // Tarea
+            { wch: 10 }, // Cantidad
+            { wch: 50 }, // Orden de Venta
+            { wch: 15 }  // Estado
+        ];
+
+        // Agregar la hoja al libro de trabajo
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Tarjeta Técnico");
+
+        // Descargar el archivo Excel
+        XLSX.writeFile(workbook, `Tarjeta_Tecnico_{{ tecnico.first_name }}_{{ tecnico.last_name }}_{{ fecha }}.xlsx`);
+    }
+</script>
+
 {% endblock %}

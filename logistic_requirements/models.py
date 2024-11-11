@@ -58,7 +58,8 @@ class RequirementOrderItem(models.Model):
     ESTADO_CHOICES = [
         ('L', 'Listo'),
         ('P', 'Pendiente'),
-        ('C', 'Comprando')
+        ('C', 'Comprando'),
+        ('R', 'Rechazado')
     ]
     requirement_order = models.ForeignKey(RequirementOrder, on_delete=models.CASCADE, related_name="items")
     sales_order_item = models.ForeignKey(SalesOrderItem, on_delete=models.CASCADE)
