@@ -263,3 +263,48 @@ def requirement_order_detail_partial(request, pk):
         'requirement_order': requirement_order,
         'items': items,  # Pasamos los ítems a la plantilla parcial
     })
+
+import openpyxl
+from django.http import HttpResponse
+from .models import RequirementOrder
+
+def export_order_to_excel(request, pk):
+    # Obtener la orden específica
+    requirement_order = get_object_or_404(RequirementOrder, pk=pk)
+    # Filtrar solo los ítems en estado "Pendiente"
+    items = requirement_order.items.filter(estado='P')
+    
+    # Crear un nuevo libro de Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f"Orden {requirement_order.order_number}"
+
+    # Encabezado con detalles de la orden
+    ws['A1'] = "Detalles de la Orden"
+    ws['A2'] = f"ID Orden: {requirement_order.order_number}"
+    ws['A3'] = f"Proyecto: {requirement_order.sales_order.project.name}"
+    ws['A4'] = f"Cliente: {requirement_order.sales_order.project.client.legal_name}"
+    ws['A5'] = f"Fecha Solicitada: {requirement_order.requested_date}"
+    ws['A6'] = f"Fecha Creada: {requirement_order.created_at}"
+    ws['A7'] = f"Notas: {requirement_order.notes}"
+    
+    # Espacio entre detalles y tabla de ítems
+    ws['A9'] = "Ítems Pendientes"
+
+    # Agregar encabezados de columna para los ítems
+    headers = ["Cantidad Solicitada", "Descripción", "Estado"]
+    for col_num, column_title in enumerate(headers, 1):
+        ws.cell(row=10, column=col_num, value=column_title)
+
+    # Agregar los datos de cada ítem pendiente
+    for row_num, item in enumerate(items, 11):  # Comienza en la fila 11 para dejar espacio a los detalles
+        ws.cell(row=row_num, column=1, value=item.quantity_requested)
+        ws.cell(row=row_num, column=2, value=item.sales_order_item.description)
+        ws.cell(row=row_num, column=3, value=item.get_estado_display())
+
+    # Configurar la respuesta HTTP para descargar el archivo
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = f'attachment; filename="order_{requirement_order.order_number}_pending_items.xlsx"'
+    wb.save(response)
+
+    return response
