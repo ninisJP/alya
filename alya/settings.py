@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     'requests',
     'budget_commercial',
     'management_sipoc',
+    'taskwall',
+    
 ]
 
 

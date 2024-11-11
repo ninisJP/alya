@@ -32,6 +32,18 @@
           </div>
       </a>
   </div>
+
+    <!-- Proyectos -->
+    <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">
+        <a href="{% url 'task-wall' %}" class="d-flex align-items-center text-decoration-none w-100">
+            <i class="fas fa-project-diagram fa-3x text-warning"></i>
+            <div class="ms-3">
+                <h5 class="mb-1 text-white">Muro de requerimientos</h5>
+                <p class="mb-0 text-light">Modulo para solicitar o reportar bugs/mejroas del sistema.</p>
+            </div>
+        </a>
+    </div>
+
   {% if user.is_superuser %}
   <!-- Empleados -->
   <div class="col-custom d-flex align-items-center mb-4 p-3 border rounded shadow-sm bg-dark-blue">

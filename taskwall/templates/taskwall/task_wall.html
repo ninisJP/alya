@@ -1,0 +1,184 @@
+{% extends 'base_taskwall.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <h1 class="text-center display-4 mb-4">Requerimientos del Sistema</h1>
+
+    <div class="container d-flex gap-4">
+        <!-- Muro de Requerimientos en tres columnas según el estado -->
+        <div class="wall-container d-flex gap-4 flex-grow-1">
+            <!-- Columna de requerimientos pendientes -->
+            <div class="task-column">
+                <h2 class="column-title">Pendientes</h2>
+                {% for task in tasks %}
+                    {% if task.status == "pending" %}
+                        <div class="task-note {% if task.urgency_level == 'low' %}low-urgency{% elif task.urgency_level == 'medium' %}medium-urgency{% else %}high-urgency{% endif %}" 
+                             id="task-{{ task.id }}"
+                             data-x="0" data-y="0"
+                             style="transform: translate(0px, 0px);">
+                            <h3 class="task-title">{{ task.title }}</h3>
+                            <p><strong>Urgencia:</strong> {{ task.get_urgency_level_display }}</p>
+                            <p><strong>Fecha Creación:</strong> {{ task.created_date }}</p>
+                            <p class="task-description">{{ task.description }}</p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- Columna de requerimientos completados -->
+            <div class="task-column">
+                <h2 class="column-title">Completados</h2>
+                {% for task in tasks %}
+                    {% if task.status == "completed" %}
+                        <div class="task-note {% if task.urgency_level == 'low' %}low-urgency{% elif task.urgency_level == 'medium' %}medium-urgency{% else %}high-urgency{% endif %}"
+                             id="task-{{ task.id }}"
+                             data-x="0" data-y="0"
+                             style="transform: translate(0px, 0px);">
+                            <h3 class="task-title">{{ task.title }}</h3>
+                            <p><strong>Urgencia:</strong> {{ task.get_urgency_level_display }}</p>
+                            <p><strong>Fecha Creación:</strong> {{ task.created_date }}</p>
+                            <p class="task-description">{{ task.description }}</p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- Columna de requerimientos rechazados -->
+            <div class="task-column">
+                <h2 class="column-title">Rechazados</h2>
+                {% for task in tasks %}
+                    {% if task.status == "rejected" %}
+                        <div class="task-note {% if task.urgency_level == 'low' %}low-urgency{% elif task.urgency_level == 'medium' %}medium-urgency{% else %}high-urgency{% endif %}"
+                             id="task-{{ task.id }}"
+                             data-x="0" data-y="0"
+                             style="transform: translate(0px, 0px);">
+                            <h3 class="task-title">{{ task.title }}</h3>
+                            <p><strong>Urgencia:</strong> {{ task.get_urgency_level_display }}</p>
+                            <p><strong>Fecha Creación:</strong> {{ task.created_date }}</p>
+                            <p><strong>Razón de Rechazo:</strong> {{ task.rejection_reason }}</p>
+                            <p class="task-description">{{ task.description }}</p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Formulario de creación de requerimiento -->
+        <div class="form-container bg-light p-4 rounded shadow-sm">
+            <h2 class="h4 text-center mb-3">Nuevo requerimiento para el sistema</h2>
+            <form method="post" class="form">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    {{ form.title|add_class:"form-control" }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.description|add_class:"form-control" }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.urgency_level|add_class:"form-select" }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.due_date|add_class:"form-control" }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Agregar Requerimiento</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Interact.js para el arrastre -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.27/dist/interact.min.js"></script>
+    <script>
+        interact('.task-note').draggable({
+            listeners: {
+                move (event) {
+                    const target = event.target;
+                    const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                    const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                    target.style.transform = `translate(${x}px, ${y}px)`;
+
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                }
+            },
+            inertia: true,
+            modifiers: [
+                interact.modifiers.restrictRect({
+                    restriction: 'parent',
+                    endOnly: true
+                })
+            ]
+        });
+    </script>
+
+    <style>
+        /* Estilos generales de columnas */
+        .container {
+            display: flex;
+            gap: 20px;
+            padding: 1rem;
+            max-width: 100%;
+        }
+        .wall-container {
+            display: flex;
+            gap: 20px;
+            flex: 3;
+        }
+        .task-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .column-title {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #444;
+        }
+        
+        /* Estilos de colores por nivel de urgencia */
+        .low-urgency {
+            background-color: #e7f7e6;
+            border: 1px solid #a8d5a5;
+        }
+        .medium-urgency {
+            background-color: #fff3cd;
+            border: 1px solid #ffecb5;
+        }
+        .high-urgency {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .task-note {
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+        }
+        .task-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .task-description {
+            font-size: 0.9rem;
+            color: #555;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+    </style>
+{% endblock %}
