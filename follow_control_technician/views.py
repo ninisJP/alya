@@ -161,16 +161,6 @@ from .forms import ExcelUploadForm, TechnicianTaskForm
 from .models import TechnicianTask
 from .utils import process_technician_tasks_excel
 
-from django.shortcuts import render, redirect
-from .forms import ExcelUploadForm, TechnicianTaskForm
-from .models import TechnicianTask
-from .utils import process_technician_tasks_excel
-
-from django.shortcuts import render, redirect
-from .forms import ExcelUploadForm, TechnicianTaskForm
-from .models import TechnicianTask
-from .utils import process_technician_tasks_excel
-
 def technician_task(request):
     technicians_tasks = TechnicianTask.objects.all()
     excel_form = ExcelUploadForm()

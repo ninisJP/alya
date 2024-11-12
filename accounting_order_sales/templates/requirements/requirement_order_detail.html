@@ -58,6 +58,14 @@
         </div>
     </div>
 
+    <!-- Botones para cambiar el estado de todos los ítems masivamente -->
+    <div class="d-flex justify-content-center mb-4 gap-2">
+        <button type="button" class="btn btn-outline-success" onclick="updateAllItemsState('L')">L</button>
+        <button type="button" class="btn btn-outline-primary" onclick="updateAllItemsState('C')">C</button>
+        <button type="button" class="btn btn-outline-warning" onclick="updateAllItemsState('P')">P</button>
+        <button type="button" class="btn btn-outline-danger" onclick="updateAllItemsState('R')">R</button>
+    </div>
+
     <!-- Formulario para Ítems de la Orden -->
     <form id="requirement-order-form" hx-post="{% url 'update_requirement_order_items' requirement_order.pk %}" hx-target="#order-response-message" hx-swap="innerHTML">
         <hr>
@@ -67,8 +75,8 @@
                     <tr>
                         <th>SAP</th>
                         <th>ITEM</th>
-                        <th>DETALLE</th>
-                        <th>CANT</th>
+                        <th style="width: 300px;">DETALLE</th>
+                        <th style="width: 100px;">CANT</th>
                         <th>P. UNIT</th>
                         <th>P. TOT</th>
                         <th>PROVEEDOR</th>
@@ -78,11 +86,13 @@
                 </thead>
                 <tbody>
                     {% for item in items %}
-                    <tr>
+                    <tr id="item-row-{{ item.id }}">
                         <td>{{ item.sap_code }}</td>
                         <td>{{ item.sales_order_item.description }}</td>
-                        <td><input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control"></td>
-                        <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="1"></td>
+                        <td>
+                            <textarea name="notes_{{ item.id }}" class="form-control" rows="2" style="resize: none; width: 100%;">{{ item.notes }}</textarea>
+                        </td>
+                        <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="0.01"></td>
                         <td><input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" min="0" step="0.01"></td>
                         <td><input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" readonly></td>
                         <td>
@@ -94,17 +104,19 @@
                         </td>
                         <td>
                             {% if item.file_attachment %}
-                                <a href="{{ item.file_attachment.url }}" target="_blank">Archivo</a>
+                                <a href="{{ item.file_attachment.url }}" target="_blank"><i class="fas fa-book"></i></a>
                             {% else %}
-                                No disponible
+                                <i class="fas fa-times text-muted"></i>
                             {% endif %}
                         </td>
                         <td>
-                            <select name="estado_{{ item.id }}" class="form-select">
-                                <option value="L" {% if item.estado == 'L' %}selected{% endif %}>Listo</option>
-                                <option value="P" {% if item.estado == 'P' %}selected{% endif %}>Pendiente</option>
-                                <option value="C" {% if item.estado == 'C' %}selected{% endif %}>Comprando</option>
-                            </select>
+                            <div class="btn-group" role="group" aria-label="Estado">
+                                <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
+                                <button type="button" class="btn btn-sm {% if item.estado == 'L' %}btn-success{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'L')">L</button>
+                                <button type="button" class="btn btn-sm {% if item.estado == 'C' %}btn-primary{% else %}btn-outline-primary{% endif %}" onclick="setEstado('{{ item.id }}', 'C')">C</button>
+                                <button type="button" class="btn btn-sm {% if item.estado == 'P' %}btn-warning{% else %}btn-outline-warning{% endif %}" onclick="setEstado('{{ item.id }}', 'P')">P</button>
+                                <button type="button" class="btn btn-sm {% if item.estado == 'R' %}btn-danger{% else %}btn-outline-danger{% endif %}" onclick="setEstado('{{ item.id }}', 'R')">R</button>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -147,38 +159,7 @@
     }
 </style>
 
-{% endblock %}
+<!-- Incluir el partial de scripts específicos para esta vista -->
+{% include 'partials/scripts_accounting_requirement_order.html' %}
 
-{% block extra_js %}
-<script>
-    $(document).ready(function() {
-        initSelect2Supplier(); 
-
-        document.addEventListener("htmx:afterSwap", (event) => {
-            if (event.detail.target.id === "requirement-order-form" || event.detail.target.id === "order-response-message") {
-                initSelect2Supplier();
-            }
-        });
-    });
-
-    function initSelect2Supplier() {
-        $('.select2-supplier').select2({
-            ajax: {
-                url: function() { return $(this).data('ajax-url'); },
-                dataType: 'json',
-                delay: 250,
-                data: function(params) {
-                    return { term: params.term };
-                },
-                processResults: function(data) {
-                    return { results: data.results };
-                },
-                cache: true
-            },
-            placeholder: 'Seleccionar proveedor',
-            allowClear: true,
-            minimumInputLength: 3
-        });
-    }
-</script>
 {% endblock %}
