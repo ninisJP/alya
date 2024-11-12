@@ -35,4 +35,49 @@ def informe_tarjetas_del_mes(mes, anio):
         'anio': primer_dia_mes.year,
         'informe_por_tecnico': informe
     }
+    
+import pandas as pd
+from .models import TechnicianTask
+
+import pandas as pd
+from .models import TechnicianTask
+
+def process_technician_tasks_excel(file):
+    try:
+        print("Iniciando lectura del archivo Excel...")
+        df = pd.read_excel(file, header=None)  # Especifica que no hay cabecera
+
+        # Imprimir las primeras filas para ver cómo están estructurados los datos
+        print("Primeras filas del archivo:", df.head().to_string(index=False))
+
+        # Validar que el archivo tiene al menos 4 columnas
+        if df.shape[1] < 4:
+            print("Archivo no tiene las columnas necesarias.")
+            raise ValueError("El archivo debe tener al menos 4 columnas: Verbo, Objeto, Medida, Tiempo")
+
+        print("Archivo leído correctamente. Procesando filas...")
+
+        tasks = []
+        for index, row in df.iterrows():
+            verb = row[0]
+            object_ = row[1]
+            measurement = row[2]
+            time = row[3]
+
+            # Validaciones de celdas vacías
+            if pd.isna(verb) or pd.isna(object_) or pd.isna(measurement) or pd.isna(time):
+                print(f"Fila {index + 1} tiene datos incompletos. Verbo: {verb}, Objeto: {object_}, Medida: {measurement}, Tiempo: {time}")
+                raise ValueError(f"La fila {index + 1} en el archivo tiene datos incompletos. Por favor revisa el archivo.")
+
+            # Agrega la tarea a la lista
+            tasks.append(TechnicianTask(verb=verb, object=object_, measurement=measurement, time=time))
+            print(f"Tarea añadida: {verb} - {object_} - {measurement} - {time}")
+
+        # Guardar todas las tareas
+        TechnicianTask.objects.bulk_create(tasks)
+        print("Todas las tareas guardadas en la base de datos.")
+        return True, None
+    except Exception as e:
+        print("Error durante el procesamiento del archivo:", str(e))
+        return False, str(e)
 

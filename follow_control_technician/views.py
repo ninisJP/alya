@@ -9,6 +9,11 @@ from .models import TechnicianCard, TechnicianTask
 from .forms import TechnicianCardForm, TechnicianCardTaskFormSet, TechnicianCardTask, TechnicianTaskForm
 from django.views.decorators.http import require_http_methods
 from django.utils.timezone import now
+from django.shortcuts import render, redirect
+from .forms import ExcelUploadForm, TechnicianTaskForm
+from .models import TechnicianTask
+from .utils import process_technician_tasks_excel
+
 
 class TechniciansMonth(TemplateView):
     template_name = 'technicians_month.html'
@@ -151,11 +156,48 @@ def technician_task_state(request, pk):
 
     return JsonResponse({"message": "Estado de la tarea actualizado correctamente."})
 
-#Technicians tasks HTMX
+from django.shortcuts import render, redirect
+from .forms import ExcelUploadForm, TechnicianTaskForm
+from .models import TechnicianTask
+from .utils import process_technician_tasks_excel
+
+from django.shortcuts import render, redirect
+from .forms import ExcelUploadForm, TechnicianTaskForm
+from .models import TechnicianTask
+from .utils import process_technician_tasks_excel
+
+from django.shortcuts import render, redirect
+from .forms import ExcelUploadForm, TechnicianTaskForm
+from .models import TechnicianTask
+from .utils import process_technician_tasks_excel
+
 def technician_task(request):
     technicians_tasks = TechnicianTask.objects.all()
-    context = {'form': TechnicianTaskForm(), 'tasks': technicians_tasks}
+    excel_form = ExcelUploadForm()
+    form = TechnicianTaskForm()
+
+    if request.method == "POST" and request.FILES.get("file"):
+        excel_form = ExcelUploadForm(request.POST, request.FILES)
+        if excel_form.is_valid():
+            file = excel_form.cleaned_data["file"]
+            print("Archivo recibido:", file.name)  # Imprime el nombre del archivo para confirmar recepción
+            success, error = process_technician_tasks_excel(file)
+            if success:
+                print("Tareas guardadas exitosamente.")
+                return redirect("technician_task")  # Redirige si se procesó exitosamente
+            else:
+                print("Error en el procesamiento del archivo:", error)
+                excel_form.add_error(None, f"Error al procesar el archivo: {error}")
+        else:
+            print("Formulario de Excel no válido.")
+
+    context = {
+        'excel_form': excel_form,
+        'form': form,
+        'tasks': technicians_tasks
+    }
     return render(request, 'technician_task/technician-task.html', context)
+
 
 def create_technician_task(request):
     if request.method == 'POST':

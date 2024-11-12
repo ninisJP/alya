@@ -1,0 +1,31 @@
+<!-- Tabla de candidatos -->
+<div id="candidate-table">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Departamento</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Celular</th>
+                <th>Correo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for candidate in candidates %}
+                <tr>
+                    <td>{{ candidate.name }}</td>
+                    <td>{{ candidate.department }}</td>
+                    <td>{{ candidate.birth_date }}</td>
+                    <td>{{ candidate.phone }}</td>
+                    <td>{{ candidate.email }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" hx-get="{% url 'edit_candidate' candidate.id %}" hx-target="#candidate-form" hx-swap="innerHTML">Editar</button>
+                        <button class="btn btn-sm btn-danger" hx-delete="{% url 'delete_candidate' candidate.id %}" hx-target="#candidate-table" hx-swap="outerHTML">Eliminar</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+</div>

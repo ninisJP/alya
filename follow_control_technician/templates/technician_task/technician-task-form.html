@@ -1,20 +1,28 @@
-<form hx-post="{% url 'create-technician-tasks' %}" hx-target="#task-list" hx-swap="innerHTML" class="w-100">
-    {% csrf_token %}
-    <div class="row">
-        <div class="col-12 col-md-2 mb-3">
-            {{ form.verb }}
+{% load widget_tweaks %}
+
+<div class="card p-3 mb-4 shadow-sm text-dark" style="background-color: #f8f9fa; border-radius: 10px;">
+    <form hx-post="{% url 'create-technician-tasks' %}" hx-target="#task-list" hx-swap="innerHTML" class="w-100">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-12 col-md-2 mb-3">
+                <label for="id_verb" class="form-label text-dark">Verbo</label>
+                {{ form.verb|add_class:"form-control text-dark" }}
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                <label for="id_object" class="form-label text-dark">Objeto</label>
+                {{ form.object|add_class:"form-control text-dark" }}
+            </div>
+            <div class="col-6 col-md-2 mb-3">
+                <label for="id_measurement" class="form-label text-dark">Medida</label>
+                {{ form.measurement|add_class:"form-control text-dark" }}
+            </div>
+            <div class="col-6 col-md-2 mb-3">
+                <label for="id_time" class="form-label text-dark">Tiempo</label>
+                {{ form.time|add_class:"form-control text-dark" }}
+            </div>
+            <div class="col-12 col-md-2 mb-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Crear Tarea</button>
+            </div>
         </div>
-        <div class="col-12 col-md-4 mb-3">
-            {{ form.object }}
-        </div>
-        <div class="col-6 col-md-2 mb-3">
-            {{ form.measurement }}
-        </div>
-        <div class="col-6 col-md-2 mb-3">
-            {{ form.time }}
-        </div>
-        <div class="col-12 col-md-2 mb-3 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">Crear Tarea</button>
-        </div>
-    </div>
-</form>
+    </form>
+</div>

@@ -1,0 +1,27 @@
+{% load widget_tweaks %}
+
+<form method="post" hx-post="{% url 'edit_candidate' candidate.id %}" hx-target="#candidate-table" hx-swap="outerHTML">
+    {% csrf_token %}
+    <div class="row g-3">
+        <div class="col-md-4">
+            {{ form.name|add_class:"form-control" }}
+        </div>
+        <div class="col-md-4">
+            {{ form.department|add_class:"form-control" }}
+        </div>
+        <div class="col-md-4">
+            {{ form.birth_date|add_class:"form-control" }}
+        </div>
+        <div class="col-md-4">
+            {{ form.salary_expectation|add_class:"form-control" }}
+        </div>
+        <div class="col-md-4">
+            {{ form.phone|add_class:"form-control" }}
+        </div>
+        <div class="col-md-4">
+            {{ form.email|add_class:"form-control" }}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success mt-3 w-100">Guardar Cambios</button>
+    <button type="button" class="btn btn-secondary mt-2 w-100" hx-get="{% url 'candidate_list' %}" hx-target="#candidate-form" hx-swap="outerHTML">Cancelar</button>
+</form>
