@@ -32,13 +32,11 @@
                             <th>Descripción</th>
                             <th>Unidad</th>
                             <th>Precio U.</th>
-                            <th>Total</th>
                             <th>Restante</th>
                             <th style="width: 8%;">Cantidad</th>
                             <th style="width: 10%;">Precio</th>
                             <th>Proveedor</th>
                             <th style="width: 20%;">Detalles</th>
-                            <th>Archivo</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -47,14 +45,12 @@
                             <td>{{ item.description }}</td>
                             <td>{{ item.unit_of_measurement }}</td>
                             <td>${{ item.price }}</td>
-                            <td>${{ item.price_total }}</td>
                             <td>{{ item.remaining_requirement }}</td>
-                            
                             <!-- Campos adicionales para RequirementOrderItem -->
                             <td>
                                 {% if item.remaining_requirement > 0 %}
                                     <input type="number" name="items-{{ item.id }}-quantity_requested" 
-                                           min="1" 
+                                           step="any" 
                                            max="{{ item.remaining_requirement }}" 
                                            class="form-control form-control-sm shadow-sm text-center">
                                 {% else %}
@@ -64,7 +60,6 @@
                                            disabled>
                                 {% endif %}
                             </td>
-                            
                             <td>
                                 <input type="number" name="items-{{ item.id }}-price" step="0.01" class="form-control form-control-sm shadow-sm text-center" value="{{ item.price }}">
                             </td>
@@ -78,9 +73,6 @@
                             </td>
                             <td>
                                 <textarea name="items-{{ item.id }}-notes" class="form-control form-control-sm shadow-sm" rows="2" placeholder="Notas"></textarea>
-                            </td>
-                            <td>
-                                <input type="file" name="items-{{ item.id }}-file_attachment" class="form-control form-control-sm shadow-sm">
                             </td>
                         </tr>
                         {% endfor %}
@@ -100,11 +92,12 @@
     function removeZeroQuantities(event) {
         const quantityFields = document.querySelectorAll("input[name*='-quantity_requested']");
         quantityFields.forEach(field => {
-            if (parseInt(field.value) === 0) {
+            if (parseFloat(field.value) === 0) {  // Solo si es exactamente cero
                 field.disabled = true;
             }
-        });   
+        });
     }
+    
     document.addEventListener("htmx:afterRequest", function(event) {
         if (event.detail.xhr.response) {
             const response = JSON.parse(event.detail.xhr.response);
@@ -122,25 +115,28 @@
 {% block extra_js %}
 <script>
     $(document).ready(function() {
-        $('.select2-supplier').each(function() {
-            $(this).select2({
-                ajax: {
-                    url: $(this).data('ajax-url'),
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return { term: params.term };
-                    },
-                    processResults: function(data) {
-                        return { results: data.results };
-                    },
-                    cache: true
+        $('.select2-supplier').select2({
+            ajax: {
+                url: '{% url "ajax_load_suppliers" %}',  // URL para cargar proveedores vía AJAX
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        term: params.term,  // término de búsqueda
+                    };
                 },
-                placeholder: $(this).data('placeholder'),
-                allowClear: true,
-                minimumInputLength: 3
-            });
+                processResults: function(data) {
+                    return {
+                        results: data.results,
+                    };
+                },
+                cache: true
+            },
+            placeholder: "Seleccionar proveedor",
+            allowClear: true,
+            minimumInputLength: 3,  // reduce la cantidad de consultas al buscar desde 3 caracteres
         });
     });
-</script>
+    </script>
+    
 {% endblock %}

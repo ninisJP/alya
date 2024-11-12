@@ -27,9 +27,11 @@ from .forms import ExcelUploadForm
 from .models import CatalogItem
 import re  # Biblioteca para manejar expresiones regulares
 from django.db import transaction
-from decimal import Decimal
 from .forms import AddBudgetItemForm
 from collections import defaultdict
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+
 
 def index_budget(request):
     budgets = Budget.objects.all()  # Recupera todos los presupuestos
@@ -288,10 +290,12 @@ def create_sales_order_from_budget(request, budget_id):
                 sales_order_item.price_total = total_price_with_igv
                 sales_order_item.unit_of_measurement = budget_item.unit or budget_item.item.unit
                 sales_order_item.save()
+                # Recalcular remaining_requirement
+                sales_order_item.update_remaining_requirement()
                 print(f"Ítem con SAP {budget_item.item.sap} actualizado en la orden de venta.")
             else:
                 # Crear un nuevo ítem en la orden de venta si no existe
-                SalesOrderItem.objects.create(
+                new_item = SalesOrderItem.objects.create(
                     salesorder=existing_sales_order,
                     sap_code=budget_item.item.sap,
                     description=budget_item.item.description,
@@ -300,6 +304,8 @@ def create_sales_order_from_budget(request, budget_id):
                     price_total=total_price_with_igv,
                     unit_of_measurement=budget_item.unit or budget_item.item.unit,
                 )
+                # Recalcular remaining_requirement
+                new_item.update_remaining_requirement()
                 print(f"Ítem con SAP {budget_item.item.sap} agregado a la orden de venta.")
 
         # Confirmación de actualización
@@ -318,7 +324,7 @@ def create_sales_order_from_budget(request, budget_id):
             price_with_igv = budget_item.custom_price * Decimal(1.18) if budget_item.custom_price else budget_item.item.price * Decimal(1.18)
             total_price_with_igv = budget_item.total_price * Decimal(1.18)
 
-            SalesOrderItem.objects.create(
+            new_item = SalesOrderItem.objects.create(
                 salesorder=sales_order,
                 sap_code=budget_item.item.sap,
                 description=budget_item.item.description,
@@ -327,6 +333,8 @@ def create_sales_order_from_budget(request, budget_id):
                 price_total=total_price_with_igv,
                 unit_of_measurement=budget_item.unit or budget_item.item.unit,
             )
+            # Recalcular remaining_requirement
+            new_item.update_remaining_requirement()
         
         messages.success(request, f"La orden de venta {sales_order.sapcode} fue creada exitosamente con IGV incluido.")
         

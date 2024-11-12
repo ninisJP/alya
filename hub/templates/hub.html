@@ -14,132 +14,184 @@
   <!-- HTMX -->
   <script src="{% static 'js/htmx.min.js' %}" defer></script>
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
+    body {
       font-family: 'Montserrat', sans-serif;
-      background-color: #e3f2fd; /* Fondo azul claro */
-      color: #333; /* Color oscuro para el texto */
-      display: flex;
-      flex-direction: column;
+      background-color: #e3f2fd;
     }
-
-    h1.lilith {
-      font-size: 3rem;
-      font-weight: 600;
-      color: #333; /* Texto oscuro */
-      margin-top: 20px;
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-
-    h1.jp {
-      position: absolute;
-      top: 50px;
-      right: 180px;
-      font-size: 10rem;
-      font-weight: 800;
-      margin: 0;
-      color: #333; /* Texto oscuro */
-      cursor: pointer;
-      transition: color 0.3s ease, transform 0.3s ease;
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
-                   0 0 40px rgba(255, 255, 255, 0.6),
-                   0 0 60px rgba(255, 255, 255, 0.4);
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
     }
-
-    h1.jp:hover {
-      color: red;
-      transform: scale(1.05);
+    .bg-dark-blue {
+      background-color: #1e3a5f !important;
     }
-
-    .footer-cards {
-      padding: 20px;
-      margin-top: auto;
-      width: 100%;
-      background-color: #e3f2fd; /* Fondo azul claro para las tarjetas */
-      box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1); /* Sombra suave */
-    }
-
-    .footer-cards .card {
-      margin: 10px;
-      border: none;
-      background-color: transparent; /* Fondo transparente para cada tarjeta */
-      color: #333; /* Texto oscuro */
-      transition: transform 0.3s ease-in-out;
-    }
-
-    .footer-cards .card:hover {
-      transform: scale(1.05);
-    }
-
-    .footer-cards .card i {
-      font-size: 3rem;
-      color: #555; /* Iconos en gris medio */
-    }
-
-    .footer-cards .card-body {
-      padding: 20px;
+    footer {
+      background-color: #1e3a5f;
+      color: #fff;
+      padding: 15px 0;
       text-align: center;
-      background-color: transparent; /* Fondo transparente para el cuerpo de la tarjeta */
-    }
-
-    .footer-cards .card-title {
-      font-size: 1.1rem;
-      color: #333; /* Texto en gris oscuro */
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .footer-cards .card-text {
       font-size: 0.9rem;
-      color: #666; /* Texto más claro */
-    }
-
-    .footer-cards a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    /* Diseño responsivo de las tarjetas */
-    .col-custom {
-      flex: 0 0 calc(100% / 4);
-      max-width: calc(100% / 4);
-    }
-
-    @media (max-width: 768px) {
-      .col-custom {
-        flex: 0 0 calc(100% / 2);
-        max-width: calc(100% / 2);
-      }
-    }
-
-    @media (max-width: 576px) {
-      .col-custom {
-        flex: 0 0 calc(100%);
-        max-width: calc(100%);
-      }
     }
   </style>
 </head>
-<body>
-  <!-- Título principal -->
-  <div class="container text-center mt-5">
-    <h1 class="lilith">ERP</h1>
-  </div>
-
-  <!-- JP grande como botón de logout -->
-  <h1 class="jp" onclick="document.getElementById('logout-form').submit();" title="Haz clic para cerrar sesión">
-    JP
-  </h1>
-
-  <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
-      {% csrf_token %}
-  </form>
+<body class="d-flex flex-column min-vh-100">
 
   <!-- Contenedor de Tarjetas -->
-  <div class="footer-cards container-fluid">
-    {% include 'partials/cards.html' %}
+  <div class="container my-5">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
+
+      <!-- Clientes -->
+      <div class="col">
+        <a href="{% url 'index_client' %}" class="text-decoration-none">
+          <div class="card bg-dark-blue text-white text-center p-4 h-100">
+            <i class="fas fa-users fa-3x text-primary"></i>
+            <h5 class="mt-3 fw-semibold">Clientes</h5>
+            <p class="small mb-0">Gestiona tus clientes aquí.</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Presupuestos -->
+      <div class="col">
+        <a href="{% url 'index_budget' %}" class="text-decoration-none">
+          <div class="card bg-dark-blue text-white text-center p-4 h-100">
+            <i class="fas fa-calculator fa-3x text-success"></i>
+            <h5 class="mt-3 fw-semibold">Presupuestos</h5>
+            <p class="small mb-0">Crea y revisa presupuestos.</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Proyectos -->
+      <div class="col">
+        <a href="{% url 'project_index' %}" class="text-decoration-none">
+          <div class="card bg-dark-blue text-white text-center p-4 h-100">
+            <i class="fas fa-briefcase fa-3x text-warning"></i>
+            <h5 class="mt-3 fw-semibold">Proyectos</h5>
+            <p class="small mb-0">Administra tus proyectos.</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Muro de Requerimientos -->
+      <div class="col">
+        <a href="{% url 'task-wall' %}" class="text-decoration-none">
+          <div class="card bg-dark-blue text-white text-center p-4 h-100">
+            <i class="fas fa-tools fa-3x text-warning"></i>
+            <h5 class="mt-3 fw-semibold">Muro de Requerimientos</h5>
+            <p class="small mb-0">Solicita o reporta bugs/mejoras.</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Empleados (solo admin) -->
+      {% if user.is_superuser %}
+      <div class="col">
+        <a href="{% url 'register' %}" class="text-decoration-none">
+          <div class="card bg-dark-blue text-white text-center p-4 h-100">
+            <i class="fas fa-user-tie fa-3x text-info"></i>
+            <h5 class="mt-3 fw-semibold">Empleados</h5>
+            <p class="small mb-0">Registra empleados.</p>
+          </div>
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- Mi Cuenta -->
+      <div class="col">
+        <a href="{% url 'profile' %}" class="text-decoration-none">
+          <div class="card bg-dark-blue text-white text-center p-4 h-100">
+            <i class="fas fa-user-cog fa-3x text-primary"></i>
+            <h5 class="mt-3 fw-semibold">Mi Cuenta</h5>
+            <p class="small mb-0">Configura tu perfil.</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Pedidos -->
+      <div class="col">
+        <a href="{% url 'index_requests' %}" class="text-decoration-none">
+          <div class="card bg-dark-blue text-white text-center p-4 h-100">
+            <i class="fas fa-dolly fa-3x text-warning"></i>
+            <h5 class="mt-3 fw-semibold">Pedidos</h5>
+            <p class="small mb-0">Crea tus pedidos.</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Tarjetas -->
+      <div class="col">
+        <a href="{% url 'follow_control_home' %}" class="text-decoration-none">
+          <div class="card bg-dark-blue text-white text-center p-4 h-100">
+            <i class="fas fa-clipboard-list fa-3x text-secondary"></i>
+            <h5 class="mt-3 fw-semibold">Tarjetas</h5>
+            <p class="small mb-0">Monitorea actividades.</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Gestiones - SIPOC -->
+      <div class="col">
+        <a href="{% url 'list_sipocs' %}" class="text-decoration-none">
+          <div class="card bg-dark-blue text-white text-center p-4 h-100">
+            <i class="fas fa-project-diagram fa-3x text-danger"></i>
+            <h5 class="mt-3 fw-semibold">Gestiones</h5>
+            <p class="small mb-0">SIPOC por ahora.</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Contabilidad (solo admin) -->
+      {% if user.is_superuser %}
+      <div class="col">
+        <a href="{% url 'salesorder' %}" class="text-decoration-none">
+          <div class="card bg-dark-blue text-white text-center p-4 h-100">
+            <i class="fas fa-chart-pie fa-3x text-danger"></i>
+            <h5 class="mt-3 fw-semibold">Contabilidad</h5>
+            <p class="small mb-0">Revisa tus finanzas.</p>
+          </div>
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- Logística (solo admin) -->
+      {% if user.is_superuser %}
+      <div class="col">
+        <a href="{% url 'requirement_order_list' %}" class="text-decoration-none">
+          <div class="card bg-dark-blue text-white text-center p-4 h-100">
+            <i class="fas fa-warehouse fa-3x text-danger"></i>
+            <h5 class="mt-3 fw-semibold">Logística</h5>
+            <p class="small mb-0">Gestiona inventarios.</p>
+          </div>
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- JP Card for Logout -->
+      <div class="col">
+        <div class="card bg-dark-blue text-white text-center p-4 h-100" onclick="document.getElementById('logout-form').submit();" style="cursor: pointer;">
+          <i class="fas fa-sign-out-alt fa-3x text-danger"></i>
+          <h5 class="mt-3 fw-semibold">Cerrar Sesión</h5>
+          <p class="small mb-0">Haz clic para salir.</p>
+        </div>
+        <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+            {% csrf_token %}
+        </form>
+      </div>
+    </div>
   </div>
+
+  <!-- Footer -->
+<!-- Footer -->
+<footer class="mt-auto py-4 bg-light text-center border-top">
+  <p class="mb-0 fw-semibold" style="color: #1e3a5f; font-size: 1.1rem;">
+    JP Ingeniería y Servicios
+  </p>
+</footer>
+
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

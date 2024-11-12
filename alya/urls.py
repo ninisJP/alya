@@ -20,6 +20,8 @@ urlpatterns = [
     path('employee/', include('employee.urls')),
     path('employee_api/', include('employee_api.urls')),
     path('empleado_portal/', include('employee_portal.urls')),
+    path('employee/candidates/', include('employee_candidates.urls')),
+
     # Client
     path('clientes/', include('client.urls')),
     path('clientes/crm/', include('client_crm.urls')),
@@ -31,7 +33,7 @@ urlpatterns = [
     # Requests
     path('pedidos/', include('requests.urls')),
     # DJANGO BROWSER RELOAD
-    #path("__reload__/", include("django_browser_reload.urls")),
+    path("__reload__/", include("django_browser_reload.urls")),
     # LOGISTIC
     path('logistic/inventory/', include('logistic_inventory.urls')),
     path('logistic/inventory/api/', include('logistic_inventory_api.urls')),
@@ -44,6 +46,8 @@ urlpatterns = [
     path('logistic/api/', include('logistic_api.urls')),
     # MANAGMENTE
     path('management/sipoc/', include('management_sipoc.urls')),
+    # TASKWALL
+    path('taskwall/', include('taskwall.urls')),
 
 ]
 

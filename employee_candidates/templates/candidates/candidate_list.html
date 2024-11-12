@@ -1,0 +1,41 @@
+{% extends 'base_employee.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<h1 class="text-center display-4 mb-4">Gestión de Candidatos</h1>
+
+<div>
+    <form method="post" hx-post="{% url 'add_candidate' %}" hx-target="#candidate-table" hx-swap="outerHTML">
+        {% csrf_token %}
+        <div class="row g-3">
+            <div class="col-md-4">
+                {{ form.name|add_class:"form-control" }}
+            </div>
+            <div class="col-md-4">
+                {{ form.department|add_class:"form-control" }}
+            </div>
+            <div class="col-md-4">
+                {{ form.birth_date|add_class:"form-control" }}
+            </div>
+            <div class="col-md-4">
+                {{ form.salary_expectation|add_class:"form-control" }}
+            </div>
+            <div class="col-md-4">
+                {{ form.phone|add_class:"form-control" }}
+            </div>
+            <div class="col-md-4">
+                {{ form.email|add_class:"form-control" }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3 w-100">Agregar Candidato</button>
+    </form>
+</div>
+
+<!-- Tabla de candidatos -->
+<div id="candidate-table">
+    {% include 'partials/candidate_table.html' %}
+</div>
+
+<!-- Contenedor para el formulario de edición, inicialmente vacío -->
+<div id="candidate-form"></div>
+{% endblock %}

@@ -1,10 +1,33 @@
 {% extends "follow_control_base.html" %}
+
+{% load widget_tweaks %}
+
 {% block content %}
 <div class="container-fluid ">
-    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
-        <div class="card-body text-center py-2">
-            <h1 class="mb-0">Crear tareas para tecnicos</h1>
+    <!-- Fila para el título y el formulario de carga -->
+    <div class="row align-items-center mb-4">
+        <!-- Título principal -->
+        <div class="col-md-8">
+            <div class="card shadow-sm rounded bg-dark text-white" style="border-radius: 20px;">
+                <div class="card-body text-center py-2">
+                    <h1 class="mb-0">Crear Tareas para Técnicos</h1>
+                </div>
+            </div>
         </div>
+
+        <!-- Formulario de carga de Excel al costado del título -->
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm" style="background-color: #f8f9fa; border-radius: 10px;">
+                <form method="post" enctype="multipart/form-data" action="{% url 'technician_task' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ excel_form.file|add_class:"form-control" }}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Subir Archivo de Tareas</button>
+                </form>
+            </div>
+        </div>
+        
     </div>
 
     <div id="tasks-forms" class="w-100">

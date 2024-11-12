@@ -11,8 +11,12 @@ class RequirementOrderItemInline(admin.TabularInline):
 # Registro del modelo RequirementOrder con el inline de RequirementOrderItem
 @admin.register(RequirementOrder)
 class RequirementOrderAdmin(admin.ModelAdmin):
-    list_display = ('sales_order', 'requested_date', 'created_at')  # Campos que se mostrarán en la lista
+    list_display = ('order_number', 'sales_order', 'requested_date', 'created_at', 'estado', 'state', 'total_order')
+    readonly_fields = ('order_number',)
+    fields = ('sales_order', 'requested_date', 'created_at', 'notes', 'estado', 'user', 'total_order', 'purchase_order_created', 'state')
     inlines = [RequirementOrderItemInline]  # Añadimos el inline para gestionar ítems
+    list_filter = ('state', 'purchase_order_created', 'created_at')
+    search_fields = ('sales_order__sapcode', 'order_number')
 
 # Registro opcional del modelo RequirementOrderItem (si quieres gestionarlo por separado)
 @admin.register(RequirementOrderItem)
