@@ -216,70 +216,88 @@ def RequestSalesOrder(request, pk):
 
 @require_POST
 def create_requirement_order(request, order_id):
-    sales_order = get_object_or_404(SalesOrder, id=order_id)
-    
-    order_has_errors = False
-    items_to_create = []  # Lista para almacenar ítems válidos
+    try:
+        sales_order = get_object_or_404(SalesOrder, id=order_id)
+        order_has_errors = False
+        items_to_create = []
 
-    for item_id, quantity_requested in request.POST.items():
-        if item_id.startswith("items-") and "-quantity_requested" in item_id:
-            sales_order_item_id = int(item_id.split("-")[1])
-            sales_order_item = get_object_or_404(SalesOrderItem, id=sales_order_item_id)
+        # Mostrar el contenido de request.POST para depurar
+        print("[Debug] request.POST items:", request.POST.items())
 
-            try:
-                quantity_requested = int(quantity_requested)
-            except ValueError:
-                messages.error(request, f"Cantidad solicitada inválida para el ítem {sales_order_item.description}. Debe ser un número entero.")
-                order_has_errors = True
-                continue
+        for item_id, quantity_requested in request.POST.items():
+            if item_id.startswith("items-") and "-quantity_requested" in item_id:
+                sales_order_item_id = int(item_id.split("-")[1])
+                sales_order_item = get_object_or_404(SalesOrderItem, id=sales_order_item_id)
 
-            price = request.POST.get(f"items-{sales_order_item_id}-price", sales_order_item.price)
-            try:
-                price = float(price)
-            except ValueError:
-                messages.error(request, f"Precio inválido para el ítem {sales_order_item.description}. Debe ser un número decimal.")
-                order_has_errors = True
-                continue
+                try:
+                    quantity_requested = float(quantity_requested)
+                except ValueError as ve:
+                    print(f"[Error] Cantidad inválida en item_id {item_id}: {ve}")
+                    messages.error(request, f"Cantidad solicitada inválida para el ítem {sales_order_item.description}. Debe ser un número.")
+                    order_has_errors = True
+                    continue
 
-            if quantity_requested > sales_order_item.remaining_requirement:
-                messages.error(request, f"La cantidad solicitada ({quantity_requested}) para el ítem '{sales_order_item.description}' excede la cantidad disponible ({sales_order_item.remaining_requirement}).")
-                order_has_errors = True
-                continue
+                price = request.POST.get(f"items-{sales_order_item_id}-price", sales_order_item.price)
+                try:
+                    price = float(price)
+                except ValueError as ve:
+                    print(f"[Error] Precio inválido en item_id {item_id}: {ve}")
+                    messages.error(request, f"Precio inválido para el ítem {sales_order_item.description}.")
+                    order_has_errors = True
+                    continue
 
-            supplier_id = request.POST.get(f"items-{sales_order_item_id}-supplier")
-            notes = request.POST.get(f"items-{sales_order_item_id}-notes", "")
-            file_attachment = request.FILES.get(f"items-{sales_order_item_id}-file_attachment")
+                if quantity_requested > sales_order_item.remaining_requirement:
+                    print(f"[Error] La cantidad solicitada ({quantity_requested}) para '{sales_order_item.description}' excede la cantidad disponible ({sales_order_item.remaining_requirement}).")
+                    messages.error(request, "La cantidad solicitada excede la disponible.")
+                    order_has_errors = True
+                    continue
 
-            items_to_create.append({
-                "sales_order_item": sales_order_item,
-                "quantity_requested": quantity_requested,
-                "price": price,
-                "notes": notes,
-                "file_attachment": file_attachment,
-                "supplier": Suppliers.objects.get(id=supplier_id) if supplier_id else None
-            })
+                supplier_id = request.POST.get(f"items-{sales_order_item_id}-supplier")
+                notes = request.POST.get(f"items-{sales_order_item_id}-notes", "")
+                file_attachment = request.FILES.get(f"items-{sales_order_item_id}-file_attachment")
 
-    if not items_to_create:
-        return JsonResponse({"message": "Error: No se puede crear una orden de requerimiento sin ítems válidos.", "type": "error"}, status=400)
+                items_to_create.append({
+                    "sales_order_item": sales_order_item,
+                    "quantity_requested": quantity_requested,
+                    "price": price,
+                    "notes": notes,
+                    "file_attachment": file_attachment,
+                    "supplier": Suppliers.objects.get(id=supplier_id) if supplier_id else None
+                })
+                print(f"[Debug] Ítem válido para creación: {sales_order_item.description}, Cantidad: {quantity_requested}, Precio: {price}")
 
-    requirement_order = RequirementOrder(
-        sales_order=sales_order,
-        user=request.user,
-        requested_date=request.POST.get("requested_date"),
-        notes=request.POST.get("notes")
-    )
-    requirement_order.save()
+        # Verificar si hay ítems válidos
+        print("[Debug] Ítems válidos para crear:", items_to_create)
+        if not items_to_create:
+            print("[Error] No se pueden crear órdenes sin ítems válidos")
+            return JsonResponse({"message": "Error: No se puede crear una orden de requerimiento sin ítems válidos.", "type": "error"}, status=400)
 
-    for item_data in items_to_create:
-        item = RequirementOrderItem(
-            requirement_order=requirement_order,
-            sales_order_item=item_data["sales_order_item"],
-            quantity_requested=item_data["quantity_requested"],
-            price=item_data["price"],
-            notes=item_data["notes"],
-            file_attachment=item_data["file_attachment"],
-            supplier=item_data["supplier"]
+        # Crear la orden de requerimiento
+        requirement_order = RequirementOrder(
+            sales_order=sales_order,
+            user=request.user,
+            requested_date=request.POST.get("requested_date"),
+            notes=request.POST.get("notes")
         )
-        item.save()
+        requirement_order.save()
+        print("[Debug] Orden de requerimiento creada.")
 
-    return JsonResponse({"message": "Orden de Requerimiento creada exitosamente.", "type": "success"})
+        # Crear cada ítem en la orden de requerimiento
+        for item_data in items_to_create:
+            item = RequirementOrderItem(
+                requirement_order=requirement_order,
+                sales_order_item=item_data["sales_order_item"],
+                quantity_requested=item_data["quantity_requested"],
+                price=item_data["price"],
+                notes=item_data["notes"],
+                file_attachment=item_data["file_attachment"],
+                supplier=item_data["supplier"]
+            )
+            item.save()
+            print(f"[Debug] Ítem {item.sales_order_item.description} guardado con cantidad {item.quantity_requested}.")
+
+        return JsonResponse({"message": "Orden de Requerimiento creada exitosamente.", "type": "success"})
+
+    except Exception as e:
+        print(f"[Error] Excepción al crear la orden de requerimiento: {str(e)}")
+        return JsonResponse({"message": f"Error inesperado: {str(e)}", "type": "error"}, status=400)

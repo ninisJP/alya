@@ -11,47 +11,45 @@ class RequirementOrder(models.Model):
     STATE_CHOICES = [
         ('APROBADO', 'Aprobado'),
         ('RECHAZADO', 'Rechazado'),
+        ('NO REVISADO', 'No Revisado')
     ]
+    
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="requirement_orders")
     requested_date = models.DateField()
     notes = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)  # Editable pero con valor de creación predeterminado
     order_number = models.CharField(max_length=20, unique=True, blank=True)
     estado = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     total_order = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     purchase_order_created = models.BooleanField(default=False)
-    state = models.CharField(max_length=20,choices=STATE_CHOICES,default='NO REVISADO')
+    state = models.CharField(max_length=20, choices=STATE_CHOICES, default='NO REVISADO')
 
     def delete(self, *args, **kwargs):
-        # Obtener los SalesOrderItems afectados antes de eliminar
         affected_sales_order_items = set(item.sales_order_item for item in self.items.all())
-
-        # Eliminar la RequirementOrder y sus items
         super().delete(*args, **kwargs)
-
-        # Recalcular remaining_requirement para cada SalesOrderItem afectado
+        
         for sales_order_item in affected_sales_order_items:
             sales_order_item.update_remaining_requirement()
+
+    def save(self, *args, **kwargs):
+        # Generación de order_number si la instancia es nueva
+        if not self.pk:
+            super().save(*args, **kwargs)
+            self.order_number = f"OR-{self.id}"
+        
+        # Calcula el total de la orden sumando los precios de los ítems
+        self.total_order = sum(item.total_price for item in self.items.all())
+        
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Requirement Order {self.order_number} for {self.sales_order.sapcode} on {self.requested_date}"
 
-    def save(self, *args, **kwargs):
-        # Si es una nueva instancia, guardarla primero para generar el ID
-        if not self.pk:
-            super().save(*args, **kwargs)
-            self.order_number = f"OR-{self.id}"  # Generar el número de orden basado en el ID
-
-        # Calcular el total de la orden sumando los precios de los ítems
-        self.total_order = sum(item.total_price for item in self.items.all())
-        
-        # Guardar finalmente la instancia
-        super().save(*args, **kwargs)
-        
     class Meta:
         verbose_name = "Orden de Requerimiento"
         verbose_name_plural = "Ordenes de Requerimiento"
+
 
 
 class RequirementOrderItem(models.Model):

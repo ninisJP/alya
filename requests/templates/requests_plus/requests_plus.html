@@ -46,12 +46,11 @@
                             <td>{{ item.unit_of_measurement }}</td>
                             <td>${{ item.price }}</td>
                             <td>{{ item.remaining_requirement }}</td>
-                            
                             <!-- Campos adicionales para RequirementOrderItem -->
                             <td>
                                 {% if item.remaining_requirement > 0 %}
                                     <input type="number" name="items-{{ item.id }}-quantity_requested" 
-                                           min="1" 
+                                           step="any" 
                                            max="{{ item.remaining_requirement }}" 
                                            class="form-control form-control-sm shadow-sm text-center">
                                 {% else %}
@@ -61,7 +60,6 @@
                                            disabled>
                                 {% endif %}
                             </td>
-                            
                             <td>
                                 <input type="number" name="items-{{ item.id }}-price" step="0.01" class="form-control form-control-sm shadow-sm text-center" value="{{ item.price }}">
                             </td>
@@ -94,11 +92,12 @@
     function removeZeroQuantities(event) {
         const quantityFields = document.querySelectorAll("input[name*='-quantity_requested']");
         quantityFields.forEach(field => {
-            if (parseInt(field.value) === 0) {
+            if (parseFloat(field.value) === 0) {  // Solo si es exactamente cero
                 field.disabled = true;
             }
-        });   
+        });
     }
+    
     document.addEventListener("htmx:afterRequest", function(event) {
         if (event.detail.xhr.response) {
             const response = JSON.parse(event.detail.xhr.response);
