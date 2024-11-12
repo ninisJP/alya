@@ -1,0 +1,130 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Inicializar Select2 para proveedores
+        $('.select2-supplier').each(function() {
+            $(this).select2({
+                ajax: {
+                    url: $(this).data('ajax-url'),
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return { term: params.term };
+                    },
+                    processResults: function(data) {
+                        return { results: data.results };
+                    },
+                    cache: true
+                },
+                placeholder: $(this).data('placeholder'),
+                allowClear: true,
+                minimumInputLength: 3
+            });
+        });
+
+        // Actualizar el precio total al cambiar cantidad o precio unitario
+        $('input[name^="quantity_requested_"], input[name^="price_"]').on('input', function() {
+            var $row = $(this).closest('tr');
+            var quantity = parseFloat($row.find('input[name^="quantity_requested_"]').val()) || 0;
+            var price = parseFloat($row.find('input[name^="price_"]').val()) || 0;
+            var total = (quantity * price).toFixed(2);
+            $row.find('input[name^="total_price_"]').val(total);
+        });
+    });
+
+    function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Título
+        doc.setFontSize(18);
+        doc.text('Detalles de la Orden de Requerimiento', 10, 10);
+
+        // Obtener los datos de la tabla
+        let rows = [];
+        $('#requirement-order-form tbody tr').each(function() {
+            let row = [];
+            $(this).find('td').each(function(index) {
+                // Excluir la columna de botones de estado y documentos
+                if (index < 9) {
+                    let text = $(this).text().trim();
+                    if (!text) {
+                        let input = $(this).find('input, select');
+                        if (input.length) {
+                            text = input.val() || input.find('option:selected').text();
+                        }
+                    }
+                    row.push(text);
+                }
+            });
+            rows.push(row);
+        });
+
+        // Generar la tabla en el PDF
+        doc.autoTable({
+            head: [['SAP', 'ITEM', 'Detalle', 'Cantidad', 'Unidad', 'Inventario', 'P. Unitario', 'P. Total', 'Proveedor']],
+            body: rows,
+            startY: 20
+        });
+
+        doc.save('Orden_de_Requerimiento.pdf');
+    }
+
+    function downloadExcel() {
+        let workbook = XLSX.utils.book_new();
+        let worksheet_data = [['SAP', 'ITEM', 'Detalle', 'Cantidad Solicitada', 'Unidad', 'Disponible en Inventario', 'Precio Unitario', 'Precio Total', 'Proveedor', 'Estado']];
+
+        $('#requirement-order-form tbody tr').each(function() {
+            let row = [];
+            row.push($(this).find('td:eq(0)').text().trim()); // SAP
+            row.push($(this).find('td:eq(1)').text().trim()); // ITEM
+            row.push($(this).find('input[name^="notes_"]').val()); // Detalle
+            row.push($(this).find('input[name^="quantity_requested_"]').val()); // Cantidad
+            row.push($(this).find('td:eq(4)').text().trim()); // Unidad
+            row.push($(this).find('td:eq(5)').text().trim()); // Inventario
+            row.push($(this).find('input[name^="price_"]').val()); // Precio Unitario
+            row.push($(this).find('input[name^="total_price_"]').val()); // Precio Total
+            row.push($(this).find('select[name^="supplier_"] option:selected').text()); // Proveedor
+            row.push($(this).find('input[name^="estado_"]').val()); // Estado
+            worksheet_data.push(row);
+        });
+
+        let worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Orden de Requerimiento');
+        XLSX.writeFile(workbook, 'Orden_de_Requerimiento.xlsx');
+    }
+
+    function updateAllItemsState(newState) {
+        // Actualizar todos los estados y los botones
+        $('input[name^="estado_"]').each(function() {
+            const itemId = $(this).attr('id').replace('estado-input-', '');
+            setEstado(itemId, newState);
+        });
+    }
+
+    function setEstado(itemId, estado) {
+        // Actualizar el valor del input hidden
+        $('#estado-input-' + itemId).val(estado);
+    
+        // Actualizar los estilos de los botones
+        const btnGroup = $('#item-row-' + itemId + ' .btn-group');
+        btnGroup.find('button').each(function() {
+            const btn = $(this);
+            const btnEstado = btn.text().trim();
+            btn.removeClass('btn-success btn-primary btn-warning btn-danger btn-outline-success btn-outline-primary btn-outline-warning btn-outline-danger');
+            if (btnEstado === estado) {
+                if (estado === 'L') btn.addClass('btn-success');
+                else if (estado === 'C') btn.addClass('btn-primary');
+                else if (estado === 'P') btn.addClass('btn-warning');
+                else if (estado === 'R') btn.addClass('btn-danger');
+            } else {
+                if (btnEstado === 'L') btn.addClass('btn-outline-success');
+                else if (btnEstado === 'C') btn.addClass('btn-outline-primary');
+                else if (btnEstado === 'P') btn.addClass('btn-outline-warning');
+                else if (btnEstado === 'R') btn.addClass('btn-outline-danger');
+            }
+        });
+    }
+</script>

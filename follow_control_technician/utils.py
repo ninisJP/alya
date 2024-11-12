@@ -43,49 +43,56 @@ from django.db import IntegrityError
 def process_technician_tasks_excel(file):
     try:
         print("Iniciando lectura del archivo Excel...")
-        df = pd.read_excel(file, header=None)  # Especifica que no hay cabecera
+        df = pd.read_excel(file, header=None)
 
         # Imprimir las primeras filas para ver cómo están estructurados los datos
         print("Primeras filas del archivo:", df.head().to_string(index=False))
 
-        # Validar que el archivo tiene al menos 4 columnas
         if df.shape[1] < 4:
             print("Archivo no tiene las columnas necesarias.")
             raise ValueError("El archivo debe tener al menos 4 columnas: Verbo, Objeto, Medida, Tiempo")
 
         print("Archivo leído correctamente. Procesando filas...")
 
-        # Obtener las combinaciones de `verb`, `object`, `measurement`, `time` de tareas existentes
+        # Obtener combinaciones únicas existentes en la base de datos
         existing_tasks_set = set(
             TechnicianTask.objects.values_list('verb', 'object', 'measurement', 'time')
         )
 
         tasks = []
+        errors = []  # Lista para almacenar errores por fila
         for index, row in df.iterrows():
-            verb = row[0]
-            object_ = row[1]
-            measurement = row[2]
-            time = row[3]
+            try:
+                verb = row[0]
+                object_ = row[1]
+                measurement = row[2]
+                time = row[3]
 
-            # Validaciones de celdas vacías
-            if pd.isna(verb) or pd.isna(object_) or pd.isna(measurement) or pd.isna(time):
-                print(f"Fila {index + 1} tiene datos incompletos. Verbo: {verb}, Objeto: {object_}, Medida: {measurement}, Tiempo: {time}")
-                raise ValueError(f"La fila {index + 1} en el archivo tiene datos incompletos. Por favor revisa el archivo.")
+                if pd.isna(verb) or pd.isna(object_) or pd.isna(measurement) or pd.isna(time):
+                    raise ValueError(f"Datos incompletos en la fila {index + 1}")
 
-            # Verificar si la combinación ya existe
-            task_tuple = (verb, object_, measurement, time)
-            if task_tuple in existing_tasks_set:
-                continue  # Saltar esta tarea si ya existe
+                task_tuple = (verb, object_, measurement, time)
+                if task_tuple in existing_tasks_set:
+                    print(f"Tarea duplicada en fila {index + 1}. No se guardará.")
+                    continue  # Saltar tarea si ya existe
 
-            # Agrega la tarea a la lista de tareas nuevas
-            tasks.append(TechnicianTask(verb=verb, object=object_, measurement=measurement, time=time))
+                tasks.append(TechnicianTask(verb=verb, object=object_, measurement=measurement, time=time))
+                existing_tasks_set.add(task_tuple)  # Agregar a `existing_tasks_set` para evitar duplicados en la misma carga
+            except Exception as row_error:
+                errors.append(f"Fila {index + 1}: {str(row_error)}")
 
-        # Guardar todas las tareas nuevas
+        # Guardar todas las tareas nuevas en un solo paso
         if tasks:
             TechnicianTask.objects.bulk_create(tasks)
             print("Todas las tareas nuevas guardadas en la base de datos.")
         else:
             print("No se encontraron tareas nuevas para guardar.")
+
+        # Mostrar errores si los hay
+        if errors:
+            for error in errors:
+                print("Error:", error)
+            return False, "Errores en algunas filas. Revísalos en los detalles de la salida."
         return True, None
     except Exception as e:
         print("Error durante el procesamiento del archivo:", str(e))
