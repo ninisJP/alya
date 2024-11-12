@@ -15,6 +15,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
 from logistic_suppliers.models import Suppliers
+from django.core.cache import cache
 
 def index_requests(request):
     sales_orders = SalesOrder.objects.all().order_by('-id')
@@ -186,26 +187,30 @@ def delete_requirement_order_item(request, item_id):
     return render(request, 'partials/item_table.html', {'order': order})
     
 def ajax_load_suppliers(request):
-    term = request.GET.get('term', '')  # Filtrar por nombre
-    suppliers = Suppliers.objects.filter(name__icontains=term)[:20]
-    supplier_list = [{'id': supplier.id, 'text': supplier.name} for supplier in suppliers]
-    return JsonResponse({'results': supplier_list})  
+    term = request.GET.get('term', '').strip().lower()  # Filtrar y limpiar el término de búsqueda
+
+    # Intenta recuperar de caché si ya se ha buscado este término
+    cache_key = f"suppliers_search_{term}"
+    supplier_list = cache.get(cache_key)
+
+    if not supplier_list:  # Si no está en caché, realiza la consulta
+        suppliers = Suppliers.objects.filter(name__icontains=term).only('id', 'name')[:20]
+        supplier_list = [{'id': supplier.id, 'text': supplier.name} for supplier in suppliers]
+        cache.set(cache_key, supplier_list, timeout=60 * 5)  # Cachea la respuesta por 5 minutos
+
+    return JsonResponse({'results': supplier_list})
     
 # Nueva vista para pedidos rapidos 
 def RequestSalesOrder(request, pk):
-    # Obtener la SalesOrder específica y sus ítems asociados
-    sales_order = get_object_or_404(SalesOrder, id=pk)
-    
-    # Prefetch para cargar los ítems con su información
+    # Usamos select_related para evitar consultas adicionales de clave externa
+    sales_order = get_object_or_404(SalesOrder.objects.select_related('project'), id=pk)
+    # Prefetch_related permite cargar `requirementorderitem_set` de forma eficiente
     sales_order_items = sales_order.items.all().prefetch_related('requirementorderitem_set')
     
-    # Obtener todos los proveedores para el select
-    suppliers = Suppliers.objects.all()
-    
+    # Elimina la carga de suppliers
     context = {
         'sales_order': sales_order,
         'sales_order_items': sales_order_items,
-        'suppliers': suppliers,
     }
     return render(request, 'requests_plus/requests_plus.html', context)
 

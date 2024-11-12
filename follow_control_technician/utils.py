@@ -38,9 +38,7 @@ def informe_tarjetas_del_mes(mes, anio):
     
 import pandas as pd
 from .models import TechnicianTask
-
-import pandas as pd
-from .models import TechnicianTask
+from django.db import IntegrityError
 
 def process_technician_tasks_excel(file):
     try:
@@ -57,6 +55,11 @@ def process_technician_tasks_excel(file):
 
         print("Archivo leído correctamente. Procesando filas...")
 
+        # Obtener las combinaciones de `verb`, `object`, `measurement`, `time` de tareas existentes
+        existing_tasks_set = set(
+            TechnicianTask.objects.values_list('verb', 'object', 'measurement', 'time')
+        )
+
         tasks = []
         for index, row in df.iterrows():
             verb = row[0]
@@ -69,15 +72,23 @@ def process_technician_tasks_excel(file):
                 print(f"Fila {index + 1} tiene datos incompletos. Verbo: {verb}, Objeto: {object_}, Medida: {measurement}, Tiempo: {time}")
                 raise ValueError(f"La fila {index + 1} en el archivo tiene datos incompletos. Por favor revisa el archivo.")
 
-            # Agrega la tarea a la lista
-            tasks.append(TechnicianTask(verb=verb, object=object_, measurement=measurement, time=time))
-            print(f"Tarea añadida: {verb} - {object_} - {measurement} - {time}")
+            # Verificar si la combinación ya existe
+            task_tuple = (verb, object_, measurement, time)
+            if task_tuple in existing_tasks_set:
+                continue  # Saltar esta tarea si ya existe
 
-        # Guardar todas las tareas
-        TechnicianTask.objects.bulk_create(tasks)
-        print("Todas las tareas guardadas en la base de datos.")
+            # Agrega la tarea a la lista de tareas nuevas
+            tasks.append(TechnicianTask(verb=verb, object=object_, measurement=measurement, time=time))
+
+        # Guardar todas las tareas nuevas
+        if tasks:
+            TechnicianTask.objects.bulk_create(tasks)
+            print("Todas las tareas nuevas guardadas en la base de datos.")
+        else:
+            print("No se encontraron tareas nuevas para guardar.")
         return True, None
     except Exception as e:
         print("Error durante el procesamiento del archivo:", str(e))
         return False, str(e)
+
 

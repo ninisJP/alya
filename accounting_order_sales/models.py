@@ -52,17 +52,14 @@ class SalesOrderItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     unit_of_measurement = models.CharField(max_length=255, default="UND")
-    remaining_requirement = models.IntegerField(null=True, blank=True)
+    remaining_requirement = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return f"{self.description} - {self.amount} unidades"
 
     def update_remaining_requirement(self):
-        """
-        Calcula el remaining_requirement basado en las cantidades solicitadas en las RequirementOrderItems asociadas.
-        """
-        cantidad_solicitada = sum(item.quantity_requested for item in self.requirementorderitem_set.all())
-        self.remaining_requirement = max(self.amount - cantidad_solicitada, 0)
+        cantidad_solicitada = sum(Decimal(item.quantity_requested) for item in self.requirementorderitem_set.all())
+        self.remaining_requirement = max(Decimal(self.amount) - cantidad_solicitada, Decimal(0))
         self.save()
 
     def save(self, *args, **kwargs):

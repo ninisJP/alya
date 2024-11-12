@@ -16,6 +16,7 @@ class TechnicianTask(models.Model):
     class Meta:
         verbose_name = "Tarea de Técnico"
         verbose_name_plural = "Tareas de Técnicos"
+        unique_together = ('verb', 'object', 'measurement', 'time')  # Restringe para evitar duplicados
 
 
 class TechnicianCard(models.Model):

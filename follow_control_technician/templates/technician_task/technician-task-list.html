@@ -2,7 +2,8 @@
     {% for task in tasks %}
         <li id="task-{{ task.id }}" class="list-group-item d-flex justify-content-between align-items-center">
             <span>
-                <strong>{{ task.verb }}</strong> - {{ task.object }} - {{ task.measurement }} - {{ task.time }}
+                <!-- Mostrar el índice usando forloop.counter -->
+                <strong>{{ forloop.counter }}. {{ task.verb }}</strong> - {{ task.object }} - {{ task.measurement }} - {{ task.time }}
             </span>
             <span>
                 <button class="btn btn-warning btn-sm me-2" hx-get="{% url 'edit-technician-task' task.id %}" hx-target="#task-{{ task.id }}" hx-swap="outerHTML">Editar</button>
