@@ -25,37 +25,40 @@
         </div>
     </div>
 
-    <!-- Información General en Tabla -->
-    <div class="card shadow-sm mb-4 rounded" style="background-color: #f8f9fa;">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-sm mb-0 w-100">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Pedido</th>
-                            <th>Orden de Venta</th>
-                            <th>Cliente</th>
-                            <th>Proyecto</th>
-                            <th>Total</th>
-                            <th>F. Creada</th>
-                            <th>Detalles</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ requirement_order.user }}</td>
-                            <td>{{ requirement_order.sales_order.sapcode }}</td>
-                            <td>{{ requirement_order.sales_order.project.client.legal_name }}</td>
-                            <td>{{ requirement_order.sales_order.project.name }}</td>
-                            <td>S/. {{ requirement_order.total_order }}</td>
-                            <td>{{ requirement_order.created_at }}</td>
-                            <td>{{ requirement_order.notes }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- Información General en Tabla -->
+<div class="card shadow-sm mb-4 rounded" style="background-color: #f8f9fa;">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm mb-0 w-100">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Orden de Venta</th>
+                        <th>Cliente</th>
+                        <th>Proyecto</th>
+                        <th>Total</th>
+                        <th>F. Creada</th>
+                        <th>Días</th> <!-- Nueva columna para días -->
+                        <th>Detalles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ requirement_order.user }}</td>
+                        <td>{{ requirement_order.sales_order.sapcode }}</td>
+                        <td>{{ requirement_order.sales_order.project.client.legal_name }}</td>
+                        <td>{{ requirement_order.sales_order.project.name }}</td>
+                        <td>S/. {{ requirement_order.total_order }}</td>
+                        <td>{{ requirement_order.created_at }}</td>
+                        <td>{{ requirement_order.sales_order.days }}</td> <!-- Mostrar días de la orden de venta -->
+                        <td>{{ requirement_order.notes }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
+
 
     <!-- Botones de Filtrado y Acción en una sola fila -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -85,82 +88,87 @@
         </div>
     </div>
 
-    <!-- Tabla de Ítems -->
-    <div class="table-responsive w-100">
-        <form hx-post="{% url 'update_requirement_order_items' requirement_order.pk %}"
-              hx-target="#response-message"
-              hx-swap="innerHTML"
-              id="requirement-order-form">
-            <table class="table table-bordered table-hover align-middle w-100">
-                <thead class="table-dark">
-                    <tr>
-                        <th style="width: 80px;">SAP</th>
-                        <th style="width: 200px;">ITEM</th>
-                        <th style="width: 250px;">DETALLE</th>
-                        <th style="width: 80px;">CANT</th>  <!-- Espacio extra para CANT -->
-                        <th style="width: 80px;">UND</th>   <!-- Espacio extra para UND -->
-                        <th style="width: 80px;">STOCK</th>
-                        {% if not filtrar == 'P' %}
-                            <th style="width: 100px;">P. UNIT</th>
-                            <th style="width: 100px;">P. TOTAL</th>
-                        {% endif %}
-                        <th style="width: 150px;">PROV</th>
-                        <th style="width: 60px;">DOC</th>
-                        <th style="width: 100px;">ESTADO</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in items %}
-                    <tr id="item-row-{{ item.id }}">
-                        <td>{{ item.sap_code }}</td>
-                        <td style="white-space: normal;">
-                            {{ item.sales_order_item.description }}
+   <!-- Tabla de Ítems -->
+<div class="table-responsive w-100">
+    <form hx-post="{% url 'update_requirement_order_items' requirement_order.pk %}"
+          hx-target="#response-message"
+          hx-swap="innerHTML"
+          id="requirement-order-form">
+        <table class="table table-bordered table-hover align-middle w-100">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width: 80px;">SAP</th>
+                    <th style="width: 200px;">ITEM</th>
+                    <th style="width: 250px;">DETALLE</th>
+                    <th style="width: 80px;">CANT</th>
+                    <th style="width: 80px;">UND</th>
+                    <th style="width: 80px;">STOCK</th>
+                    <th style="width: 120px;">Categoría</th> <!-- Nueva columna para categoría -->
+                    {% if not filtrar == 'P' %}
+                        <th style="width: 100px;">P. UNIT</th>
+                        <th style="width: 100px;">P. TOTAL</th>
+                    {% endif %}
+                    <th style="width: 150px;">PROV</th>
+                    <th style="width: 60px;">DOC</th>
+                    <th style="width: 100px;">ESTADO</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr id="item-row-{{ item.id }}">
+                    <td>{{ item.sap_code }}</td>
+                    <td style="white-space: normal;">
+                        {{ item.sales_order_item.description }}
+                    </td>
+                    <td>
+                        <input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control" style="min-height: 50px;">
+                    </td>
+                    <td>
+                        <input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" style="width: 80px;" min="0" step="0.01">
+                    </td>                        
+                    <td>
+                        <input type="text" name="unit_{{ item.id }}" value="{{ item.sales_order_item.unit_of_measurement }}" class="form-control text-center" style="width: 80px;">
+                    </td>
+                    <td>{{ item.disponible_inventario }}</td>
+                    <td>{{ item.sales_order_item.category }}</td> <!-- Mostrar categoría del ítem -->
+                    {% if not filtrar == 'P' %}
+                        <td>
+                            <input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" style="width: 100px;" min="0" step="0.01">
                         </td>
                         <td>
-                            <input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control" style="min-height: 50px;">
+                            <input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" style="width: 100px;" readonly>
                         </td>
-                        <td>
-                            <input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" style="width: 80px;" min="0" step="0.01">
-                        </td>                        
-                        <td>
-                            <input type="text" name="unit_{{ item.id }}" value="{{ item.sales_order_item.unit_of_measurement }}" class="form-control text-center" style="width: 80px;">
-                        </td>
-                        <td>{{ item.disponible_inventario }}</td>
-                        {% if not filtrar == 'P' %}
-                            <td>
-                                <input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" style="width: 100px;" min="0" step="0.01">
-                            </td>
-                            <td>
-                                <input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" style="width: 100px;" readonly>
-                            </td>
-                        {% endif %}
-                        <td>
-                            <select name="supplier_{{ item.id }}" class="form-select select2-supplier" style="width: 100%;" data-ajax-url="{% url 'ajax_load_suppliers' %}" data-placeholder="Seleccionar proveedor">
-                                {% if item.supplier %}
-                                    <option value="{{ item.supplier.id }}" selected>{{ item.supplier.name }}</option>
-                                {% endif %}
-                            </select>
-                        </td>
-                        <td>
-                            {% if item.file_attachment %}
-                                <a href="{{ item.file_attachment.url }}" target="_blank"><i class="fas fa-file-alt"></i></a>
-                            {% else %}
-                                <i class="fas fa-times text-muted"></i>
+                    {% endif %}
+                    <td>
+                        <select name="supplier_{{ item.id }}" class="form-select select2-supplier" style="width: 100%;" data-ajax-url="{% url 'ajax_load_suppliers' %}" data-placeholder="Seleccionar proveedor">
+                            {% if item.supplier %}
+                                <option value="{{ item.supplier.id }}" selected>{{ item.supplier.name }}</option>
                             {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group" role="group" aria-label="Estado">
-                                <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
-                                <button type="button" class="btn btn-sm {% if item.estado == 'L' %}btn-success{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'L')">L</button>
-                                <button type="button" class="btn btn-sm {% if item.estado == 'C' %}btn-primary{% else %}btn-outline-primary{% endif %}" onclick="setEstado('{{ item.id }}', 'C')">C</button>
-                                <button type="button" class="btn btn-sm {% if item.estado == 'P' %}btn-warning{% else %}btn-outline-warning{% endif %}" onclick="setEstado('{{ item.id }}', 'P')">P</button>
-                                <button type="button" class="btn btn-sm {% if item.estado == 'R' %}btn-danger{% else %}btn-outline-danger{% endif %}" onclick="setEstado('{{ item.id }}', 'R')">R</button>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </select>
+                    </td>
+                    <td>
+                        {% if item.file_attachment %}
+                            <a href="{{ item.file_attachment.url }}" target="_blank"><i class="fas fa-file-alt"></i></a>
+                        {% else %}
+                            <i class="fas fa-times text-muted"></i>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Estado">
+                            <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
+                            <button type="button" class="btn btn-sm {% if item.estado == 'L' %}btn-success{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'L')">L</button>
+                            <button type="button" class="btn btn-sm {% if item.estado == 'C' %}btn-primary{% else %}btn-outline-primary{% endif %}" onclick="setEstado('{{ item.id }}', 'C')">C</button>
+                            <button type="button" class="btn btn-sm {% if item.estado == 'P' %}btn-warning{% else %}btn-outline-warning{% endif %}" onclick="setEstado('{{ item.id }}', 'P')">P</button>
+                            <button type="button" class="btn btn-sm {% if item.estado == 'R' %}btn-danger{% else %}btn-outline-danger{% endif %}" onclick="setEstado('{{ item.id }}', 'R')">R</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</div>
+
 
             <!-- Botones al final ocupando todo el ancho -->
             <div class="d-flex justify-content-between mt-4">
