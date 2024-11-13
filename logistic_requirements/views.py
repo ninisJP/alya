@@ -63,7 +63,7 @@ class RequirementOrderListView(ListView):
 
 def requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
-    filtrar = request.GET.get('filtrar')  # Se captura el parámetro sin valor por defecto
+    filtrar = request.GET.get('filtrar')
 
     # Filtrar los ítems en estado 'P' si se requiere, o cargar todos los ítems
     if filtrar == 'P':
@@ -72,27 +72,35 @@ def requirement_order_detail_view(request, pk):
         items = requirement_order.items.all().select_related('sales_order_item')
 
     suppliers = Suppliers.objects.all()
-    
+
     # Crear un diccionario de inventario disponible, usando sap como clave
     inventory_data = {item.item.sap: item.quantity for item in Item.objects.select_related('item').all()}
-    
-    # Agregar disponibilidad a cada item en el queryset
+
+    # Agregar disponibilidad y tiempo de servicio a cada item en el queryset
     for item in items:
         item.disponible_inventario = inventory_data.get(item.sap_code, 0)
+
+        # Calcular tiempo de servicio en horas solo si la categoría no es 'Material', 'Consumible', o 'Equipo'
+        if item.sales_order_item.category not in ["Material", "Consumible", "Equipo"]:
+            # Multiplicamos el tiempo de servicio por la cantidad pedida
+            item.tiempo_servicio = requirement_order.sales_order.days * 8 * item.quantity_requested
+        else:
+            item.tiempo_servicio = None
 
     return render(request, 'requirement_order_detail.html', {
         'requirement_order': requirement_order,
         'items': items,
         'suppliers': suppliers,
-        'filtrar': filtrar,  # Pasar el estado de filtro actual al template
+        'filtrar': filtrar,
     })
 
 @require_POST
 def update_requirement_order_items(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
     updated_items = []
-        
-    # Recorrer los ítems de la orden y actualizar con los datos recibidos del request.POST
+
+    print("POST Data:", request.POST)  # Imprime los datos POST recibidos para depuración
+
     for item in requirement_order.items.all():
         item.quantity_requested = request.POST.get(f'quantity_requested_{item.id}', item.quantity_requested)
         item.price = request.POST.get(f'price_{item.id}', item.price)
@@ -101,8 +109,7 @@ def update_requirement_order_items(request, pk):
         item.estado = request.POST.get(f'estado_{item.id}', item.estado)
         item.save()
         updated_items.append(item)
-    
-    # Retornar un mensaje de éxito sin crear la PurchaseOrder
+
     return JsonResponse({'message': 'Items actualizados con éxito'}, status=200)
 
 def create_purchase_order(request, pk):
