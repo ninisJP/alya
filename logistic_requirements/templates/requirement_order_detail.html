@@ -13,7 +13,6 @@
                         <span class="badge {{ requirement_order.estado }}">
                             {{ requirement_order.estado }}
                         </span>
-                        
                     </div>
                 </div>
                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -36,7 +35,6 @@
                             <th>Orden de Venta</th>
                             <th>Cliente</th>
                             <th>Proyecto</th>
-                            <th>Total</th>
                             <th>F. Creada</th>
                             <th>Detalles</th>
                         </tr>
@@ -47,7 +45,6 @@
                             <td>{{ requirement_order.sales_order.sapcode }}</td>
                             <td>{{ requirement_order.sales_order.project.client.legal_name }}</td>
                             <td>{{ requirement_order.sales_order.project.name }}</td>
-                            <td>S/. {{ requirement_order.total_order }}</td>
                             <td>{{ requirement_order.created_at }}</td>
                             <td>{{ requirement_order.notes }}</td>
                         </tr>
@@ -59,23 +56,19 @@
 
     <!-- Botones de Filtrado y Acción en una sola fila -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <!-- Botones de Filtrado -->
         <div class="d-flex gap-2">
             <a href="{% url 'requirement_order_detail' requirement_order.pk %}"
                class="btn btn-outline-secondary {% if not filtrar %}active{% endif %}">Ver Todos</a>
             <a href="{% url 'requirement_order_detail' requirement_order.pk %}?filtrar=P"
                class="btn btn-outline-secondary {% if filtrar == 'P' %}active{% endif %}">Ver Pendientes</a>
         </div>
-        <!-- Botones de Acción -->
         <div class="d-flex gap-2">
-            <!-- Botones de Descarga -->
             <button type="button" class="btn btn-outline-primary" onclick="downloadExcel()">
                 <i class="fas fa-file-excel"></i>
             </button>
             <button type="button" class="btn btn-outline-danger" onclick="downloadPDF()">
                 <i class="fas fa-file-pdf"></i>
             </button>
-            <!-- Botones para cambiar el estado de todos los ítems -->
             <div class="btn-group">
                 <button type="button" class="btn btn-outline-success" onclick="updateAllItemsState('L')">L</button>
                 <button type="button" class="btn btn-outline-primary" onclick="updateAllItemsState('C')">C</button>
@@ -97,9 +90,11 @@
                         <th style="width: 80px;">SAP</th>
                         <th style="width: 200px;">ITEM</th>
                         <th style="width: 250px;">DETALLE</th>
-                        <th style="width: 80px;">CANT</th>  <!-- Espacio extra para CANT -->
-                        <th style="width: 80px;">UND</th>   <!-- Espacio extra para UND -->
+                        <th style="width: 80px;">CANT</th>
+                        <th style="width: 80px;">UND</th>
+                        <th style="width: 100px;">Tiempo Servicio (hrs)</th> <!-- Nueva columna para tiempo de servicio -->
                         <th style="width: 80px;">STOCK</th>
+                        <th style="width: 120px;">Categoría</th> <!-- Nueva columna para categoría -->
                         {% if not filtrar == 'P' %}
                             <th style="width: 100px;">P. UNIT</th>
                             <th style="width: 100px;">P. TOTAL</th>
@@ -125,7 +120,15 @@
                         <td>
                             <input type="text" name="unit_{{ item.id }}" value="{{ item.sales_order_item.unit_of_measurement }}" class="form-control text-center" style="width: 80px;">
                         </td>
+                        <td>
+                            {% if item.tiempo_servicio %}
+                                {{ item.tiempo_servicio }} hrs
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
                         <td>{{ item.disponible_inventario }}</td>
+                        <td>{{ item.sales_order_item.category }}</td> <!-- Mostrar categoría del ítem -->
                         {% if not filtrar == 'P' %}
                             <td>
                                 <input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" style="width: 100px;" min="0" step="0.01">
@@ -162,7 +165,6 @@
                 </tbody>
             </table>
 
-            <!-- Botones al final ocupando todo el ancho -->
             <div class="d-flex justify-content-between mt-4">
                 <button type="submit" class="btn btn-primary flex-grow-1 me-2">
                     <i class="fas fa-save"></i> Guardar Cambios
@@ -180,7 +182,6 @@
     </div>
 </div>
 
-<!-- Incluir el partial de scripts -->
 {% include 'partials/scripts_requirement_order.html' %}
 
 {% endblock %}

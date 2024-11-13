@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     'management_sipoc',
     'taskwall',
     'employee_candidates',
-    
 ]
 
 
