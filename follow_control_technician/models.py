@@ -5,10 +5,11 @@ import os
 from datetime import datetime
 
 class TechnicianTask(models.Model):
-    verb = models.CharField(max_length=50)
-    object = models.CharField(max_length=100)
+    verb = models.CharField(max_length=150)
+    object = models.CharField(max_length=350)
     measurement = models.CharField(max_length=50)
     time = models.DecimalField(max_digits=5, decimal_places=2)
+
 
     def __str__(self):
         return f"{self.verb} {self.object} ({self.time} {self.measurement})"
