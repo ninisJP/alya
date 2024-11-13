@@ -1,5 +1,20 @@
-from datetime import date, timedelta
-from .models import TechnicianCard
+from datetime import date, datetime, timedelta
+import os
+import pandas as pd
+from django.db import IntegrityError
+from django.db.models import Max
+
+from follow_control_technician.models import TechnicianCard, TechnicianCardTask, TechnicianTask
+
+
+def get_next_order_for_card_task(technician_card) -> int:
+    existing_tasks = TechnicianCardTask.objects.filter(technician_card=technician_card)
+    if not existing_tasks.exists():
+        return 1
+    else:
+        current_max = existing_tasks.aggregate(max_order=Max('order'))['max_order']
+        return current_max + 1
+
 
 def informe_tarjetas_del_mes(mes, anio):
     primer_dia_mes = date(anio, mes, 1)
@@ -35,10 +50,6 @@ def informe_tarjetas_del_mes(mes, anio):
         'anio': primer_dia_mes.year,
         'informe_por_tecnico': informe
     }
-    
-import pandas as pd
-from .models import TechnicianTask
-from django.db import IntegrityError
 
 def process_technician_tasks_excel(file):
     try:
@@ -97,5 +108,3 @@ def process_technician_tasks_excel(file):
     except Exception as e:
         print("Error durante el procesamiento del archivo:", str(e))
         return False, str(e)
-
-

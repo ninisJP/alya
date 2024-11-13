@@ -380,8 +380,6 @@ def assign_bank_statement(request, item_id, statement_id):
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'Error: {str(e)}'})
 
-
-
 #caja chica
 def petty_cash(request):
     # Obtener la fecha de hoy según la zona horaria configurada
@@ -430,8 +428,6 @@ class AccountingRequirementOrderListView(ListView):
             # Por defecto muestra solo las órdenes "NO REVISADO"
             return RequirementOrder.objects.filter(state="NO REVISADO").order_by('-id').prefetch_related('items')
 
-
-
 def accounting_requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
     items = requirement_order.items.all()
@@ -463,7 +459,6 @@ def update_requirement_order_items(request, pk):
     
     requirement_order.save()
 
-    # Retornar un mensaje de éxito sin crear la PurchaseOrder
     return JsonResponse({'message': 'Elementos actualizados con éxito'}, status=200)
 
 def create_purchase_order(request, pk):

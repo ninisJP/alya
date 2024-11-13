@@ -3,12 +3,9 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render,get_object_or_404
 from django.views.decorators.http import require_POST, require_http_methods
 from django.views.generic.list import ListView
-
 from datetime import datetime
 from typing import Any
-
 from accounting_order_sales.models import SalesOrder
-
 from .forms import TaskForm
 from .models import Card, Task, CardTaskOrder
 from .utils import get_max_order

@@ -11,14 +11,13 @@ from django.db.models.functions import Coalesce
 from decimal import Decimal, ROUND_HALF_UP
 from django.utils.module_loading import import_string
 
-
 class SalesOrder(models.Model):
     sapcode = models.PositiveBigIntegerField(default=0)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     detail = models.CharField(max_length=255)
     date = models.DateField()
     total_sales_order = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-
+    days = models.PositiveIntegerField(default=0) 
 
     def update_total_sales_order(self):
         self.total_sales_order = sum(item.price_total for item in self.items.all())
@@ -53,6 +52,7 @@ class SalesOrderItem(models.Model):
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     unit_of_measurement = models.CharField(max_length=255, default="UND")
     remaining_requirement = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    category = models.CharField(max_length=100, default="") 
 
     def __str__(self):
         return f"{self.description} - {self.amount} unidades"

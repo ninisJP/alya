@@ -1,0 +1,59 @@
+    <div class="row text-uppercase fw-bold text-dark border-bottom pb-2 mb-3">
+        <div class="col-md-3">Tarea</div>
+        <div class="col-md-1 text-center">Cantidad</div>
+        <div class="col-md-2 text-center">Orden de Venta</div>
+        <div class="col-md-1 text-center">Foto</div>
+        <div class="col-md-1 text-center">Estado</div>
+        <div class="col-md-2 text-center">Tiempo Total</div>
+        <div class="col-md-1 text-center">Acciones</div>
+    </div>
+
+    <div class="list-group">
+        {% for tarea in tareas_con_foto %}
+        <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
+            <div class="col-md-3">
+                <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.task.verb }} {{ tarea.task.object }}</p>
+            </div>
+            <div class="col-md-1 text-center">
+                <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.quantity }}</p>
+            </div>
+            <div class="col-md-2">
+                <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.saler_order }}</p>
+            </div>
+            <div class="col-md-1 text-center">
+                {% if tarea.photo %}
+                <a href="{{ tarea.photo.url }}" target="_blank" class="btn btn-outline-primary btn-sm">Ver Foto</a>
+                {% else %}
+                <span class="text-muted fw-bold">(No hay foto disponible)</span>
+                {% endif %}
+            </div>
+            <div class="col-md-1 text-center">
+                <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    hx-patch="{% url 'technician-task-state' tarea.pk %}" 
+                    hx-trigger="change"
+                    hx-swap="none"
+                    hx-on="htmx:afterOnLoad: showNotification('{{ tarea.pk }}')"
+                    {% if tarea.status %}checked{% endif %}
+                >
+            </div>
+            <div class="col-md-2 text-center">
+                <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.total_time }} {{ tarea.task.measurement }}</p>
+            </div>   
+            <div class="col-md-1 text-center">
+                <button hx-post="{% url 'delete_technician_card_task' tarea.pk %}" 
+                        hx-target="#tasks-container" 
+                        hx-swap="innerHTML" 
+                        class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+        
+            </div>
+            
+            
+            
+                            
+        </div>
+        {% endfor %}
+    </div>
