@@ -143,9 +143,9 @@
                     <td>{{ datos.technician }}</td>
                     <td>
                         {% for dia in datos.dias_con_tarjeta %}
-                        <a href="{% url 'view_technician_card' tecnico_id=tecnico_id dia=dia mes=mes anio=anio %}" class="badge bg-success">{{ dia }}</a>
-                        {% endfor %}
-                    </td>
+                            <a href="{% url 'view_technician_card' card_id=dia.1 %}" class="badge bg-success">{{ dia.0 }}</a>
+                          {% endfor %} 
+                    </td>                    
                     <td>
                         {% for dia in datos.dias_sin_tarjeta %}
                         <a href="{% url 'create_technician_card' mes=mes anio=anio %}" class="badge bg-danger">{{ dia }}</a>

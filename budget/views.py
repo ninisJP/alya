@@ -276,25 +276,20 @@ def create_sales_order_from_budget(request, budget_id):
     if existing_sales_order:
         # Si ya existe una orden de venta, actualizamos o agregamos ítems
         for budget_item in budget.items.all():
-            # Calcular precios con IGV
             price_with_igv = budget_item.custom_price * Decimal(1.18) if budget_item.custom_price else budget_item.item.price * Decimal(1.18)
             total_price_with_igv = budget_item.total_price * Decimal(1.18)
 
-            # Buscar si el item ya existe en la orden de venta
             sales_order_item = existing_sales_order.items.filter(sap_code=budget_item.item.sap).first()
 
             if sales_order_item:
-                # Actualizar los ítems existentes con los nuevos precios
                 sales_order_item.amount = budget_item.quantity
                 sales_order_item.price = price_with_igv
                 sales_order_item.price_total = total_price_with_igv
                 sales_order_item.unit_of_measurement = budget_item.unit or budget_item.item.unit
+                sales_order_item.category = budget_item.item.category  # Asignar categoría
                 sales_order_item.save()
-                # Recalcular remaining_requirement
                 sales_order_item.update_remaining_requirement()
-                print(f"Ítem con SAP {budget_item.item.sap} actualizado en la orden de venta.")
             else:
-                # Crear un nuevo ítem en la orden de venta si no existe
                 new_item = SalesOrderItem.objects.create(
                     salesorder=existing_sales_order,
                     sap_code=budget_item.item.sap,
@@ -303,23 +298,19 @@ def create_sales_order_from_budget(request, budget_id):
                     price=price_with_igv,
                     price_total=total_price_with_igv,
                     unit_of_measurement=budget_item.unit or budget_item.item.unit,
+                    category=budget_item.item.category,  # Asignar categoría
                 )
-                # Recalcular remaining_requirement
                 new_item.update_remaining_requirement()
-                print(f"Ítem con SAP {budget_item.item.sap} agregado a la orden de venta.")
-
-        # Confirmación de actualización
         messages.success(request, f"Los precios y los ítems de la orden de venta existente con sapcode {existing_sales_order.sapcode} fueron regularizados con IGV.")
     else:
-        # Crear una nueva orden de venta si no existe una con ese sapcode
         sales_order = SalesOrder.objects.create(
             sapcode=budget.budget_number,
             project=None,
             detail=f"Orden basada en el presupuesto {budget.budget_name}",
             date=budget.budget_date,
+            days=budget.budget_days,  # Asignar días del presupuesto
         )
         
-        # Crear los ítems de la orden de venta
         for budget_item in budget.items.all():
             price_with_igv = budget_item.custom_price * Decimal(1.18) if budget_item.custom_price else budget_item.item.price * Decimal(1.18)
             total_price_with_igv = budget_item.total_price * Decimal(1.18)
@@ -332,8 +323,8 @@ def create_sales_order_from_budget(request, budget_id):
                 price=price_with_igv,
                 price_total=total_price_with_igv,
                 unit_of_measurement=budget_item.unit or budget_item.item.unit,
+                category=budget_item.item.category,  # Asignar categoría
             )
-            # Recalcular remaining_requirement
             new_item.update_remaining_requirement()
         
         messages.success(request, f"La orden de venta {sales_order.sapcode} fue creada exitosamente con IGV incluido.")

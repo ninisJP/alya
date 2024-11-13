@@ -1,4 +1,5 @@
 {% extends 'follow_control_base.html' %}
+{% load widget_tweaks %}
 
 {% block title %}Tarjeta de Técnico{% endblock %}
 
@@ -15,165 +16,58 @@
                         <p class="form-control-lg text-dark fw-bold mb-0">{{ fecha }}</p>
                     </div>
                 </div>
-                
-                <!-- Contenedor de notificaciones -->
-                <div id="notification-container" class="alert alert-success d-none"></div>
-                
-                <div class="row text-uppercase fw-bold text-dark border-bottom pb-2 mb-3">
-                    <div class="col-md-5">Tarea</div>
-                    <div class="col-md-1 text-center">Cantidad</div>
-                    <div class="col-md-3">Orden de Venta</div>
-                    <div class="col-md-1 text-center">Foto</div>
-                    <div class="col-md-2 text-center">Estado</div>
+
+                <!-- Formulario para agregar nuevas tareas con HTMX -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <form method="post" action="{% url 'add_technician_task' tarjeta.id %}" hx-post="{% url 'add_technician_task' tarjeta.id %}" hx-target="#tasks-container" hx-swap="innerHTML">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-5 mb-3">
+                                    {{ form.task|add_class:"form-control select2" }}
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    {{ form.quantity|add_class:"form-control" }}
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    {{ form.saler_order|add_class:"form-control select2" }}
+                                </div>
+                                <div class="col-md-2 mb-3 text-end">
+                                    <button type="submit" class="btn btn-primary">Agregar Tarea</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                <div class="list-group">
-                    {% for tarea in tareas_con_foto %}
-                    <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
-                        <div class="col-md-5">
-                            <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.task.verb }} {{ tarea.task.object }}</p>
-                        </div>
-                        <div class="col-md-1 text-center">
-                            <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.quantity }}</p>
-                        </div>
-                        <div class="col-md-3">
-                            <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.saler_order }}</p>
-                        </div>
-                        <div class="col-md-1 text-center">
-                            {% if tarea.photo %}
-                            <a href="{{ tarea.photo.url }}" target="_blank" class="btn btn-outline-primary btn-sm">Ver Foto</a>
-                            {% else %}
-                            <span class="text-muted fw-bold">(No hay foto disponible)</span>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <input 
-                                class="form-check-input" 
-                                type="checkbox" 
-                                hx-patch="{% url 'technician-task-state' tarea.pk %}" 
-                                hx-trigger="change"
-                                hx-swap="none"
-                                hx-on="htmx:afterOnLoad: showNotification('{{ tarea.pk }}')"
-                                {% if tarea.status %}checked{% endif %}
-                            >
-                        </div>                        
-                    </div>
-                    {% endfor %}
+                <!-- Contenedor de notificaciones -->
+                <div id="notification-container" class="alert alert-success d-none"></div>
+
+                <!-- Contenedor para la lista de tareas -->
+                <div id="tasks-container">
+                    {% include 'partials/technician_tasks_list.html' %}
                 </div>
 
                 <!-- Botón para descargar el Excel -->
                 <button onclick="downloadExcel()" class="btn btn-success mt-3">
                     <i class="fas fa-file-excel"></i> Descargar Excel
                 </button>
-
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="{% url 'technicians_month' mes=fecha.month anio=fecha.year %}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Volver al Informe
-                    </a>
-                    <div>
-                        <a href="{% url 'edit_technician_card' card_id=tecnico.id mes=fecha.month anio=fecha.year %}" class="btn btn-primary">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
-                        <form action="{% url 'delete_technician_card' card_id=tecnico.id %}" method="post" class="d-inline-block ml-2" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta tarjeta?');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-trash-alt"></i> Eliminar
-                            </button>
-                        </form>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Script para manejar notificaciones -->
+<!-- Incluye los scripts de Select2 y inicializa los campos -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+{% include 'partials/technician_card_scripts.html' %}
+
 <script>
-    function showNotification(taskId) {
-        const container = document.getElementById('notification-container');
-        container.classList.remove('d-none');
-        container.textContent = `El estado de la tarea ${taskId} se ha actualizado correctamente.`;
-        
-        setTimeout(() => {
-            container.classList.add('d-none');
-        }, 3000); // Oculta la notificación después de 3 segundos
-    }
+    $(document).ready(function() {
+        $('.select2').select2({
+            width: '100%'  // Ajusta el ancho para que ocupe el total del campo
+        });
+    });
 </script>
-
-<!-- Incluir SheetJS para generar el archivo Excel -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-
-<!-- Script para generar el archivo Excel -->
-<!-- Script para generar el archivo Excel con estilos adicionales -->
-<script>
-    function downloadExcel() {
-        const workbook = XLSX.utils.book_new();
-        const worksheet_data = [
-            ["Técnico:", "{{ tecnico.first_name }} {{ tecnico.last_name }}", "", "Fecha:", "{{ fecha }}"],
-            [],
-            ["Tarea", "Cantidad", "Orden de Venta", "Estado"],  // Encabezados sin "Foto"
-            {% for tarea in tareas_con_foto %}
-                [
-                    "{{ tarea.task.verb }} {{ tarea.task.object }}",
-                    "{{ tarea.quantity }}",
-                    "{{ tarea.saler_order }}",
-                    "{{ tarea.status|yesno:'Completado,Pendiente' }}"  // Estado sin condicional
-                ],
-            {% endfor %}
-        ];
-
-        const worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
-
-        // Aplicar estilos a los encabezados
-        const header_range = XLSX.utils.decode_range("A3:D3");
-        for (let C = header_range.s.c; C <= header_range.e.c; ++C) {
-            const cell_address = XLSX.utils.encode_cell({ c: C, r: 2 });
-            if (!worksheet[cell_address]) continue;
-            worksheet[cell_address].s = {
-                font: { bold: true, color: { rgb: "FFFFFF" } },  // Texto en blanco
-                fill: { fgColor: { rgb: "4F81BD" } },            // Fondo azul oscuro
-                alignment: { vertical: "center", horizontal: "center" },
-                border: {
-                    top: { style: "thin" },
-                    bottom: { style: "thin" },
-                    left: { style: "thin" },
-                    right: { style: "thin" }
-                }
-            };
-        }
-
-        // Estilo para el contenido de las celdas
-        const content_range = XLSX.utils.decode_range("A4:D{{ worksheet_data.length }}");
-        for (let R = content_range.s.r; R <= content_range.e.r; ++R) {
-            for (let C = content_range.s.c; C <= content_range.e.c; ++C) {
-                const cell_address = XLSX.utils.encode_cell({ c: C, r: R });
-                if (!worksheet[cell_address]) continue;
-                worksheet[cell_address].s = {
-                    alignment: { vertical: "center", horizontal: "left", wrapText: true },
-                    border: {
-                        top: { style: "thin" },
-                        bottom: { style: "thin" },
-                        left: { style: "thin" },
-                        right: { style: "thin" }
-                    }
-                };
-            }
-        }
-
-        // Ajuste de ancho de columnas
-        worksheet['!cols'] = [
-            { wch: 30 }, // Tarea
-            { wch: 10 }, // Cantidad
-            { wch: 50 }, // Orden de Venta
-            { wch: 15 }  // Estado
-        ];
-
-        // Agregar la hoja al libro de trabajo
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Tarjeta Técnico");
-
-        // Descargar el archivo Excel
-        XLSX.writeFile(workbook, `Tarjeta_Tecnico_{{ tecnico.first_name }}_{{ tecnico.last_name }}_{{ fecha }}.xlsx`);
-    }
-</script>
-
 {% endblock %}

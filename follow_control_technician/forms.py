@@ -53,8 +53,10 @@ TechnicianCardTaskFormSet = inlineformset_factory(
     }
 )
 
-# forms.py
-from django import forms
-
 class ExcelUploadForm(forms.Form):
     file = forms.FileField(label="Selecciona un archivo Excel")
+
+class TechnicianCardTaskForm(forms.ModelForm):
+    class Meta: 
+        model = TechnicianCardTask
+        fields = ['task', 'quantity', 'saler_order']

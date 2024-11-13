@@ -6,14 +6,17 @@ from datetime import date, timedelta
 from accounting_order_sales.models import SalesOrder
 from employee.models import Technician
 from .models import TechnicianCard, TechnicianTask
-from .forms import TechnicianCardForm, TechnicianCardTaskFormSet, TechnicianCardTask, TechnicianTaskForm
+from .forms import TechnicianCardForm, TechnicianCardTaskForm, TechnicianCardTaskFormSet, TechnicianCardTask, TechnicianTaskForm
 from django.views.decorators.http import require_http_methods
 from django.utils.timezone import now
 from django.shortcuts import render, redirect
 from .forms import ExcelUploadForm, TechnicianTaskForm
 from .models import TechnicianTask
+from .utils import get_next_order_for_card_task, process_technician_tasks_excel
+from django.shortcuts import render, redirect
+from .forms import ExcelUploadForm, TechnicianTaskForm
+from .models import TechnicianTask
 from .utils import process_technician_tasks_excel
-
 
 class TechniciansMonth(TemplateView):
     template_name = 'technicians_month.html'
@@ -60,8 +63,12 @@ class TechniciansMonth(TemplateView):
 
         for tarjeta in tarjetas_del_mes:
             tecnico_id = tarjeta.technician.id
-            informe[tecnico_id]['dias_con_tarjeta'].add(tarjeta.date.day)
+            informe[tecnico_id]['dias_con_tarjeta'].add(
+                (tarjeta.date.day, tarjeta.id)  # Usamos una tupla en lugar de un diccionario
+            )
             informe[tecnico_id]['dias_sin_tarjeta'].discard(tarjeta.date.day)
+
+
 
         for tecnico_id, datos in informe.items():
             datos['dias_con_tarjeta'] = sorted(list(datos['dias_con_tarjeta']))
@@ -100,45 +107,51 @@ def create_technician_card(request, mes, anio):
         'anio': anio,
     })
 
-def edit_technician_card(request, card_id, mes, anio):
-    technician_card = get_object_or_404(TechnicianCard, id=card_id)
-    
-    if request.method == 'POST':
-        card_form = TechnicianCardForm(request.POST, instance=technician_card)
-        task_formset = TechnicianCardTaskFormSet(request.POST, instance=technician_card)
+def view_technician_card(request, card_id):
+    tarjeta = get_object_or_404(TechnicianCard, id=card_id)
+    form = TechnicianCardTaskForm()
 
-        if card_form.is_valid() and task_formset.is_valid():
-            card_form.save()
-            task_formset.save()
-            return redirect(reverse('technicians_month', kwargs={'mes': mes, 'anio': anio}))
-        else:
-            print(card_form.errors)
-            print(task_formset.errors)
-    else:
-        card_form = TechnicianCardForm(instance=technician_card)
-        task_formset = TechnicianCardTaskFormSet(instance=technician_card)
-
-    return render(request, 'technician_card/edit_technician_card.html', {
-        'card_form': card_form,
-        'task_formset': task_formset,
-        'mes': mes,
-        'anio': anio,
-    })
-    
-def view_technician_card(request, tecnico_id, dia, mes, anio):
-    tecnico = get_object_or_404(Technician, id=tecnico_id)
-    fecha = date(anio, mes, dia)
-    tarjeta = get_object_or_404(TechnicianCard, technician=tecnico, date=fecha)
-    tareas_con_foto = tarjeta.tasks.filter(photo__isnull=False)
-
+    # Obtener las tareas asociadas a esta tarjeta
+    tareas_con_foto = TechnicianCardTask.objects.filter(technician_card=tarjeta).select_related('task')
 
     context = {
         'tarjeta': tarjeta,
-        'tecnico': tecnico,
-        'fecha': fecha,
+        'tecnico': tarjeta.technician,
+        'fecha': tarjeta.date,
+        'form': form,
         'tareas_con_foto': tareas_con_foto,
     }
     return render(request, 'technician_card/view_technician_card.html', context)
+
+def add_technician_task(request, card_id):
+    tarjeta = get_object_or_404(TechnicianCard, id=card_id)
+    if request.method == 'POST':
+        form = TechnicianCardTaskForm(request.POST)
+        if form.is_valid():
+            nueva_tarea = form.save(commit=False)
+            nueva_tarea.technician_card = tarjeta
+            nueva_tarea.order = get_next_order_for_card_task(tarjeta)  # Asignar el orden a la nueva tarea
+            nueva_tarea.save()
+
+            # Renderizamos la lista de tareas actualizada como partial para HTMX
+            tareas_con_foto = TechnicianCardTask.objects.filter(technician_card=tarjeta).select_related('task')
+            return render(request, 'partials/technician_tasks_list.html', {'tareas_con_foto': tareas_con_foto})
+
+    # Si el formulario no es válido o no es POST, redirigir al detalle de la tarjeta
+    return redirect('view_technician_card', card_id=card_id)
+
+def delete_technician_card_task(request, task_id):
+    task = get_object_or_404(TechnicianCardTask, id=task_id)
+    card = task.technician_card  # Get the associated technician card
+    task.delete()  # Delete the task from the card
+
+    # Get the updated list of tasks
+    tareas_con_foto = TechnicianCardTask.objects.filter(technician_card=card).select_related('task')
+
+    # Render the updated tasks list partial for HTMX
+    return render(request, 'partials/technician_tasks_list.html', {'tareas_con_foto': tareas_con_foto})
+
+
 
 def delete_technician_card(request, card_id):
     technician_card = get_object_or_404(TechnicianCard, id=card_id)
@@ -156,11 +169,6 @@ def technician_task_state(request, pk):
 
     return JsonResponse({"message": "Estado de la tarea actualizado correctamente."})
 
-from django.shortcuts import render, redirect
-from .forms import ExcelUploadForm, TechnicianTaskForm
-from .models import TechnicianTask
-from .utils import process_technician_tasks_excel
-
 def technician_task(request):
     technicians_tasks = TechnicianTask.objects.all()
     excel_form = ExcelUploadForm()
@@ -170,7 +178,7 @@ def technician_task(request):
         excel_form = ExcelUploadForm(request.POST, request.FILES)
         if excel_form.is_valid():
             file = excel_form.cleaned_data["file"]
-            print("Archivo recibido:", file.name)  # Imprime el nombre del archivo para confirmar recepción
+            print("Archivo recibido:", file.name)
             success, error = process_technician_tasks_excel(file)
             if success:
                 print("Tareas guardadas exitosamente.")

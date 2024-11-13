@@ -4,6 +4,22 @@ from accounting_order_sales.models import SalesOrder
 import os
 from datetime import datetime
 
+
+
+def rename_file(instance, filename):
+    # Extraer información relevante del modelo TechnicianCardTask
+    technician_name = instance.technician_card.technician.first_name.replace(' ', '_')
+    task_description = instance.task.verb.replace(' ', '_')
+    order = instance.order
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    current_time = datetime.now().strftime("%H-%M-%S")
+    
+    # Generar el nuevo nombre del archivo
+    base_name, extension = os.path.splitext(filename)
+    new_filename = f"{technician_name}_{task_description}_order{order}_{current_date}_{current_time}{extension}"
+    
+    return os.path.join('technician_tasks_photos', new_filename)
+    
 class TechnicianTask(models.Model):
     verb = models.CharField(max_length=150)
     object = models.CharField(max_length=350)
@@ -29,21 +45,6 @@ class TechnicianCard(models.Model):
         verbose_name = "Tarjeta de Técnico"
         verbose_name_plural = "Tarjetas de técnicos"
 
-
-def rename_file(instance, filename):
-    # Extraer información relevante del modelo TechnicianCardTask
-    technician_name = instance.technician_card.technician.first_name.replace(' ', '_')
-    task_description = instance.task.verb.replace(' ', '_')
-    order = instance.order
-    current_date = datetime.now().strftime("%Y-%m-%d")
-    current_time = datetime.now().strftime("%H-%M-%S")
-    
-    # Generar el nuevo nombre del archivo
-    base_name, extension = os.path.splitext(filename)
-    new_filename = f"{technician_name}_{task_description}_order{order}_{current_date}_{current_time}{extension}"
-    
-    return os.path.join('technician_tasks_photos', new_filename)
-
 class TechnicianCardTask(models.Model):
     technician_card = models.ForeignKey(TechnicianCard, on_delete=models.CASCADE, related_name='tasks')
     task = models.ForeignKey(TechnicianTask, on_delete=models.CASCADE)
@@ -66,5 +67,3 @@ class TechnicianCardTask(models.Model):
         # Calcular total_time como time * quantity
         self.total_time = self.task.time * self.quantity
         super().save(*args, **kwargs)
-        
-    
