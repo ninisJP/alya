@@ -313,52 +313,49 @@ class BankStatementUploadView(FormView):
     success_url = reverse_lazy('bank_index')
 
     def form_valid(self, form):
-        # Obtener el banco seleccionado del formulario
         bank = form.cleaned_data['bank']
+        bank_name = str(bank).strip()  # Asegúrate de que el nombre coincida sin espacios extra
         uploaded_file = self.request.FILES['excel_file']
 
         try:
-            # Leer el archivo como Excel
-            if uploaded_file.name.endswith(('.xls', '.xlsx')):
-                df = pd.read_excel(uploaded_file, engine='openpyxl')
-            elif uploaded_file.name.endswith('.csv'):
-                df = pd.read_csv(uploaded_file)
-            else:
-                raise ValueError("Formato de archivo no soportado.")
+            # Leer todas las hojas del archivo
+            sheets = pd.read_excel(uploaded_file, sheet_name=None, engine='openpyxl')
 
-            # Mapeo de nombres de columnas
-            column_mapping = {
-                'F.Operac.': 'operation_date',
-                'Referencia': 'reference',
-                'Importe': 'amount',
-                'ITF': 'itf',
-                'Num.Mvto': 'number_moviment',
-            }
+            # Filtrar y procesar solo la hoja que coincide con el nombre del banco
+            if bank_name in sheets:
+                df = sheets[bank_name]  # Cargar la hoja con el nombre del banco
 
-            # Renombrar columnas
-            df.rename(columns=column_mapping, inplace=True)
+                # Renombrar las columnas
+                column_mapping = {
+                    'F.Operac.': 'operation_date',
+                    'Referencia': 'reference',
+                    'Importe': 'amount',
+                    'ITF': 'itf',
+                    'Num.Mvto': 'number_moviment',
+                }
+                df.rename(columns=column_mapping, inplace=True)
 
-            # Crear los registros de BankStatements
-            for _, row in df.iterrows():
-                # Verifica si el banco está asignado
-                if bank:
+                # Crear los registros de BankStatements
+                for _, row in df.iterrows():
                     BankStatements.objects.create(
-                        bank=bank,  # Asegúrate de que el banco se pase aquí
+                        bank=bank,
                         operation_date=row['operation_date'],
                         reference=row['reference'],
                         amount=row['amount'],
                         itf=row['itf'],
                         number_moviment=row['number_moviment'],
                     )
-                else:
-                    print("El banco no está asignado correctamente.")
+                
+                messages.success(self.request, f'Extractos bancarios para {bank_name} subidos exitosamente.')
+            else:
+                messages.error(self.request, f'No se encontró una hoja para el banco: {bank_name}.')
 
-            messages.success(self.request, 'Extractos bancarios subidos exitosamente.')
         except Exception as e:
             print("Error procesando archivo:", e)
             messages.error(self.request, 'Hubo un error procesando el archivo.')
 
         return super().form_valid(form)
+
 
 @require_POST
 def assign_bank_statement(request, item_id, statement_id):
