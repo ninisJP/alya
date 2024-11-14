@@ -1,0 +1,129 @@
+{% extends "follow_control_base.html" %}
+
+{% block title %}Calendario de Tareas{% endblock %}
+
+{% block content %}
+<div class="background-blur"></div> <!-- Fondo con efecto blur -->
+<div class="calendar-container">
+    <h1 class="calendar-title">Calendario de Tareas del Mes</h1>
+    <div id="calendar"></div>
+</div>
+
+<!-- Estilos personalizados -->
+<style>
+    /* Fondo desenfocado detrás del calendario */
+    .background-blur {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: url('/path/to/your/background-image.jpg') no-repeat center center fixed;
+        background-size: cover;
+        filter: blur(8px);
+        z-index: -1;
+    }
+
+    /* Contenedor del calendario sin márgenes */
+    .calendar-container {
+        background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco semitransparente */
+        padding: 20px;
+        border-radius: 8px;
+        width: 100%; /* Ocupar todo el ancho disponible */
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Título del calendario */
+    .calendar-title {
+        text-align: center;
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    /* Estilos del calendario */
+    #calendar {
+        font-family: Arial, sans-serif;
+    }
+
+    /* Estilos de eventos en el calendario */
+    .fc-event {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 0.85rem;
+    }
+
+    /* Cambiar cursor a manito para los días con enlaces */
+    .fc-daygrid-day[data-has-card="true"] {
+        cursor: pointer;
+    }
+
+    /* Tooltip de los eventos */
+    .fc-event:hover {
+        opacity: 0.9;
+    }
+
+    /* Barra de navegación del calendario */
+    .fc-toolbar {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .fc-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+
+    .fc-button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        // Diccionario de fechas y URLs de las Cards
+        var cardUrls = {{ card_urls|safe }};
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            events: {{ events|safe }},
+            headerToolbar: {
+                start: 'prev,next today',
+                center: 'title',
+                end: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            dateClick: function(info) {
+                var url = cardUrls[info.dateStr];
+                if (url) {
+                    window.location.href = url;
+                }
+            },
+            eventDidMount: function(info) {
+                if (info.event.extendedProps.description) {
+                    info.el.setAttribute('title', info.event.extendedProps.description);
+                }
+            },
+            dayCellDidMount: function(info) {
+                // Agregar atributo de data para los días con enlaces
+                if (cardUrls[info.date.toISOString().slice(0, 10)]) {
+                    info.el.setAttribute('data-has-card', 'true');
+                }
+            }
+        });
+        calendar.render();
+    });
+</script>
+{% endblock %}

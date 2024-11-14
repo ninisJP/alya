@@ -1,121 +1,139 @@
-{% extends 'follow_control_base.html' %}
+    {% extends 'follow_control_base.html' %}
+    {% load widget_tweaks %}
 
-{% load widget_tweaks %}
+    {% block title %}Crear Tarjeta de Técnico{% endblock %}
 
-{% block title %}Crear Tarjeta de Técnico{% endblock %}
+    {% block content %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-{% block content %}
+    <form method="post" id="technician-card-form" class="p-4 bg-light shadow-sm rounded" style="background-color: #f8f9fa;">
+        {% csrf_token %}
+        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-2">CREAR TARJETA CONTROL TÉCNICOS</h1>
 
+        <div class="mb-4">
+            {{ card_form.technician|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Seleccionar Técnico" }}
+            {{ card_form.date|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Seleccionar Fecha" }}
+        </div>
 
+        <!-- Encabezados de la "tabla" -->
+        <div class="row text-uppercase font-weight-bold text-dark border-bottom pb-2 mb-3">
+            <div class="col-md-6">Tarea</div>
+            <div class="col-md-1 text-center">Cantidad</div>
+            <div class="col-md-3">Orden de Venta</div>
+            <div class="col-md-1 text-center">Orden</div>
+            <div class="col-md-1 text-center">Acción</div>
+        </div>
 
-
-<form method="post" id="technician-card-form" class="p-4 bg-light shadow-sm rounded" style="background-color: #f8f9fa;">
-    {% csrf_token %}
-    <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-2"> CREAR TARJETA CONTROL TÉCNICOS </h1>
-
-
-    <div class="mb-4">
-        {{ card_form.technician|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Seleccionar Técnico" }}
-        {{ card_form.date|add_class:"form-control-lg mb-3 text-dark"|attr:"placeholder=Seleccionar Fecha" }}
-    </div>
-
-    <!-- Encabezados de la "tabla" -->
-    <div class="row text-uppercase font-weight-bold text-dark border-bottom pb-2 mb-3">
-        <div class="col-md-6">Tarea</div>
-        <div class="col-md-1 text-center">Cantidad</div>
-        <div class="col-md-3">Orden de Venta</div>
-        <div class="col-md-1 text-center">Orden</div>
-        <div class="col-md-1 text-center">Acción</div>
-    </div>
-
-    <div id="task-formset">
-        {{ task_formset.management_form }}
-        {% for form in task_formset %}
-            <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
-                <!-- Campo "Tarea" ocupa más espacio -->
-                <div class="col-md-6">
-                    {{ form.task|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Tarea" }}
+        <div id="task-formset">
+            {{ task_formset.management_form }}
+            {% for form in task_formset %}
+                <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
+                    <div class="col-md-6">
+                        {{ form.task|add_class:"form-control form-control-sm text-dark select2"|attr:"placeholder=Tarea" }}
+                    </div>
+                    <div class="col-md-1">
+                        {{ form.quantity|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Cantidad" }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form.saler_order|add_class:"form-control form-control-sm text-dark select2"|attr:"placeholder=Orden de Venta" }}
+                    </div>
+                    <div class="col-md-1">
+                        {{ form.order|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Orden" }}
+                    </div>
+                    <div class="col-md-1 text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </div>
-                <!-- Otros campos ocupan menos espacio -->
-                <div class="col-md-1">
-                    {{ form.quantity|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Cantidad" }}
-                </div>
-                <div class="col-md-3">
-                    {{ form.saler_order|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Orden de Venta" }}
-                </div>
-                <div class="col-md-1">
-                    {{ form.order|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Orden" }}
-                </div>
-                <div class="col-md-1 text-center">
-                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
-                </div>
-            </div>
-        {% endfor %}
-        <div id="empty-form" style="display: none;">
-            <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
-                <!-- Campo "Tarea" ocupa más espacio -->
-                <div class="col-md-6">
-                    {{ task_formset.empty_form.task|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Tarea" }}
-                </div>
-                <!-- Otros campos ocupan menos espacio -->
-                <div class="col-md-1">
-                    {{ task_formset.empty_form.quantity|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Cantidad" }}
-                </div>
-                <div class="col-md-3">
-                    {{ task_formset.empty_form.saler_order|add_class:"form-control form-control-sm text-dark"|attr:"placeholder=Orden de Venta" }}
-                </div>
-                <div class="col-md-1">
-                    {{ task_formset.empty_form.order|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Orden" }}
-                </div>
-                <div class="col-md-1 text-center">
-                    <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+            {% endfor %}
+            <div id="empty-form" style="display: none;">
+                <div class="form-row row mb-3 align-items-center bg-white p-2 rounded shadow-sm">
+                    <div class="col-md-6">
+                        {{ task_formset.empty_form.task|add_class:"form-control form-control-sm text-dark select2"|attr:"placeholder=Tarea" }}
+                    </div>
+                    <div class="col-md-1">
+                        {{ task_formset.empty_form.quantity|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Cantidad" }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ task_formset.empty_form.saler_order|add_class:"form-control form-control-sm text-dark select2"|attr:"placeholder=Orden de Venta" }}
+                    </div>
+                    <div class="col-md-1">
+                        {{ task_formset.empty_form.order|add_class:"form-control form-control-sm text-center text-dark"|attr:"placeholder=Orden" }}
+                    </div>
+                    <div class="col-md-1 text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-form"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="d-flex justify-content-between mt-4">
-        <button type="button" id="add-task" class="btn btn-secondary"><i class="fas fa-plus-circle"></i> Agregar Tarea</button>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
-    </div>
-</form>
+        <div class="d-flex justify-content-between mt-4">
+            <button type="button" id="add-task" class="btn btn-secondary">
+                <i class="fas fa-plus-circle"></i> Agregar Tarea
+            </button>
+            <button type="submit" name="save_and_exit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Guardar
+            </button>
+            <button type="submit" name="save_and_create_another" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Crear y seguir creando
+            </button>
+        </div> 
+    </form>
 
-<script>
-    document.getElementById('add-task').addEventListener('click', function() {
-        const totalForms = document.getElementById('id_tasks-TOTAL_FORMS');
-        if (!totalForms) {
-            console.error("El campo 'TOTAL_FORMS' no se encontró.");
-            return;
-        }
-        
-        const currentFormCount = parseInt(totalForms.value);
-    
-        const newForm = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, currentFormCount);
-        document.getElementById('task-formset').insertAdjacentHTML('beforeend', newForm);
-    
-        totalForms.value = currentFormCount + 1;
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.classList.contains('remove-form')) {
-            e.preventDefault();
-            const formRow = e.target.closest('.form-row');
-            formRow.remove();
-
-            // Decrementar el número total de formularios
-            const totalForms = document.getElementById('id_tasks-TOTAL_FORMS');
-            totalForms.value = parseInt(totalForms.value) - 1;
-
-            // Reindexar los formularios para evitar conflictos en los nombres de los campos
-            const formRows = document.querySelectorAll('#task-formset .form-row');
-            formRows.forEach((row, index) => {
-                row.id = `form-${index}`;
-                row.querySelectorAll('input, select, textarea').forEach(input => {
-                    input.name = input.name.replace(/-\d+-/, `-${index}-`);
-                    input.id = input.id.replace(/_\d+_/, `_${index}_`);
-                });
+    <script>
+        $(document).ready(function() {
+            // Inicializar todos los elementos con la clase 'select2'
+            $('.select2').select2({
+                placeholder: "Seleccionar una opción",
+                allowClear: true
             });
-        }
-    });
-</script>
-{% endblock %}
+        });
+
+        // Re-inicializar Select2 para formularios añadidos dinámicamente
+        document.getElementById('add-task').addEventListener('click', function() {
+            const totalForms = document.getElementById('id_tasks-TOTAL_FORMS');
+            if (!totalForms) {
+                console.error("El campo 'TOTAL_FORMS' no se encontró.");
+                return;
+            }
+            
+            const currentFormCount = parseInt(totalForms.value);
+        
+            const newForm = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, currentFormCount);
+            document.getElementById('task-formset').insertAdjacentHTML('beforeend', newForm);
+        
+            totalForms.value = currentFormCount + 1;
+
+            // Aplicar select2 al nuevo campo
+            $(`#id_tasks-${currentFormCount}-task`).select2({
+                placeholder: "Seleccionar Tarea",
+                allowClear: true
+            });
+            $(`#id_tasks-${currentFormCount}-saler_order`).select2({
+                placeholder: "Seleccionar Orden de Venta",
+                allowClear: true
+            });
+        });
+
+        // Manejar la eliminación de formularios dinámicos y actualizar el conteo
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('remove-form')) {
+                e.preventDefault();
+                const formRow = e.target.closest('.form-row');
+                formRow.remove();
+
+                const totalForms = document.getElementById('id_tasks-TOTAL_FORMS');
+                totalForms.value = parseInt(totalForms.value) - 1;
+
+                const formRows = document.querySelectorAll('#task-formset .form-row');
+                formRows.forEach((row, index) => {
+                    row.id = `form-${index}`;
+                    row.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.name = input.name.replace(/-\d+-/, `-${index}-`);
+                        input.id = input.id.replace(/_\d+_/, `_${index}_`);
+                    });
+                });
+            }
+        });
+    </script>
+    {% endblock %}

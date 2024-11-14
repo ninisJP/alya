@@ -260,7 +260,10 @@ def determine_category(sap_code):
         return CatalogItem.Category.EQUIPO
     else:
         return CatalogItem.Category.EQUIPO  # Asignar una categoría por defecto si no coincide
-        
+
+from decimal import Decimal
+import pandas as pd
+
 def process_sap_excel(excel_file, budget):
     # Procesar el archivo Excel
     xls = pd.ExcelFile(excel_file)
@@ -348,4 +351,3 @@ def process_sap_excel(excel_file, budget):
             print(f"Se ha creado un nuevo BudgetItem para el SAP {sap_code}.")
         else:
             print(f"Se ha actualizado el BudgetItem existente para el SAP {sap_code}.")
-

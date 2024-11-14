@@ -4,60 +4,60 @@
 {% block title %}Tarjeta de Técnico{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-5">
+<div class="container-fluid mt-3">
     <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="p-4 bg-light shadow-sm rounded" style="background-color: #f8f9fa;">
+        <div class="col-md-12">
+            <div class="p-4 bg-white shadow-sm rounded">
+                <!-- Encabezado -->
                 <div class="row text-center mb-4 border-bottom pb-2">
                     <div class="col">
-                        <h1 class="display-6 text-dark fw-bold mb-0">TC - {{ tecnico.first_name }} {{ tecnico.last_name }}</h1>
+                        <h1 class="h4 text-primary fw-bold mb-0">TC - {{ tecnico.first_name }} {{ tecnico.last_name }}</h1>
                     </div>
                     <div class="col">
-                        <p class="form-control-lg text-dark fw-bold mb-0">{{ fecha }}</p>
+                        <p class="h5 text-dark fw-bold mb-0">{{ fecha }}</p>
                     </div>
                 </div>
 
-                <!-- Formulario para agregar nuevas tareas con HTMX -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <form method="post" action="{% url 'add_technician_task' tarjeta.id %}" hx-post="{% url 'add_technician_task' tarjeta.id %}" hx-target="#tasks-container" hx-swap="innerHTML">
-                            {% csrf_token %}
-                            <div class="row">
-                                <div class="col-md-5 mb-3">
-                                    {{ form.task|add_class:"form-control select2" }}
-                                </div>
-                                <div class="col-md-2 mb-3">
-                                    {{ form.quantity|add_class:"form-control" }}
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    {{ form.saler_order|add_class:"form-control select2" }}
-                                </div>
-                                <div class="col-md-2 mb-3 text-end">
-                                    <button type="submit" class="btn btn-primary">Agregar Tarea</button>
-                                </div>
-                            </div>
-                        </form>
+                <!-- Formulario para agregar tareas con HTMX -->
+                <form method="post" action="{% url 'add_technician_task' tarjeta.id %}" hx-post="{% url 'add_technician_task' tarjeta.id %}" hx-target="#tasks-container" hx-swap="innerHTML" class="border p-3 rounded mb-4">
+                    {% csrf_token %}
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-5">
+                            <label for="task" class="form-label fw-semibold text-secondary">Tarea</label>
+                            {{ form.task|add_class:"form-control select2"|attr:"id=task placeholder='Seleccionar tarea'" }}
+                        </div>
+                        <div class="col-md-2">
+                            <label for="quantity" class="form-label fw-semibold text-secondary">Cantidad</label>
+                            {{ form.quantity|add_class:"form-control text-center"|attr:"id=quantity placeholder='Cantidad'" }}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="saler_order" class="form-label fw-semibold text-secondary">Orden de Venta</label>
+                            {{ form.saler_order|add_class:"form-control select2"|attr:"id=saler_order placeholder='Seleccionar orden de venta'" }}
+                        </div>
                     </div>
-                </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6 d-grid">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Agregar Tarea</button>
+                        </div>
+                        <div class="col-md-6 d-grid">
+                            <button onclick="downloadExcel()" type="button" class="btn btn-success"><i class="fas fa-file-excel"></i> Descargar Excel</button>
+                        </div>
+                    </div>
+                </form>
 
                 <!-- Contenedor de notificaciones -->
-                <div id="notification-container" class="alert alert-success d-none"></div>
+                <div id="notification-container" class="alert alert-success d-none mt-3 mb-3"></div>
 
-                <!-- Contenedor para la lista de tareas -->
-                <div id="tasks-container">
+                <!-- Lista de tareas con mayor separación del formulario -->
+                <div id="tasks-container" class="mt-4">
                     {% include 'partials/technician_tasks_list.html' %}
                 </div>
-
-                <!-- Botón para descargar el Excel -->
-                <button onclick="downloadExcel()" class="btn btn-success mt-3">
-                    <i class="fas fa-file-excel"></i> Descargar Excel
-                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Incluye los scripts de Select2 y inicializa los campos -->
+<!-- Select2 CSS y JS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
@@ -66,7 +66,9 @@
 <script>
     $(document).ready(function() {
         $('.select2').select2({
-            width: '100%'  // Ajusta el ancho para que ocupe el total del campo
+            width: '100%',
+            placeholder: "Seleccionar una opción",
+            allowClear: true
         });
     });
 </script>

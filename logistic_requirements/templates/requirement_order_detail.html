@@ -94,9 +94,10 @@
                         <th style="width: 250px;">DETALLE</th>
                         <th style="width: 80px;">CANT</th>
                         <th style="width: 80px;">UND</th>
-                        <th style="width: 100px;">Tiempo Servicio (hrs)</th> <!-- Columna de tiempo de servicio -->
+                        <th style="width: 100px;">Tiempo Servicio (hrs)</th>
                         <th style="width: 80px;">STOCK</th>
-                        <th style="width: 120px;">Categoría</th> <!-- Columna para categoría -->
+                        <th style="width: 120px;">Categoría</th>
+
                         {% if not filtrar == 'P' %}
                             <th style="width: 100px;">P. UNIT</th>
                             <th style="width: 100px;">P. TOTAL</th>
@@ -110,15 +111,13 @@
                     {% for item in items %}
                     <tr id="item-row-{{ item.id }}">
                         <td>{{ item.sap_code }}</td>
-                        <td style="white-space: normal;">
-                            {{ item.sales_order_item.description }}
-                        </td>
+                        <td style="white-space: normal;">{{ item.sales_order_item.description }}</td>
                         <td>
                             <input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control" style="min-height: 50px;">
                         </td>
                         <td>
                             <input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" style="width: 80px;" min="0" step="0.01">
-                        </td>                        
+                        </td>
                         <td>
                             <input type="text" name="unit_{{ item.id }}" value="{{ item.sales_order_item.unit_of_measurement }}" class="form-control text-center" style="width: 80px;">
                         </td>
@@ -130,7 +129,7 @@
                             {% endif %}
                         </td>
                         <td>{{ item.disponible_inventario }}</td>
-                        <td>{{ item.sales_order_item.category }}</td> <!-- Mostrar categoría del ítem -->
+                        <td>{{ item.sales_order_item.category }}</td>
                         {% if not filtrar == 'P' %}
                             <td>
                                 <input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" style="width: 100px;" min="0" step="0.01">
@@ -165,7 +164,11 @@
                     </tr>
                     {% endfor %}
                 </tbody>
+                
             </table>
+
+
+            <div id="response-message" class="alert-message mt-2"></div>
 
             <div class="d-flex justify-content-between mt-4">
                 <button type="submit" class="btn btn-primary flex-grow-1 me-2">
@@ -179,7 +182,6 @@
                 </button>
             </div>
 
-            <div id="response-message" class="alert-message mt-2"></div>
         </form>
     </div>
 </div>

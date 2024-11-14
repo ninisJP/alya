@@ -48,6 +48,9 @@ htmxurlpatters = [
 
     # pettycash
     path('caja_chica/', petty_cash, name='petty_cash'),
+    path('petty_cash_state/', views.petty_cash_state, name='petty_cash_state'),
+    path('update_payment_status/<int:item_id>/', views.update_payment_status, name='update_payment_status'),
+
     
     # ajax concilations
     path('assign_bank_statement/<int:item_id>/<int:statement_id>/', views.assign_bank_statement, name='assign_bank_statement'),

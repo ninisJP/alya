@@ -131,6 +131,10 @@ class PurchaseOrderItem(models.Model):
         ('planilla', 'Planilla'),
         ('pdt', 'PDT'),
     ]
+    PAYMENT_STATUS_CHOICES = [
+        ('Pagado', 'Pagado'),
+        ('No Pagado', 'No Pagado'),
+    ]
 
     purchaseorder = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="items")
     sales_order_item = models.ForeignKey(SalesOrderItem, on_delete=models.CASCADE)
@@ -145,7 +149,6 @@ class PurchaseOrderItem(models.Model):
     mov_number = models.CharField(max_length=255, null=True, blank=True, default='')
     bank = models.CharField(max_length=100, null=True, blank=True)
     total_renditions = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Total Renditions")
-
     bank_statement = models.ForeignKey(
         'BankStatements',
         on_delete=models.SET_NULL,
@@ -153,6 +156,12 @@ class PurchaseOrderItem(models.Model):
         blank=True,
         related_name='conciliated_items',
         verbose_name="Extracto Bancario Conciliado"
+    )
+    payment_status = models.CharField(
+        max_length=10,
+        choices=PAYMENT_STATUS_CHOICES,
+        default='No Pagado',
+        verbose_name="Estado de Pago"
     )
 
     def save(self, *args, **kwargs):

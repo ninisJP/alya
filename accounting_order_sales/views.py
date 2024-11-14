@@ -411,6 +411,48 @@ def petty_cash(request):
 
     return render(request, 'pettycash/petty_cash_items.html', context)
 
+from django.utils.timezone import localdate
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from .models import PurchaseOrderItem
+
+def petty_cash_state(request):
+    today = localdate()
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    payment_status = request.GET.get('status', 'No Pagado')  # Valor por defecto es "No Pagado"
+
+    # Filtrar los elementos por el estado de pago seleccionado
+    items = PurchaseOrderItem.objects.filter(payment_status=payment_status)
+
+    # Filtrar por fechas si se han proporcionado
+    if not start_date and not end_date:
+        items = items.filter(purchaseorder__scheduled_date=today).select_related(
+            'purchaseorder', 'sales_order_item__salesorder', 'supplier'
+        )
+    else:
+        if not end_date:
+            end_date = today
+        items = items.filter(
+            purchaseorder__scheduled_date__range=[start_date, end_date]
+        ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
+
+    context = {
+        'items': items,
+        'start_date': start_date,
+        'end_date': end_date,
+        'payment_status': payment_status,
+    }
+    return render(request, 'pettycash/petty_cash_state.html', context)
+
+def update_payment_status(request, item_id):
+    item = get_object_or_404(PurchaseOrderItem, id=item_id)
+    item.payment_status = 'Pagado' if item.payment_status == 'No Pagado' else 'No Pagado'
+    item.save()
+    return JsonResponse({'status': item.payment_status})
+
+
+
 # Import requirements views
 class AccountingRequirementOrderListView(ListView):
     model = RequirementOrder
