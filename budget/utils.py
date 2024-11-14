@@ -260,6 +260,7 @@ def determine_category(sap_code):
         return CatalogItem.Category.EQUIPO
     else:
         return CatalogItem.Category.EQUIPO  # Asignar una categoría por defecto si no coincide
+        
 def process_sap_excel(excel_file, budget):
     # Procesar el archivo Excel
     xls = pd.ExcelFile(excel_file)
@@ -315,6 +316,11 @@ def process_sap_excel(excel_file, budget):
         # Buscar el ítem en el catálogo por su código SAP o crear uno nuevo
         try:
             catalog_item = CatalogItem.objects.get(sap=sap_code)
+            # Verificar y actualizar la descripción si es diferente
+            if catalog_item.description != description:
+                catalog_item.description = description
+                catalog_item.save()
+                print(f"Descripción del SAP {sap_code} actualizada a '{description}'.")
         except CatalogItem.DoesNotExist:
             print(f"No se encontró el ítem con SAP {sap_code}. Creando uno nuevo.")
             category = determine_category(str(sap_code))  # Asegurarse de que el sap_code es cadena
