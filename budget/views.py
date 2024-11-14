@@ -274,6 +274,10 @@ def create_sales_order_from_budget(request, budget_id):
     existing_sales_order = SalesOrder.objects.filter(sapcode=budget.budget_number).first()
     
     if existing_sales_order:
+        # Actualizar el campo days de la orden de venta existente
+        existing_sales_order.days = budget.budget_days  # Asignar días del presupuesto
+        existing_sales_order.save()
+
         # Si ya existe una orden de venta, actualizamos o agregamos ítems
         for budget_item in budget.items.all():
             price_with_igv = budget_item.custom_price * Decimal(1.18) if budget_item.custom_price else budget_item.item.price * Decimal(1.18)
@@ -287,6 +291,7 @@ def create_sales_order_from_budget(request, budget_id):
                 sales_order_item.price_total = total_price_with_igv
                 sales_order_item.unit_of_measurement = budget_item.unit or budget_item.item.unit
                 sales_order_item.category = budget_item.item.category  # Asignar categoría
+                sales_order_item.description = budget_item.item.description  # Actualizar descripción
                 sales_order_item.save()
                 sales_order_item.update_remaining_requirement()
             else:
@@ -330,6 +335,7 @@ def create_sales_order_from_budget(request, budget_id):
         messages.success(request, f"La orden de venta {sales_order.sapcode} fue creada exitosamente con IGV incluido.")
         
     return redirect('index_budget')
+
 
 def export_budget_report(request, pk):
     return export_budget_report_to_excel(request, pk)
