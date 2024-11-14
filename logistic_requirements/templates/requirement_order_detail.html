@@ -36,6 +36,7 @@
                             <th>Cliente</th>
                             <th>Proyecto</th>
                             <th>F. Creada</th>
+                            <th>Días</th> <!-- Nueva columna para mostrar los días de la orden -->
                             <th>Detalles</th>
                         </tr>
                     </thead>
@@ -46,6 +47,7 @@
                             <td>{{ requirement_order.sales_order.project.client.legal_name }}</td>
                             <td>{{ requirement_order.sales_order.project.name }}</td>
                             <td>{{ requirement_order.created_at }}</td>
+                            <td>{{ requirement_order.sales_order.days }}</td> <!-- Mostrar los días aquí -->
                             <td>{{ requirement_order.notes }}</td>
                         </tr>
                     </tbody>
@@ -95,6 +97,7 @@
                         <th style="width: 100px;">Tiempo Servicio (hrs)</th>
                         <th style="width: 80px;">STOCK</th>
                         <th style="width: 120px;">Categoría</th>
+
                         {% if not filtrar == 'P' %}
                             <th style="width: 100px;">P. UNIT</th>
                             <th style="width: 100px;">P. TOTAL</th>

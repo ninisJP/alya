@@ -260,8 +260,6 @@ def determine_category(sap_code):
         return CatalogItem.Category.EQUIPO
     else:
         return CatalogItem.Category.EQUIPO  # Asignar una categoría por defecto si no coincide
-    
-    
 
 from decimal import Decimal
 import pandas as pd
