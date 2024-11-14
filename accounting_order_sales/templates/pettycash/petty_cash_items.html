@@ -10,10 +10,11 @@
                 Caja Chica
             </h2>
             <div class="d-flex justify-content-end mb-3">
+                <a href="{% url 'petty_cash_state' %}" class="btn btn-info me-2">Ver Estado de Pagos</a>
                 <button onclick="exportToExcel()" class="btn btn-success me-2">Descargar Excel</button>
                 <button onclick="exportToPDF()" class="btn btn-danger">Descargar PDF</button>
             </div>
-    
+        
             <!-- Formulario de filtros entre fechas -->
             <form method="GET" class="row g-2">
                 <div class="col-auto">
@@ -31,7 +32,7 @@
                     <a href="{% url 'petty_cash' %}" class="btn btn-secondary">Limpiar</a>
                 </div>
             </form>
-        </div>
+        </div>        
     </header>
     
     

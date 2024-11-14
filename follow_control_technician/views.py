@@ -2,7 +2,7 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404, render, redirect
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from accounting_order_sales.models import SalesOrder
 from employee.models import Technician
 from .models import TechnicianCard, TechnicianTask
@@ -236,22 +236,158 @@ def delete_technician_task(request, task_id):
 
 def technician_calendar(request):
     sales_order_id = request.GET.get('sales_order')
-    sales_orders = SalesOrder.objects.all()  # Menú de selección de órdenes de venta
+    sales_orders = SalesOrder.objects.all()
 
     tasks_by_date = {}
+    all_day_events = []
+
     if sales_order_id:
-        tasks = TechnicianCardTask.objects.filter(saler_order_id=sales_order_id)
-        print("Tasks found:", tasks)  # Verifica las tareas encontradas
+        tasks = TechnicianCardTask.objects.filter(saler_order_id=sales_order_id).select_related('technician_card', 'task')
+        print("Tasks found:", tasks)
+
+        # Agrupamos las tareas por fecha y técnico, y las ordenamos por el campo `order`
+        tasks_grouped_by_technician = {}
         for task in tasks:
             task_date = task.technician_card.date
-            if task_date not in tasks_by_date:
-                tasks_by_date[task_date] = []
-            tasks_by_date[task_date].append(task)
+            technician = task.technician_card.technician
+            
+            # Agrupamos tareas por fecha y técnico
+            if (task_date, technician) not in tasks_grouped_by_technician:
+                tasks_grouped_by_technician[(task_date, technician)] = []
+                
+            tasks_grouped_by_technician[(task_date, technician)].append(task)
+        
+        # Para cada día y técnico, organizamos las tareas en secuencia de acuerdo al orden
+        for (task_date, technician), technician_tasks in tasks_grouped_by_technician.items():
+            # Configuramos la hora de inicio
+            start_time = datetime.combine(task_date, technician_tasks[0].technician_card.start_hour) if hasattr(technician_tasks[0].technician_card, 'start_hour') else datetime.combine(task_date, datetime.min.time()) + timedelta(hours=8)
+            
+            # Generamos un color único para cada técnico
+            technician_name = f"{technician.first_name} {technician.last_name}"
+            color = f"#{hash(technician_name) & 0xFFFFFF:06x}"
 
-    print("Tasks by date:", tasks_by_date)  # Verifica el diccionario organizado por fecha
+            # Ordenamos las tareas por el campo `order` y las agregamos secuencialmente
+            for task in sorted(technician_tasks, key=lambda t: t.order):
+                task_duration_hours = float(task.total_time or 0) / 60  # Convertimos minutos a horas
+                end_time = start_time + timedelta(hours=task_duration_hours)
+
+                # Inicializamos el día en `tasks_by_date` si no existe
+                if task_date not in tasks_by_date:
+                    tasks_by_date[task_date] = []
+
+                # Agregamos cada tarea como evento separado en `tasks_by_date`
+                tasks_by_date[task_date].append({
+                    'title': f"{task.task.verb} {task.task.object}",
+                    'start': start_time.isoformat(),
+                    'end': end_time.isoformat(),
+                    'description': f"Tarea: {task.task.verb} {task.task.object} - Duración: {task.total_time} minutos",
+                    'technician': technician_name,
+                    'quantity': task.quantity,
+                    'measurement': task.task.measurement,
+                    'status': "Completado" if task.status else "Pendiente",
+                    'color': color  # Color para identificar al técnico
+                })
+
+                # Actualizamos la hora de inicio para la siguiente tarea de este técnico
+                start_time = end_time
+
+        # Crear un evento de "All Day" para mostrar el total de tareas por día
+        for task_date, daily_tasks in tasks_by_date.items():
+            all_day_events.append({
+                'title': f"{len(daily_tasks)} Tarea(s)",
+                'start': task_date.isoformat(),
+                'allDay': True,
+                'tasks': [
+                    {
+                        'title': task['title'],
+                        'technician': task['technician'],
+                        'quantity': task['quantity'],
+                        'total_time': task['description'].split('-')[1].strip(),
+                        'measurement': task['measurement'],
+                        'status': task['status']
+                    }
+                    for task in daily_tasks
+                ]
+            })
 
     return render(request, 'technician_calendar/technician_calendar.html', {
         'sales_orders': sales_orders,
         'selected_sales_order': sales_order_id,
         'tasks_by_date': tasks_by_date,
+        'all_day_events': all_day_events  # Eventos "All Day" para el resumen
     })
+
+
+
+# def technician_calendar(request):
+#     sales_order_id = request.GET.get('sales_order')
+#     sales_orders = SalesOrder.objects.all()
+
+#     tasks_by_date = {}
+#     summary_events = []  # Inicializamos summary_events para evitar el error
+
+#     if sales_order_id:
+#         tasks = TechnicianCardTask.objects.filter(saler_order_id=sales_order_id).select_related('technician_card', 'task')
+#         print("Tasks found:", tasks)
+
+#         tasks_grouped_by_technician = {}
+#         for task in tasks:
+#             task_date = task.technician_card.date
+#             technician = task.technician_card.technician
+            
+#             if (task_date, technician) not in tasks_grouped_by_technician:
+#                 tasks_grouped_by_technician[(task_date, technician)] = []
+                
+#             tasks_grouped_by_technician[(task_date, technician)].append(task)
+        
+#         for (task_date, technician), technician_tasks in tasks_grouped_by_technician.items():
+#             start_time = datetime.combine(task_date, technician_tasks[0].technician_card.start_hour) if hasattr(technician_tasks[0].technician_card, 'start_hour') else datetime.combine(task_date, datetime.min.time()) + timedelta(hours=8)
+#             technician_name = f"{technician.first_name} {technician.last_name}"
+#             color = f"#{hash(technician_name) & 0xFFFFFF:06x}"
+
+#             for task in sorted(technician_tasks, key=lambda t: t.order):
+#                 task_duration_hours = float(task.total_time or 0) / 60
+#                 end_time = start_time + timedelta(hours=task_duration_hours)
+
+#                 if task_date not in tasks_by_date:
+#                     tasks_by_date[task_date] = []
+
+#                 tasks_by_date[task_date].append({
+#                     'title': f"{task.task.verb} {task.task.object}",
+#                     'start': start_time.isoformat(),
+#                     'end': end_time.isoformat(),
+#                     'description': f"Tarea: {task.task.verb} {task.task.object} - Duración: {task.total_time} minutos",
+#                     'technician': technician_name,
+#                     'quantity': task.quantity,
+#                     'measurement': task.task.measurement,
+#                     'status': "Completado" if task.status else "Pendiente",
+#                     'color': color
+#                 })
+
+#                 start_time = end_time
+
+#         # Crear eventos de resumen para cada día
+#         for task_date, daily_tasks in tasks_by_date.items():
+#             summary_events.append({
+#                 'title': f"{len(daily_tasks)} Tarea(s)",
+#                 'start': task_date.isoformat(),
+#                 'allDay': True,
+#                 'tasks': [
+#                     {
+#                         'title': task['title'],
+#                         'technician': task['technician'],
+#                         'quantity': task['quantity'],
+#                         'total_time': task['description'].split('-')[1].strip(),
+#                         'measurement': task['measurement'],
+#                         'status': task['status']
+#                     }
+#                     for task in daily_tasks
+#                 ]
+#             })
+
+#     return render(request, 'technician_calendar/technician_calendar.html', {
+#         'sales_orders': sales_orders,
+#         'selected_sales_order': sales_order_id,
+#         'tasks_by_date': tasks_by_date,
+#         'summary_events': summary_events  # Aseguramos que siempre esté definido
+#     })

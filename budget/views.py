@@ -291,6 +291,7 @@ def create_sales_order_from_budget(request, budget_id):
                 sales_order_item.price_total = total_price_with_igv
                 sales_order_item.unit_of_measurement = budget_item.unit or budget_item.item.unit
                 sales_order_item.category = budget_item.item.category  # Asignar categoría
+                sales_order_item.description = budget_item.item.description  # Actualizar descripción
                 sales_order_item.save()
                 sales_order_item.update_remaining_requirement()
             else:

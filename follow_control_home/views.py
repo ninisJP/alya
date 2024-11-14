@@ -1,37 +1,47 @@
+from datetime import datetime, timedelta
 from django.shortcuts import render
-from django.utils.timezone import now
+from django.urls import reverse
 from follow_control_card.models import Card
-
 from django.utils.timezone import now
-import calendar
 from collections import defaultdict
+import calendar
 
 def HomeCC(request):
-    if not request.user.is_authenticated:
-        return render(request, 'follow_control_home.html', {'cards': []})
+    # Obtener el mes y año actual
+    today = datetime.today()
+    month = today.month
+    year = today.year
 
-    today = now()
-    current_year, current_month = today.year, today.month
-    _, days_in_month = calendar.monthrange(current_year, current_month)
+    # Filtrar tarjetas del usuario actual y del mes actual
+    cards = Card.objects.filter(user=request.user, date__year=year, date__month=month)
 
-    # Consulta para obtener todas las `cards` del usuario en el rango del mes actual
-    start_of_month = today.replace(day=1)
-    end_of_month = start_of_month.replace(day=days_in_month)
-
-    cards = Card.objects.filter(
-        user=request.user,
-        date__range=(start_of_month, end_of_month)
-    ).exclude(date__week_day=1)
-
-    # Agrupa las cards por día para pasarlas a FullCalendar
-    cards_by_date = defaultdict(list)
+    # Crear eventos para el calendario, basados en las tareas de cada tarjeta en el mismo día
+    events = []
+    card_urls = {}
     for card in cards:
-        cards_by_date[card.date].append(card)
+        tasks = card.tasks.order_by('cardtaskorder__order')
+        
+        # Generar la URL de cada Card y guardarla en el diccionario usando la fecha como clave
+        card_url = reverse('daily_card', args=[card.id])
+        card_urls[card.date.strftime("%Y-%m-%d")] = card_url
 
-    # Obtener el mes y año en formato amigable
-    current_month_text = today.strftime('%B %Y')
+        # Generar eventos para cada tarea
+        start_time = datetime.combine(card.date, datetime.min.time()) + timedelta(hours=8)
+        for task in tasks:
+            task_duration_hours = float(task.task_time or 0) / 60  # Convertir minutos a horas
+            end_time = start_time + timedelta(hours=task_duration_hours)
+            
+            # Obtener el código SAP de la orden de venta si está disponible
+            sap_code = task.sale_order.sapcode if task.sale_order else "Sin código SAP"
+            
+            # Cambiar 'title' para incluir `sapcode` directamente en el nombre del evento
+            events.append({
+                'title': f"{task.verb} {task.object} - SAP: {sap_code}",  # Mostrar `sapcode` en el título
+                'start': start_time.isoformat(),
+                'end': end_time.isoformat(),
+                'url': card_url,
+                'description': f"{task.verb} {task.object} - SAP: {sap_code}"
+            })
+            start_time = end_time
 
-    return render(request, 'follow_control_home.html', {
-        'cards_by_date': cards_by_date,
-        'current_month': current_month_text,
-    })
+    return render(request, 'home_cc.html', {'events': events, 'card_urls': card_urls})

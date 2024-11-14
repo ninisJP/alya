@@ -2,9 +2,7 @@ from django.db import models
 from employee.models import Technician
 from accounting_order_sales.models import SalesOrder
 import os
-from datetime import datetime
-
-
+from datetime import datetime, time
 
 def rename_file(instance, filename):
     # Extraer información relevante del modelo TechnicianCardTask
@@ -37,6 +35,7 @@ class TechnicianTask(models.Model):
 class TechnicianCard(models.Model):
     technician = models.ForeignKey(Technician, on_delete=models.CASCADE)
     date = models.DateField()
+    start_hour = models.TimeField(default=time(8, 0))  # Hora de inicio por defecto a las 8:00 a.m.
 
     def __str__(self):
         return f"{self.technician.first_name} - ({self.date})"

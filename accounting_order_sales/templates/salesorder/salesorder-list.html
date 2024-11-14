@@ -20,7 +20,12 @@
                     <button class="btn btn-warning btn-sm" hx-get="{% url 'edit-salesorder' saleorder.id %}" hx-target="#saleorder-{{ saleorder.id }}" hx-swap="outerHTML" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-danger btn-sm" hx-delete="{% url 'delete-salesorder' saleorder.id %}" hx-target="#saleorder-{{ saleorder.id }}" hx-swap="outerHTML" title="Eliminar">
+                    <button class="btn btn-danger btn-sm" 
+                            hx-delete="{% url 'delete-salesorder' saleorder.id %}" 
+                            hx-target="#saleorder-{{ saleorder.id }}" 
+                            hx-swap="outerHTML" 
+                            hx-confirm="¿Estás seguro de que deseas eliminar esta orden de venta?" 
+                            title="Eliminar">
                         <i class="fas fa-trash"></i>
                     </button>
                     <a hx-get="{% url 'item-salesorder' saleorder.id %}" hx-target="#salesorder-forms" class="btn btn-success btn-sm btn-icon bg-create" title="Crear ítem">
@@ -29,7 +34,6 @@
                     <a hx-get="{% url 'purchaseorders' saleorder.id %}" hx-target="#salesorder-forms" class="btn btn-warning btn-sm btn-icon bg-create" title="Ver O.C.">
                         <i class="fa-solid fa-gift"></i>
                     </a>
-                    
                 </div>
             </li>
         {% endfor %}
