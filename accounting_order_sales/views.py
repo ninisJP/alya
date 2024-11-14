@@ -305,58 +305,103 @@ def bank_statements(request, bank_id):
     statements = BankStatements.objects.filter(bank=bank)
     return render(request, 'bankstatement/BankStatements_list.html', {'bank': bank, 'statements': statements})
 
-from datetime import datetime
+from datetime import datetime, timedelta
+import pandas as pd
+from django.contrib import messages
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.views.generic.edit import FormView
 
 class BankStatementUploadView(FormView):
     template_name = 'bankstatement/upload_bank_statements.html'
     form_class = UploadBankStatementForm
     success_url = reverse_lazy('bank_index')
 
+    def convert_excel_date(self, value):
+        """Intenta convertir el valor en una fecha asegurando el formato día/mes/año."""
+        if isinstance(value, (int, float)):
+            return datetime(1899, 12, 30) + timedelta(days=value)
+        elif isinstance(value, str):
+            try:
+                # Intentar primero con formato día/mes/año
+                return datetime.strptime(value, "%d/%m/%Y").date()
+            except ValueError:
+                try:
+                    # Intentar con el formato abreviado tipo "Sept. 10, 2024"
+                    return datetime.strptime(value, "%b. %d, %Y").date()
+                except ValueError:
+                    try:
+                        # Intentar con el formato completo tipo "October 10, 2024"
+                        return datetime.strptime(value, "%B %d, %Y").date()
+                    except ValueError:
+                        return None  # Fecha inválida
+        elif isinstance(value, datetime):
+            return value.date()
+        return None
+
     def form_valid(self, form):
-        # Obtener el banco seleccionado del formulario
         bank = form.cleaned_data['bank']
+        bank_name = bank.bank_name.strip()
         uploaded_file = self.request.FILES['excel_file']
 
         try:
-            # Leer el archivo como Excel
-            if uploaded_file.name.endswith(('.xls', '.xlsx')):
-                df = pd.read_excel(uploaded_file, engine='openpyxl')
-            elif uploaded_file.name.endswith('.csv'):
-                df = pd.read_csv(uploaded_file)
+            sheets = pd.read_excel(uploaded_file, sheet_name=None, engine='openpyxl', header=2)
+            print("Nombres de hojas en el archivo:", sheets.keys())
+
+            if bank_name in sheets:
+                df = sheets[bank_name]
+                print("Columnas en la hoja antes de ajustar:", df.columns)
+
+                # Renombrar columnas
+                column_mapping = {
+                    'F.Operac.': 'operation_date',
+                    'Referencia': 'reference',
+                    'Importe': 'amount',
+                    'ITF': 'itf',
+                    'Num.Mvto': 'number_moviment',
+                }
+                df.rename(columns=column_mapping, inplace=True)
+                
+                # Filtrar solo las columnas necesarias
+                df = df[['operation_date', 'reference', 'amount', 'itf', 'number_moviment']]
+                print("Columnas en la hoja después de ajustar:", df.columns)
+                
+                # Filtrar filas vacías
+                initial_count = len(df)
+                df.dropna(subset=['operation_date', 'reference', 'amount', 'number_moviment'], inplace=True)
+                print(f"Total de filas leídas antes de filtrar vacíos: {initial_count}, después: {len(df)}")
+
+                # Procesar cada fila
+                for _, row in df.iterrows():
+                    operation_date = self.convert_excel_date(row['operation_date'])
+                    
+                    if operation_date is None:
+                        operation_date = str(row['operation_date'])
+                        messages.warning(self.request, f"Fecha no procesable en número de movimiento {row['number_moviment']}: {operation_date}")
+                    
+                    if not BankStatements.objects.filter(
+                        bank=bank,
+                        operation_date=operation_date,
+                        number_moviment=row['number_moviment']
+                    ).exists():
+                        BankStatements.objects.create(
+                            bank=bank,
+                            operation_date=operation_date,
+                            reference=row['reference'],
+                            amount=row['amount'],
+                            itf=row['itf'],
+                            number_moviment=row['number_moviment']
+                        )
+                    else:
+                        print(f"Registro duplicado encontrado para número de movimiento: {row['number_moviment']}")
+
+                messages.success(self.request, f'Extractos bancarios para {bank_name} subidos exitosamente.')
             else:
-                raise ValueError("Formato de archivo no soportado.")
+                messages.error(self.request, f'No se encontró una hoja para el banco: {bank_name}.')
 
-            # Mapeo de nombres de columnas
-            column_mapping = {
-                'F.Operac.': 'operation_date',
-                'Referencia': 'reference',
-                'Importe': 'amount',
-                'ITF': 'itf',
-                'Num.Mvto': 'number_moviment',
-            }
-
-            # Renombrar columnas
-            df.rename(columns=column_mapping, inplace=True)
-
-            # Crear los registros de BankStatements
-            for _, row in df.iterrows():
-                # Verifica si el banco está asignado
-                if bank:
-                    BankStatements.objects.create(
-                        bank=bank,  # Asegúrate de que el banco se pase aquí
-                        operation_date=row['operation_date'],
-                        reference=row['reference'],
-                        amount=row['amount'],
-                        itf=row['itf'],
-                        number_moviment=row['number_moviment'],
-                    )
-                else:
-                    print("El banco no está asignado correctamente.")
-
-            messages.success(self.request, 'Extractos bancarios subidos exitosamente.')
         except Exception as e:
             print("Error procesando archivo:", e)
-            messages.error(self.request, 'Hubo un error procesando el archivo.')
+            messages.error(self.request, f'Hubo un error procesando el archivo: {e}')
 
         return super().form_valid(form)
 
