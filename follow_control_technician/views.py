@@ -87,11 +87,17 @@ def create_technician_card(request, mes, anio):
 
         if card_form.is_valid() and task_formset.is_valid():
             technician_card = card_form.save()
-
             task_formset.instance = technician_card
             task_formset.save()
 
+            # Detectar si el usuario presionó "Crear y Crear Otra"
+            if 'save_and_create_another' in request.POST:
+                # Redirigir de vuelta a la misma vista de creación
+                return redirect(reverse('create_technician_card', kwargs={'mes': mes, 'anio': anio}))
+
+            # Si se presionó "Guardar", redirigir a la lista de técnicos del mes
             return redirect(reverse('technicians_month', kwargs={'mes': mes, 'anio': anio}))
+
         else:
             print(card_form.errors)
             print(task_formset.errors)
@@ -111,7 +117,6 @@ def view_technician_card(request, card_id):
     tarjeta = get_object_or_404(TechnicianCard, id=card_id)
     form = TechnicianCardTaskForm()
 
-    # Obtener las tareas asociadas a esta tarjeta
     tareas_con_foto = TechnicianCardTask.objects.filter(technician_card=tarjeta).select_related('task')
 
     context = {
@@ -151,8 +156,6 @@ def delete_technician_card_task(request, task_id):
     # Render the updated tasks list partial for HTMX
     return render(request, 'partials/technician_tasks_list.html', {'tareas_con_foto': tareas_con_foto})
 
-
-
 def delete_technician_card(request, card_id):
     technician_card = get_object_or_404(TechnicianCard, id=card_id)
     if request.method == 'POST':
@@ -182,7 +185,7 @@ def technician_task(request):
             success, error = process_technician_tasks_excel(file)
             if success:
                 print("Tareas guardadas exitosamente.")
-                return redirect("technician_task")  # Redirige si se procesó exitosamente
+                return redirect("technician_task") 
             else:
                 print("Error en el procesamiento del archivo:", error)
                 excel_form.add_error(None, f"Error al procesar el archivo: {error}")

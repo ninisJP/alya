@@ -274,6 +274,10 @@ def create_sales_order_from_budget(request, budget_id):
     existing_sales_order = SalesOrder.objects.filter(sapcode=budget.budget_number).first()
     
     if existing_sales_order:
+        # Actualizar el campo days de la orden de venta existente
+        existing_sales_order.days = budget.budget_days  # Asignar días del presupuesto
+        existing_sales_order.save()
+
         # Si ya existe una orden de venta, actualizamos o agregamos ítems
         for budget_item in budget.items.all():
             price_with_igv = budget_item.custom_price * Decimal(1.18) if budget_item.custom_price else budget_item.item.price * Decimal(1.18)
