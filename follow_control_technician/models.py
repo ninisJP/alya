@@ -24,13 +24,14 @@ class TechnicianTask(models.Model):
     measurement = models.CharField(max_length=50)
     time = models.DecimalField(max_digits=5, decimal_places=2)
 
-
     def __str__(self):
         return f"{self.verb} {self.object} ({self.time} {self.measurement})"
 
     class Meta:
         verbose_name = "Tarea de Técnico"
         verbose_name_plural = "Tareas de Técnicos"
+        unique_together = ('verb', 'object', 'measurement', 'time')  # Aquí va la restricción de `unique_together`
+
 
 class TechnicianCard(models.Model):
     technician = models.ForeignKey(Technician, on_delete=models.CASCADE)
@@ -58,7 +59,7 @@ class TechnicianCardTask(models.Model):
         return f"{self.task.verb} {self.task.object} (Order: {self.order})"
 
     class Meta:
-        ordering = ['order']
+        ordering = ['order'] 
         verbose_name = "Tarjeta de Tarea de Técnico"
         verbose_name_plural = "Tarjetas de Tareas de Técnicos"
 

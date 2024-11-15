@@ -405,6 +405,7 @@ class BankStatementUploadView(FormView):
 
         return super().form_valid(form)
 
+
 @require_POST
 def assign_bank_statement(request, item_id, statement_id):
     try:
