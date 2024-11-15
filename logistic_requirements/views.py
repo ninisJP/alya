@@ -15,6 +15,9 @@ from django.db import transaction
 from .models import RequirementOrder, RequirementOrderItem
 from django.http import HttpResponse
 from django.db.models import Q
+import openpyxl
+from django.http import HttpResponse
+from .models import RequirementOrder
 
 # Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente o todas las órdenes sin filtros
 class RequirementOrderListView(ListView):
@@ -116,6 +119,7 @@ def update_requirement_order_items(request, pk):
         '<div class="alert alert-success" role="alert">Items actualizados con éxito</div>',
         status=200
     )
+
 def create_purchase_order(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
 
@@ -275,16 +279,12 @@ def requirement_order_detail_partial(request, pk):
         'items': items,  # Pasamos los ítems a la plantilla parcial
     })
 
-import openpyxl
-from django.http import HttpResponse
-from .models import RequirementOrder
-
 def export_order_to_excel(request, pk):
     # Obtener la orden específica
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
     # Filtrar solo los ítems en estado "Pendiente"
     items = requirement_order.items.filter(estado='P')
-    
+
     # Crear un nuevo libro de Excel
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -298,20 +298,24 @@ def export_order_to_excel(request, pk):
     ws['A5'] = f"Fecha Solicitada: {requirement_order.requested_date}"
     ws['A6'] = f"Fecha Creada: {requirement_order.created_at}"
     ws['A7'] = f"Notas: {requirement_order.notes}"
-    
+
     # Espacio entre detalles y tabla de ítems
     ws['A9'] = "Ítems Pendientes"
 
-    # Agregar encabezados de columna para los ítems
-    headers = ["Cantidad Solicitada", "Descripción", "Estado"]
+    # Agregar encabezados de columna para los ítems, incluyendo los nuevos campos
+    headers = ["Cantidad Solicitada", "Descripción", "Unidad de Medida", "SAP Code", "Categoría", "Estado"]
     for col_num, column_title in enumerate(headers, 1):
         ws.cell(row=10, column=col_num, value=column_title)
 
     # Agregar los datos de cada ítem pendiente
     for row_num, item in enumerate(items, 11):  # Comienza en la fila 11 para dejar espacio a los detalles
+        sales_order_item = item.sales_order_item  # Para acceder a los datos de SalesOrderItem
         ws.cell(row=row_num, column=1, value=item.quantity_requested)
-        ws.cell(row=row_num, column=2, value=item.sales_order_item.description)
-        ws.cell(row=row_num, column=3, value=item.get_estado_display())
+        ws.cell(row=row_num, column=2, value=sales_order_item.description)
+        ws.cell(row=row_num, column=3, value=sales_order_item.unit_of_measurement)
+        ws.cell(row=row_num, column=4, value=sales_order_item.sap_code)
+        ws.cell(row=row_num, column=5, value=sales_order_item.category)
+        ws.cell(row=row_num, column=6, value=item.get_estado_display())
 
     # Configurar la respuesta HTTP para descargar el archivo
     response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -319,3 +323,4 @@ def export_order_to_excel(request, pk):
     wb.save(response)
 
     return response
+

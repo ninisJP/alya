@@ -12,29 +12,43 @@
                         <th>Ítem</th>
                         <th>UND</th>
                         <th>Cant</th>
+                        <th>Cant. Horas</th> <!-- Nueva columna -->
+                        <th>Precio Hora (S/.)</th> <!-- Nueva columna -->
                         <th>Precio Diario (S/.)</th>
                         <th>Precio Unitario (S/.)</th>
                         <th>Precio Proyecto (S/.)</th>
-                        <th>Acciones</th> <!-- Nueva columna para los botones de acción -->
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in items %}
                     <tr id="item-{{ item.id }}">
-                        <td>{{ item.item.sap }}
+                        <td>{{ item.item.sap }}</td>
                         <td>{{ item.item.description }}</td>
-                        <td>{{ item.unit }}</td>  
+                        <td>{{ item.unit }}</td>
                         <td>{{ item.quantity }}</td>
+                        <td>
+                            {% if item.custom_quantity %}
+                                {{ item.custom_quantity }}
+                            {% else %}
+                                x
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.custom_price_per_hour %}
+                                {{ item.custom_price_per_hour }}
+                            {% else %}
+                                x
+                            {% endif %}
+                        </td>
                         <td>{{ item.custom_price_per_day }}</td>
                         <td>{{ item.custom_price }}</td>
                         <td>{{ item.total_price }}</td>
                         <td>
                             <!-- Botón de editar -->
-                            <!-- Botón de editar en item_row.html -->
                             <button class="btn btn-primary btn-sm" hx-get="{% url 'edit_budget_item_htmx' item.id %}" hx-target="#item-{{ item.id }}" hx-swap="outerHTML">
                                 Editar
                             </button>
-
                             <!-- Botón de eliminar -->
                             <button class="btn btn-danger btn-sm" hx-delete="{% url 'delete_budget_item_htmx' item.id %}" hx-target="#item-list" hx-swap="outerHTML">
                                 Eliminar
