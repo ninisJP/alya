@@ -53,6 +53,9 @@ class SalesOrderItem(models.Model):
     unit_of_measurement = models.CharField(max_length=255, default="UND")
     remaining_requirement = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     category = models.CharField(max_length=100, default="") 
+    custom_quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Nuevo campo
+    custom_price_per_hour = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)  # Nuevo campo
+
 
     def __str__(self):
         return f"{self.description} - {self.amount} unidades"

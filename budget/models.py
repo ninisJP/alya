@@ -88,49 +88,68 @@ class CatalogItem(models.Model):
         verbose_name = "Item Catálogo"
         verbose_name_plural = "Items de Catálogo"
 
-from decimal import Decimal
-
 class BudgetItem(models.Model):
-    budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='items')
-    item = models.ForeignKey(CatalogItem, on_delete=models.CASCADE, related_name='budget_items')
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1.00)  # Cambiado a DecimalField
+    budget = models.ForeignKey('Budget', on_delete=models.CASCADE, related_name='items')
+    item = models.ForeignKey('CatalogItem', on_delete=models.CASCADE, related_name='budget_items')
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    custom_quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     custom_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     custom_price_per_day = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    custom_price_per_hour = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
-    unit = models.CharField(max_length=100, blank=True, null=True)  # Campo unit editable, puede ser nulo
+    unit = models.CharField(max_length=100, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         # Si no se ha especificado una unidad, utilizar la unidad del catálogo
         if not self.unit:
             self.unit = self.item.unit
 
-        # Si ya tenemos el precio total desde el Excel, no recalculamos.
+        # Si ya tenemos el precio total desde el Excel, lo usamos directamente
         if self.total_price:
             print(f"Usando el precio total proporcionado: {self.total_price}")
         else:
-            # Si no hay custom_price, asignar el precio del catálogo
+            # Asignar precios personalizados si no están definidos
             if self.custom_price is None:
                 self.custom_price = self.item.price
 
-            # Si no hay custom_price_per_day, asignar el precio por día del catálogo
             if self.custom_price_per_day is None:
                 self.custom_price_per_day = self.item.price_per_day
 
-            # Convertir a Decimal para evitar problemas al realizar operaciones
+            # Convertir a Decimal para cálculos precisos
             price = Decimal(self.custom_price)
             price_per_day = Decimal(self.custom_price_per_day)
 
-            # Aplicar precio por día solo si la categoría es HERRAMIENTA, MANODEOBRA o EPPS
-            if self.item.category in [CatalogItem.Category.HERRAMIENTA, CatalogItem.Category.MANODEOBRA, CatalogItem.Category.EPPS]:
+            # Calcular total_price basado en la categoría
+            if self.item.category in [
+                CatalogItem.Category.HERRAMIENTA,
+                CatalogItem.Category.MANODEOBRA,
+                CatalogItem.Category.EPPS
+            ]:
                 self.total_price = price_per_day * Decimal(self.quantity) * Decimal(self.budget.budget_days)
             else:
-                # No aplica precio por día para EQUIPO, CONSUMIBLE y MATERIAL
                 self.total_price = price * Decimal(self.quantity)
 
+        # Ajustar la condición para la unidad 'HOR'
+        if self.unit == 'HORAS':
+            hours_per_day = 8  # Puedes ajustar este valor según tus necesidades
+            total_hours = Decimal(self.budget.budget_days) * Decimal(hours_per_day) * Decimal(self.quantity)
+
+            if total_hours > 0:
+                self.custom_price_per_hour = self.total_price / total_hours
+                self.custom_quantity = total_hours  # Total de horas trabajadas por todas las unidades
+            else:
+                self.custom_price_per_hour = Decimal('0.00')
+                self.custom_quantity = Decimal('0.00')
+        else:
+            # Si la unidad no es 'HOR', asignamos None
+            self.custom_price_per_hour = None
+            self.custom_quantity = None
+
         super().save(*args, **kwargs)
-        # Guardar el presupuesto para que sus valores también se actualicen
+        # Guardar el presupuesto para actualizar sus valores
         self.budget.save()
 
     class Meta:
         verbose_name = "Item Presupuesto"
         verbose_name_plural = "Items de Presupuesto"
+
