@@ -19,19 +19,17 @@ from django.shortcuts import render, redirect
 from django.core.files.storage import FileSystemStorage
 from .forms import BudgetUploadForm
 from .utils import process_budget_excel
-from .utils import process_sap_excel  # Importa la función para procesar el nuevo Excel
+from .utils import process_sap_excel
 import pandas as pd
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ExcelUploadForm
 from .models import CatalogItem
-import re  # Biblioteca para manejar expresiones regulares
+import re
 from django.db import transaction
 from .forms import AddBudgetItemForm
 from collections import defaultdict
 from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-
 
 def index_budget(request):
     budgets = Budget.objects.all()  # Recupera todos los presupuestos
@@ -267,74 +265,126 @@ def duplicate_budget(request, pk):
     return redirect('detail_budget', pk=duplicated_budget.pk)
 
 def create_sales_order_from_budget(request, budget_id):
+    from decimal import Decimal
+    from django.shortcuts import get_object_or_404, redirect
+    from django.contrib import messages
+    from django.db import transaction
+
     # Obtener el presupuesto seleccionado
     budget = get_object_or_404(Budget, id=budget_id)
-    
+
     # Verificar si ya existe una orden de venta con el mismo sapcode que el budget_number
     existing_sales_order = SalesOrder.objects.filter(sapcode=budget.budget_number).first()
-    
-    if existing_sales_order:
-        # Actualizar el campo days de la orden de venta existente
-        existing_sales_order.days = budget.budget_days  # Asignar días del presupuesto
-        existing_sales_order.save()
 
-        # Si ya existe una orden de venta, actualizamos o agregamos ítems
-        for budget_item in budget.items.all():
-            price_with_igv = budget_item.custom_price * Decimal(1.18) if budget_item.custom_price else budget_item.item.price * Decimal(1.18)
-            total_price_with_igv = budget_item.total_price * Decimal(1.18)
+    # Iniciar una transacción atómica para garantizar la consistencia de los datos
+    with transaction.atomic():
+        if existing_sales_order:
+            # Actualizar el campo days de la orden de venta existente
+            existing_sales_order.days = budget.budget_days  # Asignar días del presupuesto
+            existing_sales_order.save()
 
-            sales_order_item = existing_sales_order.items.filter(sap_code=budget_item.item.sap).first()
+            # Lista para almacenar los códigos SAP presentes en el presupuesto
+            sap_codes_in_budget = set()
 
-            if sales_order_item:
-                sales_order_item.amount = budget_item.quantity
-                sales_order_item.price = price_with_igv
-                sales_order_item.price_total = total_price_with_igv
-                sales_order_item.unit_of_measurement = budget_item.unit or budget_item.item.unit
-                sales_order_item.category = budget_item.item.category  # Asignar categoría
-                sales_order_item.description = budget_item.item.description  # Actualizar descripción
-                sales_order_item.save()
-                sales_order_item.update_remaining_requirement()
+            # Si ya existe una orden de venta, actualizamos o agregamos ítems
+            for budget_item in budget.items.all():
+                # Normalizar el código SAP del presupuesto
+                sap_code = str(budget_item.item.sap).strip().upper()
+                sap_codes_in_budget.add(sap_code)
+
+                price_with_igv = (budget_item.custom_price or budget_item.item.price) * Decimal('1.18')
+                total_price_with_igv = budget_item.total_price * Decimal('1.18') if budget_item.total_price else Decimal('0.00')
+
+                # Buscar el ítem en la orden de venta existente, normalizando el código SAP
+                sales_order_item = existing_sales_order.items.filter(sap_code__iexact=sap_code).first()
+
+                if sales_order_item:
+                    # Actualizar el ítem existente
+                    sales_order_item.amount = budget_item.quantity
+                    sales_order_item.price = price_with_igv
+                    sales_order_item.price_total = total_price_with_igv
+                    sales_order_item.unit_of_measurement = budget_item.unit or budget_item.item.unit
+                    sales_order_item.category = budget_item.item.category
+                    sales_order_item.description = budget_item.item.description
+                    sales_order_item.custom_quantity = budget_item.custom_quantity
+                    sales_order_item.custom_price_per_hour = budget_item.custom_price_per_hour
+                    sales_order_item.save()
+                    sales_order_item.update_remaining_requirement()
+                else:
+                    # Crear un nuevo ítem en la orden de venta
+                    new_item = SalesOrderItem.objects.create(
+                        salesorder=existing_sales_order,
+                        sap_code=sap_code,
+                        description=budget_item.item.description,
+                        amount=budget_item.quantity,
+                        price=price_with_igv,
+                        price_total=total_price_with_igv,
+                        unit_of_measurement=budget_item.unit or budget_item.item.unit,
+                        category=budget_item.item.category,
+                        custom_quantity=budget_item.custom_quantity,
+                        custom_price_per_hour=budget_item.custom_price_per_hour,
+                    )
+                    new_item.update_remaining_requirement()
+
+            # Obtener los códigos SAP de los ítems actuales en la orden de venta y normalizarlos
+            sap_codes_in_sales_order = set(
+                str(item.sap_code).strip().upper()
+                for item in existing_sales_order.items.all()
+            )
+
+            # Mensajes de depuración
+            print(f"SAP codes in budget: {sap_codes_in_budget}")
+            print(f"SAP codes in sales order before update: {sap_codes_in_sales_order}")
+
+            # Identificar los códigos SAP que deben eliminarse
+            sap_codes_to_delete = sap_codes_in_sales_order - sap_codes_in_budget
+            print(f"SAP codes to delete: {sap_codes_to_delete}")
+
+            if sap_codes_to_delete:
+                # Eliminar los SalesOrderItems cuyo código SAP está en sap_codes_to_delete
+                items_to_delete = existing_sales_order.items.filter(
+                    sap_code__in=sap_codes_to_delete
+                )
+                count_deleted = items_to_delete.count()
+                items_to_delete.delete()
+                messages.info(request, f"Se eliminaron {count_deleted} ítems de la orden de venta que ya no están en el presupuesto.")
             else:
+                messages.info(request, "No hay ítems para eliminar de la orden de venta.")
+
+            messages.success(request, f"Los precios y los ítems de la orden de venta existente con sapcode {existing_sales_order.sapcode} fueron actualizados con IGV.")
+        else:
+            # Crear una nueva orden de venta si no existe
+            sales_order = SalesOrder.objects.create(
+                sapcode=budget.budget_number,
+                project=None,
+                detail=f"Orden basada en el presupuesto {budget.budget_name}",
+                date=budget.budget_date,
+                days=budget.budget_days,
+            )
+
+            for budget_item in budget.items.all():
+                sap_code = str(budget_item.item.sap).strip().upper()
+                price_with_igv = (budget_item.custom_price or budget_item.item.price) * Decimal('1.18')
+                total_price_with_igv = budget_item.total_price * Decimal('1.18') if budget_item.total_price else Decimal('0.00')
+
                 new_item = SalesOrderItem.objects.create(
-                    salesorder=existing_sales_order,
-                    sap_code=budget_item.item.sap,
+                    salesorder=sales_order,
+                    sap_code=sap_code,
                     description=budget_item.item.description,
                     amount=budget_item.quantity,
                     price=price_with_igv,
                     price_total=total_price_with_igv,
                     unit_of_measurement=budget_item.unit or budget_item.item.unit,
-                    category=budget_item.item.category,  # Asignar categoría
+                    category=budget_item.item.category,
+                    custom_quantity=budget_item.custom_quantity,
+                    custom_price_per_hour=budget_item.custom_price_per_hour,
                 )
                 new_item.update_remaining_requirement()
-        messages.success(request, f"Los precios y los ítems de la orden de venta existente con sapcode {existing_sales_order.sapcode} fueron regularizados con IGV.")
-    else:
-        sales_order = SalesOrder.objects.create(
-            sapcode=budget.budget_number,
-            project=None,
-            detail=f"Orden basada en el presupuesto {budget.budget_name}",
-            date=budget.budget_date,
-            days=budget.budget_days,  # Asignar días del presupuesto
-        )
-        
-        for budget_item in budget.items.all():
-            price_with_igv = budget_item.custom_price * Decimal(1.18) if budget_item.custom_price else budget_item.item.price * Decimal(1.18)
-            total_price_with_igv = budget_item.total_price * Decimal(1.18)
 
-            new_item = SalesOrderItem.objects.create(
-                salesorder=sales_order,
-                sap_code=budget_item.item.sap,
-                description=budget_item.item.description,
-                amount=budget_item.quantity,
-                price=price_with_igv,
-                price_total=total_price_with_igv,
-                unit_of_measurement=budget_item.unit or budget_item.item.unit,
-                category=budget_item.item.category,  # Asignar categoría
-            )
-            new_item.update_remaining_requirement()
-        
-        messages.success(request, f"La orden de venta {sales_order.sapcode} fue creada exitosamente con IGV incluido.")
-        
+            messages.success(request, f"La orden de venta {sales_order.sapcode} fue creada exitosamente con IGV incluido.")
+
     return redirect('index_budget')
+
 
 
 def export_budget_report(request, pk):
