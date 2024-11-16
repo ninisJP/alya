@@ -27,6 +27,7 @@ urlpatterns = [
     path('clientes/crm/', include('client_crm.urls')),
     # Project
     path('proyectos/', include('project.urls')),
+    path('proyectos/finanzas/', include('project_finance.urls')),
     # Budget
     path('presupuestos/', include('budget.urls')),
     path('presupuestos_comercial/', include('budget_commercial.urls')),

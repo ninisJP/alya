@@ -1,0 +1,150 @@
+{% extends "project_base.html" %}
+
+{% block content %}
+<div class="container-fluid p-3 d-flex flex-column" style="height: 100vh;">
+    <!-- Título de Dashboard -->
+    <div class="text-center mb-2">
+        <h2 class="fw-bold" style="color: #333;">Dashboard Financiero</h2>
+    </div>
+
+    <!-- Sección Principal: Ingresos, Egresos, Saldo -->
+    <div class="row g-2 mb-2" style="flex: 1;">
+        <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="card text-white bg-primary shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
+                <h4>Ingresos</h4>
+                <p class="display-6">0.00</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="card text-white bg-danger shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
+                <h4>Egresos</h4>
+                <p class="display-6">0.00</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="card text-white bg-success shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
+                <h4>Saldo</h4>
+                <p class="display-6">0.00</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Transacciones: Ventas, Compras, Cuentas por Cobrar, Cuentas por Pagar -->
+    <div class="row g-2 mb-2" style="flex: 1;">
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-primary">
+                <h5>Ventas</h5>
+                <p class="display-6">0.00</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-info">
+                <h5>Compras</h5>
+                <p class="display-6">0.00</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-warning">
+                <h5>Cuentas por Cobrar</h5>
+                <p class="display-6">0.00</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-danger">
+                <h5>Cuentas por Pagar</h5>
+                <p class="display-6">0.00</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columnas Inferiores -->
+    <div class="row g-2" style="flex: 1;">
+        <!-- Columna Izquierda -->
+        <div class="col-lg-6 col-md-12 d-flex flex-column">
+            <div class="card shadow-sm p-2 h-100">
+                <h4 class="fw-bold">Top de Clientes y Proveedores</h4>
+                <div class="row g-2 mt-2">
+                    <div class="col-6">
+                        <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-primary">
+                            <h5>Clientes</h5>
+                            <ul class="list-unstyled text-center mb-0">
+                                <li>Cliente A</li>
+                                <li>Cliente B</li>
+                                <li>Cliente C</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-primary">
+                            <h5>Proveedores</h5>
+                            <ul class="list-unstyled text-center mb-0">
+                                <li>Proveedor X</li>
+                                <li>Proveedor Y</li>
+                                <li>Proveedor Z</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha -->
+        <div class="col-lg-6 col-md-12 d-flex flex-column">
+            <div class="card shadow-sm p-2 h-100">
+                <h4 class="fw-bold">Indicadores Clave de Desempeño (KPIs)</h4>
+                <div class="row g-2 mt-2">
+                    <div class="col-6">
+                        <div class="card text-white bg-dark shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
+                            <h5>Días de Cobro</h5>
+                            <p class="display-6">45 días</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-white bg-dark shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
+                            <h5>Días de Pago</h5>
+                            <p class="display-6">30 días</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-white bg-dark shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
+                            <h5>Rotación de Inventario</h5>
+                            <p class="display-6">5 veces/año</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-white bg-dark shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
+                            <h5>Razón de Liquidez</h5>
+                            <p class="display-6">1.5</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rentabilidad por Producto o Servicio -->
+            <div class="card shadow-sm p-2 h-100 mt-2">
+                <h4 class="fw-bold">Rentabilidad por Producto/Servicio</h4>
+                <div class="row g-2 mt-2">
+                    <div class="col-4">
+                        <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-success">
+                            <h5>Producto A</h5>
+                            <p class="display-6">30%</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-success">
+                            <h5>Producto B</h5>
+                            <p class="display-6">25%</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-success">
+                            <h5>Producto C</h5>
+                            <p class="display-6">20%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
