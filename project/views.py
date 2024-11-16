@@ -1,16 +1,13 @@
 from django.db.models import Prefetch
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView
-
 from accounting_order_sales.models import PurchaseOrderItem, SalesOrder, PurchaseOrder
 from logistic_inventory_input.models import InventoryInput
 from logistic_inventory_inputnewitem.models import InventoryInputNewItem
 from logistic_inventory_output.models import InventoryOutputItem
 from logistic_requirements.models import RequirementOrderItem
-
 from .forms import ProjectForm
 from .models import Project
-
 
 def project_index(request):
     if request.method == 'POST':
