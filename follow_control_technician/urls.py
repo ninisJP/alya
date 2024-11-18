@@ -9,6 +9,8 @@ urlpatterns = [
     path('technician-tasks/', views.technician_task, name='technician_task'),
     path('technician-task-state/<int:pk>/', views.technician_task_state, name='technician-task-state'),
     path('technician/calendar/', views.technician_calendar, name='technician_calendar'),
+    path('task-groups/', views.list_task_groups, name='list_task_groups'),  # Listar los grupos
+    
 ]
 
 htmxurlpatters = [
@@ -17,6 +19,8 @@ htmxurlpatters = [
     path('edit-task/<int:task_id>/', views.edit_technician_task, name='edit-technician-task'), 
     path('add-task/<int:card_id>/', views.add_technician_task, name='add_technician_task'),
     path('delete_technician_card_task/<int:task_id>/', views.delete_technician_card_task, name='delete_technician_card_task'),
+    path('task-groups/create/', views.create_task_group, name='create_task_group'),  # Crear un grupo nuevo
+    
 ]
 
 urlpatterns += htmxurlpatters

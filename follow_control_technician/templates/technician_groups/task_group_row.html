@@ -1,0 +1,11 @@
+<tr id="group-row-{{ task_group.id }}">
+    <td>{{ task_group.name }}</td>
+    <td>
+        <button class="btn btn-sm btn-primary" hx-get="" hx-target="#group-row-{{ task_group.id }}">
+            Editar
+        </button>
+        <button class="btn btn-sm btn-danger" hx-delete="" hx-target="#group-row-{{ task_group.id }}">
+            Eliminar
+        </button>
+    </td>
+</tr>

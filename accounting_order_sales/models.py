@@ -61,9 +61,17 @@ class SalesOrderItem(models.Model):
         return f"{self.description} - {self.amount} unidades"
 
     def update_remaining_requirement(self):
-        cantidad_solicitada = sum(Decimal(item.quantity_requested) for item in self.requirementorderitem_set.all())
+    # Calcular la cantidad solicitada solo de los ítems que no están rechazados
+        cantidad_solicitada = sum(
+            Decimal(item.quantity_requested)
+            for item in self.requirementorderitem_set.all()
+            if item.estado != 'R'  # Excluir ítems en estado "Rechazado"
+        )
+
+        # Actualizar el campo remaining_requirement considerando solo ítems aprobados, pendientes o en compra
         self.remaining_requirement = max(Decimal(self.amount) - cantidad_solicitada, Decimal(0))
         self.save()
+
 
     def save(self, *args, **kwargs):
         """

@@ -2,7 +2,7 @@ from django import forms
 from employee.models import Technician
 from .models import TechnicianTask, TechnicianCard, TechnicianCardTask
 from django.forms import inlineformset_factory
-from .models import TechnicianCard, TechnicianCardTask
+from .models import TechnicianCard, TechnicianCardTask, TechnicianTaskGroup, TechnicianTaskGroupItem
 
 class TechnicianTaskForm(forms.ModelForm):
     class Meta:
@@ -60,3 +60,14 @@ class TechnicianCardTaskForm(forms.ModelForm):
     class Meta: 
         model = TechnicianCardTask
         fields = ['task', 'quantity', 'saler_order']
+
+class TechnicianTaskGroupForm(forms.ModelForm):
+    class Meta:
+        model = TechnicianTaskGroup
+        fields = ['name']
+
+class TechnicianTaskGroupItemForm(forms.ModelForm):
+    class Meta:
+        model = TechnicianTaskGroupItem
+        fields = ['task', 'quantity', 'saler_order']
+

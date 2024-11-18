@@ -13,11 +13,10 @@ class RequirementOrder(models.Model):
         ('RECHAZADO', 'Rechazado'),
         ('NO REVISADO', 'No Revisado')
     ]
-    
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="requirement_orders")
     requested_date = models.DateField()
     notes = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(default=timezone.now)  # Editable pero con valor de creación predeterminado
+    created_at = models.DateTimeField(default=timezone.now)
     order_number = models.CharField(max_length=20, unique=True, blank=True)
     estado = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -33,6 +32,15 @@ class RequirementOrder(models.Model):
             sales_order_item.update_remaining_requirement()
 
     def save(self, *args, **kwargs):
+        # Verificar si el estado cambia a 'RECHAZADO'
+        if self.pk:
+            previous_state = RequirementOrder.objects.get(pk=self.pk).state
+            if previous_state != 'RECHAZADO' and self.state == 'RECHAZADO':
+                # Rechazar todos los ítems y actualizar la cantidad disponible
+                for item in self.items.all():
+                    item.estado = 'R'
+                    item.save()
+
         # Generación de order_number si la instancia es nueva
         if not self.pk:
             super().save(*args, **kwargs)
@@ -49,8 +57,6 @@ class RequirementOrder(models.Model):
     class Meta:
         verbose_name = "Orden de Requerimiento"
         verbose_name_plural = "Ordenes de Requerimiento"
-
-
 
 class RequirementOrderItem(models.Model):
     ESTADO_CHOICES = [

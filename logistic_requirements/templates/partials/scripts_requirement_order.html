@@ -76,14 +76,14 @@
     function downloadExcel() {
         let workbook = XLSX.utils.book_new();
         let worksheet_data = [['SAP', 'ITEM', 'Detalle', 'Cantidad Solicitada', 'Unidad', 'Disponible en Inventario', 'Precio Unitario', 'Precio Total', 'Proveedor', 'Estado']];
-
+    
         $('#requirement-order-form tbody tr').each(function() {
             let row = [];
             row.push($(this).find('td:eq(0)').text().trim()); // SAP
             row.push($(this).find('td:eq(1)').text().trim()); // ITEM
             row.push($(this).find('input[name^="notes_"]').val()); // Detalle
             row.push($(this).find('input[name^="quantity_requested_"]').val()); // Cantidad
-            row.push($(this).find('td:eq(4)').text().trim()); // Unidad
+            row.push($(this).find('input[name^="unit_"]').val()); // Unidad
             row.push($(this).find('td:eq(5)').text().trim()); // Inventario
             row.push($(this).find('input[name^="price_"]').val()); // Precio Unitario
             row.push($(this).find('input[name^="total_price_"]').val()); // Precio Total
@@ -91,11 +91,12 @@
             row.push($(this).find('input[name^="estado_"]').val()); // Estado
             worksheet_data.push(row);
         });
-
+    
         let worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Orden de Requerimiento');
         XLSX.writeFile(workbook, 'Orden_de_Requerimiento.xlsx');
     }
+    
 
     function updateAllItemsState(newState) {
         // Actualizar todos los estados y los botones
