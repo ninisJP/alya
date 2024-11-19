@@ -19,8 +19,6 @@ class SalesOrder(models.Model):
     total_sales_order = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     days = models.PositiveIntegerField(default=0)
 
-
-
     def update_total_sales_order(self):
         self.total_sales_order = sum(item.price_total for item in self.items.all())
         self.save()
@@ -41,6 +39,7 @@ class SalesOrder(models.Model):
 
     def __str__(self):
         return f"{self.sapcode} - {self.project if self.project else 'Sin Proyecto'} - {self.detail}"
+
     class Meta:
         verbose_name = "Orden Venta"
         verbose_name_plural = "Ordenes de Venta"
@@ -57,8 +56,6 @@ class SalesOrderItem(models.Model):
     category = models.CharField(max_length=100, default="") 
     custom_quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Nuevo campo
     custom_price_per_hour = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)  # Nuevo campo
-
-
 
     def __str__(self):
         return f"{self.description} - {self.amount} unidades"
@@ -80,7 +77,6 @@ class SalesOrderItem(models.Model):
         """
         Sobrescribe el método save para inicializar remaining_requirement al valor de amount cuando se crea el objeto.
         """
-
         if self.pk is None:  # Si el objeto aún no ha sido guardado (nuevo objeto)
             self.remaining_requirement = self.amount
 
@@ -281,7 +277,7 @@ class CollectionOrders(models.Model):
         ('factoring', 'Factoring'),
         ('directo', 'Directo'),
     ]
-    orden_venta = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, verbose_name="Orden de Venta")
+    orden_venta = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, verbose_name="Orden de Venta",related_name="collection_orders")
     serie_correlativo = models.CharField(max_length=100, verbose_name="Serie y Correlativo", null=True, blank=True)
     fecha_emision = models.DateField(verbose_name="Fecha de Emisión", null=True, blank=True)
     cliente = models.CharField(max_length=255, verbose_name="Cliente", null=True, blank=True)
