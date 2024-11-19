@@ -2,6 +2,9 @@ from django.db import models
 from client.models import Client
 from decimal import Decimal
 
+from django.db import models
+from decimal import Decimal
+
 class Budget(models.Model):
     PERCENTAGE_CHOICES = [
         (0.00, '0%'),
@@ -22,41 +25,50 @@ class Budget(models.Model):
         ('3 years', '3 Años'),
     ]
 
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, null=True)
+    client = models.ForeignKey('client.Client', on_delete=models.CASCADE, null=True)
     budget_name = models.CharField(max_length=100, default="")
     budget_number = models.CharField(max_length=10, blank=True)
     budget_days = models.PositiveIntegerField()
     budget_date = models.DateField()
     budget_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    budget_expenses = models.DecimalField(max_digits=5, decimal_places=2, choices=PERCENTAGE_CHOICES, default=0.00,)
-    budget_utility = models.DecimalField(max_digits=5, decimal_places=2, choices=PERCENTAGE_CHOICES, default=0.00,)
+    budget_expenses = models.DecimalField(max_digits=5, decimal_places=2, choices=PERCENTAGE_CHOICES, default=0.00)
+    budget_utility = models.DecimalField(max_digits=5, decimal_places=2, choices=PERCENTAGE_CHOICES, default=0.00)
     budget_final_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    budget_deliverytime = models.CharField(max_length=100, choices=TIME_CHOICES, blank=True, null=True,)
-    budget_servicetime = models.CharField(max_length=100, choices=TIME_CHOICES, blank=True, null=True,)
-    budget_warrantytime = models.CharField(max_length=100, choices=TIME_CHOICES, blank=True, null=True,)
+    budget_deliverytime = models.CharField(max_length=100, choices=TIME_CHOICES, blank=True, null=True)
+    budget_servicetime = models.CharField(max_length=100, choices=TIME_CHOICES, blank=True, null=True)
+    budget_warrantytime = models.CharField(max_length=100, choices=TIME_CHOICES, blank=True, null=True)
 
     def calculate_budget_price(self):
-        return sum(item.total_price for item in self.items.all())
+        total = sum(item.total_price for item in self.items.all())
+        print(f"Debug: Calculando budget_price, Total calculado: {total}")
+        return total
 
     def calculate_final_price(self):
         price = self.budget_price
         expenses = price * (self.budget_expenses / 100)
         utility = price * (self.budget_utility / 100)
         total = price + expenses + utility
+        print(f"Debug: Calculando budget_final_price, price={price}, expenses={expenses}, utility={utility}, total={total}")
         return total
 
     def save(self, *args, **kwargs):
-        # Primero guarda el presupuesto sin calcular los valores, para asegurarse de que el ID esté disponible.
-        if not self.pk:  # Si la instancia aún no tiene un primary key
-            super().save(*args, **kwargs)  # Guardar para obtener un ID
+        if not self.pk:
+            # Guardar inicialmente para obtener un ID si es un nuevo presupuesto
+            super().save(*args, **kwargs)
 
-        # Luego realiza los cálculos que dependen del ID
-        self.budget_price = self.calculate_budget_price()
+        # Si budget_price ya tiene un valor asignado directamente, no recalcular
+        if self.budget_price and 'update_budget_price' not in kwargs:
+            print(f"Usando budget_price directamente asignado: {self.budget_price}")
+        else:
+            # Recalcular budget_price si no ha sido asignado
+            self.budget_price = self.calculate_budget_price()
+            print(f"Recalculando budget_price: {self.budget_price}")
+
+        # Calcular el precio final siempre
         self.budget_final_price = self.calculate_final_price()
 
-        # Finalmente, guarda los cambios
+        # Guardar los cambios
         super().save(*args, **kwargs)
-
 
     def __str__(self):
         return self.budget_name
@@ -64,6 +76,7 @@ class Budget(models.Model):
     class Meta:
         verbose_name = "Presupuesto"
         verbose_name_plural = "Presupuestos"
+
 
 class CatalogItem(models.Model):
     class Category(models.TextChoices):
