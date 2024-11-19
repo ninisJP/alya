@@ -1,0 +1,37 @@
+{% extends 'follow_control_base.html' %}
+
+{% block title %}Listado de Grupos de Tareas{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <h3>Listado de Grupos de Tareas</h3>
+    <button class="btn btn-create" hx-get="{% url 'create_task_group' %}" hx-target="#new-group-form">
+        Crear Nuevo Grupo
+    </button>
+
+    <!-- Formulario para crear un nuevo grupo -->
+    <div id="new-group-form">
+        <form hx-post="{% url 'create_task_group' %}" hx-target="#group-list" hx-swap="beforeend">
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary btn-sm">Agregar Grupo</button>
+        </form>
+    </div>
+
+    <!-- Tabla de grupos de tareas -->
+    <div class="table-container mt-3">
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre del Grupo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="group-list">
+                {% for task_group in task_groups %}
+                    {% include 'technician_groups/task_group_row.html' with task_group=task_group %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

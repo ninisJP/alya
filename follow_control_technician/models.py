@@ -67,3 +67,23 @@ class TechnicianCardTask(models.Model):
         # Calcular total_time como time * quantity
         self.total_time = self.task.time * self.quantity
         super().save(*args, **kwargs)
+        
+class TechnicianTaskGroup(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+    
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Grupo de Tareas de Técnico"
+        verbose_name_plural = "Grupos de Tareas de Técnicos"
+
+
+class TechnicianTaskGroupItem(models.Model):
+    task_group = models.ForeignKey(TechnicianTaskGroup, on_delete=models.CASCADE, related_name="group_items")
+    task = models.ForeignKey(TechnicianTask, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)  # Cantidad específica para la tarea en el grupo
+    saler_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE)  # Orden de venta para cada tarea en el grupo
+
+    def __str__(self):
+        return f"{self.task} en {self.task_group} (Cantidad: {self.quantity})"

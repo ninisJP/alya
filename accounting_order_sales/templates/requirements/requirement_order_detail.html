@@ -77,6 +77,7 @@
                         <th>ITEM</th>
                         <th style="width: 300px;">DETALLE</th>
                         <th style="width: 100px;">CANT</th>
+                        <th style="width: 100px;">UND</th>
                         <th>P. UNIT</th>
                         <th>P. TOT</th>
                         <th>PROVEEDOR</th>
@@ -93,6 +94,7 @@
                             <textarea name="notes_{{ item.id }}" class="form-control" rows="2" style="resize: none; width: 100%;">{{ item.notes }}</textarea>
                         </td>
                         <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="0.01"></td>
+                        <td>{{ item.sales_order_item.unit_of_measurement }}</td>
                         <td><input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" min="0" step="0.01"></td>
                         <td><input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" readonly></td>
                         <td>

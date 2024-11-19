@@ -269,117 +269,80 @@ def process_sap_excel(excel_file, budget):
     from decimal import Decimal
     from django.db import transaction
 
-    # Procesar el archivo Excel
     xls = pd.ExcelFile(excel_file)
     if 'listado' not in xls.sheet_names:
         raise ValueError("El archivo no contiene una hoja llamada 'listado'.")
 
-    # Leer la hoja "listado" del archivo Excel
     df = pd.read_excel(xls, sheet_name='listado')
-
-    # Verificar que las columnas esperadas existan
     expected_columns = ['Número de artículo', 'Descripción del artículo', 'Nombre de unidad de medida', 'Cantidad', 'Precio por unidad', 'Total (ML)']
     if not all(col in df.columns for col in expected_columns):
         raise ValueError("El archivo Excel no tiene el formato esperado.")
 
-    # **Lista para almacenar los códigos SAP presentes en el Excel**
+    excel_total_sum = Decimal('0.00')
+    processed_total_sum = Decimal('0.00')
     sap_codes_in_excel = set()
 
-    # Iniciar una transacción atómica
     with transaction.atomic():
-        # Iterar sobre cada fila y procesar los datos
         for index, row in df.iterrows():
             sap_code = row['Número de artículo']
-
-            # Verificar si el código SAP es válido (no nulo)
             if pd.isna(sap_code) or pd.isnull(sap_code):
                 print(f"Fila {index} sin código SAP. Saltando esta fila.")
                 continue
 
-            sap_code = str(sap_code).strip()  # Asegurarse de que es una cadena sin espacios
-            sap_codes_in_excel.add(sap_code)  # Agregar el código SAP a la lista
+            sap_code = str(sap_code).strip()
+            sap_codes_in_excel.add(sap_code)
 
             description = row['Descripción del artículo']
             unit = row['Nombre de unidad de medida']
 
             try:
-                # Manejar cantidad (quantity)
                 quantity = Decimal(row['Cantidad']) if not pd.isna(row['Cantidad']) else Decimal(0)
-
-                # Manejar custom_price (Precio por unidad)
-                custom_price_value = row['Precio por unidad']
-                if isinstance(custom_price_value, str):
-                    custom_price = Decimal(custom_price_value.replace('S/', '').strip())
-                elif isinstance(custom_price_value, (float, int)):
-                    custom_price = Decimal(custom_price_value)
-                else:
-                    custom_price = Decimal(0)
-
-                # Manejar total_price (Total)
-                total_price_value = row['Total (ML)']
-                if isinstance(total_price_value, str):
-                    total_price = Decimal(total_price_value.replace('S/', '').strip())
-                elif isinstance(total_price_value, (float, int)):
-                    total_price = Decimal(total_price_value)
-                else:
-                    total_price = Decimal(0)
-
+                custom_price = Decimal(row['Precio por unidad']) if not pd.isna(row['Precio por unidad']) else Decimal(0)
+                total_price = Decimal(row['Total (ML)']) if not pd.isna(row['Total (ML)']) else Decimal(0)
+                excel_total_sum += total_price
             except Exception as e:
-                print(f"Error al convertir los valores numéricos en la fila {index}: {str(e)}")
-                continue  # Saltar esta fila si hay un error de conversión
+                print(f"Error al procesar fila {index}: {e}")
+                continue
 
-            # Buscar el ítem en el catálogo por su código SAP o crear uno nuevo
             try:
                 catalog_item = CatalogItem.objects.get(sap=sap_code)
-                # Verificar y actualizar la descripción si es diferente
-                if catalog_item.description != description:
-                    catalog_item.description = description
-                    catalog_item.save()
-                    print(f"Descripción del SAP {sap_code} actualizada a '{description}'.")
             except CatalogItem.DoesNotExist:
-                print(f"No se encontró el ítem con SAP {sap_code}. Creando uno nuevo.")
-                category = determine_category(sap_code)  # Asumimos que tienes esta función
+                category = determine_category(sap_code)
                 catalog_item = CatalogItem.objects.create(
                     sap=sap_code,
                     description=description,
                     unit=unit,
                     price=custom_price,
-                    price_per_day=custom_price / Decimal(30) if custom_price else Decimal(0),  # Evitar división por cero
+                    price_per_day=custom_price / Decimal(30) if custom_price else Decimal(0),
                     category=category
                 )
 
-            # Obtener o crear un nuevo BudgetItem
             budget_item, created = BudgetItem.objects.get_or_create(
                 budget=budget,
                 item=catalog_item,
             )
 
-            # Actualizar los campos del BudgetItem
             budget_item.quantity = quantity
             budget_item.custom_price = custom_price
             budget_item.unit = unit
             budget_item.total_price = total_price
-
-            # Guardar el BudgetItem para que se ejecuten los cálculos en el método save()
             budget_item.save()
 
-            if created:
-                print(f"Se ha creado un nuevo BudgetItem para el SAP {sap_code}.")
-            else:
-                print(f"Se ha actualizado el BudgetItem existente para el SAP {sap_code}.")
+            processed_total_sum += budget_item.total_price
+            print(f"Fila Excel {index}: SAP={sap_code}, Total Excel={total_price}, Total Procesado={budget_item.total_price}")
 
-        # **Después de procesar todos los ítems, eliminar los BudgetItems que ya no están en el Excel**
-        # Obtener los códigos SAP de los BudgetItems actuales en el presupuesto
         current_sap_codes = set(budget.items.values_list('item__sap', flat=True))
-
-        # Identificar los códigos SAP que deben eliminarse
         sap_codes_to_delete = current_sap_codes - sap_codes_in_excel
 
         if sap_codes_to_delete:
-            # Eliminar los BudgetItems cuyo código SAP está en sap_codes_to_delete
             items_to_delete = budget.items.filter(item__sap__in=sap_codes_to_delete)
             items_to_delete.delete()
             print(f"Se han eliminado {items_to_delete.count()} BudgetItems que ya no están en el Excel.")
         else:
             print("No hay BudgetItems para eliminar.")
 
+        # Asignar directamente el total procesado al presupuesto
+        budget.budget_price = processed_total_sum.quantize(Decimal('0.01'))
+        budget.save()
+
+        print(f"Presupuesto actualizado: Precio parcial={budget.budget_price}, Precio completo={budget.budget_final_price}")
