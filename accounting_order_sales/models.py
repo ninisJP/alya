@@ -17,7 +17,9 @@ class SalesOrder(models.Model):
     detail = models.CharField(max_length=255)
     date = models.DateField()
     total_sales_order = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    days = models.PositiveIntegerField(default=0) 
+    days = models.PositiveIntegerField(default=0)
+
+
 
     def update_total_sales_order(self):
         self.total_sales_order = sum(item.price_total for item in self.items.all())
@@ -55,6 +57,7 @@ class SalesOrderItem(models.Model):
     category = models.CharField(max_length=100, default="") 
     custom_quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Nuevo campo
     custom_price_per_hour = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)  # Nuevo campo
+
 
 
     def __str__(self):
