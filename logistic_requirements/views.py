@@ -1,23 +1,19 @@
 from django.shortcuts import render, get_object_or_404
-
-from logistic_inventory.models import Item
-from .forms import RequirementOrderForm, RequirementOrderItemFormSet
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView
-from .models import RequirementOrder, RequirementOrderItem
-from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
-from django.db import transaction
-from logistic_suppliers.models import Suppliers
-from django.http import JsonResponse
-from logistic_requirements.models import RequirementOrder, RequirementOrderItem
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
 from django.db import transaction
-from .models import RequirementOrder, RequirementOrderItem
-from django.http import HttpResponse
 from django.db.models import Q
 import openpyxl
-from django.http import HttpResponse
-from .models import RequirementOrder
+from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
+from logistic_inventory.models import Item
+from logistic_suppliers.models import Suppliers
+from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
+from .forms import RequirementOrderForm, RequirementOrderItemFormSet
+from .models import RequirementOrder, RequirementOrderItem
+
 
 # Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente o todas las órdenes sin filtros
 class RequirementOrderListView(ListView):
@@ -282,7 +278,6 @@ def requirement_order_detail_partial(request, pk):
 def export_order_to_excel(request, pk):
     # Obtener la orden específica
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
-    # Filtrar solo los ítems en estado "Pendiente"
     items = requirement_order.items.filter(estado='P')
 
     # Crear un nuevo libro de Excel
@@ -291,31 +286,72 @@ def export_order_to_excel(request, pk):
     ws.title = f"Orden {requirement_order.order_number}"
 
     # Encabezado con detalles de la orden
-    ws['A1'] = "Detalles de la Orden"
-    ws['A2'] = f"ID Orden: {requirement_order.order_number}"
-    ws['A3'] = f"Proyecto: {requirement_order.sales_order.project.name}"
-    ws['A4'] = f"Cliente: {requirement_order.sales_order.project.client.legal_name}"
-    ws['A5'] = f"Fecha Solicitada: {requirement_order.requested_date}"
-    ws['A6'] = f"Fecha Creada: {requirement_order.created_at}"
-    ws['A7'] = f"Notas: {requirement_order.notes}"
+    ws['A1'] = "Detalles de la Orden de Requerimiento"
+    ws['A1'].font = Font(size=14, bold=True)
+    ws.merge_cells('A1:K1')
 
-    # Espacio entre detalles y tabla de ítems
-    ws['A9'] = "Ítems Pendientes"
+    details = [
+        f"ID Orden: {requirement_order.order_number}",
+        f"Proyecto: {requirement_order.sales_order.project.name}",
+        f"Cliente: {requirement_order.sales_order.project.client.legal_name}",
+        f"Fecha Solicitada: {requirement_order.requested_date}",
+        f"Fecha Creada: {requirement_order.created_at}",
+        f"Notas: {requirement_order.notes}",
+    ]
 
-    # Agregar encabezados de columna para los ítems, incluyendo los nuevos campos
-    headers = ["Cantidad Solicitada", "Descripción", "Unidad de Medida", "SAP Code", "Categoría", "Estado"]
+    for idx, detail in enumerate(details, start=2):
+        ws[f"A{idx}"] = detail
+
+    # Encabezados de la tabla
+    headers = [
+        "SAP", "Categoría", "Ítem", "Detalle", "Unidad", 
+        "Cantidad en Unidades", "Cantidad en Horas", 
+        "Stock", "Proveedor", "Documento", "Estado"
+    ]
+    header_fill = PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid")
+    header_font = Font(bold=True)
+    border = Border(
+        left=Side(border_style="thin"),
+        right=Side(border_style="thin"),
+        top=Side(border_style="thin"),
+        bottom=Side(border_style="thin")
+    )
+
     for col_num, column_title in enumerate(headers, 1):
-        ws.cell(row=10, column=col_num, value=column_title)
+        cell = ws.cell(row=10, column=col_num, value=column_title)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.border = border
+        cell.alignment = Alignment(horizontal="center", vertical="center")
 
-    # Agregar los datos de cada ítem pendiente
-    for row_num, item in enumerate(items, 11):  # Comienza en la fila 11 para dejar espacio a los detalles
-        sales_order_item = item.sales_order_item  # Para acceder a los datos de SalesOrderItem
-        ws.cell(row=row_num, column=1, value=item.quantity_requested)
-        ws.cell(row=row_num, column=2, value=sales_order_item.description)
-        ws.cell(row=row_num, column=3, value=sales_order_item.unit_of_measurement)
-        ws.cell(row=row_num, column=4, value=sales_order_item.sap_code)
-        ws.cell(row=row_num, column=5, value=sales_order_item.category)
-        ws.cell(row=row_num, column=6, value=item.get_estado_display())
+    # Ajustar el ancho de las columnas
+    column_widths = [15, 20, 25, 30, 10, 20, 15, 15, 25, 15, 10]
+    for i, width in enumerate(column_widths, start=1):
+        ws.column_dimensions[get_column_letter(i)].width = width
+
+    # Agregar datos de los ítems
+    for row_num, item in enumerate(items, start=11):
+        sales_order_item = item.sales_order_item
+        data = [
+            sales_order_item.sap_code,
+            sales_order_item.category,
+            sales_order_item.description,
+            item.notes or "",
+            sales_order_item.unit_of_measurement,
+            item.quantity_requested,
+            getattr(sales_order_item, "custom_quantity", "N/A"),
+            item.sales_order_item.remaining_requirement,
+            item.supplier.name if item.supplier else "N/A",
+            "Sí" if item.file_attachment else "No",
+            item.get_estado_display(),
+        ]
+        for col_num, value in enumerate(data, 1):
+            cell = ws.cell(row=row_num, column=col_num, value=value)
+            cell.border = border
+            if col_num == 11:  # Estado
+                cell.alignment = Alignment(horizontal="center")
+            else:
+                cell.alignment = Alignment(horizontal="left")
 
     # Configurar la respuesta HTTP para descargar el archivo
     response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

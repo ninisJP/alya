@@ -1,150 +1,84 @@
 {% extends "project_base.html" %}
 
 {% block content %}
-<div class="container-fluid p-3 d-flex flex-column" style="height: 100vh;">
+<div id="dashboard-container" class="container-fluid p-3 d-flex flex-column vh-100">
     <!-- Título de Dashboard -->
-    <div class="text-center mb-2">
-        <h2 class="fw-bold" style="color: #333;">Dashboard Financiero</h2>
+    <div class="text-center mb-4">
+        <h1 class="fw-bold" style="color: #333; font-size: 3rem;">Dashboard Financiero</h1>
     </div>
 
     <!-- Sección Principal: Ingresos, Egresos, Saldo -->
-    <div class="row g-2 mb-2" style="flex: 1;">
+    <div class="row g-4 flex-grow-1">
         <div class="col-lg-4 col-md-4 col-sm-12">
-            <div class="card text-white bg-primary shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
-                <h4>Ingresos</h4>
-                <p class="display-6">0.00</p>
-            </div>
+            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+                <div class="card text-white bg-primary shadow-lg h-100 d-flex align-items-center justify-content-center">
+                    <i class="fas fa-coins fa-3x mb-3"></i>
+                    <h3 class="fw-bold mb-2" style="font-size: 2rem;">Ingresos</h3>
+                    <p class="display-3 fw-bold">{{ total_income|floatformat:2 }}</p>
+                </div>
+            </a>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-12">
-            <div class="card text-white bg-danger shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
-                <h4>Egresos</h4>
-                <p class="display-6">0.00</p>
-            </div>
+            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+                <div class="card text-white bg-danger shadow-lg h-100 d-flex align-items-center justify-content-center">
+                    <i class="fas fa-file-invoice-dollar fa-3x mb-3"></i>
+                    <h3 class="fw-bold mb-2" style="font-size: 2rem;">Egresos</h3>
+                    <p class="display-3 fw-bold">{{ total_expenses|floatformat:2 }}</p>
+                </div>
+            </a>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-12">
-            <div class="card text-white bg-success shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
-                <h4>Saldo</h4>
-                <p class="display-6">0.00</p>
-            </div>
+            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+                <div class="card text-white bg-success shadow-lg h-100 d-flex align-items-center justify-content-center">
+                    <i class="fas fa-wallet fa-3x mb-3"></i>
+                    <h3 class="fw-bold mb-2" style="font-size: 2rem;">Saldo</h3>
+                    <p class="display-3 fw-bold">{{ total_utility|floatformat:2 }}</p>
+                </div>
+            </a>
         </div>
     </div>
 
     <!-- Sección de Transacciones: Ventas, Compras, Cuentas por Cobrar, Cuentas por Pagar -->
-    <div class="row g-2 mb-2" style="flex: 1;">
+    <div class="row g-4 flex-grow-1 mt-3">
         <div class="col-lg-3 col-md-6 col-sm-12">
-            <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-primary">
-                <h5>Ventas</h5>
-                <p class="display-6">0.00</p>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-12">
-            <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-info">
-                <h5>Compras</h5>
-                <p class="display-6">0.00</p>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-12">
-            <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-warning">
-                <h5>Cuentas por Cobrar</h5>
-                <p class="display-6">0.00</p>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-12">
-            <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-danger">
-                <h5>Cuentas por Pagar</h5>
-                <p class="display-6">0.00</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Columnas Inferiores -->
-    <div class="row g-2" style="flex: 1;">
-        <!-- Columna Izquierda -->
-        <div class="col-lg-6 col-md-12 d-flex flex-column">
-            <div class="card shadow-sm p-2 h-100">
-                <h4 class="fw-bold">Top de Clientes y Proveedores</h4>
-                <div class="row g-2 mt-2">
-                    <div class="col-6">
-                        <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-primary">
-                            <h5>Clientes</h5>
-                            <ul class="list-unstyled text-center mb-0">
-                                <li>Cliente A</li>
-                                <li>Cliente B</li>
-                                <li>Cliente C</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-primary">
-                            <h5>Proveedores</h5>
-                            <ul class="list-unstyled text-center mb-0">
-                                <li>Proveedor X</li>
-                                <li>Proveedor Y</li>
-                                <li>Proveedor Z</li>
-                            </ul>
-                        </div>
-                    </div>
+            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+                <div class="card bg-light shadow-lg h-100 d-flex align-items-center justify-content-center border-primary">
+                    <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                    <h4 class="fw-bold text-primary mb-2" style="font-size: 1.75rem;">Ventas</h4>
+                    <p class="display-4 fw-bold text-primary">{{ total_sales|floatformat:2 }}</p>
                 </div>
-            </div>
+            </a>
         </div>
 
-        <!-- Columna Derecha -->
-        <div class="col-lg-6 col-md-12 d-flex flex-column">
-            <div class="card shadow-sm p-2 h-100">
-                <h4 class="fw-bold">Indicadores Clave de Desempeño (KPIs)</h4>
-                <div class="row g-2 mt-2">
-                    <div class="col-6">
-                        <div class="card text-white bg-dark shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
-                            <h5>Días de Cobro</h5>
-                            <p class="display-6">45 días</p>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="card text-white bg-dark shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
-                            <h5>Días de Pago</h5>
-                            <p class="display-6">30 días</p>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="card text-white bg-dark shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
-                            <h5>Rotación de Inventario</h5>
-                            <p class="display-6">5 veces/año</p>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="card text-white bg-dark shadow-sm p-2 h-100 d-flex align-items-center justify-content-center">
-                            <h5>Razón de Liquidez</h5>
-                            <p class="display-6">1.5</p>
-                        </div>
-                    </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+                <div class="card bg-light shadow-lg h-100 d-flex align-items-center justify-content-center border-info">
+                    <i class="fas fa-shopping-cart fa-3x text-info mb-3"></i>
+                    <h4 class="fw-bold text-info mb-2" style="font-size: 1.75rem;">Compras</h4>
+                    <p class="display-4 fw-bold text-info">{{ total_purchases|floatformat:2 }}</p>
                 </div>
-            </div>
-
-            <!-- Rentabilidad por Producto o Servicio -->
-            <div class="card shadow-sm p-2 h-100 mt-2">
-                <h4 class="fw-bold">Rentabilidad por Producto/Servicio</h4>
-                <div class="row g-2 mt-2">
-                    <div class="col-4">
-                        <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-success">
-                            <h5>Producto A</h5>
-                            <p class="display-6">30%</p>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-success">
-                            <h5>Producto B</h5>
-                            <p class="display-6">25%</p>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="card bg-light shadow-sm p-2 h-100 d-flex align-items-center justify-content-center border-success">
-                            <h5>Producto C</h5>
-                            <p class="display-6">20%</p>
-                        </div>
-                    </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+                <div class="card bg-light shadow-lg h-100 d-flex align-items-center justify-content-center border-warning">
+                    <i class="fas fa-hand-holding-usd fa-3x text-warning mb-3"></i>
+                    <h4 class="fw-bold text-warning mb-2" style="font-size: 1.75rem;">Cuentas por Cobrar</h4>
+                    <p class="display-4 fw-bold text-warning">{{ accounts_receivable|floatformat:2 }}</p>
                 </div>
-            </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+                <div class="card bg-light shadow-lg h-100 d-flex align-items-center justify-content-center border-danger">
+                    <i class="fas fa-money-bill-wave fa-3x text-danger mb-3"></i>
+                    <h4 class="fw-bold text-danger mb-2" style="font-size: 1.75rem;">Cuentas por Pagar</h4>
+                    <p class="display-4 fw-bold text-danger">{{ accounts_payable|floatformat:2 }}</p>
+                </div>
+            </a>
         </div>
     </div>
 </div>
+
 {% endblock %}
+

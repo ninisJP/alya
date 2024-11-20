@@ -1,0 +1,28 @@
+<table>
+    <thead>
+        <tr>
+            <th>Orden ID</th>
+            <th>Descripción</th>
+            <th>Ítems Relacionados</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in details %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.description }}</td>
+            <td>
+                <ul>
+                    {% for item in order.items.all %}
+                        <li>{{ item.sap_code }} - {{ item.price_total }}</li>
+                    {% empty %}
+                        <li>No hay ítems relacionados.</li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<button class="btn btn-primary" hx-get="{% url 'dashboard' %}" hx-target="body"> Flechita para atras >.< </button>
