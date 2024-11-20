@@ -75,29 +75,48 @@
 
     function downloadExcel() {
         let workbook = XLSX.utils.book_new();
-        let worksheet_data = [['SAP', 'ITEM', 'Detalle', 'Cantidad Solicitada', 'Unidad', 'Disponible en Inventario', 'Precio Unitario', 'Precio Total', 'Proveedor', 'Estado']];
+        let worksheet_data = [
+            ['SAP', 'CATEGORÍA', 'ITEM', 'DETALLE', 'UND', 'CANT U.', 'CANT H.', 'STOCK', 'PROVEEDOR', 'DOC', 'ESTADO']
+        ];
     
         $('#requirement-order-form tbody tr').each(function() {
             let row = [];
             row.push($(this).find('td:eq(0)').text().trim()); // SAP
-            row.push($(this).find('td:eq(1)').text().trim()); // ITEM
-            row.push($(this).find('input[name^="notes_"]').val()); // Detalle
-            row.push($(this).find('input[name^="quantity_requested_"]').val()); // Cantidad
-            row.push($(this).find('input[name^="unit_"]').val()); // Unidad
-            row.push($(this).find('td:eq(5)').text().trim()); // Inventario
-            row.push($(this).find('input[name^="price_"]').val()); // Precio Unitario
-            row.push($(this).find('input[name^="total_price_"]').val()); // Precio Total
-            row.push($(this).find('select[name^="supplier_"] option:selected').text()); // Proveedor
-            row.push($(this).find('input[name^="estado_"]').val()); // Estado
+            row.push($(this).find('td:eq(1)').text().trim()); // CATEGORÍA
+            row.push($(this).find('td:eq(2)').text().trim()); // ITEM
+            row.push($(this).find('input[name^="notes_"]').val()); // DETALLE
+            row.push($(this).find('td:eq(4)').text().trim()); // UND
+            row.push($(this).find('td:eq(5)').text().trim()); // CANT U.
+            row.push($(this).find('td:eq(6)').text().trim()); // CANT H.
+            row.push($(this).find('td:eq(7)').text().trim()); // STOCK
+            row.push($(this).find('select[name^="supplier_"] option:selected').text().trim()); // PROVEEDOR
+            row.push($(this).find('td:eq(9)').text().trim()); // DOC
+            row.push($(this).find('input[name^="estado_"]').val()); // ESTADO
             worksheet_data.push(row);
         });
     
         let worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
+    
+        // Ajustar el ancho de las columnas
+        let columnWidths = [
+            { wch: 10 }, // SAP
+            { wch: 15 }, // CATEGORÍA
+            { wch: 20 }, // ITEM
+            { wch: 30 }, // DETALLE
+            { wch: 8 },  // UND
+            { wch: 10 }, // CANT U.
+            { wch: 10 }, // CANT H.
+            { wch: 12 }, // STOCK
+            { wch: 20 }, // PROVEEDOR
+            { wch: 10 }, // DOC
+            { wch: 10 }  // ESTADO
+        ];
+        worksheet['!cols'] = columnWidths;
+    
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Orden de Requerimiento');
         XLSX.writeFile(workbook, 'Orden_de_Requerimiento.xlsx');
     }
     
-
     function updateAllItemsState(newState) {
         // Actualizar todos los estados y los botones
         $('input[name^="estado_"]').each(function() {

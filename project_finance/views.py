@@ -26,17 +26,32 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', context)
 
-def accounts_payable_detail(request):
-    details = PurchaseOrder.objects.all() # Cuentas por pagar
+def accounts_payable_detail(request):# Cuentas por pagar
+    details = PurchaseOrder.objects.all() 
     context = {'details': details}
     return render(request, 'partials/accounts_payable_detail.html', context)
 
-def accounts_receivable_detail(request):
-    details = CollectionOrders.objects.all() # Cuentas por cobrar
+def accounts_receivable_detail(request):# Cuentas por cobrar
+    details = CollectionOrders.objects.all() 
     context = {'details': details}
     return render(request, 'partials/accounts_receivable_detail.html', context)
 
-def total_purchases_detail(request):
-    details = PurchaseOrder.objects.all() # Total Compras
+def total_purchases_detail(request):# Total Compras
+    details = PurchaseOrder.objects.all() 
     context = {'details': details}
     return render(request, 'partials/total_purchases_detail.html', context)
+
+def total_sales_detail(request):# Total Ventas
+    details = PurchaseOrder.objects.all() 
+    context = {'details': details}
+    return render(request, 'partials/total_sales_detail.html', context)
+
+def total_income_detail(request):# Total Ingresos
+    details = PurchaseOrder.objects.all() 
+    context = {'details': details}
+    return render(request, 'partials/total_income_detail.html', context)
+
+def total_expenses_detail(request):# Total Egresos
+    details = PurchaseOrder.objects.all() 
+    context = {'details': details}
+    return render(request, 'partials/total_expenses_detail.html', context)
