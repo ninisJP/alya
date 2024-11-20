@@ -10,6 +10,7 @@ urlpatterns = [
     path('', include('hub.urls')),
     # Accounting - Order
     path('contabilidad-ordenventa/', include('accounting_order_sales.urls')),
+    path('contabilidad-ordenventa/sunat/', include('accounting_sunat.urls')),
     # Follow
     path('tarjeta-control/', include('follow_control_home.urls')),
     path('follow/control/card/', include('follow_control_card.urls')),

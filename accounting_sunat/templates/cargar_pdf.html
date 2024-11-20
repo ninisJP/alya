@@ -1,0 +1,10 @@
+{% extends "base_accounting.html" %}
+
+{% block content %}
+  <h2>Cargar archivo PDF</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Cargar y procesar PDF</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base_accounting.html" %}
+
+{% block title %}Pagos del Cronograma - {{ detalle_cronograma }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Pagos del Cronograma - {{ detalle_cronograma }}</h2>
+    <table id="pagos-table" class="table table-striped table-hover table-responsive">
+        <thead>
+            <tr>
+                <th>Fecha de Pago</th>
+                <th>Programado</th>
+                <th>Pagado</th>
+                <th>Restante</th>
+                <th>Documento</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pago in pagos %}
+            <tr>
+                <td>{{ pago.fecha_pago|date:"Y-m-d" }}</td>
+                <td class="monto-programado">{{ pago.monto_para_pagar }}</td>
+                <td class="monto-pagado">
+                    <span id="monto_pago_{{ pago.id }}">{{ pago.monto_pago }}</span>
+                    <a href="#" class="btn btn-sm btn-primary" onclick="document.getElementById('edit-monto-form-{{ pago.id }}').style.display='block'; return false;">
+                        <i class="fas fa-edit" title="Editar Monto"></i>
+                    </a>
+                    <form id="edit-monto-form-{{ pago.id }}" class="form-edit" style="display:none;" hx-post="{% url 'editar_monto_pago' pago.id %}" hx-target="#monto_pago_{{ pago.id }}" hx-swap="outerHTML">
+                        {% csrf_token %}
+                        <input type="text" name="monto_pago" value="{{ pago.monto_pago }}">
+                        <button type="submit" class="btn btn-light btn-sm">
+                            <i class="fas fa-save" title="Guardar"></i>
+                        </button>
+                    </form>
+                </td>
+                <td class="monto-restante"></td> 
+                <td>
+                    {% if pago.pdf_pago %}
+                        <a href="{{ pago.pdf_pago.url }}" target="_blank" class="btn btn-info btn-sm">
+                            <i class="fas fa-file-pdf" title="Ver Documento"></i>
+                        </a>
+                    {% else %}
+                        Sin compr.
+                    {% endif %}
+                    <form style="display:inline;" method="post" action="{% url 'cambiar_pdf_pago' pago.id %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <label class="btn btn-light btn-sm" for="pdf_pago_{{ pago.id }}">
+                            <i class="fas fa-upload" title="Cambiar PDF"></i>
+                            <input id="pdf_pago_{{ pago.id }}" type="file" name="pdf_pago" style="display:none;" onchange="this.form.submit();">
+                        </label>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="1">Total</th>
+                <th id="total-programado"></th> <!-- Celda para el Total de Monto Programado -->
+                <th id="total-pagado"></th>    <!-- Celda para el Total de Monto Pagado -->
+                <th id="total-restante"></th>  <!-- Celda para el Total de Monto Restante -->
+            <th></th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+<script>
+    // Calcula y actualiza los montos y los totales
+    window.onload = function() {
+        var totalProgramado = 0;
+        var totalPagado = 0;
+
+        document.querySelectorAll('#pagos-table tbody tr').forEach(function(row) {
+            var montoProgramado = parseFloat(row.querySelector('.monto-programado').textContent);
+            var montoPagado = parseFloat(row.querySelector('.monto-pagado').textContent);
+            var montoRestante = montoProgramado - montoPagado;
+
+            row.querySelector('.monto-restante').textContent = montoRestante.toFixed(2);
+
+            totalProgramado += montoProgramado;
+            totalPagado += montoPagado;
+        });
+
+        var totalRestante = totalProgramado - totalPagado;
+        document.getElementById('total-programado').textContent = totalProgramado.toFixed(2);
+        document.getElementById('total-pagado').textContent = totalPagado.toFixed(2);
+        document.getElementById('total-restante').textContent = totalRestante.toFixed(2);
+    };
+</script>
+
+{% endblock %}

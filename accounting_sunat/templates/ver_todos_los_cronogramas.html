@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Todos los Cronogramas</title>
+</head>
+<body>
+    <h1>Lista de Cronogramas y Pagos</h1>
+    <a href="{% url 'crear_cronograma' %}">Crear tu cronograma</a>
+    <table border="1">      
+        <thead>
+            <tr>
+                <th>ID Cronograma</th>
+                <th>Fecha Inicio</th>
+                <th>Entidad</th>
+                <th>Detalle</th>
+                <th>Fecha de Pago</th>
+                <th>Monto de Pago</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cronograma_con_pagos in cronogramas_con_pagos %}
+            <tr>
+                <td rowspan="{{ cronograma_con_pagos.pagos|length }}">{{ cronograma_con_pagos.cronograma.id }}</td>
+                <td rowspan="{{ cronograma_con_pagos.pagos|length }}">{{ cronograma_con_pagos.cronograma.fecha_inicio }}</td>
+                <td rowspan="{{ cronograma_con_pagos.pagos|length }}">{{ cronograma_con_pagos.cronograma.entidad }}</td>
+                <td rowspan="{{ cronograma_con_pagos.pagos|length }}">{{ cronograma_con_pagos.cronograma.detalle }}</td>
+                {% for pago in cronograma_con_pagos.pagos %}
+                {% if forloop.first %}
+                <td>{{ pago.fecha_pago }}</td>
+                <td>{{ pago.monto_pago }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                <td>{{ pago.fecha_pago }}</td>
+                <td>{{ pago.monto_pago }}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,129 @@
+{% extends "base_accounting.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Cronograma{% endblock %}
+
+{% block content %}
+<style>
+  body {
+      font-family: Arial, sans-serif;
+      min-height: 100vh; /* Cambiado de height a min-height */
+      padding-top: 20px; /* Agregar un padding superior para evitar que el contenido toque el borde superior */
+      margin: 0; /* Asegurar que no hay márgenes externos en el body */
+      display: block; /* Cambiado de flex a block si no es necesario un diseño flex aquí */
+  }
+
+  .container {
+      max-width: 1180px; /* Ajustar según sea necesario */
+      margin: auto; /* Centrar el contenedor en la página */
+      padding: 0px;
+  }
+
+
+  .calendario {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr); /* 7 días de la semana */
+      grid-gap: 5px;
+      max-width: 350px;
+      margin-top: 20px;
+      margin-right: 20px; /* Añadido margen a la derecha */
+      margin-left: 20px; /* Añadido margen a la izquierda */
+  }
+
+  .dia, .fecha {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 50px;
+      background-color: #f0f0f0;
+      border: 1px solid #dcdcdc;
+  }
+
+  .dia {
+      background-color: #e0e0e0;
+      font-weight: bold;
+  }
+
+  .fecha:hover {
+      background-color: #c0c0c0;
+      cursor: pointer;
+  }
+
+  select {
+      font-size: 16px;
+      padding: 5px;
+  }
+
+  /* Estilos para los meses */
+  .meses {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      margin-right: 20px; /* Añadido margen a la derecha */
+      margin-left: 20px; /* Añadido margen a la izquierda */
+      padding: 10px;
+      width: calc(100% - 40px); /* Ancho calculado para restar el margen izquierdo y derecho */
+      background-color: #f0f0f0;
+      border-radius: 5px;
+  }
+
+  .meses select {
+      flex: 1; /* Para que ocupen el mismo ancho */
+      font-size: 16px;
+      padding: 5px;
+      border: none;
+      background-color: transparent;
+      appearance: none; /* Oculta las flechas del select en algunos navegadores */
+  }
+
+  .meses select option {
+      background-color: #f0f0f0; /* Color de fondo */
+      border: none;
+      color: #333; /* Color del texto */
+  }
+</style>
+
+<div class="container">
+  <div class="row">
+
+    <!-- Formulario para Crear Cronograma -->
+    <div class="col-md-6">
+      <h2>Crear Cronograma</h2>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary btn-lg">Guardar</button> <!-- Botón más grande -->
+        <a href="{% url 'cargar_pdf' %}" class="btn btn-danger btn-lg">
+          <i class="fas fa-rocket"></i> Creación Rápida
+      </a>
+      
+      </form>
+    </div>
+
+    <!-- Panel Ampliado para Enlaces -->
+    <div class="col-md-6">
+      <h3>Accesos Directos</h3>
+      <div class="d-flex flex-column">
+        <!-- Aumentar el tamaño y agregar descripciones o iconos -->
+        <a href="{% url 'ver_cronogramas_filtrados' tipo='prestamos_tarjetas' %}" class="btn btn-outline-primary mb-2 btn-lg">
+          <i class="bi bi-bank"></i> Prestamos y Tarjetas
+        </a>
+        <a href="{% url 'ver_cronogramas' %}" class="btn btn-outline-primary mb-2 btn-lg">
+          <i class="bi bi-calendar-event"></i> Ver Cronogramas
+        </a>
+        <a href="{% url 'cronograma_semaforo' %}" class="btn btn-outline-primary mb-2 btn-lg">
+          <i class="bi bi-calendar-event"></i> Cronogramas Semaforo
+        </a>
+
+        
+      </div>
+      <!-- Sección Adicional (opcional) -->
+      <!-- Calendario Dinámico -->
+
+  </div>
+</div>
+
+<!-- Enlace al script de Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}
