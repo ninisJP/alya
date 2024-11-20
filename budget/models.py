@@ -2,9 +2,6 @@ from django.db import models
 from client.models import Client
 from decimal import Decimal
 
-from django.db import models
-from decimal import Decimal
-
 class Budget(models.Model):
     PERCENTAGE_CHOICES = [
         (0.00, '0%'),
@@ -142,9 +139,13 @@ class BudgetItem(models.Model):
             else:
                 self.total_price = price * Decimal(self.quantity)
 
-        # Ajustar la condición para la unidad 'HOR'
-        if self.unit == 'HORAS':
-            hours_per_day = 8  # Puedes ajustar este valor según tus necesidades
+        # Ajustar la condición para unidades que contienen 'HORAS'
+        if "HORAS" in (self.unit or ""):
+            hours_per_day = 8  # Ajusta este valor según tus necesidades
+            # Extraer la unidad secundaria (e.g., 'PAQ', 'UND', 'PAR')
+            parts = self.unit.split("/")
+            secondary_unit = parts[1] if len(parts) > 1 else "UND"
+
             total_hours = Decimal(self.budget.budget_days) * Decimal(hours_per_day) * Decimal(self.quantity)
 
             if total_hours > 0:
@@ -153,16 +154,20 @@ class BudgetItem(models.Model):
             else:
                 self.custom_price_per_hour = Decimal('0.00')
                 self.custom_quantity = Decimal('0.00')
+
+            print(f"Unidad con 'HORAS' detectada: {self.unit}, Horas Totales={total_hours}, Unidad Secundaria={secondary_unit}")
         else:
-            # Si la unidad no es 'HOR', asignamos None
+            # Si la unidad no incluye 'HORAS', resetear estos campos
             self.custom_price_per_hour = None
             self.custom_quantity = None
 
         super().save(*args, **kwargs)
+
         # Guardar el presupuesto para actualizar sus valores
         self.budget.save()
 
     class Meta:
         verbose_name = "Item Presupuesto"
         verbose_name_plural = "Items de Presupuesto"
+
 
