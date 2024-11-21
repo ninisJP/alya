@@ -71,6 +71,11 @@
             <button type="button" class="btn btn-outline-danger" onclick="downloadPDF()">
                 <i class="fas fa-file-pdf"></i> Exportar PDF
             </button>
+                    <!-- Nuevo Botón para Crear Guía de Salida -->
+                    <a href="{% url 'create_exit_guide' requirement_order.pk %}" class="btn btn-outline-success">
+                        <i class="fas fa-truck"></i> Crear Guía de Salida
+                    </a>
+                    
             <div class="btn-group">
                 <button type="button" class="btn btn-outline-success" onclick="updateAllItemsState('L')">L</button>
                 <button type="button" class="btn btn-outline-primary" onclick="updateAllItemsState('C')">C</button>
@@ -78,6 +83,7 @@
                 <button type="button" class="btn btn-outline-danger" onclick="updateAllItemsState('R')">R</button>
             </div>
         </div>
+        
     </div>
 
     <!-- Tabla de Ítems -->

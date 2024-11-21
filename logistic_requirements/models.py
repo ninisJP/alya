@@ -6,6 +6,7 @@ from logistic_suppliers.models import Suppliers
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from decimal import Decimal
+from django.db.models import Sum
 
 class RequirementOrder(models.Model):
     STATE_CHOICES = [
@@ -63,7 +64,9 @@ class RequirementOrderItem(models.Model):
         ('L', 'Listo'),
         ('P', 'Pendiente'),
         ('C', 'Comprando'),
-        ('R', 'Rechazado')
+        ('R', 'Rechazado'),
+        ('E', 'Enviado'),
+        ('A', 'Aceptado'),
     ]
     requirement_order = models.ForeignKey(RequirementOrder, on_delete=models.CASCADE, related_name="items")
     sales_order_item = models.ForeignKey(SalesOrderItem, on_delete=models.CASCADE)
@@ -80,6 +83,14 @@ class RequirementOrderItem(models.Model):
         validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'jpeg', 'png'])],
         help_text="Sube un archivo PDF o una imagen (JPG, PNG)."
     )
+    
+    @property
+    def remaining_quantity(self):
+        """Cantidad restante por enviar."""
+        sent_quantity = self.exitguideitem_set.aggregate(
+            total_sent=Sum('quantity')
+        )['total_sent'] or Decimal(0)  # Considera 0 si no hay envíos
+        return self.quantity_requested - sent_quantity
 
     def clean(self):
     # Obtener la cantidad solicitada original si el ítem ya existe
@@ -119,6 +130,7 @@ class RequirementOrderItem(models.Model):
     @property
     def total_price(self):
         return self.price * self.quantity_requested
+    
     class Meta:
         verbose_name = "Item Orden de Requerimiento"
         verbose_name_plural = "Items Orden de Requerimiento"
