@@ -1,6 +1,7 @@
 asgiref==3.8.1
 Brotli==1.1.0
 cffi==1.17.1
+chardet==5.2.0
 charset-normalizer==3.4.0
 click==8.1.7
 colorama==0.4.6
@@ -32,6 +33,7 @@ pypdfium2==4.30.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2
+reportlab==4.2.5
 segno==1.6.1
 segno-pil==1.0.0
 setuptools==75.1.0
