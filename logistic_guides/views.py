@@ -10,22 +10,16 @@ from reportlab.lib import colors
 from reportlab.platypus import Table, TableStyle
 from logistic_guides.models import ExitGuide, ExitGuideItem
 from logistic_requirements.models import RequirementOrder
-
+from django.db import transaction
+from django.core.exceptions import ValidationError
 
 def create_exit_guide_view(request, requirement_order_id):
     """
     Vista para crear una guía de salida desde una orden de requerimiento.
     """
-    # Obtener la orden de requerimiento
     requirement_order = get_object_or_404(RequirementOrder, pk=requirement_order_id)
 
-    # Actualizar `quantity_requested_remaining` para todos los ítems de la orden
-    for item in requirement_order.items.all():
-        if item.quantity_requested_remaining != item.quantity_requested:
-            item.quantity_requested_remaining = item.quantity_requested
-            item.save()
-
-    # Filtrar los ítems en estado 'Listo'
+    # Filtrar ítems en estado 'Listo'
     ready_items = requirement_order.items.filter(estado='L')
 
     if not ready_items.exists():
@@ -33,48 +27,32 @@ def create_exit_guide_view(request, requirement_order_id):
         return redirect('requirement_order_detail', pk=requirement_order_id)
 
     # Crear la guía de salida
-    exit_guide = ExitGuide.objects.create(
-        requirement_order=requirement_order,
-        description="Guía de salida generada automáticamente"
-    )
-
-    total_items = 0  # Contador para los ítems procesados
-
-    # Crear los ítems en la guía de salida
-    for item in ready_items:
-        # Validar que haya cantidad restante disponible
-        if item.quantity_requested <= 0:
-            messages.error(request, f"No hay cantidad disponible para el ítem {item.sales_order_item.description}.")
-            continue
-
-        # Usar la cantidad solicitada como referencia
-        quantity_to_send = item.quantity_requested
-
-        # Crear el ítem de la guía de salida
-        ExitGuideItem.objects.create(
-            exit_guide=exit_guide,
-            requirement_order_item=item,
-            quantity=quantity_to_send
+    with transaction.atomic():  # Garantizar consistencia en la transacción
+        exit_guide = ExitGuide.objects.create(
+            requirement_order=requirement_order,
+            description="Guía de salida generada automáticamente"
         )
 
-        # Actualizar la cantidad restante
-        item.quantity_requested_remaining -= quantity_to_send
+        total_items = 0  # Contador para los ítems procesados
 
-        # Actualizar estado del ítem si ya no queda cantidad restante
-        if item.quantity_requested_remaining <= 0:
-            item.estado = 'E'
+        for item in ready_items:
+            # Usar la cantidad restante como referencia
+            try:
+                quantity_to_send = item.remaining_quantity
+                if quantity_to_send > 0:
+                    ExitGuideItem.objects.create(
+                        exit_guide=exit_guide,
+                        requirement_order_item=item,
+                        quantity=quantity_to_send
+                    )
+                    total_items += 1
+            except ValidationError as e:
+                messages.error(request, f"Error al procesar {item.sales_order_item.description}: {e.message}")
 
-        item.save()
-        total_items += 1
-
-    # Actualizar el total de ítems en la guía
-    exit_guide.total_items = total_items
-    exit_guide.save()
-
-    if total_items > 0:
-        messages.success(request, "Guía de salida creada exitosamente.")
-    else:
-        messages.warning(request, "No se pudo procesar ningún ítem para la guía de salida.")
+        if total_items > 0:
+            messages.success(request, "Guía de salida creada exitosamente.")
+        else:
+            messages.warning(request, "No se pudo procesar ningún ítem para la guía de salida.")
 
     return redirect('requirement_order_detail', pk=requirement_order_id)
 

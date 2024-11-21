@@ -3,6 +3,7 @@ from django.db import models
 from django.forms import ValidationError
 from logistic_requirements.models import RequirementOrder, RequirementOrderItem
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 class ExitGuide(models.Model):
     requirement_order = models.ForeignKey(
@@ -34,8 +35,6 @@ class ExitGuide(models.Model):
     class Meta:
         verbose_name = "Guía de Salida"
         verbose_name_plural = "Guías de Salida"
-
-
 
 class ExitGuideItem(models.Model):
     exit_guide = models.ForeignKey(ExitGuide, on_delete=models.CASCADE, related_name="items", verbose_name="Guía de Salida")

@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from decimal import Decimal
 from django.db.models import Sum
+from django.core.exceptions import ValidationError
 
 class RequirementOrder(models.Model):
     STATE_CHOICES = [
@@ -112,6 +113,17 @@ class RequirementOrderItem(models.Model):
         super().clean()
 
     def save(self, *args, **kwargs):
+    # Si el ítem es nuevo, inicializar quantity_requested_remaining con quantity_requested
+        if not self.pk:  # Es un nuevo ítem
+            self.quantity_requested_remaining = self.quantity_requested
+        else:
+            # Validar si la cantidad solicitada cambió y ajustar la cantidad restante proporcionalmente
+            original_item = RequirementOrderItem.objects.get(pk=self.pk)
+            if self.quantity_requested != original_item.quantity_requested:
+                difference = self.quantity_requested - original_item.quantity_requested
+                self.quantity_requested_remaining += difference
+
+    # Establecer valores por defecto si no están definidos
         if not self.price:
             self.price = self.sales_order_item.price
         if not self.sap_code:
