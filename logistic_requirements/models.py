@@ -72,6 +72,7 @@ class RequirementOrderItem(models.Model):
     sales_order_item = models.ForeignKey(SalesOrderItem, on_delete=models.CASCADE)
     sap_code = models.CharField(max_length=50, default="")
     quantity_requested = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(1))
+    quantity_requested_remaining = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(1))
     notes = models.CharField(max_length=255, blank=True, null=True)
     supplier = models.ForeignKey(Suppliers, on_delete=models.SET_NULL, blank=True, null=True)
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES, default='P')
@@ -83,7 +84,7 @@ class RequirementOrderItem(models.Model):
         validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'jpeg', 'png'])],
         help_text="Sube un archivo PDF o una imagen (JPG, PNG)."
     )
-    
+
     @property
     def remaining_quantity(self):
         """Cantidad restante por enviar."""
@@ -109,7 +110,7 @@ class RequirementOrderItem(models.Model):
                 f"La cantidad solicitada ({self.quantity_requested}) excede la cantidad disponible ({self.sales_order_item.remaining_requirement})."
             )
         super().clean()
-        
+
     def save(self, *args, **kwargs):
         if not self.price:
             self.price = self.sales_order_item.price
@@ -130,7 +131,7 @@ class RequirementOrderItem(models.Model):
     @property
     def total_price(self):
         return self.price * self.quantity_requested
-    
+
     class Meta:
         verbose_name = "Item Orden de Requerimiento"
         verbose_name_plural = "Items Orden de Requerimiento"

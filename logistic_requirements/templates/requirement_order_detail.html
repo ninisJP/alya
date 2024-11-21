@@ -75,6 +75,10 @@
                     <a href="{% url 'create_exit_guide' requirement_order.pk %}" class="btn btn-outline-success">
                         <i class="fas fa-truck"></i> Crear Guía de Salida
                     </a>
+                        <!-- Botón para ver las Guías de Salida -->
+    <a href="{% url 'list_requirement_order_guides' requirement_order.pk %}" class="btn btn-outline-info">
+        <i class="fas fa-list"></i> Ver Guías de Salida
+    </a>
                     
             <div class="btn-group">
                 <button type="button" class="btn btn-outline-success" onclick="updateAllItemsState('L')">L</button>
@@ -156,6 +160,7 @@
                         <td>
                             <div class="btn-group" role="group" aria-label="Estado">
                                 <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
+                                <button type="button" class="btn btn-sm {% if item.estado == 'E' %}btn-secondary{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'E')">E</button>
                                 <button type="button" class="btn btn-sm {% if item.estado == 'L' %}btn-success{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'L')">L</button>
                                 <button type="button" class="btn btn-sm {% if item.estado == 'C' %}btn-primary{% else %}btn-outline-primary{% endif %}" onclick="setEstado('{{ item.id }}', 'C')">C</button>
                                 <button type="button" class="btn btn-sm {% if item.estado == 'P' %}btn-warning{% else %}btn-outline-warning{% endif %}" onclick="setEstado('{{ item.id }}', 'P')">P</button>

@@ -18,14 +18,33 @@ def create_exit_guide(requirement_order_id):
 
     # Crear los ítems de la guía de salida
     for item in ready_items:
+        # Validar que haya cantidad restante disponible
+        if item.quantity_requested_remaining <= 0:
+            raise ValidationError(
+                f"No hay cantidad disponible para el ítem {item.sales_order_item.description}."
+            )
+
+        # Usar la cantidad restante para la guía
+        quantity_to_send = item.quantity_requested_remaining
+
         ExitGuideItem.objects.create(
             exit_guide=exit_guide,
             requirement_order_item=item,
-            quantity=item.quantity_requested
+            quantity=quantity_to_send
         )
+
+        # Actualizar la cantidad restante
+        item.quantity_requested_remaining -= quantity_to_send
+
+        # Actualizar estado del ítem si ya no queda cantidad
+        if item.quantity_requested_remaining <= 0:
+            item.estado = 'E'
+
+        item.save()
 
     # Actualizar el total de ítems en la guía
     exit_guide.total_items = ready_items.count()
     exit_guide.save()
 
     return exit_guide
+

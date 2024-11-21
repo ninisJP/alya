@@ -1,0 +1,161 @@
+{% extends 'base_logistic.html' %}
+
+{% block title %}
+    Guías de Salida - Orden de Requerimiento #{{ requirement_order.order_number }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* General */
+    body {
+        background-color: #f4f4f9;
+    }
+    .container-fluid {
+        padding: 2rem;
+    }
+    .content-wrapper {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Heading */
+    h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #222;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 4px solid #888;
+        padding-bottom: 0.5rem;
+    }
+
+    /* Notes */
+    p {
+        font-size: 1.2rem;
+        color: #555;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    /* Table */
+    .table {
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    .table thead th {
+        background-color: #333;
+        color: #ffffff;
+        text-transform: uppercase;
+        font-weight: bold;
+        text-align: center;
+    }
+    .table tbody td {
+        text-align: center;
+        vertical-align: middle;
+    }
+    .table tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+    .table-sm thead th {
+        background-color: #eee;
+        color: #444;
+        text-transform: capitalize;
+    }
+
+    /* Button */
+    .btn-primary {
+        background: #444;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        padding: 0.8rem;
+        text-transform: uppercase;
+        width: 100%;
+        transition: all 0.3s ease-in-out;
+    }
+    .btn-primary:hover {
+        background: #222;
+        color: #fff;
+        transform: scale(1.02);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="content-wrapper">
+        <h1>Guías de Salida para la Orden de Requerimiento #{{ requirement_order.order_number }} --  <strong>{{ requirement_order.notes }}</strong></h1>
+        <p>-</p>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Número de Guía</th>
+                        <th>Fecha</th>
+                        <th>Ítems</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for guide in guides %}
+<tr>
+    <td class="fw-bold text-dark">
+        Guía de Salida #{{ guide.id }}
+        <a href="{% url 'export_exit_guide_pdf' guide.id %}" class="btn btn-sm btn-outline-primary ms-2">
+            <i class="fas fa-file-pdf"></i> Descargar PDF
+        </a>
+    </td>
+    <td>{{ guide.created_at|date:"d/m/Y" }}</td>
+    <td>
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th>Código SAP</th>
+                        <th>Descripción</th>
+                        <th>Cantidad</th>
+                        <th>Unidad de Medida</th>
+                        <th>Categoría</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in guide.items.all %}
+                        <tr>
+                            <td>{{ item.requirement_order_item.sales_order_item.sap_code }}</td>
+                            <td>{{ item.requirement_order_item.sales_order_item.description }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.requirement_order_item.sales_order_item.unit_of_measurement }}</td>
+                            <td>{{ item.requirement_order_item.sales_order_item.category }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No hay ítems en esta guía de salida.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </td>
+</tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">No hay guías de salida registradas para esta orden de requerimiento.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            <a href="{% url 'requirement_order_list' %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Volver a las Órdenes de Requerimiento
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
