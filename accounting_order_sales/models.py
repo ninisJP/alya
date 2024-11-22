@@ -202,8 +202,6 @@ class Rendition(models.Model):
     photo = models.ImageField(upload_to='renditions/', blank=True, null=True, verbose_name="Invoice/Receipt Photo")
     date = models.DateField(verbose_name="Rendition Date", blank=True, null=True)
     accepted = models.BooleanField(default=False, verbose_name="Accepted")
-
-    # Campos series y correlativo en inglés
     series = models.CharField(max_length=50, null=True, blank=True, verbose_name="Series")
     correlative = models.CharField(max_length=50, null=True, blank=True, verbose_name="Correlative Number")
 

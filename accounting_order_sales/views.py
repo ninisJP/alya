@@ -41,6 +41,10 @@ from .models import (
 )
 from .utils import extraer_datos_pdf, procesar_archivo_excel
 from datetime import datetime, timedelta
+from django.shortcuts import render
+from django.db.models import Prefetch
+from django.views.decorators.csrf import csrf_exempt
+
 
 def salesorder(request):
     salesorders = SalesOrder.objects.all().order_by("-id")
@@ -432,31 +436,36 @@ def petty_cash(request):
     return render(request, 'pettycash/petty_cash_items.html', context)
 
 def petty_cash_state(request):
-    today = localdate()
+    # Obtener los parámetros de filtro
+    payment_status = request.GET.get('status')  # Puede ser "Pagado" o "No Pagado"
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
-    payment_status = request.GET.get('status', 'No Pagado')  # Valor por defecto es "No Pagado"
 
-    # Filtrar los elementos por el estado de pago seleccionado
-    items = PurchaseOrderItem.objects.filter(payment_status=payment_status)
+    # Inicializar el queryset base
+    items = PurchaseOrderItem.objects.select_related(
+        'purchaseorder', 'sales_order_item__salesorder', 'supplier'
+    )
 
-    # Filtrar por fechas si se han proporcionado
-    if not start_date and not end_date:
-        items = items.filter(purchaseorder__scheduled_date=today).select_related(
-            'purchaseorder', 'sales_order_item__salesorder', 'supplier'
-        )
-    else:
+    # Filtrar por estado de pago si está definido
+    if payment_status:
+        items = items.filter(payment_status=payment_status)
+
+    # Si no se filtra por estado de pago, aplicar el filtro de fechas
+    elif start_date or end_date:
         if not end_date:
-            end_date = today
-        items = items.filter(
-            purchaseorder__scheduled_date__range=[start_date, end_date]
-        ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
+            end_date = localdate()  # Fecha actual como final si no se especifica
+        if not start_date:
+            start_date = localdate()  # Fecha actual como inicio si no se especifica
+
+        items = items.filter(purchaseorder__scheduled_date__range=[start_date, end_date])
 
     context = {
         'items': items,
         'start_date': start_date,
         'end_date': end_date,
         'payment_status': payment_status,
+        'class_pay_choices': PurchaseOrderItem.CLASS_PAY_CHOICES,
+        'type_pay_choices': PurchaseOrderItem.TYPE_PAY_CHOICES,
     }
     return render(request, 'pettycash/petty_cash_state.html', context)
 
@@ -465,6 +474,33 @@ def update_payment_status(request, item_id):
     item.payment_status = 'Pagado' if item.payment_status == 'No Pagado' else 'No Pagado'
     item.save()
     return JsonResponse({'status': item.payment_status})
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from .models import PurchaseOrderItem
+import json
+
+@csrf_exempt
+def update_field(request, item_id):
+    try:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            field = data.get('field')
+            value = data.get('value')
+
+            item = get_object_or_404(PurchaseOrderItem, id=item_id)
+
+            if field in ['class_pay', 'type_pay']:
+                setattr(item, field, value)
+                item.save()
+                return JsonResponse({'success': True, 'field': field, 'value': value})
+
+            return JsonResponse({'success': False, 'error': 'Campo no válido.'}, status=400)
+
+        return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
 
 # Import requirements views
 class AccountingRequirementOrderListView(ListView):
@@ -628,6 +664,35 @@ def purchase_conciliations(request):
     }
 
     return render(request, 'conciliations/conciliations.html', context)
+
+def report_conciliations(request):
+    # Obtener el banco seleccionado desde el formulario
+    selected_bank_id = request.GET.get('bank_id')
+    selected_bank = None
+    bank_statements = []
+
+    # Obtener todos los bancos para el selector
+    banks = Bank.objects.all()
+
+    # Si se selecciona un banco, filtrar sus extractos
+    if selected_bank_id:
+        selected_bank = Bank.objects.filter(id=selected_bank_id).first()
+        if selected_bank:
+            # Obtener los extractos y las órdenes relacionadas
+            bank_statements = BankStatements.objects.filter(bank=selected_bank).prefetch_related(
+                Prefetch(
+                    'conciliated_items',  # Relación definida en `PurchaseOrderItem`
+                    queryset=PurchaseOrderItem.objects.select_related('purchaseorder', 'supplier'),
+                )
+            )
+
+    context = {
+        'banks': banks,
+        'selected_bank': selected_bank,
+        'bank_statements': bank_statements,
+    }
+
+    return render(request, 'conciliations/report_conciliations.html', context)
 
 # renditions
 def purchase_renditions(request):

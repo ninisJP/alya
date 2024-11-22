@@ -15,6 +15,7 @@ def limpiar_valor(valor):
         except ValueError:
             return None
     return valor
+
 def procesar_archivo_excel(archivo_excel, salesorder_id):
     workbook = load_workbook(archivo_excel)
     sheet = workbook.active

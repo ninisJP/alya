@@ -9,14 +9,11 @@
             <h2 class="mb-0 fw-bold text-primary" style="font-size: 1.7rem;">
                 <i class="fas fa-exchange-alt"></i> Conciliaciones de Órdenes de Compra y Extractos Bancarios
             </h2>
-            <div class="d-flex justify-content-end gap-2">
-                <button onclick="exportToExcel()" class="btn btn-outline-success">
-                    <i class="fas fa-file-excel"></i> Descargar Excel
-                </button>
-                <button onclick="exportToPDF()" class="btn btn-outline-danger">
-                    <i class="fas fa-file-pdf"></i> Descargar PDF
-                </button>
-            </div>
+<div class="d-flex justify-content-end gap-2">
+    <a href="{% url 'report_conciliations' %}" class="btn btn-outline-danger">
+        <i class="fas fa-file-pdf"></i> Reporte Conciliaciones
+    </a>
+</div>
         </div>
 
         <!-- Formulario de filtros entre fechas y por banco -->
@@ -44,6 +41,11 @@
                 </a>
             </div>
         </form>
+
+        <!-- Barra de búsqueda global -->
+        <div class="mt-3">
+            <input id="searchInput" type="text" class="form-control" placeholder="Buscar coincidencias en ambas tablas..." onkeyup="searchTables()">
+        </div>
     </header>
 
     <div class="row mt-4">
@@ -51,7 +53,7 @@
         <div class="col-md-6">
             <h3 class="fw-bold text-center text-primary">Ítems de Órdenes de Compra</h3>
             <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover">
+                <table class="table table-bordered table-striped table-hover" id="itemsTable">
                     <thead class="bg-primary text-white">
                         <tr>
                             <th>Monto</th>
@@ -72,7 +74,6 @@
                                 <td>{{ item.supplier.currency }}</td>
                                 <td>{{ item.purchaseorder.scheduled_date }}</td>
                                 <td class="d-flex align-items-center">
-                                    <!-- Campo para ingresar manualmente el ID del extracto -->
                                     <input type="text" id="statementId_{{ item.id }}" class="form-control me-2" placeholder="ID Extracto" style="width: 80px;">
                                     <button type="button" class="btn btn-outline-primary" onclick="confirmConciliation({{ item.id }})" title="Conciliar">
                                         <i class="fas fa-check"></i>
@@ -94,7 +95,7 @@
         <div class="col-md-6">
             <h3 class="fw-bold text-center text-primary">Extractos Bancarios</h3>
             <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover">
+                <table class="table table-bordered table-striped table-hover" id="bankStatementsTable">
                     <thead class="bg-info text-white">
                         <tr>
                             <th>ID</th>
@@ -132,25 +133,16 @@
 
 {% block extra_js %}
 <script>
-    function exportToPDF() {
-        alert('Exportar a PDF');
-        // Aquí va la lógica para exportar a PDF
-    }
-
-    function exportToExcel() {
-        alert('Exportar a Excel');
-        // Aquí va la lógica para exportar a Excel
-    }
-
     function confirmConciliation(itemId) {
         const statementId = document.getElementById(`statementId_${itemId}`).value;
-    
+
         if (!statementId) {
+            showToast("Por favor, ingresa el ID del extracto antes de conciliar.", "danger");
             return;
         }
-    
+
         const url = `{% url 'assign_bank_statement' 0 0 %}`.replace('/0/0/', `/${itemId}/${statementId}/`);
-    
+
         fetch(url, {
             method: 'POST',
             headers: {
@@ -163,9 +155,56 @@
             if (data.success) {
                 document.getElementById(`statementId_${itemId}`).disabled = true;
                 document.querySelector(`button[onclick="confirmConciliation(${itemId})"]`).disabled = true;
+                showToast(`Conciliación exitosa: Ítem ${itemId} asignado al extracto ${statementId}.`, "success");
+            } else {
+                showToast(`Error: ${data.message || 'No se pudo realizar la conciliación. Inténtalo nuevamente.'}`, "danger");
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Ocurrió un error inesperado. Por favor, intenta nuevamente.', "danger");
+        });
+    }
+
+    function searchTables() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        filterTable('itemsTable', query);
+        filterTable('bankStatementsTable', query);
+    }
+
+    function filterTable(tableId, query) {
+        const table = document.getElementById(tableId);
+        const rows = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) { // Omitir encabezado
+            const cells = rows[i].getElementsByTagName('td');
+            let match = false;
+
+            for (let j = 0; j < cells.length; j++) {
+                if (cells[j].textContent.toLowerCase().includes(query)) {
+                    match = true;
+                    break;
+                }
+            }
+
+            rows[i].style.display = match ? '' : 'none';
+        }
+    }
+
+    function showToast(message, type) {
+        const toast = document.createElement("div");
+        toast.className = `toast align-items-center text-bg-${type} border-0 show position-fixed top-0 end-0 m-3`;
+        toast.style.minWidth = "250px";
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
     }
 </script>
 {% endblock %}
