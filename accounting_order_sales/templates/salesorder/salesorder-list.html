@@ -2,38 +2,42 @@
     <ul class="list-group">
         <!-- Header -->
         <li class="list-group-item d-flex justify-content-between align-items-center fw-bold bg-light">
-            <span class="col-2 text-center">Código SAP</span>
-            <span class="col-3 text-center">Proyecto</span>
-            <span class="col-4 text-center">Detalle</span>
-            <div class="col-3 d-flex justify-content-around">
-                <span class="badge bg-primary"><i class="fa-solid fa-dolly"></i> ORDENES GENERALES</span>
+            <div class="row w-100">
+                <span class="col-2 text-center">SAP</span>
+                <span class="col-2 text-center">Proyecto</span>
+                <span class="col-4 text-center">Detalle</span>
+                <span class="col-2 text-center">Total</span>
+                <span class="col-2 text-center">Acciones</span>
             </div>
         </li>
 
         <!-- List Items -->
         {% for saleorder in salesorders %}
-            <li id="saleorder-{{ saleorder.id }}" class="list-group-item d-flex justify-content-between align-items-center">
-                <span class="col-2 text-center"><strong>{{ saleorder.sapcode }}</strong></span>
-                <span class="col-3 text-center">{{ saleorder.project }}</span>
-                <span class="col-4 text-center"><strong>{{ saleorder.detail }}</strong></span>
-                <div class="col-3 d-flex justify-content-around">
-                    <button class="btn btn-warning btn-sm" hx-get="{% url 'edit-salesorder' saleorder.id %}" hx-target="#saleorder-{{ saleorder.id }}" hx-swap="outerHTML" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-danger btn-sm" 
-                            hx-delete="{% url 'delete-salesorder' saleorder.id %}" 
-                            hx-target="#saleorder-{{ saleorder.id }}" 
-                            hx-swap="outerHTML" 
-                            hx-confirm="¿Estás seguro de que deseas eliminar esta orden de venta?" 
-                            title="Eliminar">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                    <a hx-get="{% url 'item-salesorder' saleorder.id %}" hx-target="#salesorder-forms" class="btn btn-success btn-sm btn-icon bg-create" title="Crear ítem">
-                        <i class="fa-solid fa-box-open"></i>
-                    </a>
-                    <a hx-get="{% url 'purchaseorders' saleorder.id %}" hx-target="#salesorder-forms" class="btn btn-warning btn-sm btn-icon bg-create" title="Ver O.C.">
-                        <i class="fa-solid fa-gift"></i>
-                    </a>
+            <li id="saleorder-{{ saleorder.id }}" class="list-group-item">
+                <div class="row w-100 align-items-center">
+                    <span class="col-2 text-center"><strong>{{ saleorder.sapcode }}</strong></span>
+                    <span class="col-2 text-center">{{ saleorder.project }}</span>
+                    <span class="col-4 text-center"><strong>{{ saleorder.detail }}</strong></span>
+                    <span class="col-2 text-center"><strong>{{ saleorder.total_sales_order }}</strong></span>
+                    <div class="col-2 d-flex justify-content-around">
+                        <button class="btn btn-warning btn-sm" hx-get="{% url 'edit-salesorder' saleorder.id %}" hx-target="#saleorder-{{ saleorder.id }}" hx-swap="outerHTML" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm"
+                                hx-delete="{% url 'delete-salesorder' saleorder.id %}"
+                                hx-target="#saleorder-{{ saleorder.id }}"
+                                hx-swap="outerHTML"
+                                hx-confirm="¿Estás seguro de que deseas eliminar esta orden de venta?"
+                                title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <a hx-get="{% url 'item-salesorder' saleorder.id %}" hx-target="#salesorder-forms" class="btn btn-success btn-sm btn-icon bg-create" title="Crear ítem">
+                            <i class="fa-solid fa-box-open"></i>
+                        </a>
+                        <a hx-get="{% url 'purchaseorders' saleorder.id %}" hx-target="#salesorder-forms" class="btn btn-warning btn-sm btn-icon bg-create" title="Ver O.C.">
+                            <i class="fa-solid fa-gift"></i>
+                        </a>
+                    </div>
                 </div>
             </li>
         {% endfor %}

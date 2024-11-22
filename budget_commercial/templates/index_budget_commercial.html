@@ -20,12 +20,12 @@
     <div class="row align-items-center justify-content-center mb-4">
         <!-- Título -->
         <div class="col-md-8 text-center">
-            <h2 class="text-primary fw-bold display-5">Listado de Presupuestos</h2>
+            <h2 class="text-primary fw-bold display-5">Presupuesto compra - venta</h2>
         </div>
         <!-- Botón -->
         <div class="col-md-4 text-center">
-            <a href="{% url 'index_budget_commercial' %}" class="btn btn-outline-primary btn-lg" style="font-weight: bold;">
-                <i class="fas fa-plus-circle"></i> Presupuestos compras - ventas
+            <a href="{% url 'index_budget' %}" class="btn btn-outline-primary btn-lg" style="font-weight: bold;">
+                <i class="fas fa-plus-circle"></i> Presupuestos servicios
             </a>
         </div>
     </div>
@@ -58,13 +58,13 @@
                             <td>{{ budget.budget_date }}</td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a href="{% url 'detail_budget' budget.id %}" class="btn btn-info btn-sm" title="Ver detalles">
+                                    <a href="" class="btn btn-info btn-sm" title="Ver detalles">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{% url 'duplicate_budget' pk=budget.pk %}" class="btn btn-warning btn-sm" title="Duplicar">
+                                    <a href="" class="btn btn-warning btn-sm" title="Duplicar">
                                         <i class="fas fa-copy"></i>
                                     </a>
-                                    <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger btn-sm" title="Eliminar">
+                                    <a href="" class="btn btn-danger btn-sm" title="Eliminar">
                                         <i class="fas fa-trash-alt"></i>
                                     </a>
                                 </div>
