@@ -1,0 +1,56 @@
+{% extends "base_accounting.html" %}
+
+{% block content %}
+  <h2>Datos extraídos del PDF</h2>
+  <p><strong>Número de Resolución:</strong> {{ numero_resolucion }}</p>
+  <p><strong>Tipo de Resolución:</strong> {{ tipo_resolucion }}</p>
+  <p><strong>Tiempo de Aplazamiento:</strong> {{ tiempo_aplazamiento }} meses</p>
+
+  <h3>Detalles de Pago</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>N°</th>
+        <th>Vencimiento</th>
+        <th>Amortización</th>
+        <th>Interés</th>
+        <th>Total</th>
+        <th>Saldo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for fila in datos_tabla %}
+        <tr>
+          <td>{{ fila.numero_cuota }}</td>
+          <td>{{ fila.Vencimiento }}</td>
+          <td>{{ fila.Amortización }}</td>
+          <td>{{ fila.Interés }}</td>
+          <td>{{ fila.Total }}</td>
+          <td>{{ fila.Saldo }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <!-- Aquí podrías añadir un botón o formulario para confirmar e insertar los datos en la base de datos -->
+  <!-- Continuación de mostrar_datos.html -->
+<table>
+  <tr>
+    <th>N</th>
+    <th>Vencimiento</th>
+    <th>Amortización</th>
+    <th>Interés</th>
+    <th>Total</th>
+    <th>Saldo</th>
+  </tr>
+  {% for fila in datos_tabla %}
+  <tr>
+    <td>{{ fila.numero_cuota }}</td>
+    <td>{{ fila.Vencimiento }}</td>
+    <td>{{ fila.Amortización }}</td>
+    <td>{{ fila.Interés }}</td>
+    <td>{{ fila.Total }}</td>
+    <td>{{ fila.Saldo }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

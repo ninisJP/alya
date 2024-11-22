@@ -1,0 +1,55 @@
+<div class="table-responsive">
+    <h5>Detalles de la Orden</h5>
+    <table class="table table-bordered">
+        <tr>
+            <th>Orden de Venta:</th>
+            <td>{{ order.sales_order.sapcode }}</td>
+        </tr>
+        <tr>
+            <th>Fecha Solicitada:</th>
+            <td>{{ order.requested_date }}</td>
+        </tr>
+        <tr>
+            <th>Fecha de Creación:</th>
+            <td>{{ order.created_at|date:"d/m/Y" }}</td>
+        </tr>
+        <tr>
+            <th>Estado:</th>
+            <td>{{ order.get_state_display }}</td>
+        </tr>
+        <tr>
+            <th>Total:</th>
+            <td>{{ order.total_order }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="table-responsive mt-4">
+    <h5>Ítems de la Orden</h5>
+    <table class="table table-bordered text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Item</th>
+                <th>Info</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Precio Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr id="item-{{ item.id }}">
+                <td>{{ item.sales_order_item.description }}</td>
+                <td>{{ item.notes }}</td>
+                <td>{{ item.quantity_requested }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.total_price }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">No hay ítems asociados a esta orden.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

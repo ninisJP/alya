@@ -35,6 +35,8 @@ def index_budget(request):
     budgets = Budget.objects.all()  # Recupera todos los presupuestos
     return render(request, 'index_budget.html', {'budgets': budgets})
 
+
+
 def catalog_item_search(request):
     if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         term = request.GET.get('term', '')

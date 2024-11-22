@@ -197,7 +197,12 @@
                     <span>Banco</span>
                 </a>
             </div>
-            
+            <div class="list-group list-group-flush">
+                <a href="{% url 'combined_view' %}" hx-target="#main" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-circle-dollar-to-slot"></i>
+                    <span>Sunat</span>
+                </a>
+            </div>
             <!-- Contenedor específico para el botón de logout -->
             <div id="" class="logout-container">
                 {% if request.user.is_authenticated %}

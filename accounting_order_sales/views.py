@@ -1,6 +1,5 @@
 import traceback
 import pdfplumber
-from datetime import datetime
 import pandas as pd
 import logging
 import re
@@ -16,7 +15,6 @@ from django.urls import reverse, reverse_lazy
 from django.utils.timezone import localdate
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView, FormView
-from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
 from alya.utils import send_state_change_email
 from logistic_requirements.forms import RequirementOrderForm, RequirementOrderItemFormSet
 from logistic_requirements.models import RequirementOrder, RequirementOrderItem
@@ -42,6 +40,7 @@ from .models import (
     SalesOrderItem,
 )
 from .utils import extraer_datos_pdf, procesar_archivo_excel
+from datetime import datetime, timedelta
 
 def salesorder(request):
     salesorders = SalesOrder.objects.all().order_by("-id")
@@ -226,7 +225,6 @@ def delete_purchase_order(request, order_id):
     # Retornar un mensaje simple en HTML
     return HttpResponse('<div class="alert alert-success">Orden de compra eliminada con éxito. Si quieres crear una orden nueva, tendrás que hacerlo desde el pedido.</div>', content_type="text/html")
 
-
 # Bank 
 def index_bank(request):
     if request.method == 'POST':
@@ -305,39 +303,10 @@ def bank_statements(request, bank_id):
     statements = BankStatements.objects.filter(bank=bank)
     return render(request, 'bankstatement/BankStatements_list.html', {'bank': bank, 'statements': statements})
 
-from datetime import datetime, timedelta
-import pandas as pd
-from django.contrib import messages
-from django.shortcuts import render
-from django.urls import reverse_lazy
-from django.views.generic.edit import FormView
-
 class BankStatementUploadView(FormView):
     template_name = 'bankstatement/upload_bank_statements.html'
     form_class = UploadBankStatementForm
     success_url = reverse_lazy('bank_index')
-
-    def convert_excel_date(self, value):
-        """Intenta convertir el valor en una fecha asegurando el formato día/mes/año."""
-        if isinstance(value, (int, float)):
-            return datetime(1899, 12, 30) + timedelta(days=value)
-        elif isinstance(value, str):
-            try:
-                # Intentar primero con formato día/mes/año
-                return datetime.strptime(value, "%d/%m/%Y").date()
-            except ValueError:
-                try:
-                    # Intentar con el formato abreviado tipo "Sept. 10, 2024"
-                    return datetime.strptime(value, "%b. %d, %Y").date()
-                except ValueError:
-                    try:
-                        # Intentar con el formato completo tipo "October 10, 2024"
-                        return datetime.strptime(value, "%B %d, %Y").date()
-                    except ValueError:
-                        return None  # Fecha inválida
-        elif isinstance(value, datetime):
-            return value.date()
-        return None
 
     def form_valid(self, form):
         bank = form.cleaned_data['bank']
@@ -345,14 +314,16 @@ class BankStatementUploadView(FormView):
         uploaded_file = self.request.FILES['excel_file']
 
         try:
+            # Leer todas las hojas del archivo Excel
             sheets = pd.read_excel(uploaded_file, sheet_name=None, engine='openpyxl', header=2)
             print("Nombres de hojas en el archivo:", sheets.keys())
 
+            # Verificar si el nombre del banco coincide con alguna hoja
             if bank_name in sheets:
                 df = sheets[bank_name]
                 print("Columnas en la hoja antes de ajustar:", df.columns)
 
-                # Renombrar columnas
+                # Renombrar columnas para que coincidan con los campos del modelo
                 column_mapping = {
                     'F.Operac.': 'operation_date',
                     'Referencia': 'reference',
@@ -361,29 +332,32 @@ class BankStatementUploadView(FormView):
                     'Num.Mvto': 'number_moviment',
                 }
                 df.rename(columns=column_mapping, inplace=True)
-                
-                # Filtrar solo las columnas necesarias
+
+                # Filtrar columnas necesarias
                 df = df[['operation_date', 'reference', 'amount', 'itf', 'number_moviment']]
                 print("Columnas en la hoja después de ajustar:", df.columns)
-                
-                # Filtrar filas vacías
+
+                # Eliminar filas con valores vacíos en las columnas clave
                 initial_count = len(df)
                 df.dropna(subset=['operation_date', 'reference', 'amount', 'number_moviment'], inplace=True)
-                print(f"Total de filas leídas antes de filtrar vacíos: {initial_count}, después: {len(df)}")
+                print(f"Total de filas antes de filtrar vacíos: {initial_count}, después: {len(df)}")
 
                 # Procesar cada fila
                 for _, row in df.iterrows():
-                    operation_date = self.convert_excel_date(row['operation_date'])
-                    
-                    if operation_date is None:
-                        operation_date = str(row['operation_date'])
-                        messages.warning(self.request, f"Fecha no procesable en número de movimiento {row['number_moviment']}: {operation_date}")
-                    
+                    try:
+                        # Convertir la fecha utilizando pd.to_datetime()
+                        operation_date = pd.to_datetime(row['operation_date']).date()
+                    except Exception as e:
+                        messages.warning(self.request, f"Fecha inválida en número de movimiento {row['number_moviment']}: {row['operation_date']}")
+                        continue  # Saltar a la siguiente fila en caso de error
+
+                    # Evitar duplicados
                     if not BankStatements.objects.filter(
                         bank=bank,
                         operation_date=operation_date,
                         number_moviment=row['number_moviment']
                     ).exists():
+                        # Crear registro
                         BankStatements.objects.create(
                             bank=bank,
                             operation_date=operation_date,
@@ -395,6 +369,7 @@ class BankStatementUploadView(FormView):
                     else:
                         print(f"Registro duplicado encontrado para número de movimiento: {row['number_moviment']}")
 
+                # Mensaje de éxito
                 messages.success(self.request, f'Extractos bancarios para {bank_name} subidos exitosamente.')
             else:
                 messages.error(self.request, f'No se encontró una hoja para el banco: {bank_name}.')
@@ -404,7 +379,6 @@ class BankStatementUploadView(FormView):
             messages.error(self.request, f'Hubo un error procesando el archivo: {e}')
 
         return super().form_valid(form)
-
 
 @require_POST
 def assign_bank_statement(request, item_id, statement_id):
@@ -457,11 +431,6 @@ def petty_cash(request):
 
     return render(request, 'pettycash/petty_cash_items.html', context)
 
-from django.utils.timezone import localdate
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from .models import PurchaseOrderItem
-
 def petty_cash_state(request):
     today = localdate()
     start_date = request.GET.get('start_date')
@@ -496,8 +465,6 @@ def update_payment_status(request, item_id):
     item.payment_status = 'Pagado' if item.payment_status == 'No Pagado' else 'No Pagado'
     item.save()
     return JsonResponse({'status': item.payment_status})
-
-
 
 # Import requirements views
 class AccountingRequirementOrderListView(ListView):
@@ -661,10 +628,6 @@ def purchase_conciliations(request):
     }
 
     return render(request, 'conciliations/conciliations.html', context)
-
-# renditions
-from django.db.models import Sum
-from django.utils.timezone import localdate
 
 # renditions
 def purchase_renditions(request):

@@ -25,6 +25,18 @@ def my_requests(request):
     my_orders = RequirementOrder.objects.filter(user=request.user).order_by('-id')
     return render(request, 'requests/my_requests.html', {'my_orders': my_orders})
 
+# def requirement_order_preview(request):
+#     order_id = request.GET.get('order_id')
+#     requirement_order = get_object_or_404(RequirementOrder, id=order_id)
+#     return render(request, 'requests/requirement_order_preview.html', {'order': requirement_order})
+
+def requirement_order_preview(request):
+    order_id = request.GET.get('order_id')
+    requirement_order = get_object_or_404(RequirementOrder, id=order_id)
+    items = requirement_order.items.all()  # Obtener los ítems asociados
+    return render(request, 'requests/requirement_order_preview.html', {'order': requirement_order, 'items': items})
+
+
 def delete_order(request, order_id):
     if request.method == 'DELETE':
         order = get_object_or_404(RequirementOrder, id=order_id, user=request.user)

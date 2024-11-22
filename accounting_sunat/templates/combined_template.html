@@ -1,0 +1,199 @@
+{% extends "base_accounting.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+  .table-hover tbody tr:hover {
+      background-color: #f5f5f5;
+  }
+  
+  .btn-primary {
+      border: 0;
+      transition: background-color 0.2s ease-in-out;
+  }
+  
+  .btn-primary:hover {
+      background-color: #0056b3;
+  }
+
+  .flex-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 20px; /* Añade espacio entre las columnas */
+  }
+
+  .flex-item {
+      flex: 1 1 48%; /* Los elementos crecen, se encogen y no bajan de 48% */
+      min-width: 300px; /* Asegura un ancho mínimo para legibilidad */
+      overflow-x: auto; /* Permite desplazamiento horizontal en tablas anchas */
+  }
+
+  .header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+  }
+
+  .header-flex h2 {
+      margin-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
+      .flex-container {
+          flex-direction: column;
+      }
+      .flex-item {
+          flex: 1 1 100%; /* Cada elemento toma todo el ancho disponible */
+      }
+  }
+</style>
+
+<div class="flex-container">
+  <!-- Contenedor para Lista de Resoluciones -->
+  <div class="flex-item">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Lista de Resoluciones</h2>
+        <div class="d-flex gap-3">
+          <a href="{% url 'cargar_pdf' %}" class="btn btn-danger btn-lg">
+            <i class="fas fa-rocket"></i> Creación Rápida
+          </a>
+          <a href="{% url 'cronograma_semaforo' %}" class="btn btn-outline-primary btn-lg">
+            <i class="bi bi-calendar-event"></i> Cronogramas Semaforo
+          </a>
+        </div>
+      </div>
+
+    <!-- Tabla de resoluciones -->
+    <table class="table table-striped mb-5">
+      <thead>
+        <tr>
+          <th>Resolución</th>
+          <th>Tipo</th>
+          <th>Descripción</th>
+          <th>Cuotas</th>
+          <th>Total Deuda</th>
+          <th>Total Pagado</th>
+          <th>Saldo Restante</th> 
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for resolucion in resoluciones %}
+        <tr>
+          <td>{{ resolucion.numero_resolucion }}</td>
+          <td>{{ resolucion.tipo_resolucion }}</td>
+          <td>{{ resolucion.descripcion }}</td>
+          <td>{{ resolucion.num_pagos_pagados }} / {{ resolucion.num_pagos }}</td>
+          <td>{{ resolucion.total_deuda }}</td>
+          <td>{{ resolucion.total_pagado }}</td>
+          <td>{{ resolucion.saldo_restante }}</td>
+          <td class="text-end">
+            {% if resolucion.archivo_pdf %}
+              <a href="{{ resolucion.archivo_pdf.url }}" class="btn btn-info btn-sm" target="_blank" title="Ver PDF">
+                <i class="fas fa-file-pdf"></i> Ver PDF
+              </a>
+            {% endif %}
+            <a href="{% url 'detalle_resolucion' resolucion.id %}" class="btn btn-primary btn-sm">
+              <i class="fas fa-eye"></i> Ver Pagos
+            </a>
+            <form action="{% url 'eliminar_resolucion' resolucion.id %}" method="post" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta resolución?');">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm" title="Eliminar Resolución">
+                  <i class="fas fa-trash"></i> Eliminar
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Contenedor para Cronograma de Pagos Futuros -->
+  <div class="flex-item">
+    <div class="header-flex">
+        <h2>Semaforo Sunat</h2>
+        <h3><div>Fecha: {{ ahora|date:"d/m/Y H:i" }}</div></h3>
+    </div>
+
+    <table class="table table-hover mt-3">
+      <thead>
+        <tr>
+          <th scope="col">Resolución</th>
+          <th scope="col">Cuota</th>
+          <th scope="col">Venc.</th>
+          <th scope="col">Total</th>
+          <th scope="col">Pagado</th>
+          <th scope="col">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pago in pagos %}
+        <tr class="{{ pago.estado_clase }}">
+          <th scope="row">{{ pago.resolucion }}</th>
+          <td>{{ pago.numero_cuota }}</td>
+          <td>{{ pago.vencimiento|date:"d/m/Y" }}</td>
+          <td>{{ pago.total|floatformat:2 }}</td>
+          <td>{{ pago.monto_pagado_sunat|floatformat:2 }}</td>
+          <td>
+            <button type="button" class="btn btn-primary btn-registrar-pago" data-bs-toggle="modal" data-bs-target="#crearReciboModal" data-pago-id="{{ pago.id }}">Pagar</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal para crear un nuevo ReciboSunat -->
+<div class="modal fade" id="crearReciboModal" tabindex="-1" aria-labelledby="crearReciboModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="crearReciboModalLabel">Registrar Recibo Sunat</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formCrearRecibo" method="post" action="{% url 'combined_view' %}">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <input type="hidden" name="pago_id" id="hiddenPagoId" value="">
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" the "btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="submit" form="formCrearRecibo" class="btn btn-primary">Guardar Recibo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const botonesRegistrarPago = document.querySelectorAll('.btn-registrar-pago');
+    const modalElement = document.getElementById('crearReciboModal');
+    const hiddenInput = document.getElementById('hiddenPagoId');
+    const formCrearRecibo = document.getElementById('formCrearRecibo');
+
+    // Reinicia el formulario cada vez que se cierra el modal
+    modalElement.addEventListener('hidden.bs.modal', function () {
+        formCrearRecibo.reset();
+        hiddenInput.value = '';  // Limpia el campo oculto para asegurar que no hayan valores residuales
+    });
+
+    botonesRegistrarPago.forEach(function(boton) {
+      boton.addEventListener('click', function() {
+        const pagoId = this.getAttribute('data-pago-id');
+        hiddenInput.value = pagoId; // Establece el valor del ID de pago en el campo oculto del formulario
+
+        // Abre el modal
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+      });
+    });
+  });
+</script>
+
+{% endblock %}

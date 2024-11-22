@@ -3,6 +3,10 @@ from django.shortcuts import get_object_or_404, render, redirect
 from .forms import CommercialBudgetForm, CommercialBudgetItemFormSet
 from .models import CommercialBudget
 
+def index_budget_commercial(request):
+    budgets = CommercialBudget.objects.all()
+    return render(request, 'index_budget_commercial.html', {'budgets': budgets})
+
 def detail_commercial_budget(request, pk):
     budget = get_object_or_404(CommercialBudget, pk=pk)
     items_by_category = defaultdict(list)
@@ -18,7 +22,6 @@ def detail_commercial_budget(request, pk):
         'budget': budget,
         'items_by_category': dict(items_by_category),
     })
-
 
 def create_commercial_budget(request):
     if request.method == 'POST':

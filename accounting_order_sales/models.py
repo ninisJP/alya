@@ -18,6 +18,8 @@ class SalesOrder(models.Model):
     date = models.DateField()
     total_sales_order = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     days = models.PositiveIntegerField(default=0)
+    created_at = models.DateField(auto_now=True, null=True, blank=True)
+    is_active = models.BooleanField(default=True, null=True, blank=True)
 
     def update_total_sales_order(self):
         self.total_sales_order = sum(item.price_total for item in self.items.all())
@@ -71,7 +73,6 @@ class SalesOrderItem(models.Model):
         # Actualizar el campo remaining_requirement considerando solo ítems aprobados, pendientes o en compra
         self.remaining_requirement = max(Decimal(self.amount) - cantidad_solicitada, Decimal(0))
         self.save()
-
 
     def save(self, *args, **kwargs):
         """

@@ -35,7 +35,6 @@
                     <th scope="col">CANT (REST)</th> 
                     <th scope="col">PRECIO</th>
                     <th scope="col">PRECIO T.</th>
-                    <th scope="col">HOT OC (Cantidad)</th> <!-- Nueva columna -->
                 </tr>
             </thead>
             <tbody>
@@ -47,11 +46,6 @@
                     <td>{{ item.amount }} ({{ item.remaining_requirement }})</td>
                     <td>{{ item.price }}</td>
                     <td>{{ item.price_total }}</td>
-                    <td>
-                        <input type="number" name="quantity_requested" min="1" value="1" class="form-control" required>
-                        <input type="hidden" name="item_id" value="{{ item.id }}"> <!-- Campo oculto con el ID del item -->
-                        <button type="submit" class="btn btn-primary mt-2">Crear OC</button> <!-- Botón para crear la OC -->
-                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
