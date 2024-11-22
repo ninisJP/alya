@@ -6,12 +6,12 @@ def dashboard(request):
     """
     Calculamos los totales de compras, ventas, cuentas por pagar y cobrar
     """
-    accounts_payable = PurchaseOrder.objects.aggregate(total=Sum('items__price_total'))['total'] or 0 # Cuentas por pagar
+    accounts_payable = PurchaseOrderItem.objects.filter(payment_status='No Pagado').aggregate(total=Sum('price_total'))['total'] or 0# Cuentas por pagar
     accounts_receivable = CollectionOrders.objects.aggregate(total=Sum('monto_neto_cobrar'))['total'] or 0 # Cuentas por cobrar
     total_purchases = PurchaseOrderItem.objects.filter(payment_status='Pagado').aggregate(total=Sum('price_total'))['total'] or 0 # Total compras
     total_sales = CollectionOrders.objects.filter(factura_pagado=True).aggregate(total=Sum('monto_neto_cobrar'))['total'] or 0 # Total ventas
     total_income = total_sales # Total ingresos
-    total_expenses = total_purchases # Total egresos
+    total_expenses = PurchaseOrderItem.objects.all().aggregate(total=Sum('price_total'))['total'] or 0 # Total egresos
     total_utility = total_income - total_expenses # Total utilidad
 
     context = {
@@ -27,8 +27,8 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 def accounts_payable_detail(request):# Cuentas por pagar
-    details = PurchaseOrder.objects.all() 
-    context = {'details': details}
+    items = PurchaseOrderItem.objects.filter(payment_status='No Pagado')
+    context = {'items': items}
     return render(request, 'partials/accounts_payable_detail.html', context)
 
 def accounts_receivable_detail(request):# Cuentas por cobrar

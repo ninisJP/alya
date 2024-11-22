@@ -9,6 +9,7 @@ urlpatterns = [
     path('mi-pedido/<int:pk>/', views.MyRequestDetail.as_view(), name='my_request_detail'),
     path('nuevo-pedido/<int:pk>/',views.RequestSalesOrder, name='requests_plus'),
     path('ajax/load-suppliers/', views.ajax_load_suppliers, name='ajax_load_suppliers'),
+    path('requirement_order_preview/', views.requirement_order_preview, name='requirement_order_preview'),
     
 ]
 

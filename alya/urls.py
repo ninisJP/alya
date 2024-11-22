@@ -46,10 +46,13 @@ urlpatterns = [
     path('logistic/requirements/', include('logistic_requirements.urls')),
     path('logistic/suppliers/', include('logistic_suppliers.urls')),
     path('logistic/api/', include('logistic_api.urls')),
+    path('logistic/guides/', include('logistic_guides.urls')),
+    
     # MANAGMENTE
     path('management/sipoc/', include('management_sipoc.urls')),
     # TASKWALL
     path('taskwall/', include('taskwall.urls')),
+    
 
 ]
 
