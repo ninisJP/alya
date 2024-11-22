@@ -1,0 +1,83 @@
+{% extends 'base_accounting.html' %}
+
+{% block title %}Reporte de Conciliaciones{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <header class="bg-light p-4 rounded shadow-sm mb-3">
+        <h2 class="fw-bold text-primary">
+            <i class="fas fa-file-alt"></i> Reporte de Conciliaciones Bancarias
+        </h2>
+
+        <!-- Formulario para seleccionar un banco -->
+        <form method="GET" class="row mt-3">
+            <div class="col-md-6">
+                <label for="bank_id" class="form-label">Seleccionar Banco:</label>
+                <select name="bank_id" id="bank_id" class="form-select">
+                    <option value="">-- Seleccione un banco --</option>
+                    {% for bank in banks %}
+                        <option value="{{ bank.id }}" {% if selected_bank and selected_bank.id == bank.id %}selected{% endif %}>
+                            {{ bank.bank_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 align-self-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </header>
+
+    <!-- Mostrar extractos bancarios relacionados -->
+    {% if selected_bank %}
+        <h3 class="fw-bold text-center text-primary mb-4">Extractos de {{ selected_bank.bank_name }}</h3>
+        {% if bank_statements %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th>ID Extracto</th>
+                            <th>Referencia</th>
+                            <th>Monto</th>
+                            <th>Fecha Operación</th>
+                            <th>Órdenes Relacionadas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for statement in bank_statements %}
+                        <tr>
+                            <td>{{ statement.id }}</td>
+                            <td>{{ statement.reference }}</td>
+                            <td>{{ statement.amount }}</td>
+                            <td>{{ statement.operation_date }}</td>
+                            <td>
+                                {% if statement.conciliated_items.all %}
+                                    <ul class="list-unstyled">
+                                        {% for order in statement.conciliated_items.all %}
+                                        <li>
+                                            <strong>{{ order.sales_order_item.description }} </strong>-
+                                            <strong></strong> {{ order.notes }} -
+                                            <strong>Proveedor:</strong> {{ order.supplier.name }} -
+                                            <strong>Monto:</strong> {{ order.price_total }}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <span class="text-muted">Sin órdenes relacionadas</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-warning text-center">No hay extractos disponibles para este banco.</div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info text-center">Seleccione un banco para ver los extractos y sus órdenes relacionadas.</div>
+    {% endif %}
+</div>
+{% endblock %}

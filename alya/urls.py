@@ -22,7 +22,6 @@ urlpatterns = [
     path('employee_api/', include('employee_api.urls')),
     path('empleado_portal/', include('employee_portal.urls')),
     path('employee/candidates/', include('employee_candidates.urls')),
-
     # Client
     path('clientes/', include('client.urls')),
     path('clientes/crm/', include('client_crm.urls')),
@@ -47,13 +46,10 @@ urlpatterns = [
     path('logistic/suppliers/', include('logistic_suppliers.urls')),
     path('logistic/api/', include('logistic_api.urls')),
     path('logistic/guides/', include('logistic_guides.urls')),
-    
     # MANAGMENTE
     path('management/sipoc/', include('management_sipoc.urls')),
     # TASKWALL
     path('taskwall/', include('taskwall.urls')),
-    
-
 ]
 
 
