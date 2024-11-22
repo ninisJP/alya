@@ -1,0 +1,82 @@
+{% extends "base_accounting.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Ver Cronogramas{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h2>Lista de Cronogramas</h2>
+    <table id="cronogramas-table" class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Desembolso</th>
+                <th>Entidad</th>
+                <th>Moneda</th>
+                <th>Número de Cuotas</th>
+                <th>Monto Cuota</th>
+                <th>Monto Total</th>
+                <th>Detalle</th>
+                <th>Documento</th>
+                <th>Acciones</th> <!-- Agregamos una columna para las acciones -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for cronograma in cronogramas %}
+            <tr>
+                <td>{{ cronograma.id }}</td>
+                <td>{{ cronograma.fecha_inicio }}</td>
+                <td>{{ cronograma.fecha_desembolso }}</td>
+                <td>{{ cronograma.entidad }}</td>
+                <td>{{ cronograma.moneda }}</td>
+                <td>{{ cronograma.numero_cuotas }}</td>
+                <td>{{ cronograma.monto_cuota }}</td>
+                <td>{{ cronograma.monto_total }}</td>
+                <td>{{ cronograma.detalle }}</td>
+                <td>
+                    {% if cronograma.doc %}
+                        <a href="{{ cronograma.doc.url }}" target="_blank">Ver Documento</a>
+                    {% else %}
+                        No hay documento adjunto
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-primary btn-edit" data-id="{{ cronograma.id }}">Editar</button>
+                    <button class="btn btn-danger btn-delete" data-id="{{ cronograma.id }}">Eliminar</button>
+                </td>
+                <td>
+                    <a href="{% url 'pagos_cronograma' cronograma.id %}" class="btn btn-info">Ver Pagos</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal para edición -->
+<div class="modal" id="editModal">
+    <!-- Contenido del modal -->
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#cronogramas-table').DataTable();
+
+    // Manejar evento de clic en botón de editar
+    $('.btn-edit').click(function() {
+        var cronogramaId = $(this).data('id');
+        // Aquí puedes implementar la lógica para mostrar el modal de edición
+        // Puedes hacer una petición AJAX para obtener los datos del cronograma y mostrarlos en el modal
+    });
+
+    // Manejar evento de clic en botón de eliminar
+    $('.btn-delete').click(function() {
+        var cronogramaId = $(this).data('id');
+        // Aquí puedes implementar la lógica para confirmar la eliminación y enviar una petición AJAX para eliminar el cronograma
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+
+{% extends "base_accounting.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Orden Venta {% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h2>Pagos del Cronograma {{ cronograma.id }}</h2>
+    <ul>
+        {% for pago in pagos %}
+            <li>{{ pago.fecha_pago }} - Monto: {{ pago.monto_pago }}</li>
+        {% empty %}
+            <li>No hay pagos para este cronograma.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+
+{% endblock %}
