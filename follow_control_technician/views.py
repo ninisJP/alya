@@ -14,8 +14,8 @@ from .forms import ExcelUploadForm, TechnicianTaskForm
 from .models import TechnicianTask
 from .utils import get_next_order_for_card_task, process_technician_tasks_excel
 from django.shortcuts import render, redirect
-from .forms import ExcelUploadForm, TechnicianTaskForm
-from .models import TechnicianTask
+from .forms import ExcelUploadForm, TechnicianTaskForm, AddTasksToGroupForm, EditGroupItemForm
+from .models import TechnicianTask, TechnicianTaskGroupItem
 from .utils import process_technician_tasks_excel
 
 class TechniciansMonth(TemplateView):
@@ -119,14 +119,19 @@ def view_technician_card(request, card_id):
 
     tareas_con_foto = TechnicianCardTask.objects.filter(technician_card=tarjeta).select_related('task')
 
+    # Obtener todos los grupos de tareas
+    grupos_tareas = TechnicianTaskGroup.objects.all()
+
     context = {
         'tarjeta': tarjeta,
         'tecnico': tarjeta.technician,
         'fecha': tarjeta.date,
         'form': form,
         'tareas_con_foto': tareas_con_foto,
+        'grupos_tareas': grupos_tareas,  # Pasar los grupos al contexto
     }
     return render(request, 'technician_card/view_technician_card.html', context)
+
 
 def add_technician_task(request, card_id):
     tarjeta = get_object_or_404(TechnicianCard, id=card_id)
@@ -329,3 +334,79 @@ def create_task_group(request):
             new_group = form.save()
             return render(request, 'technician_groups/task_group_row.html', {'task_group': new_group})  # Renderizamos solo la fila nueva
     return HttpResponse(status=400)  # Devuelve un error si algo falla
+
+def detail_task_group(request, group_id):
+    group = get_object_or_404(TechnicianTaskGroup, id=group_id)
+
+    if request.method == 'POST':
+        # Agregar tareas al grupo
+        if 'add_tasks' in request.POST:
+            add_form = AddTasksToGroupForm(request.POST)
+            if add_form.is_valid():
+                tasks = add_form.cleaned_data['tasks']
+                for task in tasks:
+                    TechnicianTaskGroupItem.objects.create(
+                        task_group=group,
+                        task=task,
+                        quantity=1,  # Default quantity
+                        order=TechnicianTaskGroupItem.objects.filter(task_group=group).count() + 1,
+                        saler_order=None  # Optional
+                    )
+                return redirect('detail_task_group', group_id=group.id)
+
+        # Editar elementos del grupo
+        elif 'edit_items' in request.POST:
+            item_ids = request.POST.getlist('item_ids')
+            for item_id in item_ids:
+                item = TechnicianTaskGroupItem.objects.get(id=item_id)
+                form = EditGroupItemForm(request.POST, instance=item, prefix=f'item_{item_id}')
+                if form.is_valid():
+                    form.save()
+
+            return redirect('detail_task_group', group_id=group.id)
+
+        # Eliminar un elemento del grupo
+        elif 'delete_item' in request.POST:
+            item_id = request.POST.get('delete_item')
+            item = TechnicianTaskGroupItem.objects.get(id=item_id)
+            item.delete()
+            return redirect('detail_task_group', group_id=group.id)
+
+    add_form = AddTasksToGroupForm()
+    items = group.group_items.all()
+    edit_forms = [(item, EditGroupItemForm(instance=item, prefix=f'item_{item.id}')) for item in items]
+
+    return render(request, 'technician_groups/task_group_detail.html', {
+        'group': group,
+        'add_form': add_form,
+        'items_with_forms': edit_forms,
+    })
+
+def delete_task_group(request, group_id):
+    group = get_object_or_404(TechnicianTaskGroup, id=group_id)
+    if request.method == "POST":
+        group.delete()
+        return redirect('list_task_groups')  # Redirigir a la lista de grupos
+    return redirect('list_task_groups')
+
+def associate_group_to_card(request, card_id):
+    tarjeta = get_object_or_404(TechnicianCard, id=card_id)
+
+    if request.method == "POST":
+        group_id = request.POST.get("task_group")
+        task_group = get_object_or_404(TechnicianTaskGroup, id=group_id)
+
+        # Asociar el grupo a la tarjeta
+        for group_item in task_group.group_items.all():
+            TechnicianCardTask.objects.create(
+                technician_card=tarjeta,
+                task=group_item.task,
+                quantity=group_item.quantity,
+                total_time=group_item.task.time * group_item.quantity,
+                saler_order=group_item.saler_order,
+                order=group_item.order,
+            )
+
+        return redirect("view_technician_card", card_id=card_id)
+
+

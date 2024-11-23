@@ -9,7 +9,11 @@ urlpatterns = [
     path('technician-tasks/', views.technician_task, name='technician_task'),
     path('technician-task-state/<int:pk>/', views.technician_task_state, name='technician-task-state'),
     path('technician/calendar/', views.technician_calendar, name='technician_calendar'),
-    path('task-groups/', views.list_task_groups, name='list_task_groups'),  # Listar los grupos
+    path('task-groups/', views.list_task_groups, name='list_task_groups'),
+    path('groups/<int:group_id>/', views.detail_task_group, name='detail_task_group'),
+    path('groups/<int:group_id>/delete/', views.delete_task_group, name='delete_task_group'),
+    path('technician-card/<int:card_id>/associate-group/', views.associate_group_to_card, name='associate_group_to_card'),
+
     
 ]
 

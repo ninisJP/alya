@@ -50,7 +50,7 @@ class TechnicianCardTask(models.Model):
     task = models.ForeignKey(TechnicianTask, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     total_time = models.DecimalField(max_digits=7, decimal_places=2, editable=False)
-    saler_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE)
+    saler_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, null=True, blank=True)  # Permitir nulos
     order = models.PositiveIntegerField()
     photo = models.ImageField(upload_to=rename_file, null=True, blank=True)
     status = models.BooleanField(default=False)
@@ -59,9 +59,10 @@ class TechnicianCardTask(models.Model):
         return f"{self.task.verb} {self.task.object} (Order: {self.order})"
 
     class Meta:
-        ordering = ['order'] 
+        ordering = ['order']
         verbose_name = "Tarjeta de Tarea de Técnico"
         verbose_name_plural = "Tarjetas de Tareas de Técnicos"
+
 
     def save(self, *args, **kwargs):
         # Calcular total_time como time * quantity
@@ -80,10 +81,21 @@ class TechnicianTaskGroup(models.Model):
 
 
 class TechnicianTaskGroupItem(models.Model):
-    task_group = models.ForeignKey(TechnicianTaskGroup, on_delete=models.CASCADE, related_name="group_items")
+    task_group = models.ForeignKey(
+        TechnicianTaskGroup, on_delete=models.CASCADE, related_name="group_items"
+    )
     task = models.ForeignKey(TechnicianTask, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)  # Cantidad específica para la tarea en el grupo
-    saler_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE)  # Orden de venta para cada tarea en el grupo
+    saler_order = models.ForeignKey(
+        SalesOrder, on_delete=models.CASCADE, null=True, blank=True
+    )  # Orden de venta puede ser opcional
+    order = models.PositiveIntegerField(default=0)  # Orden de la tarea dentro del grupo
 
     def __str__(self):
-        return f"{self.task} en {self.task_group} (Cantidad: {self.quantity})"
+        return f"{self.task} en {self.task_group} (Cantidad: {self.quantity}, Orden: {self.order})"
+
+    class Meta:
+        verbose_name = "Elemento del Grupo de Tareas"
+        verbose_name_plural = "Elementos del Grupo de Tareas"
+        ordering = ['order']  # Siempre ordena por el campo `order` por defecto
+

@@ -8,18 +8,37 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="p-4 bg-white shadow-sm rounded">
-                <!-- Encabezado -->
-                <div class="row text-center mb-4 border-bottom pb-2">
-                    <div class="col">
+                <!-- Encabezado con Asociar Grupo y Descargar Excel -->
+                <div class="row mb-4 border-bottom pb-2 align-items-center">
+                    <div class="col-lg-6">
                         <h1 class="h4 text-primary fw-bold mb-0">TC - {{ tecnico.first_name }} {{ tecnico.last_name }}</h1>
                     </div>
-                    <div class="col">
-                        <p class="h5 text-dark fw-bold mb-0">{{ fecha }}</p>
+                    <div class="col-lg-6 d-flex justify-content-end align-items-center">
+                        <!-- Formulario para Asociar Grupo -->
+                        <form method="post" action="{% url 'associate_group_to_card' tarjeta.id %}" class="d-flex align-items-center me-3">
+                            {% csrf_token %}
+                            <select name="task_group" class="form-select me-2" required>
+                                <option value="" disabled selected>Seleccionar Grupo</option>
+                                {% for group in grupos_tareas %}
+                                <option value="{{ group.id }}">{{ group.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-link"></i> Asociar Grupo
+                            </button>
+                        </form>
+
+                        <!-- Botón Descargar Excel -->
+                        <button onclick="downloadExcel()" type="button" class="btn btn-success">
+                            <i class="fas fa-file-excel"></i> Descargar Excel
+                        </button>
                     </div>
                 </div>
 
                 <!-- Formulario para agregar tareas con HTMX -->
-                <form method="post" action="{% url 'add_technician_task' tarjeta.id %}" hx-post="{% url 'add_technician_task' tarjeta.id %}" hx-target="#tasks-container" hx-swap="innerHTML" class="border p-3 rounded mb-4">
+                <form method="post" action="{% url 'add_technician_task' tarjeta.id %}"
+                      hx-post="{% url 'add_technician_task' tarjeta.id %}" hx-target="#tasks-container"
+                      hx-swap="innerHTML" class="border p-3 rounded mb-4">
                     {% csrf_token %}
                     <div class="row g-3 align-items-center">
                         <div class="col-md-5">
@@ -35,20 +54,17 @@
                             {{ form.saler_order|add_class:"form-control select2"|attr:"id=saler_order placeholder='Seleccionar orden de venta'" }}
                         </div>
                     </div>
-                    <div class="row mt-3">
-                        <div class="col-md-6 d-grid">
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Agregar Tarea</button>
-                        </div>
-                        <div class="col-md-6 d-grid">
-                            <button onclick="downloadExcel()" type="button" class="btn btn-success"><i class="fas fa-file-excel"></i> Descargar Excel</button>
-                        </div>
+                    <div class="mt-3 d-grid">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-plus-circle"></i> Agregar Tarea
+                        </button>
                     </div>
                 </form>
 
                 <!-- Contenedor de notificaciones -->
                 <div id="notification-container" class="alert alert-success d-none mt-3 mb-3"></div>
 
-                <!-- Lista de tareas con mayor separación del formulario -->
+                <!-- Lista de tareas -->
                 <div id="tasks-container" class="mt-4">
                     {% include 'partials/technician_tasks_list.html' %}
                 </div>
@@ -71,5 +87,10 @@
             allowClear: true
         });
     });
+
+    function downloadExcel() {
+        // Implementa aquí la lógica para descargar el archivo Excel
+        alert("Descarga de Excel en progreso...");
+    }
 </script>
 {% endblock %}

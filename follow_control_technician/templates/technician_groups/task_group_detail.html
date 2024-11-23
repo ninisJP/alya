@@ -1,0 +1,79 @@
+{% extends 'follow_control_base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="p-4 bg-white rounded shadow">
+        <!-- Título y encabezado -->
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <h1 class="display-6 text-dark">GRUPO: "<strong>{{ group.name }}</strong>"</h1>
+            <a href="{% url 'list_task_groups' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Regresar a Grupos
+            </a>
+        </div>
+
+        <!-- Contenido en dos columnas -->
+        <div class="row g-3">
+            <!-- Columna izquierda: Tareas en el grupo -->
+            <div class="col-lg-8">
+                <div class="p-3 bg-light rounded shadow-sm">
+                    <form method="post">
+                        {% csrf_token %}
+                        <table class="table table-hover table-striped rounded">
+                            <thead class="table-dark text-center">
+                                <tr>
+                                    <th>Tarea</th>
+                                    <th>Cantidad</th>
+                                    <th>Orden de Venta</th>
+                                    <th>Orden</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item, form in items_with_forms %}
+                                <tr class="text-center">
+                                    <td>{{ item.task }}</td>
+                                    <td>{{ form.quantity }}</td>
+                                    <td>{{ form.saler_order }}</td>
+                                    <td>{{ form.order }}</td>
+                                    <td>
+                                        <!-- Botón para eliminar -->
+                                        <form method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="delete_item" value="{{ item.id }}">
+                                            <button type="submit" class="btn btn-sm btn-danger w-100">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <button type="submit" name="edit_items" class="btn btn-success mt-3 w-100">
+                            Guardar Cambios
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Columna derecha: Lista de tareas -->
+            <div class="col-lg-4">
+                <div class="p-3 bg-light rounded shadow-sm h-100" style="overflow-y: auto; height: 600px;">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="list-group">
+                            {% for task in add_form.fields.tasks.queryset %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="flex-grow-1 me-3">{{ task }}</span>
+                                <input type="checkbox" name="tasks" value="{{ task.id }}" style="width: 20px; height: 20px;">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" name="add_tasks" class="btn btn-primary btn-block mt-3 w-100">
+                            Agregar al Grupo
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,11 +1,17 @@
 <tr id="group-row-{{ task_group.id }}">
-    <td>{{ task_group.name }}</td>
-    <td>
-        <button class="btn btn-sm btn-primary" hx-get="" hx-target="#group-row-{{ task_group.id }}">
-            Editar
-        </button>
-        <button class="btn btn-sm btn-danger" hx-delete="" hx-target="#group-row-{{ task_group.id }}">
-            Eliminar
-        </button>
+    <td class="align-middle">{{ task_group.name }}</td>
+    <td class="text-center">
+        <!-- Botón para Editar -->
+        <a href="{% url 'detail_task_group' group_id=task_group.id %}" class="btn btn-sm btn-primary me-2">
+            <i class="fas fa-edit"></i> Detalle
+        </a>
+
+        <!-- Botón para Eliminar -->
+        <form method="post" action="{% url 'delete_task_group' group_id=task_group.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger">
+                <i class="fas fa-trash-alt"></i> Eliminar
+            </button>
+        </form>
     </td>
 </tr>

@@ -71,3 +71,27 @@ class TechnicianTaskGroupItemForm(forms.ModelForm):
         model = TechnicianTaskGroupItem
         fields = ['task', 'quantity', 'saler_order']
 
+class AddTasksToGroupForm(forms.Form):
+    tasks = forms.ModelMultipleChoiceField(
+        queryset=TechnicianTask.objects.all(),
+        widget=forms.CheckboxSelectMultiple,  # Opcional: Cambia según tu preferencia
+        label="Seleccionar Tareas"
+    )
+
+class EditGroupItemForm(forms.ModelForm):
+    class Meta:
+        model = TechnicianTaskGroupItem
+        fields = ['quantity', 'saler_order', 'order']
+
+        labels = {
+            'quantity': 'Cantidad',
+            'saler_order': 'Orden de Venta',
+            'order': 'Orden en el Grupo',
+        }
+
+        widgets = {
+            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+            'saler_order': forms.Select(attrs={'class': 'form-control'}),
+            'order': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
