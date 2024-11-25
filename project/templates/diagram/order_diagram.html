@@ -1,0 +1,84 @@
+<div id="diagram-container" class="relative p-6" style="position: relative; height: 400px;">
+    <!-- Cuadro de la Orden de Venta -->
+    <div id="sales-order-box" class="absolute bg-blue-200 p-4 rounded-lg shadow-md" style="z-index: 100; left: 0;">
+        <h3 class="font-bold text-center">Orden de Venta</h3>
+        <p><strong>{{ diagram.sapcode }}</strong></p>
+        <p>{{ diagram.detail }}</p>
+    </div>
+
+    <!-- Conexiones a las órdenes relacionadas -->
+    {% for purchase_order in diagram.purchase_orders.all %}
+        <div id="purchase-order-{{ purchase_order.id }}" class="absolute bg-green-200 p-4 rounded-lg shadow-md mt-8" style="z-index: 90; left: 200px;">
+            <h3 class="font-bold text-center">Orden de Compra</h3>
+            <p><strong>{{ purchase_order.description }}</strong></p>
+            <p>Fecha Programada: {{ purchase_order.scheduled_date }}</p>
+        </div>
+    {% empty %}
+        <p>No hay órdenes de compra para esta orden de venta.</p>
+    {% endfor %}
+
+    {% for collection_order in diagram.collection_orders.all %}
+        <div id="collection-order-{{ collection_order.id }}" class="absolute bg-yellow-200 p-4 rounded-lg shadow-md mt-8" style="z-index: 80; left: 400px;">
+            <h3 class="font-bold text-center">Orden de Cobro</h3>
+            <p><strong>{{ collection_order.cliente }}</strong></p>
+            <p>Importe Total: {{ collection_order.importe_total|floatformat:2 }}</p>
+        </div>
+    {% empty %}
+        <p>No hay órdenes de cobro para esta orden de venta.</p>
+    {% endfor %}
+
+    {% for requirement_order in diagram.requirement_orders.all %}
+        <div id="requirement-order-{{ requirement_order.id }}" class="absolute bg-purple-200 p-4 rounded-lg shadow-md mt-8" style="z-index: 70; left: 600px;">
+            <h3 class="font-bold text-center">Orden de Requerimiento</h3>
+            <p><strong>{{ requirement_order.order_number }}</strong></p>
+            <p>Estado: {{ requirement_order.state }}</p>
+        </div>
+    {% empty %}
+        <p>No hay órdenes de requerimiento para esta orden de venta.</p>
+    {% endfor %}
+</div>
+
+<!-- Script para crear conexiones entre los cuadros -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/2.15.0/jsplumb.min.js"></script>
+<script>
+    jsPlumb.ready(function() {
+        jsPlumb.setContainer("diagram-container");
+
+        // Conectar la orden de venta con las órdenes relacionadas
+        {% for purchase_order in diagram.purchase_orders.all %}
+            jsPlumb.connect({
+                source: "sales-order-box",
+                target: "purchase-order-{{ purchase_order.id }}",
+                anchors: ["Bottom", "Top"],
+                endpoint: "Dot",
+                connector: ["Bezier", {curviness: 50}],
+                paintStyle: { stroke: "#5c96bc", strokeWidth: 2 },
+                hoverPaintStyle: { stroke: "#216477" }
+            });
+        {% endfor %}
+
+        {% for collection_order in diagram.collection_orders.all %}
+            jsPlumb.connect({
+                source: "sales-order-box",
+                target: "collection-order-{{ collection_order.id }}",
+                anchors: ["Bottom", "Top"],
+                endpoint: "Dot",
+                connector: ["Bezier", {curviness: 50}],
+                paintStyle: { stroke: "#f7b731", strokeWidth: 2 },
+                hoverPaintStyle: { stroke: "#c1a93e" }
+            });
+        {% endfor %}
+
+        {% for requirement_order in diagram.requirement_orders.all %}
+            jsPlumb.connect({
+                source: "sales-order-box",
+                target: "requirement-order-{{ requirement_order.id }}",
+                anchors: ["Bottom", "Top"],
+                endpoint: "Dot",
+                connector: ["Bezier", {curviness: 50}],
+                paintStyle: { stroke: "#8e44ad", strokeWidth: 2 },
+                hoverPaintStyle: { stroke: "#5e3370" }
+            });
+        {% endfor %}
+    });
+</script>
