@@ -14,4 +14,6 @@ urlpatterns = [
     path('input-guide-partial/<int:order_id>/', views.input_guide_partial_view, name='project_detail_guide_input'),
     path('saleorder-input-guide-partial/<int:order_id>/', views.saleorder_input_guide_partial_view, name='project_detail_guide_input_saleorder'),
     path('output-guide-partial/<int:order_id>/', views.output_guide_partial_view, name='project_detail_guide_output'),
+    path('diagram_project_orders/<int:order_id>/', views.diagram_project_orders, name='diagram_project_orders'),
+
 ]

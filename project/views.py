@@ -171,3 +171,8 @@ def output_guide_partial_view(request, order_id):
     context = {}
     context['output_items'] = list_item_output
     return render(request, 'partials/output_guide_partial.html', context)
+
+def diagram_project_orders(request, order_id):
+    diagram = get_object_or_404(SalesOrder, id=order_id)
+    return render(request, 'diagram/order_diagram.html', {'diagram': diagram})
+
