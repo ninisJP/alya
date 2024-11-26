@@ -10,6 +10,7 @@ from django.db.models import Sum,DecimalField
 from django.db.models.functions import Coalesce
 from decimal import Decimal, ROUND_HALF_UP
 from django.utils.module_loading import import_string
+from django.views.decorators.csrf import csrf_exempt
 
 class SalesOrder(models.Model):
     sapcode = models.PositiveBigIntegerField(default=0)
@@ -274,10 +275,8 @@ class BankStatementManager(models.Manager):
 class BankLoan(models.Model):
     # Opciones para el tipo de crédito
     CREDIT_TYPE_CHOICES = [
-        ('personal', 'Personal'),
-        ('hipotecario', 'Hipotecario'),
-        ('automotriz', 'Automotriz'),
-        ('empresa', 'Crédito empresarial'),
+        ('prestamo', 'Prestamo'),
+        ('credito', 'Credito'),
     ]
 
     start_date = models.DateField()  # Fecha de inicio del préstamo
@@ -285,14 +284,9 @@ class BankLoan(models.Model):
     bank = models.CharField(max_length=100)  # Nombre del banco
     currency = models.CharField(max_length=10)  # Moneda (ej. "USD", "PEN")
     cuotas = models.PositiveIntegerField()  # Número total de cuotas
-    document = models.CharField(max_length=50, blank=True, null=True)  # Documento asociado (opcional)
+    document = models.FileField(upload_to='documents/', blank=True, null=True)  # Documento asociado
     total_debt = models.DecimalField(max_digits=12, decimal_places=2)
-
-    credit_type = models.CharField(
-        max_length=20,
-        choices=CREDIT_TYPE_CHOICES,  # Aquí se usan las opciones definidas
-    )
-
+    credit_type = models.CharField(max_length=20, choices=CREDIT_TYPE_CHOICES)
 
 class LoanPayment(models.Model):
     loan = models.ForeignKey(BankLoan, on_delete=models.CASCADE, related_name="payments")  # Relación con el préstamo
@@ -306,19 +300,11 @@ class LoanPayment(models.Model):
 class PartialPayment(models.Model):
     loan_payment = models.ForeignKey(LoanPayment, on_delete=models.CASCADE, related_name="partial_payments")
     partial_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    receipt = models.CharField(max_length=50, blank=True, null=True)  # Recibo de pago (opcional)
+    receipt = models.FileField(upload_to='receipts/', blank=True, null=True)  # Recibo de pago
     receipt_date = models.DateField()
 
     def __str__(self):
-        return f"Pago parcial de {self.amount} para cuota {self.loan_payment}"
-
-
-
-
-
-
-
-
+        return f"Pago parcial de {self.partial_amount} para cuota {self.loan_payment}"
 
 class CollectionOrders(models.Model):
     TIPO_COBRO_CHOICES = [

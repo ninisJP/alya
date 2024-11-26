@@ -43,8 +43,8 @@ from .utils import extraer_datos_pdf, procesar_archivo_excel
 from datetime import datetime, timedelta
 from django.shortcuts import render
 from django.db.models import Prefetch
+import json
 from django.views.decorators.csrf import csrf_exempt
-
 
 def salesorder(request):
     salesorders = SalesOrder.objects.all().order_by("-id")
@@ -404,6 +404,18 @@ def assign_bank_statement(request, item_id, statement_id):
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'Error: {str(e)}'})
 
+# Bank loands and credit cards
+def bank_loans(request):
+    prestamo = BankLoan.objects.filter(credit_type = 'prestamo')
+    credito = BankLoan.objects.filter(credit_type = 'credito')
+
+    context = {
+        'prestamos': prestamos,
+        'creditos': creditos
+    }
+
+    return render(request, 'bank_loans.html', )
+
 #caja chica
 def petty_cash(request):
     # Obtener la fecha de hoy según la zona horaria configurada
@@ -475,11 +487,6 @@ def update_payment_status(request, item_id):
     item.save()
     return JsonResponse({'status': item.payment_status})
 
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from .models import PurchaseOrderItem
-import json
-
 @csrf_exempt
 def update_field(request, item_id):
     try:
@@ -500,7 +507,6 @@ def update_field(request, item_id):
         return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
 
 # Import requirements views
 class AccountingRequirementOrderListView(ListView):

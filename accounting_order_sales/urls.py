@@ -9,6 +9,8 @@ urlpatterns = [
     path('banks/', index_bank, name='bank_index'),
     path('banks/editar/<int:bank_id>/', edit_bank, name='edit_bank'),
     path('banks/eliminar/<int:bank_id>/', delete_bank, name='delete_bank'),
+    # bank_loans
+    path('banks/loans/', views.bank_loans, name='bank_loans'),
     # bank_statements
     path('banks/<int:bank_id>/statements/', bank_statements, name='bank_statement'),
     # upload statements
@@ -53,7 +55,7 @@ htmxurlpatters = [
     path('petty_cash_state/', views.petty_cash_state, name='petty_cash_state'),
     path('update_payment_status/<int:item_id>/', views.update_payment_status, name='update_payment_status'),
 
-    
+
     # ajax concilations
     path('assign_bank_statement/<int:item_id>/<int:statement_id>/', views.assign_bank_statement, name='assign_bank_statement'),
 
