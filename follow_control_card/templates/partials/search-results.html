@@ -1,12 +1,73 @@
-{% for task in results %}
-<div class="task-result">
-    <p>{{ task.verb }} - {{ task.object }}</p>
-    <form hx-post="{% url 'add-task-to-card' task.id %}" hx-target='#daily-task-list' hx-swap="innerHTML">
+<style>
+    /* Contenedor principal de los resultados */
+    #results {
+        max-height: 550px; /* Altura máxima */
+        overflow-y: auto; /* Scroll solo vertical */
+        padding: 10px;
+        border-radius: 5px; /* Bordes redondeados */
+        background-color: #ffffff; /* Fondo blanco */
+    }
+
+    /* Cada tarea en los resultados */
+    .task-result {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 5px;
+        transition: background-color 0.3s, transform 0.2s; /* Animación suave */
+        font-size: 0.9em;
+        background-color: transparent; /* Sin fondo extra */
+        border: none; /* Sin bordes adicionales */
+    }
+
+    .task-result:hover {
+        background-color: #f0f8ff; /* Fondo al hacer hover */
+        transform: translateY(-2px); /* Efecto de levantamiento */
+        cursor: pointer;
+    }
+
+    /* Estilos para el texto */
+    .task-result span {
+        font-weight: bold;
+    }
+
+    .task-result span:first-child {
+        color: #333; /* Color del verbo */
+        margin-right: 5px; /* Espaciado entre el verbo y el guion */
+    }
+
+    .task-result span:last-child {
+        color: #007bff; /* Color del objeto */
+        margin-left: 5px; /* Espaciado entre el guion y el objeto */
+    }
+
+    /* Botón invisible que envuelve la tarea */
+    .task-result button {
+        width: 100%; /* Ocupa todo el ancho */
+        border: none; /* Sin bordes */
+        background: none; /* Sin fondo */
+        text-align: left; /* Texto alineado a la izquierda */
+        padding: 0; /* Sin padding */
+    }
+
+    /* Ajustes de formulario */
+    form {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+<div id="results">
+    {% for task in results %}
+    <form hx-post="{% url 'add-task-to-card' task.id %}" hx-target="#daily-task-list" hx-swap="innerHTML">
         {% csrf_token %}
         <input type="hidden" name="card_id" value="{{ card_id }}">
-        <button type="submit" class="btn btn-primary btn-sm">
-            <i class="fa-solid fa-kiwi-bird" style="color: #000000;"></i>
+        <button type="submit" class="task-result">
+            <span>{{ task.verb }}</span>
+            <span>-</span>
+            <span>{{ task.object }}</span>
         </button>
     </form>
+    {% endfor %}
 </div>
-{% endfor %}

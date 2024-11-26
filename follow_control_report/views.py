@@ -2,8 +2,12 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from datetime import date, datetime
 import calendar
-
+from follow_control_card.models import Card
+from datetime import date as dt
 from .utils import get_daily_valuations_for_month
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
+from datetime import date as dt
 
 
 def valuations_view(request, year, month):
@@ -25,3 +29,40 @@ def valuations_view(request, year, month):
         'valuations': valuations,
         'days': days
     })
+
+def daily_evaluation_cards(request):
+    # Obtener la fecha desde los parámetros GET
+    date = request.GET.get('date')
+
+    # Si no se pasa una fecha, usar la fecha actual como predeterminada
+    if not date:
+        date = dt.today().strftime('%Y-%m-%d')
+
+    # Filtrar las tarjetas por la fecha proporcionada, incluyendo las tareas asociadas
+    cards = Card.objects.filter(date=date).prefetch_related('tasks')
+
+    # Pasar las tarjetas y la fecha al template
+    context = {
+        'cards': cards,
+        'selected_date': date,
+    }
+    return render(request, 'dailyvaluation/daily_evaluation_cards.html', context)
+
+def get_card_details(request, card_id):
+    # Obtener la tarjeta y sus tareas asociadas
+    card = get_object_or_404(Card, pk=card_id)
+
+    # Recopilar los datos que se enviarán en la respuesta
+    tasks = card.tasks.all().values('verb', 'object', 'task_time')
+
+    data = {
+        'username': card.user.username,
+        'date': card.date,
+        'valuation': card.valuation,
+        'efficiency_percentage': card.efficiency_percentage,
+        'total_time': card.total_time,
+        'tasks': list(tasks),  # Convertir queryset a lista
+    }
+
+    return JsonResponse(data)
+

@@ -1,4 +1,4 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404, render, redirect
@@ -335,9 +335,54 @@ def create_task_group(request):
             return render(request, 'technician_groups/task_group_row.html', {'task_group': new_group})  # Renderizamos solo la fila nueva
     return HttpResponse(status=400)  # Devuelve un error si algo falla
 
+# def detail_task_group(request, group_id):
+#     group = get_object_or_404(TechnicianTaskGroup, id=group_id)
+#     if request.method == 'POST':
+#         # Agregar tareas al grupo
+#         if 'add_tasks' in request.POST:
+#             add_form = AddTasksToGroupForm(request.POST)
+#             if add_form.is_valid():
+#                 tasks = add_form.cleaned_data['tasks']
+#                 for task in tasks:
+#                     TechnicianTaskGroupItem.objects.create(
+#                         task_group=group,
+#                         task=task,
+#                         quantity=1,  # Default quantity
+#                         order=TechnicianTaskGroupItem.objects.filter(task_group=group).count() + 1,
+#                         saler_order=None  # Optional
+#                     )
+#                 return redirect('detail_task_group', group_id=group.id)
+
+#         # Editar elementos del grupo
+#         elif 'edit_items' in request.POST:
+#             item_ids = request.POST.getlist('item_ids')
+#             for item_id in item_ids:
+#                 item = TechnicianTaskGroupItem.objects.get(id=item_id)
+#                 form = EditGroupItemForm(request.POST, instance=item, prefix=f'item_{item_id}')
+#                 if form.is_valid():
+#                     form.save()
+
+#             return redirect('detail_task_group', group_id=group.id)
+
+#         # Eliminar un elemento del grupo
+#         elif 'delete_item' in request.POST:
+#             item_id = request.POST.get('delete_item')
+#             item = TechnicianTaskGroupItem.objects.get(id=item_id)
+#             item.delete()
+#             print(item)
+#             return redirect('detail_task_group', group_id=group.id)
+
+#     add_form = AddTasksToGroupForm()
+#     items = group.group_items.all()
+#     edit_forms = [(item, EditGroupItemForm(instance=item, prefix=f'item_{item.id}')) for item in items]
+#     return render(request, 'technician_groups/task_group_detail.html', {
+#         'group': group,
+#         'add_form': add_form,
+#         'items_with_forms': edit_forms,
+#     })
+
 def detail_task_group(request, group_id):
     group = get_object_or_404(TechnicianTaskGroup, id=group_id)
-
     if request.method == 'POST':
         # Agregar tareas al grupo
         if 'add_tasks' in request.POST:
@@ -356,10 +401,9 @@ def detail_task_group(request, group_id):
 
         # Editar elementos del grupo
         elif 'edit_items' in request.POST:
-            item_ids = request.POST.getlist('item_ids')
-            for item_id in item_ids:
-                item = TechnicianTaskGroupItem.objects.get(id=item_id)
-                form = EditGroupItemForm(request.POST, instance=item, prefix=f'item_{item_id}')
+            # Aquí obtenemos los datos del formulario para cada item
+            for item in group.group_items.all():
+                form = EditGroupItemForm(request.POST, instance=item, prefix=f'item_{item.id}')
                 if form.is_valid():
                     form.save()
 
@@ -381,7 +425,7 @@ def detail_task_group(request, group_id):
         'add_form': add_form,
         'items_with_forms': edit_forms,
     })
-
+        
 def delete_task_group(request, group_id):
     group = get_object_or_404(TechnicianTaskGroup, id=group_id)
     if request.method == "POST":

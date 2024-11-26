@@ -9,6 +9,7 @@ from accounting_order_sales.models import SalesOrder
 from .forms import TaskForm
 from .models import Card, Task, CardTaskOrder
 from .utils import get_max_order
+from django.db.models import Q
 
 
 class DailyCardList(ListView):
@@ -97,18 +98,21 @@ def delete_daily_task(request, pk):
     return render(request, 'partials/daily-task-list.html', {'daily_tasks': daily_tasks, 'card_id': card.id})
 
 def search_task(request):
-    search_text = request.POST.get('search')
+    search_text = request.POST.get('search', '').strip()  # Elimina espacios innecesarios
     card_id = request.POST.get('card_id')
 
     if not card_id:
         card_id = request.session.get('current_card_id')  # Intenta obtener de la sesión
         if not card_id:
-            # Si todavía no se encuentra, puedes manejarlo con un error o una redirección
+            # Manejar la falta de Card ID
             return JsonResponse({'error': 'Card ID is required'}, status=400)
 
-    print(f"search_task: card_id={card_id}")  # Depuración
+    # Busca en `verb` y `object`
+    results = Task.objects.filter(
+        Q(verb__icontains=search_text) | Q(object__icontains=search_text),
+        user=request.user
+    )
 
-    results = Task.objects.filter(user=request.user, verb__icontains=search_text)
     return render(request, 'partials/search-results.html', {'results': results, 'card_id': card_id})
 
 def add_task_to_card(request, task_id):

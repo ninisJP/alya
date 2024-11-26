@@ -1,7 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
-
 from decimal import Decimal
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, JsonResponse
@@ -25,7 +21,6 @@ from django.utils import timezone
 import pdfplumber
 import re
 from datetime import date, datetime, timedelta
-from datetime import date, timedelta
 from .forms import ReciboSunatForm
 from django.db.models import Sum
 
@@ -60,7 +55,6 @@ def pagos_cronograma(request, cronograma_id):
         {"pagos": pagos, "detalle_cronograma": detalle_cronograma},
     )
 
-
 def ver_cronogramas(request):
     cronogramas = Cronograma.objects.all()
     return render(request, "ver_cronogramas.html", {"cronogramas": cronogramas})
@@ -72,7 +66,6 @@ def ver_cronogramas_filtrados(request, tipo):
         cronogramas = Cronograma.objects.exclude(entidad__icontains="SUNAT")
 
     return render(request, "ver_cronogramas.html", {"cronogramas": cronogramas})
-
 
 # metodos HTMX
 @require_http_methods(["POST"])
@@ -118,11 +111,6 @@ def editar_fecha_pago(request, pago_id):
         form = EditarFechaPagoForm(instance=pago)
 
     return render(request, "editar_fecha_pago.html", {"form": form, "pago": pago})
-
-
-
-
-
 
 # METODO CON PDF PARA SUNAT aqui abajo se veran cosas tenebrosas :O
 def cargar_pdf(request):

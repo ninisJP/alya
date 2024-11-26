@@ -1,16 +1,9 @@
 from django.db import models
-
-# Create your models here.
-
-from django.db import models
-
-# Create your models here.from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
-
 
 class Cronograma(models.Model):
     fecha_inicio = models.DateField()
@@ -38,8 +31,6 @@ class PagoCronograma(models.Model):
 
     def __str__(self):
         return f"Pago programado: {self.monto_para_pagar} - Pago realizado: {self.monto_pago} el {self.fecha_pago} - Detalle: {self.cronograma.detalle}"
-
-
 
 @receiver(post_save, sender=Cronograma)
 def crear_pagos(sender, instance, created, **kwargs):
@@ -85,11 +76,6 @@ class DetallePago(models.Model):
     interes = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     saldo = models.DecimalField(max_digits=10, decimal_places=2)
-
-
-# * este sirve :) 
-from django.db import models
-from decimal import Decimal
 
 class Pago(models.Model):
     resolucion = models.ForeignKey('Resolucion', related_name='pagos', on_delete=models.CASCADE)
