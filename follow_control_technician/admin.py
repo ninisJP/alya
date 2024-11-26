@@ -5,3 +5,5 @@ from .models import *
 admin.site.register(TechnicianCardTask)
 admin.site.register(TechnicianCard)
 admin.site.register(TechnicianTask)
+admin.site.register(TechnicianTaskGroup)
+admin.site.register(TechnicianTaskGroupItem)
