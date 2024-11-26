@@ -271,6 +271,55 @@ class BankStatementManager(models.Manager):
             operation_date__month=month,
         )
 
+class BankLoan(models.Model):
+    # Opciones para el tipo de crédito
+    CREDIT_TYPE_CHOICES = [
+        ('personal', 'Personal'),
+        ('hipotecario', 'Hipotecario'),
+        ('automotriz', 'Automotriz'),
+        ('empresa', 'Crédito empresarial'),
+    ]
+
+    start_date = models.DateField()  # Fecha de inicio del préstamo
+    desembols_date = models.DateField()  # Fecha de desembolso
+    bank = models.CharField(max_length=100)  # Nombre del banco
+    currency = models.CharField(max_length=10)  # Moneda (ej. "USD", "PEN")
+    cuotas = models.PositiveIntegerField()  # Número total de cuotas
+    document = models.CharField(max_length=50, blank=True, null=True)  # Documento asociado (opcional)
+    total_debt = models.DecimalField(max_digits=12, decimal_places=2)
+
+    credit_type = models.CharField(
+        max_length=20,
+        choices=CREDIT_TYPE_CHOICES,  # Aquí se usan las opciones definidas
+    )
+
+
+class LoanPayment(models.Model):
+    loan = models.ForeignKey(BankLoan, on_delete=models.CASCADE, related_name="payments")  # Relación con el préstamo
+    amount = models.DecimalField(max_digits=10, decimal_places=2)  # Monto de la cuota
+    pay_date = models.DateField()  # Fecha en que debe pagarse la cuota
+    is_paid = models.BooleanField(default=False)  # Indicador de si está pagada o no
+
+    def __str__(self):
+        return f"Cuota de {self.amount} para préstamo {self.loan}"
+
+class PartialPayment(models.Model):
+    loan_payment = models.ForeignKey(LoanPayment, on_delete=models.CASCADE, related_name="partial_payments")
+    partial_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    receipt = models.CharField(max_length=50, blank=True, null=True)  # Recibo de pago (opcional)
+    receipt_date = models.DateField()
+
+    def __str__(self):
+        return f"Pago parcial de {self.amount} para cuota {self.loan_payment}"
+
+
+
+
+
+
+
+
+
 class CollectionOrders(models.Model):
     TIPO_COBRO_CHOICES = [
         ('factoring', 'Factoring'),

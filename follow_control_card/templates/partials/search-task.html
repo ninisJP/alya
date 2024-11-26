@@ -5,7 +5,7 @@
         align-items: center;
         margin-bottom: 5px;
         padding: 5px;
-        font-size: 0.8em; /* Tamaño de fuente más pequeño para todos los componentes */
+        font-size: 0.7em;
     }
 
     .task-result p {
@@ -17,35 +17,39 @@
     }
 
     .task-result button {
-        padding: 3px 5px;
-        font-size: 0.8em; /* Tamaño de fuente más pequeño para el botón */
+        font-size: 0.7em;
+    }
+
+    .search-column {
+        max-width: 300px; /* Hace que el buscador sea más angosto */
+        padding: 15px;
+        background-color: #f9f9f9;
+        flex-shrink: 0; /* Evita que el buscador se reduzca */
     }
 
     .search-input {
         width: 100%;
+        padding: 8px;
+        font-size: 0.9em;
+        border-radius: 5px;
+        border: 1px solid #ced4da;
     }
 
-    .search-column {
-        padding: 10px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        font-size: 0.8em; /* Tamaño de fuente más pequeño para la columna de búsqueda */
+    #results {
+        margin-top: 10px;
     }
 </style>
 
 <div class="search-column">
-    <div class="d-flex justify-content-end mb-2">
-        <input type="hidden" name="card_id" value="{{ card_id }}">
-        <input type="text"
-            hx-post="{% url 'search-task' %}"
-            hx-target='#results'
-            hx-trigger="focus once, keyup changed delay:300ms"
-            name="search"
-            class="form-control form-control-sm search-input"
-            placeholder="Buscar"
-            id="search-field"/>
-    </div>
+    <input type="hidden" name="card_id" value="{{ card_id }}">
+    <input type="text"
+           hx-post="{% url 'search-task' %}"
+           hx-target="#results"
+           hx-trigger="focus once, keyup changed delay:300ms"
+           name="search"
+           class="form-control form-control-sm search-input"
+           placeholder="Buscar ++ renovado 100%"
+           id="search-field" />
     <div id="results">
-
     </div>
 </div>
