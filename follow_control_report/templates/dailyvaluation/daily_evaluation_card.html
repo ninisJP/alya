@@ -1,8 +1,0 @@
-    <!-- Lista de tarjetas -->
-    <ul>
-        {% for card in cards %}
-            <li>{{ card.user.username }} - {{ card.valuation }} - {{ card.total_time }}</li>
-        {% empty %}
-            <li>No cards available for this date.</li>
-        {% endfor %}
-    </ul>
