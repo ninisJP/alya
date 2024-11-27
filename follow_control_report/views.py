@@ -47,22 +47,3 @@ def daily_evaluation_cards(request):
         'selected_date': date,
     }
     return render(request, 'dailyvaluation/daily_evaluation_cards.html', context)
-
-def get_card_details(request, card_id):
-    # Obtener la tarjeta y sus tareas asociadas
-    card = get_object_or_404(Card, pk=card_id)
-
-    # Recopilar los datos que se enviarán en la respuesta
-    tasks = card.tasks.all().values('verb', 'object', 'task_time')
-
-    data = {
-        'username': card.user.username,
-        'date': card.date,
-        'valuation': card.valuation,
-        'efficiency_percentage': card.efficiency_percentage,
-        'total_time': card.total_time,
-        'tasks': list(tasks),  # Convertir queryset a lista
-    }
-
-    return JsonResponse(data)
-
