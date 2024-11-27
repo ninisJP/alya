@@ -75,6 +75,7 @@ class Task(models.Model):
     measurement = models.CharField(max_length=50, default='minutos')
     task_time = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
+    label = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
         return self.verb
@@ -96,7 +97,11 @@ class CardTaskOrder(models.Model):
     class Meta:
         verbose_name = "Orden de Tarjeta-Tarea"
         verbose_name_plural = "Ordenes de Tarjetas-Tareas"
-
+        
+class TaskExecution(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='executions')
+    executed_at = models.DateField(auto_now_add=True)  # Fecha de ejecución
+    card = models.ForeignKey(Card, on_delete=models.CASCADE, null=True, blank=True)  # Tarjeta asociada (opcional)
 
 # Señales para actualizar Card cuando cambie CardTaskOrder
 @receiver(post_save, sender=CardTaskOrder)
@@ -107,3 +112,8 @@ def update_card_on_task_change(sender, instance, **kwargs):
     # Recalcula los valores de la tarjeta (tiempo total y eficiencia)
     card.update_card_values()
     card.update_valuation()
+
+@receiver(post_save, sender=CardTaskOrder)
+def log_task_execution(sender, instance, **kwargs):
+    if instance.state:  # Si la tarea fue marcada como completada
+        TaskExecution.objects.create(task=instance.task, card=instance.card)

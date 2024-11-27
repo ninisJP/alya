@@ -1,0 +1,27 @@
+<!-- label_results.html -->
+{% extends 'follow_control_base.html' %}
+
+{% block title %}Resultados de Etiquetado{% endblock %}
+
+{% block content %}
+    <h2>Resultados de Etiquetado</h2>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Tarea</th>
+                <th>Etiqueta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.task }}</td>
+                <td>{{ result.label }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'label_tasks' %}">Volver a etiquetar tareas</a>
+{% endblock %}

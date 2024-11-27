@@ -1,0 +1,15 @@
+<!-- label_tasks.html -->
+{% extends 'follow_control_base.html' %}
+
+{% block title %}Etiquetar Tareas{% endblock %}
+
+{% block content %}
+    <h2>Etiquetar Tareas</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Etiquetar Tareas</button>
+    </form>
+
+    <p>Haz clic en el botón para etiquetar todas las tareas según su frecuencia de ejecución.</p>
+{% endblock %}

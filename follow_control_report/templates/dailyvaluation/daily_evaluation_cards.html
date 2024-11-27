@@ -17,22 +17,32 @@
                             <label for="date" class="form-label me-2 text-dark">Selecciona una fecha:</label>
                             <input type="date" id="date" name="date" class="form-control form-control-sm me-2 bg-white text-dark border">
                             <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.375rem 0.5rem;">
-                                <i class="fa-solid fa-filter"></i> <!-- Icono de Font Awesome -->
+                                <i class="fa-solid fa-filter"></i>
                             </button>
                         </form>
                     </div>
+                    <!-- Botón para redirigir a la página de etiquetado de tareas -->
+<div class="row justify-content-end">
+    <div class="col-auto">
+        <a href="{% url 'label_tasks' %}" class="btn btn-secondary btn-sm">
+            Etiquetar Tareas
+        </a>
+    </div>
+</div>
                 </div>
 
                 <!-- Tabla -->
                 <div class="table-responsive mt-4">
                     <table class="table table-hover table-bordered text-center shadow-sm" style="overflow: hidden;">
-                        <thead class="table-dark text-light" style="border-radius: 10px;">
+                        <thead class="table-dark text-light">
                             <tr>
                                 <th>Usuario</th>
                                 <th>Fecha</th>
-                                <th>Evaluación</th>
-                                <th>Eficiencia (%)</th>
-                                <th>Tiempo Total (min)</th>
+                                <th class="bg-dark text-light">Tarjeta</th>
+                                <th class="bg-dark text-light">Trabajado</th>
+                                <th class="bg-dark text-light">Eficiencia (%)</th>
+                                <th class="bg-dark text-light">Evaluación</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -41,13 +51,36 @@
                             <tr class="clickable-row bg-white" data-bs-toggle="collapse" data-bs-target="#tasks{{ card.id }}" aria-expanded="false" aria-controls="tasks{{ card.id }}" style="cursor: pointer;">
                                 <td>{{ card.user.username }}</td>
                                 <td>{{ card.date }}</td>
-                                <td>{{ card.valuation }}</td>
-                                <td>{{ card.efficiency_percentage|floatformat:2 }}</td>
-                                <td>{{ card.total_time|floatformat:2 }}</td>
+                                <td>
+                                    {% if card.task_count > 0 %}
+                                        <span class="badge bg-success p-2"><i class="fa-solid fa-check-circle"></i></span>
+                                    {% else %}
+                                        <span class="badge bg-danger p-2"><i class="fa-solid fa-times-circle"></i></span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ card.total_time|floatformat:2 }} min</td>
+                                <td>
+                                    <span class="badge p-2 
+                                        {% if card.efficiency_percentage >= 90 %} bg-success 
+                                        {% elif card.efficiency_percentage >= 50 %} bg-warning 
+                                        {% else %} bg-danger {% endif %}">
+                                        {{ card.efficiency_percentage|floatformat:2 }}%
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="badge p-2 
+                                        {% if card.valuation == "SS" or card.valuation == "A" %} bg-success 
+                                        {% elif card.valuation == "B" or card.valuation == "C" %} bg-warning 
+                                        {% else %} bg-danger {% endif %}">
+                                        {{ card.valuation }}
+                                    </span>
+                                </td>
+
                             </tr>
                             <!-- Tareas asociadas -->
                             <tr class="collapse bg-light" id="tasks{{ card.id }}">
-                                <td colspan="5">
+                                <td colspan="6">
                                     <div class="table-responsive">
                                         <table class="table table-bordered text-center shadow-sm" style="overflow: hidden; border-radius: 10px;">
                                             <thead class="table-secondary text-dark">
@@ -84,7 +117,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="text-center text-dark">No hay tarjetas para esta fecha.</td>
+                                <td colspan="6" class="text-center text-dark">No hay tarjetas para esta fecha.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -117,3 +150,4 @@
     });
 </script>
 {% endblock %}
+
