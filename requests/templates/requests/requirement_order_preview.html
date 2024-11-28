@@ -6,6 +6,14 @@
             <td>{{ order.sales_order.sapcode }}</td>
         </tr>
         <tr>
+            <th>Orden de Venta:</th>
+            <td>{{ order.sales_order.detail }}</td>
+        </tr>
+        <tr>
+            <th>Detalles:</th>
+            <td>{{ order.notes }}</td>
+        </tr>
+        <tr>
             <th>Fecha Solicitada:</th>
             <td>{{ order.requested_date }}</td>
         </tr>
@@ -14,8 +22,30 @@
             <td>{{ order.created_at|date:"d/m/Y" }}</td>
         </tr>
         <tr>
+            <th>Aprobado:</th>
+            <td>
+                {% if order.state == 'APROBADO' %}
+                    <span>Aprobado</span>
+                {% elif order.state == 'RECHAZADO' %}
+                    <span>Rechazado</span>
+                {% else %}
+                    <span>No revisado</span>
+                {% endif %}
+            </td>        
+        </tr>
+        <tr>
             <th>Estado:</th>
-            <td>{{ order.get_state_display }}</td>
+            <td>
+                {% if order.estado %}
+                    <span>Listo</span>
+                {% else %}
+                    <span>Pendiente</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Usuario:</th>
+            <td>{{ order.user.username }}</td>
         </tr>
         <tr>
             <th>Total:</th>
