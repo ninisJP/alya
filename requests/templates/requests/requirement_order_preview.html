@@ -2,7 +2,7 @@
     <h5>Detalles de la Orden</h5>
     <table class="table table-bordered">
         <tr>
-            <th>Orden de Venta:</th>
+            <th>SAP CODE:</th>
             <td>{{ order.sales_order.sapcode }}</td>
         </tr>
         <tr>
@@ -29,6 +29,7 @@
     <table class="table table-bordered text-center">
         <thead class="table-dark">
             <tr>
+                <th>SAP CODE</th>
                 <th>Item</th>
                 <th>Info</th>
                 <th>Cantidad</th>
@@ -39,6 +40,7 @@
         <tbody>
             {% for item in items %}
             <tr id="item-{{ item.id }}">
+                <td>{{ item.sales_order_item.sap_code }}</td>
                 <td>{{ item.sales_order_item.description }}</td>
                 <td>{{ item.notes }}</td>
                 <td>{{ item.quantity_requested }}</td>
