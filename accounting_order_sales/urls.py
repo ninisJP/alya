@@ -2,6 +2,7 @@ from django.urls import path
 from accounting_order_sales.forms import supplier_autocomplete
 from .views import delete_purchase_order, purchase_renditions, purchase_conciliations, salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder, edit_purchase_order, general_purchaseorder, quick_create_purchaseorder, petty_cash, index_bank,edit_bank,delete_bank,bank_statements,BankStatementUploadView, AccountingRequirementOrderListView, accounting_requirement_order_detail_view, update_requirement_order_items, update_requirement_order_state, report_conciliations, update_field
 from . import views
+from . import views_bank
 
 urlpatterns = [
     path("", salesorder, name='salesorder' ),
@@ -60,6 +61,9 @@ htmxurlpatters = [
     path('assign_bank_statement/<int:item_id>/<int:statement_id>/', views.assign_bank_statement, name='assign_bank_statement'),
 
 
+    # Bank
+    path('banks/loan/', views_bank.loan_main, name='bank_loan_index'),
+    path('banks/loan/new/', views_bank.loan_new, name='bank_loan_new'),
 ]
 
 urlpatterns += htmxurlpatters

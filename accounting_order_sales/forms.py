@@ -1,10 +1,14 @@
 from django import forms
+
 from .models import SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem,Bank, CollectionOrders
+
 from django.forms import inlineformset_factory
 from django.http import JsonResponse
 from django import forms
 from logistic_suppliers.models import Suppliers
 from django.urls import reverse_lazy
+
+from . import models
 
 class SupplierSelect2Widget(forms.Select):
     class Media:
@@ -32,7 +36,7 @@ class SalesOrderForm(forms.ModelForm):
     date = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Seleccione una fecha'})
     )
-    
+
     class Meta:
         model = SalesOrder
         fields = ["sapcode", "project", "detail", "date"]
@@ -122,8 +126,34 @@ class CollectionOrdersForm(forms.ModelForm):
     class Meta:
         model = CollectionOrders
         fields = [
-            'orden_venta', 'serie_correlativo', 'fecha_emision', 'cliente', 
-            'ruc_cliente', 'tipo_moneda', 'descripcion', 'importe_total', 
-            'detraccion', 'monto_neto_cobrar', 'total_cuotas', 'fecha_vencimiento', 
+            'orden_venta', 'serie_correlativo', 'fecha_emision', 'cliente',
+            'ruc_cliente', 'tipo_moneda', 'descripcion', 'importe_total',
+            'detraccion', 'monto_neto_cobrar', 'total_cuotas', 'fecha_vencimiento',
             'tipo_cobro', 'desc_factoring', 'extracto_banco', 'factura_pagado'
         ]
+
+class BankLoanForm(forms.ModelForm):
+    class Meta:
+        model = models.BankLoan
+        fields = ('start_date', 'desembols_date', 'bank', 'currency', 'cuotas', 'document', 'total_debt', 'credit_type')
+
+        labels = {
+                'start_date'    : 'Fecha de inicio (2024-12-20)',
+                'desembols_date': 'Fecha de desembolso (2024-12-20)',
+                'bank'          : 'Banco',
+                'currency'      : 'Moneda (USD, PEN)',
+                'cuotas'        : 'Cuotas',
+                'document'      : 'Documento asociado',
+                'total_debt'    : 'Deuda total',
+                'credit_type'   : 'Tipo de credito',
+        }
+
+class LoanPaymentForm(forms.ModelForm):
+    class Meta:
+        model = models.LoanPayment
+        fields = ('amount', 'pay_date')
+
+        labels = {
+                'amount'    : 'Monto',
+                'pay_date'  : 'Fecha de pago',
+        }
