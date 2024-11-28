@@ -51,6 +51,21 @@ def salesorder(request):
     context = {'form': SalesOrderForm(), 'salesorders': salesorders} 
     return render(request, 'salesorder/sales_index.html', context)
 
+def salesorder_search(request):
+    query = request.GET.get('q', '')  # Obtener la consulta de búsqueda desde el request
+    
+    # Si hay una búsqueda, filtrar las órdenes de venta basadas en la consulta
+    if query:
+        salesorders = SalesOrder.objects.filter(
+            Q(sapcode__icontains=query) | Q(project__name__icontains=query) | Q(detail__icontains=query)
+            ).order_by('-id')
+    else:
+        salesorders = SalesOrder.objects.all().order_by('-id')  # Mostrar todas las órdenes de venta si no hay búsqueda
+    
+    context = {'salesorders': salesorders , 'form': SalesOrderForm()}
+    # Devolver solo el fragmento de la lista
+    return render(request, 'salesorder/salesorder-list.html', context)
+
 def create_salesorder(request):
     if request.method == 'POST':
         form = SalesOrderForm(request.POST)
