@@ -24,7 +24,6 @@ from datetime import date, datetime, timedelta
 from .forms import ReciboSunatForm
 from django.db.models import Sum
 
-
 def crear_cronograma(request):
     if request.method == "POST":
         # Modifica esta línea para incluir request.FILES
@@ -43,7 +42,6 @@ def ver_pagos_cronograma(request, cronograma_id):
     return render(
         request, "ver_pagos_cronograma.html", {"cronograma": cronograma, "pagos": pagos}
     )
-
 
 def pagos_cronograma(request, cronograma_id):
     pagos = PagoCronograma.objects.filter(cronograma_id=cronograma_id)
@@ -276,7 +274,6 @@ def cambiar_pdf_pago_sunat(request, pk):
 
 
 #### CRONOGRAMA SEMAFORO
-# * combinar esta vista
 def cronograma_semaforo(request):
     if request.method == 'POST':
         form = ReciboSunatForm(request.POST, request.FILES)

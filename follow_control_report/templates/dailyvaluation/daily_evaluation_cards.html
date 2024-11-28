@@ -88,6 +88,7 @@
                                                     <th>Tarea</th>
                                                     <th>Orden de Venta</th>
                                                     <th>Tiempo</th>
+                                                    <th>Marcado</th>
                                                     <th>Estado</th>
                                                 </tr>
                                             </thead>
@@ -97,6 +98,8 @@
                                                     <td><strong>{{ task_order.task.verb }}</strong> {{ task_order.task.object }}</td>
                                                     <td>{{ task_order.task.sale_order.detail }}</td>
                                                     <td>{{ task_order.task.task_time }} {{ task_order.task.measurement }}</td>
+                                                    <td>{{ task_order.executed_at|date:"H:i" }}</td>
+
                                                     <td>
                                                         {% if task_order.state %}
                                                             <span class="text-success">Completada</span>
