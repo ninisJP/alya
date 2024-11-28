@@ -84,19 +84,18 @@ class Task(models.Model):
         verbose_name = "Tarea"
         verbose_name_plural = "Tareas"
 
-
 class CardTaskOrder(models.Model):
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     order = models.PositiveSmallIntegerField()
     state = models.BooleanField(default=False)
+    executed_at = models.DateTimeField(null=True, blank=True)  # Fecha de ejecución opcional
 
     class Meta:
         ordering = ['order']
-
-    class Meta:
         verbose_name = "Orden de Tarjeta-Tarea"
-        verbose_name_plural = "Ordenes de Tarjetas-Tareas"
+        verbose_name_plural = "Órdenes de Tarjetas-Tareas"
+
         
 class TaskExecution(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='executions')

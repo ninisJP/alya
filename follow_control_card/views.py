@@ -10,6 +10,8 @@ from .forms import TaskForm
 from .models import Card, Task, CardTaskOrder
 from .utils import get_max_order
 from django.db.models import Q
+from django.utils import timezone
+
 
 
 class DailyCardList(ListView):
@@ -160,13 +162,18 @@ def sort_tasks(request):
 def toggle_task_state(request, pk):
     task_order = get_object_or_404(CardTaskOrder, pk=pk, card__user=request.user)
     task_order.state = not task_order.state
+
+    # Registrar la fecha de ejecución si se marca como completada
+    task_order.executed_at = timezone.now() if task_order.state else None
     task_order.save()
 
     # Actualizar la valoración de la Card
     card = task_order.card
     card.update_valuation()
+    print(task_order.executed_at)
 
     return HttpResponse(status=204)
+
 
 
 # Iniciamos vista y metodos HTMX para tareas
