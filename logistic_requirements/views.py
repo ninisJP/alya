@@ -92,7 +92,6 @@ def requirement_order_detail_view(request, pk):
         'filtrar': filtrar,
     })
 
-
 @require_POST
 def update_requirement_order_items(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
@@ -110,11 +109,16 @@ def update_requirement_order_items(request, pk):
     # Usar bulk_update para mejorar el rendimiento
     RequirementOrderItem.objects.bulk_update(updated_items, ['quantity_requested', 'price', 'notes', 'supplier_id', 'estado'])
 
+    # Recalcular remaining_requirement para todos los sales_order_items relacionados
+    for item in updated_items:
+        item.sales_order_item.update_remaining_requirement()
+
     # Retornar el mensaje directamente en HTML
     return HttpResponse(
         '<div class="alert alert-success" role="alert">Items actualizados con éxito</div>',
         status=200
     )
+
 
 def create_purchase_order(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
