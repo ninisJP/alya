@@ -20,7 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #DJANGO BROWSER RELOAD
+    #DJANGO BROWSER RELOA
     #"django_browser_reload",
     'django_htmx',
     'rest_framework',
