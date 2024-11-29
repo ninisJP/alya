@@ -64,6 +64,9 @@ htmxurlpatters = [
     # Bank
     path('banks/loan/', views_bank.loan_main, name='bank_loan_index'),
     path('banks/loan/new/', views_bank.loan_new, name='bank_loan_new'),
+    path('banks/loan/new/coutas/<int:couta_id>/', views_bank.loan_edit_coutas, name='bank_loan_form_coutas'),
+    path('banks/loan/see/<int:loan_id>/', views_bank.loan_see, name='bank_loan_see'),
+    path('banks/loan/pay/<int:loan_id>/', views_bank.loan_pay, name='bank_loan_pay'),
 ]
 
 urlpatterns += htmxurlpatters

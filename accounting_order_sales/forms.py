@@ -157,3 +157,20 @@ class LoanPaymentForm(forms.ModelForm):
                 'amount'    : 'Monto',
                 'pay_date'  : 'Fecha de pago',
         }
+
+class PartialPaymentForm(forms.ModelForm):
+    class Meta:
+        model = models.PartialPayment
+        fields = ('loan_payment', 'partial_amount', 'receipt', 'receipt_date')
+        labels = {
+                'loan_payment'  : 'Cuota',
+                'partial_amount': 'Monto',
+                'receipt'       : 'Recibo',
+                'receipt_date'  : 'Fecha',
+        }
+
+    def __init__(self, *args, **kwargs):
+        loan = kwargs.pop('loan')
+        super(PartialPaymentForm, self).__init__(*args, **kwargs)
+
+        self.fields['loan_payment'].queryset = models.LoanPayment.objects.filter(loan=loan, is_paid=False)

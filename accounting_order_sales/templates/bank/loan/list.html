@@ -5,24 +5,36 @@
             <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
                 <thead class="table-dark custom-thead-rounded">
                     <tr>
-                        <th colspan="10">Prestamos Bancarios</th>
+                        <th colspan="10">Creditos</th>
                     </tr>
                     <tr>
                         <th>Fecha de inicio</th>
                         <th>Fecha de desembolso</th>
                         <th>Banco</th>
-                        <th>Cuotas</th>
+                        <th>Cuotas (Pagadas/Total)</th>
                         <th>Total de deuda</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item in loan_bank %}
-                        <tr class="rounded-3">
+                    {% for item in loan_credito %}
+                        <tr>
                             <td>{{ item.start_date }}</td>
                             <td>{{ item.desembols_date }}</td>
                             <td>{{ item.bank }}</td>
-                            <td>{{ item.cuotas }}</td>
+                            <td>{{ item.coutes_paid }}/{{ item.cuotas }}</td>
                             <td>{{ item.total_debt }}</td>
+                            <td>
+                                <button hx-get="{% url 'bank_loan_see' item.id %}"
+                                        hx-target="#bank_windows"
+                                        hx-swap="outerHTML"
+                                        class="btn btn-primary">Detalles</button>
+                                <button hx-get="{% url 'bank_loan_pay' item.id %}"
+                                        hx-target="#bank_windows"
+                                        hx-swap="outerHTML"
+                                        class="btn btn-primary">Pagar</button>
+                            </td>
+                            </td>
                         </tr>
                     {% empty %}
                         <tr class="bg-red-200 text-red-700">
@@ -34,6 +46,44 @@
         </div>
     </div>
     <div class="column">
-        n1ni2
+        <!-- Purchase items -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+                <thead class="table-dark custom-thead-rounded">
+                    <tr>
+                        <th colspan="10">Prestamos</th>
+                    </tr>
+                    <tr>
+                        <th>Fecha de inicio</th>
+                        <th>Fecha de desembolso</th>
+                        <th>Banco</th>
+                        <th>Cuotas (Pagadas/Total)</th>
+                        <th>Total de deuda</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in loan_prestamo %}
+                        <tr class="rounded-3">
+                            <td>{{ item.start_date }}</td>
+                            <td>{{ item.desembols_date }}</td>
+                            <td>{{ item.bank }}</td>
+                            <td>{{ item.coutes_paid }}/{{ item.cuotas }}</td>
+                            <td>{{ item.total_debt }}</td>
+                            <td>
+                                <button hx-get="{% url 'bank_loan_see' item.id %}"
+                                        hx-target="#bank_windows"
+                                        hx-swap="outerHTML"
+                                        class="btn btn-primary">Detalles</button>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr class="bg-red-200 text-red-700">
+                            <td colspan="10" >No hay coincidencias</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

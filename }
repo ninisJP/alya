@@ -89,20 +89,22 @@ def save_pay(form):
 	list_pay = []
 
 	loan_payment = form.cleaned_data['loan_payment']
-	now_payment = form.cleaned_data['partial_amount']
 
-	total_pay = now_payment
+	total_pay = 0
 	for individual_pay in models.PartialPayment.objects.filter(loan_payment=loan_payment):
 		total_pay += individual_pay.partial_amount
 
 	if loan_payment.amount < total_pay :
 		return status
 
-	form.save()
 	# Complete
 	if loan_payment.amount == total_pay :
+		print("completo")
 		loan_payment.is_paid = True
 		loan_payment.save()
+		return status
 
-	status = "yes"
+	status = yes
+
+
 	return status
