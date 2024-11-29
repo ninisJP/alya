@@ -22,13 +22,13 @@
                         </form>
                     </div>
                     <!-- Botón para redirigir a la página de etiquetado de tareas -->
-<div class="row justify-content-end">
-    <div class="col-auto">
-        <a href="{% url 'label_tasks' %}" class="btn btn-secondary btn-sm">
-            Etiquetar Tareas
-        </a>
-    </div>
-</div>
+                    <div class="row justify-content-end">
+                        <div class="col-auto">
+                            <a href="{% url 'label_tasks' %}" class="btn btn-secondary btn-sm">
+                                Etiquetar Tareas
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Tabla -->
@@ -42,7 +42,6 @@
                                 <th class="bg-dark text-light">Trabajado</th>
                                 <th class="bg-dark text-light">Eficiencia (%)</th>
                                 <th class="bg-dark text-light">Evaluación</th>
-
                             </tr>
                         </thead>
                         <tbody>
@@ -67,7 +66,6 @@
                                         {{ card.efficiency_percentage|floatformat:2 }}%
                                     </span>
                                 </td>
-
                                 <td>
                                     <span class="badge p-2 
                                         {% if card.valuation == "SS" or card.valuation == "A" %} bg-success 
@@ -76,7 +74,6 @@
                                         {{ card.valuation }}
                                     </span>
                                 </td>
-
                             </tr>
                             <!-- Tareas asociadas -->
                             <tr class="collapse bg-light" id="tasks{{ card.id }}">
@@ -87,7 +84,7 @@
                                                 <tr>
                                                     <th>Tarea</th>
                                                     <th>Orden de Venta</th>
-                                                    <th>Tiempo</th>
+                                                    <th>Horas</th> <!-- Columna combinada de hora de inicio y fin -->
                                                     <th>Marcado</th>
                                                     <th>Estado</th>
                                                 </tr>
@@ -97,9 +94,13 @@
                                                 <tr class="bg-white">
                                                     <td><strong>{{ task_order.task.verb }}</strong> {{ task_order.task.object }}</td>
                                                     <td>{{ task_order.task.sale_order.detail }}</td>
-                                                    <td>{{ task_order.task.task_time }} {{ task_order.task.measurement }}</td>
+                                                    <td>
+                                                        <!-- Badge con hora de inicio y fin -->
+                                                        <span class="badge bg-primary p-2">
+                                                            {{ task_order.start_time }} - {{ task_order.end_time }}
+                                                        </span>
+                                                    </td>
                                                     <td>{{ task_order.executed_at|date:"H:i" }}</td>
-
                                                     <td>
                                                         {% if task_order.state %}
                                                             <span class="text-success">Completada</span>
@@ -110,7 +111,7 @@
                                                 </tr>
                                                 {% empty %}
                                                 <tr>
-                                                    <td colspan="4" class="text-center text-dark">No hay tareas asociadas.</td>
+                                                    <td colspan="5" class="text-center text-dark">No hay tareas asociadas.</td>
                                                 </tr>
                                                 {% endfor %}
                                             </tbody>
@@ -153,4 +154,3 @@
     });
 </script>
 {% endblock %}
-

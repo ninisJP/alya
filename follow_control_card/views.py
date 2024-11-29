@@ -48,7 +48,7 @@ def add_daily_task(request):
     user = request.user
     verb = request.POST.get('taskname', '')
     object_ = request.POST.get('object', '')
-    sale_order_id = request.POST.get('sale_order', '')  # Asegúrate de que el name en el formulario es "sale_order"
+    sale_order_id = request.POST.get('sale_order', '')
     measurement = request.POST.get('measurement', 'minutos')
     task_time = request.POST.get('task_time', None)
     card_id = request.POST.get('card_id')
@@ -73,14 +73,20 @@ def add_daily_task(request):
 
     # Obtener el orden máximo actual para las tareas en esta tarjeta
     max_order = get_max_order(card)
-    CardTaskOrder.objects.create(task=daily_task, card=card, order=max_order)
+    card_task_order = CardTaskOrder.objects.create(task=daily_task, card=card, order=max_order)
 
-    # Volver a cargar las tareas ordenadas para la tarjeta
+    # Calcular las horas de inicio y fin de esta tarea
+    card.calculate_start_times()  # Llamamos al método para calcular las horas
+
+    # Ahora podemos imprimir las horas de inicio y fin para todas las tareas de esta tarjeta
     tasks_ordered = CardTaskOrder.objects.filter(card=card).order_by('order').select_related('task')
-    daily_tasks = tasks_ordered
 
+    # Mostrar las horas de inicio y fin para cada tarea
+    for task_order in tasks_ordered:
+        print(f"Tarea: {task_order.task.verb} | Inicio: {task_order.start_time} | Fin: {task_order.end_time}")
+    
     # Renderizar la lista actualizada de tareas
-    return render(request, 'partials/daily-task-list.html', {'daily_tasks': daily_tasks, 'card_id': card.id})
+    return render(request, 'partials/daily-task-list.html', {'daily_tasks': tasks_ordered, 'card_id': card.id})
 
 
 @require_http_methods(['DELETE'])

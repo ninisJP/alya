@@ -31,6 +31,8 @@
                     <span class="badge bg-success">Listo</span>
                 {% elif item.estado == 'P' %}
                     <span class="badge bg-warning">Pendiente</span>
+                {% elif item.estado == 'E' %}
+                    <span class="badge bg-warning">Enviado</span>
                 {% elif item.estado == 'C' %}
                     <span class="badge bg-info">Comprando</span>
                     {% elif item.estado == 'R' %}
