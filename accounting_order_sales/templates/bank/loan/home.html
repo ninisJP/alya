@@ -1,0 +1,39 @@
+<style>
+    .row {
+        display: flex;
+    }
+
+    .column {
+        flex: 40%;
+    }
+</style>
+
+<div class="container-fluid ">
+    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+        <div class="card-body text-center py-2">
+            <h1 class="mb-0">Añadir Prestamo Bancario</h1>
+        </div>
+    </div>
+
+    <div id="bank_loan_bank_forms" class="w-100">
+        {% include 'bank/loan/form.html' %}
+    </div>
+
+    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+        <div class="card-body text-center py-2">
+            <h1 class="mb-0">Búsqueda de Prestamos</h1>
+        </div>
+    </div>
+
+    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+        <div class="card-body text-center py-2">
+            <h1 class="mb-0">Lista de Prestamos</h1>
+        </div>
+    </div>
+
+    <ul id="bank_loan_list" class="mt-8 space-y-4">
+        {% include 'bank/loan/list.html' %}
+    </ul>
+
+    </div>
+</div>

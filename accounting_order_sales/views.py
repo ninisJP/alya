@@ -48,7 +48,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 def salesorder(request):
     salesorders = SalesOrder.objects.all().order_by("-id")
-    context = {'form': SalesOrderForm(), 'salesorders': salesorders} 
+    context = {'form': SalesOrderForm(), 'salesorders': salesorders}
     return render(request, 'salesorder/sales_index.html', context)
 
 def salesorder_search(request):
@@ -87,7 +87,7 @@ def edit_salesorder(request, salesorder_id):
         form = SalesOrderForm(request.POST, instance=salesorder)
         if form.is_valid():
             form.save()
-            salesorders = SalesOrder.objects.all().order_by("-id") 
+            salesorders = SalesOrder.objects.all().order_by("-id")
             return render(request, 'salesorder/salesorder-list.html', {'salesorders': salesorders})
     return HttpResponse(status=405)
 
@@ -95,7 +95,7 @@ def delete_salesorder(request, salesorder_id):
     salesorder = get_object_or_404(SalesOrder, id=salesorder_id)
     if request.method == 'DELETE':
         salesorder.delete()
-        salesorders = SalesOrder.objects.all().order_by("-id") 
+        salesorders = SalesOrder.objects.all().order_by("-id")
         return render(request, 'salesorder/salesorder-list.html', {'salesorders': salesorders})
     return HttpResponse(status=405)
 
@@ -143,7 +143,7 @@ def quick_create_purchaseorder(request, salesorder_id):
         quantity_requested = int(request.POST.get("quantity_requested"))
 
         sales_order_item = get_object_or_404(SalesOrderItem, id=item_id)
-        
+
         # Creamos la PurchaseOrder basada en los detalles del SalesOrder
         purchase_order = PurchaseOrder.objects.create(
             salesorder=salesorder,
@@ -218,13 +218,13 @@ def edit_purchase_order(request, order_id):
 
         if order_form.is_valid() and item_formset.is_valid():
             order_form.save()
-            
+
             # Guardar cada ítem y recalcular el price_total
             items = item_formset.save(commit=False)
             for item in items:
                 item.price_total = item.price * item.quantity_requested  # Recalcular
                 item.save()
-            
+
             return render(request, 'purchaseorder/purchaseorder_partial.html', {'order': order})
     else:
         order_form = PurchaseOrderForm(instance=order)
@@ -240,14 +240,14 @@ def delete_purchase_order(request, order_id):
     # Obtener y eliminar la orden de compra
     order = get_object_or_404(PurchaseOrder, id=order_id)
     order.delete()
-    
+
     # Retornar un mensaje simple en HTML
     return HttpResponse('<div class="alert alert-success">Orden de compra eliminada con éxito. Si quieres crear una orden nueva, tendrás que hacerlo desde el pedido.</div>', content_type="text/html")
 
-# Bank 
+# Bank
 def index_bank(request):
     if request.method == 'POST':
-        form = BankForm(request.POST)  
+        form = BankForm(request.POST)
         if form.is_valid():
             print("Formulario válido. Banco:", form.cleaned_data.get('bank_name'))
             form.save()
@@ -275,17 +275,17 @@ def index_bank(request):
 
 def edit_bank(request, bank_id):
     bank = get_object_or_404(Bank, id=bank_id)
-    
+
     if request.method == 'POST':
         form = BankForm(request.POST, instance=bank)
         if form.is_valid():
             bank = form.save()
 
-            if request.headers.get('HX-Request'): 
+            if request.headers.get('HX-Request'):
                 banks = Bank.objects.all().order_by('-id')
                 return render(request, 'bank/bank_list.html', {'bank': bank, 'banks': banks})
 
-            return redirect('bank_index')  
+            return redirect('bank_index')
 
         if request.headers.get('HX-Request'):  # Manejar los errores en HTMX
             return HttpResponse("Error en el formulario", status=400)
@@ -294,18 +294,18 @@ def edit_bank(request, bank_id):
 
     # Corregir aquí asegurándonos de pasar el objeto `bank` al contexto
     form = BankForm(instance=bank)
-    banks = Bank.objects.all().order_by('-id')  
+    banks = Bank.objects.all().order_by('-id')
     context = {
         'form': form,
         'banks': banks,
-        'bank': bank 
+        'bank': bank
     }
     return render(request, 'bank/bank_edit.html', context)
 
 # Bank Delete
 def delete_bank(request, bank_id):
     bank = get_object_or_404(Bank, id=bank_id)
-    
+
     if request.method == 'POST':
         bank.delete()
 
@@ -532,7 +532,7 @@ class AccountingRequirementOrderListView(ListView):
     def get_queryset(self):
         # Obtiene el parámetro "filter" desde la URL
         filter_type = self.request.GET.get('filter', 'no_revisado')
-        
+
         if filter_type == 'all':
             # Si el filtro es "all", retorna todas las órdenes
             return RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
@@ -558,7 +558,7 @@ def update_requirement_order_items(request, pk):
     new_state = request.POST.get('requirement_order_state')
     if new_state in dict(RequirementOrder.STATE_CHOICES):
         requirement_order.state = new_state
-        
+
     # Recorrer los ítems de la orden y actualizar con los datos recibidos del request.POST
     for item in requirement_order.items.all():
         item.quantity_requested = request.POST.get(f'quantity_requested_{item.id}', item.quantity_requested)
@@ -568,7 +568,7 @@ def update_requirement_order_items(request, pk):
         item.estado = request.POST.get(f'estado_{item.id}', item.estado)
         item.save()
         updated_items.append(item)
-    
+
     requirement_order.save()
 
     return JsonResponse({'message': 'Elementos actualizados con éxito'}, status=200)
@@ -583,7 +583,7 @@ def create_purchase_order(request, pk):
 
     # Filtrar los ítems que están en estado "C"
     items_comprando = RequirementOrderItem.objects.filter(requirement_order=requirement_order, estado='C')
-    
+
     if not items_comprando.exists():
         error_message = "<div>No hay ítems en estado 'Comprando' para crear una Orden de Compra.</div>"
         return HttpResponse(error_message, content_type="text/html")
@@ -753,7 +753,7 @@ def add_rendition(request):
     amount = request.POST.get('amount')
     series = request.POST.get('series')  # Obtener la serie del formulario
     correlative = request.POST.get('correlative')  # Obtener el correlativo del formulario
-    date = request.POST.get('date') 
+    date = request.POST.get('date')
     photo = request.FILES.get('photo')
 
 
@@ -864,7 +864,7 @@ def delete_collection_order(request, collection_order_id):
 # Editar una orden de cobro
 def edit_collection_order(request, collection_order_id):
     collection_order = get_object_or_404(CollectionOrders, pk=collection_order_id)
-    
+
     if request.method == 'POST':
         form = CollectionOrdersForm(request.POST, instance=collection_order)
         if form.is_valid():
@@ -872,25 +872,10 @@ def edit_collection_order(request, collection_order_id):
             return redirect(reverse('collection_orders', kwargs={'salesorder_id': collection_order.orden_venta.id}))
     else:
         form = CollectionOrdersForm(instance=collection_order)
-    
+
     context = {
         'form': form,
         'collection_order': collection_order,
     }
-    
+
     return render(request, 'collectionorders/edit_collection_order.html', context)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
