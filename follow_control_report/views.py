@@ -35,37 +35,30 @@ def valuations_view(request, year, month):
     })
 
 def daily_evaluation_cards(request):
-    # Obtener la fecha desde los parámetros GET
     date = request.GET.get('date')
 
-    # Si no se pasa una fecha, usar la fecha actual como predeterminada
     if not date:
         date = dt.today().strftime('%Y-%m-%d')
 
-    # Filtrar las tarjetas por la fecha proporcionada, incluyendo un conteo de tareas
     cards = Card.objects.filter(date=date).annotate(task_count=Count('cardtaskorder'))
 
-    # Pasar las tarjetas y la fecha al template
     context = {
         'cards': cards,
         'selected_date': date,
     }
     return render(request, 'dailyvaluation/daily_evaluation_cards.html', context)
 
-# Nueva vista para etiquetar las tareas
 def label_tasks(request):
     if request.method == 'POST':
-        tasks = Task.objects.all()  # Obtenemos todas las tareas
+        tasks = Task.objects.all()  
 
-        # Etiquetar cada tarea
         results = []
         for task in tasks:
             label = label_task_as_routine(task)
-            task.label = label  # Asignamos la etiqueta al campo
-            task.save()  # Guardamos la etiqueta en la base de datos
+            task.label = label 
+            task.save() 
             results.append({'task': task.verb, 'label': label})
 
-        # Pasamos los resultados a la plantilla
         return render(request, 'label_results.html', {'results': results})
 
     return render(request, 'label_tasks.html')

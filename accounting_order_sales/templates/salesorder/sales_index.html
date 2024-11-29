@@ -1,34 +1,18 @@
-<!-- salesorder/sales_index.html -->
+<!-- sales_index.html -->
 {% extends 'base_accounting.html' %}
+
 {% block content %}
-
-<style>
-    .badge-custom {
-        padding: 0.25em 0.4em;
-        font-size: 75%;
-        font-weight: 700;
-        line-height: 1;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: baseline;
-        border-radius: 0.2rem;
-        color: #fff;
-    }
-    .badge-edit { background-color: #ffc107; }
-    .badge-create { background-color: #28a745; }
-    .badge-items { background-color: #007bff; }
-    .badge-shopping { background-color: #6f42c1; }
-    .badge-payment { background-color: #17a2b8; }
-    .badge-details { background-color: #20c997; }
-    .badge-receipt { background-color: #fd7e14; }
-    .badge-delete { background-color: #dc3545; }
-
-
-</style>
 <div class="salesorder-container">
     <div id="salesorder-forms">
         {% include 'salesorder/salesorder-form.html' %}
     </div>
-</div>
 
+    <!-- La lista de ventas se renderiza aquí y se actualiza con HTMX -->
+    <form hx-get="{% url 'salesorder-search' %}" hx-target="#salesorder-list" hx-trigger="keyup delay:0.2s" hx-debounce="500ms">
+        <input type="text" name="q" placeholder="Buscar por SAP,Projecto, Detalle" class="form-control" id="search-input">
+    </form>
+    <div id="salesorder-list">
+        {% include 'salesorder/salesorder-list.html' %}
+    </div>
+</div>
 {% endblock %}

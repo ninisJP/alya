@@ -7,6 +7,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
             <h1 class="display-6 text-dark">Detalle del Pedido</h1>
             <div class="d-flex align-items-center">
+                {% comment %} <button class="btn btn-primary" id="exportToExcel">Exportar a Excel</button> {% endcomment %}
                 {% if order.estado %}
                     <span class="badge bg-success fs-5 me-3">Listo</span>
                 {% else %}

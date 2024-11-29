@@ -56,7 +56,7 @@ class SalesOrderItem(models.Model):
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     unit_of_measurement = models.CharField(max_length=255, default="UND")
     remaining_requirement = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    category = models.CharField(max_length=100, default="") 
+    category = models.CharField(max_length=100, default="")
     custom_quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Nuevo campo
     custom_price_per_hour = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)  # Nuevo campo
 
@@ -277,12 +277,17 @@ class BankLoan(models.Model):
     CREDIT_TYPE_CHOICES = [
         ('prestamo', 'Prestamo'),
         ('credito', 'Credito'),
+        ('leasen', 'Leasen'),
     ]
+
+    class Currency(models.TextChoices):
+        USD = 'Dolares'
+        PEN = 'Soles'
 
     start_date = models.DateField()  # Fecha de inicio del préstamo
     desembols_date = models.DateField()  # Fecha de desembolso
     bank = models.CharField(max_length=100)  # Nombre del banco
-    currency = models.CharField(max_length=10)  # Moneda (ej. "USD", "PEN")
+    currency = models.CharField(max_length=10, choices=Currency.choices, default=Currency.PEN) # Moneda (ej. "USD", "PEN")
     cuotas = models.PositiveIntegerField()  # Número total de cuotas
     document = models.FileField(upload_to='documents/', blank=True, null=True)  # Documento asociado
     total_debt = models.DecimalField(max_digits=12, decimal_places=2)

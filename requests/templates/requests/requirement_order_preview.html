@@ -2,8 +2,16 @@
     <h5>Detalles de la Orden</h5>
     <table class="table table-bordered">
         <tr>
-            <th>Orden de Venta:</th>
+            <th>SAP CODE:</th>
             <td>{{ order.sales_order.sapcode }}</td>
+        </tr>
+        <tr>
+            <th>Orden de Venta:</th>
+            <td>{{ order.sales_order.detail }}</td>
+        </tr>
+        <tr>
+            <th>Detalles:</th>
+            <td>{{ order.notes }}</td>
         </tr>
         <tr>
             <th>Fecha Solicitada:</th>
@@ -14,8 +22,30 @@
             <td>{{ order.created_at|date:"d/m/Y" }}</td>
         </tr>
         <tr>
+            <th>Aprobado:</th>
+            <td>
+                {% if order.state == 'APROBADO' %}
+                    <span>Aprobado</span>
+                {% elif order.state == 'RECHAZADO' %}
+                    <span>Rechazado</span>
+                {% else %}
+                    <span>No revisado</span>
+                {% endif %}
+            </td>        
+        </tr>
+        <tr>
             <th>Estado:</th>
-            <td>{{ order.get_state_display }}</td>
+            <td>
+                {% if order.estado %}
+                    <span>Listo</span>
+                {% else %}
+                    <span>Pendiente</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Usuario:</th>
+            <td>{{ order.user.username }}</td>
         </tr>
         <tr>
             <th>Total:</th>
@@ -29,6 +59,7 @@
     <table class="table table-bordered text-center">
         <thead class="table-dark">
             <tr>
+                <th>SAP CODE</th>
                 <th>Item</th>
                 <th>Info</th>
                 <th>Cantidad</th>
@@ -39,6 +70,7 @@
         <tbody>
             {% for item in items %}
             <tr id="item-{{ item.id }}">
+                <td>{{ item.sales_order_item.sap_code }}</td>
                 <td>{{ item.sales_order_item.description }}</td>
                 <td>{{ item.notes }}</td>
                 <td>{{ item.quantity_requested }}</td>
