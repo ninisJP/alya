@@ -30,3 +30,79 @@ def loan_new(form):
 		load_coute.save()
 
 	return 0, loan
+
+def get_all_loan():
+	context = {}
+	loan_credito = list(models.BankLoan.objects.filter(credit_type='credito'))
+	loan_prestamo = models.BankLoan.objects.filter(credit_type='prestamo')
+
+	list_prestamo = []
+	for item in loan_prestamo :
+		loan = (item.__dict__)
+		payments = 0
+		for pay in models.LoanPayment.objects.filter(loan=item) :
+			if pay.is_paid:
+				payments += 1
+		loan["coutes_paid"] = payments
+		list_prestamo.append(loan)
+
+	list_credito = []
+	for item in loan_credito :
+		loan = (item.__dict__)
+		payments = 0
+		for pay in models.LoanPayment.objects.filter(loan=item) :
+			if pay.is_paid:
+				payments += 1
+		loan["coutes_paid"] = payments
+		list_credito.append(loan)
+
+	context["loan_credito"] = list_credito
+	context["loan_prestamo"] = list_prestamo
+	return context
+
+def get_all_pay(loan):
+	payment = models.LoanPayment.objects.filter(loan=loan, is_paid=False)
+	context = {}
+
+	list_pay = []
+	for item in payment :
+		pay = (item.__dict__)
+		total_pay = 0
+
+		for individual_pay in models.PartialPayment.objects.filter(loan_payment=item):
+			total_pay += individual_pay.partial_amount
+
+		error = False
+		if item.amount < total_pay :
+			error = True
+		pay["total"] = total_pay
+		pay["error"] = error
+		list_pay.append(pay)
+
+	context["loan_cuota"] = list_pay
+
+	return context
+
+def save_pay(form):
+	status = "no"
+
+	list_pay = []
+
+	loan_payment = form.cleaned_data['loan_payment']
+	now_payment = form.cleaned_data['partial_amount']
+
+	total_pay = now_payment
+	for individual_pay in models.PartialPayment.objects.filter(loan_payment=loan_payment):
+		total_pay += individual_pay.partial_amount
+
+	if loan_payment.amount < total_pay :
+		return status
+
+	form.save()
+	# Complete
+	if loan_payment.amount == total_pay :
+		loan_payment.is_paid = True
+		loan_payment.save()
+
+	status = "yes"
+	return status

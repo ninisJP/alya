@@ -1,0 +1,29 @@
+{% extends "base_budget.html" %}
+
+{% block title %}Eliminar Presupuesto{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-2">
+    <div class="card shadow-sm w-100">
+        <div class="card-header bg-danger text-white">
+            <h2 class="m-0">Eliminar Presupuesto</h2>
+        </div>
+        <div class="card-body">
+            <p class="lead">¿Estás seguro de que deseas eliminar el presupuesto <strong>"{{ budget.client }} - {{ budget.budget_name }}"</strong>?</p>
+            <p class="text-muted">Esta acción no se puede deshacer.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex flex-row mt-4">
+                    <button type="submit" class="btn btn-danger me-2">Eliminar</button>
+                    <div>
+                        <a href="{% url 'detail_commercial_budget' budget.id %}" class="btn btn-warning me-2">Cancelar y regresar a detalle</a>
+                        <a href="{% url 'index_budget_commercial' %}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

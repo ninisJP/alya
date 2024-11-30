@@ -13,7 +13,9 @@ from logistic_suppliers.models import Suppliers
 from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
 from .forms import RequirementOrderForm, RequirementOrderItemFormSet
 from .models import RequirementOrder, RequirementOrderItem
-
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .models import RequirementOrderItem
 
 # Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente o todas las órdenes sin filtros
 class RequirementOrderListView(ListView):
@@ -22,18 +24,28 @@ class RequirementOrderListView(ListView):
     context_object_name = 'requirement_orders'
 
     def get_queryset(self):
-        # Revisar si el parámetro GET "show_all" está presente
-        show_all = self.request.GET.get('show_all') == 'true'
+        # Obtener los parámetros de los filtros
+        show_pending = self.request.GET.get('show_pending') == 'true'
+        show_comprando = self.request.GET.get('show_comprando') == 'true'
         
-        if show_all:
-            # Si show_all es true, retornar todas las órdenes sin filtros
-            queryset = RequirementOrder.objects.all().order_by('-id').prefetch_related('items')
-        else:
-            # Filtrar solo órdenes aprobadas con al menos un ítem en estado Pendiente
-            queryset = RequirementOrder.objects.filter(
-                state='APROBADO',
+        # Iniciar queryset con todas las órdenes APROBADAS por contabilidad
+        queryset = RequirementOrder.objects.filter(state='APROBADO').order_by('-id').prefetch_related('items')
+        
+        if show_pending and show_comprando:
+            # Mostrar solo las órdenes con ítems en estado Pendiente o Comprando
+            queryset = queryset.filter(
+                items__estado__in=['P', 'C']
+            ).distinct()
+        elif show_pending:
+            # Mostrar solo las órdenes con ítems en estado Pendiente
+            queryset = queryset.filter(
                 items__estado='P'
-            ).distinct().order_by('-id').prefetch_related('items')
+            ).distinct()
+        elif show_comprando:
+            # Mostrar solo las órdenes con ítems en estado Comprando
+            queryset = queryset.filter(
+                items__estado='C'
+            ).distinct()
         
         # Calcular el estado general de cada orden
         for order in queryset:
@@ -59,6 +71,7 @@ class RequirementOrderListView(ListView):
                 order.global_state = "Completado"  # Si no hay items pendientes, listos o comprando
 
         return queryset
+
 
 def requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
@@ -197,12 +210,6 @@ def requirement_order_approved_list(request):
     }
 
     return render(request, 'requirements_approved/requirement_order_approved_list.html', context)
-
-
-    
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from .models import RequirementOrderItem
 
 @require_POST
 def update_approved_items(request):

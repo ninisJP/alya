@@ -70,22 +70,29 @@
             <strong>Nota:</strong> Si tu orden de requerimiento no está aquí, es porque no está aprobada por contabilidad.
         </div>
         <div class="d-flex align-items-center">
-            <!-- Enlace al listado de items aprobados -->
+            <!-- Enlace al listado de ítems aprobados -->
             <a href="{% url 'requirement_order_approved_list' %}" class="btn btn-outline-primary">
                 <i class="fas fa-tasks"></i> Listado de items Aprobadas
             </a>
-            <!-- Botón para alternar entre ver todo y solo aprobados con pendientes -->
-            {% if request.GET.show_all == 'true' %}
-                <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-primary ms-3">
-                    <i class="fas fa-filter"></i> Mostrar Solo Pendientes
+            <!-- Botones para alternar entre los tres filtros -->
+            <div class="btn-group ms-3">
+                <!-- Mostrar todo -->
+                <!-- Mostrar solo pendientes -->
+                <a href="{% url 'requirement_order_list' %}?show_pending=true" class="btn btn-outline-primary">
+                    <i class="fas fa-filter"></i> Mostrar Pendientes
                 </a>
-            {% else %}
-                <a href="{% url 'requirement_order_list' %}?show_all=true" class="btn btn-outline-primary ms-3">
+                <!-- Mostrar pendientes y comprando -->
+                <a href="{% url 'requirement_order_list' %}?show_pending=true&show_comprando=true" class="btn btn-outline-primary">
+                    <i class="fas fa-filter"></i> Mostrar Pendientes y Comprando
+                </a>
+                <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-primary">
                     <i class="fas fa-list"></i> Mostrar Todo
                 </a>
-            {% endif %}
+            </div>
         </div>
     </div>
+    
+    
 
     <!-- Tabla de órdenes -->
     <div class="table-responsive">
@@ -99,7 +106,7 @@
                     <th>F. Solicitada</th>
                     <th>F. Creada</th>
                     <th>Detalles</th>
-                    <th>Aprobado por Contabilidad</th>
+                    <th>Validado</th>
                     <th>Estado de Ítems</th>
                     <th>Acciones</th>
                 </tr>
@@ -142,12 +149,12 @@
                                 <i class="fas fa-file-excel"></i> Exportar Excel
                             </a>
 
-                            <button hx-get="{% url 'requirement_order_detail_partial' order.id %}"
+                            {% comment %} <button hx-get="{% url 'requirement_order_detail_partial' order.id %}"
                                     hx-target="#order-details-{{ order.id }}"
                                     hx-swap="outerHTML"
                                     class="btn btn-warning btn-sm">
                                 <i class="fas fa-info-circle"></i> Previsualizar
-                            </button>
+                            </button> {% endcomment %}
                             {% if order.state == "APROBADO" %}
                                 <a href="{% url 'requirement_order_detail' order.id %}?filtrar=P" class="btn btn-info btn-sm">
                                     <i class="fas fa-info-circle"></i> Detalles

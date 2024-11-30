@@ -65,7 +65,9 @@
                                     <td>{{ form.supplier|add_class:"form-control select2" }}</td>
                                     <td>{{ form.price|add_class:"form-control text-center" }}</td>
                                     <td>{{ form.notes|add_class:"form-control" }}</td>
-                                    <td>{{ form.quantity_requested|add_class:"form-control text-center quantity-input" |attr:"min:1" }}</td>
+                                    <td>
+                                        {{ form.quantity_requested|add_class:"form-control text-center quantity-input" |attr:"min:0.01" }}
+                                    </td>
                                     <td>{{ form.file_attachment|add_class:"form-control" }}</td>
                                     <td class="text-center" style="width: 1px; white-space: nowrap;">
                                         <button type="button" class="btn btn-danger btn-sm" onclick="removeForm(this)">
@@ -161,6 +163,20 @@ function removeForm(btn) {
     var formCount = formsetTbody.querySelectorAll('tr').length;
     totalForms.value = formCount;
 }
+
+// Validación adicional en JavaScript para asegurarse que las cantidades no sean menores a 0.01
+document.querySelector('form').addEventListener('submit', function(event) {
+    var quantityInputs = document.querySelectorAll('.quantity-input');
+    for (var input of quantityInputs) {
+        var value = parseFloat(input.value);
+        if (value < 0.01) {
+            event.preventDefault();
+            alert('La cantidad solicitada debe ser mayor que 0.');
+            input.focus();
+            return false;
+        }
+    }
+});
 </script>
 
 <!-- Formulario vacío para clonar -->
@@ -170,7 +186,9 @@ function removeForm(btn) {
         <td>{{ formset.empty_form.supplier|add_class:"form-control select2" }}</td>
         <td>{{ formset.empty_form.price|add_class:"form-control text-center" }}</td>
         <td>{{ formset.empty_form.notes|add_class:"form-control" }}</td>
-        <td>{{ formset.empty_form.quantity_requested|add_class:"form-control text-center quantity-input" |attr:"min:1" }}</td>
+        <td>
+            {{ formset.empty_form.quantity_requested|add_class:"form-control text-center quantity-input" |attr:"min:0.01" }}
+        </td>
         <td>{{ formset.empty_form.file_attachment|add_class:"form-control" }}</td>
         <td class="text-center" style="width: 1px; white-space: nowrap;">
             <button type="button" class="btn btn-danger btn-sm" onclick="removeForm(this)">

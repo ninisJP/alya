@@ -96,15 +96,15 @@
               hx-target="#response-message"
               hx-swap="innerHTML"
               id="requirement-order-form">
-            <table class="table table-bordered table-hover align-middle w-100">
+              <table class="table table-bordered table-hover align-middle w-100">
                 <thead class="table-dark">
                     <tr>
                         <th style="width: 80px;">SAP</th>
-                        <th style="width: 100px;">CATEGORÍA</th> <!-- Categoría movida después de SAP -->
+                        <th style="width: 100px;">CATEGORÍA</th>
                         <th style="width: 200px;">ITEM</th>
                         <th style="width: 250px;">DETALLE</th>
                         <th style="width: 100px;">UND</th>
-                        <th style="width: 100px;">CANT U.</th> <!-- Ancho incrementado -->
+                        <th style="width: 100px;">CANT U.</th>
                         <th style="width: 100px;">CANT H.</th>
                         <th style="width: 80px;">STOCK</th>
                         {% if not filtrar == 'P' %}
@@ -114,6 +114,7 @@
                         <th style="width: 150px;">PROVEEDOR</th>
                         <th style="width: 60px;">DOC</th>
                         <th style="width: 100px;">ESTADO</th>
+                        <th style="width: 100px;">PAGADO</th> <!-- Nueva columna para "Pagado" -->
                     </tr>
                 </thead>
                 <tbody>
@@ -125,8 +126,8 @@
                         <td>
                             <input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control" style="min-height: 50px;">
                         </td>
-                        <td>{{ item.sales_order_item.unit_of_measurement }}</td> <!-- UND no editable -->
-                        <td>{{ item.quantity_requested }}</td> <!-- CANT U no editable -->
+                        <td>{{ item.sales_order_item.unit_of_measurement }}</td>
+                        <td>{{ item.quantity_requested }}</td>
                         <td>
                             {% if item.sales_order_item.custom_quantity %}
                                 {{ item.sales_order_item.custom_quantity }} hrs
@@ -167,10 +168,19 @@
                                 <button type="button" class="btn btn-sm {% if item.estado == 'R' %}btn-danger{% else %}btn-outline-danger{% endif %}" onclick="setEstado('{{ item.id }}', 'R')">R</button>
                             </div>
                         </td>
+                        <td>
+                            <!-- Mostrar si el item está pagado o no -->
+                            {% if item.is_paid %}
+                                <span class="badge bg-success">Pagado</span>
+                            {% else %}
+                                <span class="badge bg-danger">No Pagado</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            
 
             <div id="response-message" class="alert-message mt-2"></div>
 

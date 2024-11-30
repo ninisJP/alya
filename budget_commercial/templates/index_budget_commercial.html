@@ -58,13 +58,10 @@
                             <td>{{ budget.budget_date }}</td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a href="" class="btn btn-info btn-sm" title="Ver detalles">
+                                    <a href="{% url 'detail_commercial_budget' budget.id %}" class="btn btn-info btn-sm" title="Ver detalles">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="" class="btn btn-warning btn-sm" title="Duplicar">
-                                        <i class="fas fa-copy"></i>
-                                    </a>
-                                    <a href="" class="btn btn-danger btn-sm" title="Eliminar">
+                                    <a href="{% url 'delete_commercial_budget' budget.id %}" class="btn btn-danger btn-sm" title="Eliminar">
                                         <i class="fas fa-trash-alt"></i>
                                     </a>
                                 </div>

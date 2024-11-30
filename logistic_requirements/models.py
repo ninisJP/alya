@@ -1,5 +1,5 @@
 from django.db import models
-from accounting_order_sales.models import SalesOrder, SalesOrderItem
+from accounting_order_sales.models import PurchaseOrderItem, SalesOrder, SalesOrderItem
 from django.utils import timezone
 from django.contrib.auth.models import User
 from logistic_suppliers.models import Suppliers
@@ -87,6 +87,17 @@ class RequirementOrderItem(models.Model):
     )
 
     @property
+    def is_paid(self):
+        """Método para obtener el estado de pago del PurchaseOrderItem relacionado con el SalesOrderItem."""
+        try:
+            purchase_order_item = self.sales_order_item.purchaseorderitem_set.first()  # Suponiendo una relación inversa
+            if purchase_order_item:
+                return purchase_order_item.payment_status == 'Pagado'
+        except PurchaseOrderItem.DoesNotExist:
+            return False
+        return False
+
+    @property
     def remaining_quantity(self):
         """Cantidad restante por enviar."""
         sent_quantity = self.exitguideitem_set.aggregate(
@@ -129,6 +140,8 @@ class RequirementOrderItem(models.Model):
     @property
     def total_price(self):
         return self.price * self.quantity_requested
+    
+    
 
     class Meta:
         verbose_name = "Item Orden de Requerimiento"
