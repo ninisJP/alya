@@ -2,8 +2,11 @@ from collections import defaultdict
 from django.shortcuts import get_object_or_404, render, redirect
 from .forms import CommercialBudgetForm, CommercialBudgetItemFormSet
 from .models import CommercialBudget
+from django.contrib import messages
+
 
 def index_budget_commercial(request):
+    """Renderiza la pagina principal del budget_commercial"""
     budgets = CommercialBudget.objects.all()
     return render(request, 'index_budget_commercial.html', {'budgets': budgets})
 
@@ -50,5 +53,14 @@ def create_commercial_budget(request):
         'form': form,
         'formset': formset,
     })
+    
+def delete_commercial_budget(request, pk):
+    budget = get_object_or_404(CommercialBudget, pk=pk)
 
+    if request.method == 'POST':
+        budget.delete()
+        messages.success(request, 'El presupuesto ha sido eliminado exitosamente.')
+        return redirect('index_budget_commercial')  # Redirigir a la lista de presupuestos
+
+    return render(request, 'commercial_budget/delete_commercial_budget.html', {'budget': budget})
 
