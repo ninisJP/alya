@@ -50,6 +50,8 @@
                 <thead class="table-dark">
                     <tr>
                         <th>SAP CODE</th>
+                        <th>O. Venta</th>
+                        <th>Pedido</th>
                         <th>Fecha Solicitada</th>
                         <th>Fecha de Creación</th>
                         <th>Aprobado</th>
@@ -62,6 +64,8 @@
                     {% for order in my_orders %}
                     <tr id="order-{{ order.id }}">
                         <td>{{ order.sales_order.sapcode }}</td>
+                        <td>{{ order.sales_order.detail }}</td>
+                        <td>{{ order.notes }}</td>
                         <td>{{ order.requested_date }}</td>
                         <td>{{ order.created_at|date:"d/m/Y" }}</td>
                         <td>
