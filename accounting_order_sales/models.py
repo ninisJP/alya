@@ -300,7 +300,7 @@ class LoanPayment(models.Model):
     is_paid = models.BooleanField(default=False)  # Indicador de si está pagada o no
 
     def __str__(self):
-        return f"Cuota de {self.amount} para préstamo {self.loan}"
+        return f"Cuota del {self.pay_date} de {self.amount}"
 
 class PartialPayment(models.Model):
     loan_payment = models.ForeignKey(LoanPayment, on_delete=models.CASCADE, related_name="partial_payments")
