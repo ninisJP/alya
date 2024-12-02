@@ -1,61 +1,83 @@
 {% load widget_tweaks %}
 
-<div class="custom-card mb-4">
-    <div class="custom-card-header bg-dark text-white p-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Detalles del Prestamo#{{ loan.id }}</h4>
-        </div>
-    </div>
-    <div class="p-4">
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <p><strong>Banco:</strong> {{ loan.bank }}</p>
-                <p><strong>Tipo de crédito:</strong> {{ loan.credit_type }}</p>
-                <p><strong>Moneda:</strong> {{ loan.currency }}</p>
-            </div>
-            <div class="col-md-6 mb-4">
-                <p><strong>Fecha de inicio:</strong> {{ loan.start_date }}</p>
-                <p><strong>Fecha de desembolso:</strong> {{ loan.desembols_date }}</p>
-            </div>
-            <div class="col-md-6 mb-4">
-                <p><strong>Total de la deuda:</strong> {{ loan.total_debt }}</p>
-                <p><strong>Numero de cuotas:</strong> {{ loan.cuotas }}</p>
+<div id="bank_loan_window" class="w-100">
+
+    <div class="custom-card mb-4">
+        <div class="custom-card-header bg-dark text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Detalles del Prestamo#{{ loan.id }}</h4>
             </div>
         </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <p><strong>Banco:</strong> {{ loan.bank }}</p>
+                    <p><strong>Tipo de crédito:</strong> {{ loan.credit_type }}</p>
+                    <p><strong>Moneda:</strong> {{ loan.currency }}</p>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <p><strong>Fecha de inicio:</strong> {{ loan.start_date }}</p>
+                    <p><strong>Fecha de desembolso:</strong> {{ loan.desembols_date }}</p>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <p><strong>Total de la deuda:</strong> {{ loan.total_debt }}</p>
+                    <p><strong>Numero de cuotas:</strong> {{ loan.cuotas }}</p>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+            <thead class="table-dark custom-thead-rounded">
+                <tr>
+                    <th colspan="10">cuotas</th>
+                </tr>
+                <tr>
+                    <th>Monto Actual/Total</th>
+                    <th>fecha a pagar</th>
+                    <th>¿pagado?</th>
+                    <th>¿Exceso de pago?</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in loan_cuota %}
+                    <tr>
+                        <td>{{ item.total }}/{{ item.amount }}</td>
+                        <td>{{ item.pay_date }}</td>
+                        <td>
+                            {% if item.is_paid %}
+                                <span class="badge bg-success text-white rounded-pill px-2 py-1">
+                                    {{ budget.budget_days }} SI
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger text-white rounded-pill px-2 py-1">
+                                    {{ budget.budget_days }} NO
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.error %}
+                                <span class="badge bg-danger text-white rounded-pill px-2 py-1">
+                                    {{ budget.budget_days }} SI
+                                </span>
+                            {% else %}
+                                <span class="badge bg-success text-white rounded-pill px-2 py-1">
+                                    {{ budget.budget_days }} No
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    <button hx-get="{% url 'bank_loan_index' %}"
+        hx-target="#bank_loan_window"
+        hx-swap="outerHTML"
+        class="btn btn-primary">Atrás</button>
+
 </div>
 
-<div class="table-responsive">
-    <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
-        <thead class="table-dark custom-thead-rounded">
-            <tr>
-                <th colspan="10">cuotas</th>
-            </tr>
-            <tr>
-                <th>Monto Actual/Total</th>
-                <th>fecha a pagar</th>
-                <th>¿pagado?</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in loan_cuota %}
-                <tr>
-                    <td>{{ item.total }}/{{ item.amount }}</td>
-                    <td>{{ item.pay_date }}</td>
-                    <td>
-                        {% if item.is_paid %}
-                            <span class="badge bg-danger text-white rounded-pill px-2 py-1">
-                                {{ budget.budget_days }} NO
-                            </span>
-                        {% else %}
-                            <span class="badge bg-success text-white rounded-pill px-2 py-1">
-                                {{ budget.budget_days }} SI
-                            </span>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-</div>

@@ -1,5 +1,29 @@
 {% load widget_tweaks %}
 <div id="bank_loan_forms" class="w-100">
+    <div class="custom-card mb-4">
+        <div class="custom-card-header bg-dark text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Detalles del Prestamo#{{ loan.id }}</h4>
+            </div>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <p><strong>Banco:</strong> {{ loan.bank }}</p>
+                    <p><strong>Tipo de crédito:</strong> {{ loan.credit_type }}</p>
+                    <p><strong>Moneda:</strong> {{ loan.currency }}</p>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <p><strong>Fecha de inicio:</strong> {{ loan.start_date }}</p>
+                    <p><strong>Fecha de desembolso:</strong> {{ loan.desembols_date }}</p>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <p><strong>Total de la deuda:</strong> {{ loan.total_debt }}</p>
+                    <p><strong>Numero de cuotas:</strong> {{ loan.cuotas }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <form hx-post="{% url 'bank_loan_pay' loan.id %}" hx-target="#bank_loan_forms" hx-swap="innerHTML" class="w-100m b-5 p-4 border rounded shadow-sm">
         {% csrf_token %}
@@ -22,7 +46,7 @@
             </div>
 
             <div class="col-4 col-md-2 ml-8 d-flex align-items-end d-flex justify-content-start">
-                <button type="submit" class="btn btn-primary">Agregar Prestamo</button>
+                <button type="submit" class="btn btn-primary">Agregar Pago</button>
             </div>
         </div>
     </form>
@@ -64,9 +88,13 @@
                         <td>{{ item.total }}/{{ item.amount }}</td>
                         <td>
                             {% if item.error %}
-                                SI
+                                <span class="badge bg-danger text-white rounded-pill px-2 py-1">
+                                    {{ budget.budget_days }} SI
+                                </span>
                             {% else %}
-                                No
+                                <span class="badge bg-success text-white rounded-pill px-2 py-1">
+                                    {{ budget.budget_days }} No
+                                </span>
                             {% endif %}
                         </td>
                     </tr>
@@ -74,5 +102,10 @@
             </tbody>
         </table>
     </div>
+
+    <button hx-get="{% url 'bank_loan_index' %}"
+        hx-target="#bank_loan_forms"
+        hx-swap="outerHTML"
+        class="btn btn-primary">Atrás</button>
 
 </div>
