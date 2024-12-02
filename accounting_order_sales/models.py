@@ -284,9 +284,10 @@ class BankLoan(models.Model):
         USD = 'Dolares'
         PEN = 'Soles'
 
-    start_date = models.DateField()  # Fecha de inicio del préstamo
-    desembols_date = models.DateField()  # Fecha de desembolso
-    bank = models.CharField(max_length=100)  # Nombre del banco
+    start_date = models.DateField() # Fecha de inicio del préstamo
+    desembols_date = models.DateField() # Fecha de desembolso
+    bank = models.CharField(max_length=100) # Nombre del banco
+    detail = models.CharField(max_length=100) # Detalles
     currency = models.CharField(max_length=10, choices=Currency.choices, default=Currency.PEN) # Moneda (ej. "USD", "PEN")
     cuotas = models.PositiveIntegerField()  # Número total de cuotas
     document = models.FileField(upload_to='documents/', blank=True, null=True) # Documento asociado

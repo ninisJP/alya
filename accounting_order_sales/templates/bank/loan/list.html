@@ -10,6 +10,7 @@
                     <th>Fecha de inicio</th>
                     <th>Fecha de desembolso</th>
                     <th>Banco</th>
+                    <th>Detalles</th>
                     <th>Pagado</th>
                     <th>Cuotas (Pagadas/Total)</th>
                     <th>Total de deuda</th>
@@ -22,6 +23,7 @@
                         <td>{{ item.start_date }}</td>
                         <td>{{ item.desembols_date }}</td>
                         <td>{{ item.bank }}</td>
+                        <td>{{ item.detail }}</td>
                         <td>
                             {% if item.is_paid %}
                                 <span class="badge bg-success text-white rounded-pill px-2 py-1">
@@ -66,6 +68,7 @@
                     <th>Fecha de inicio</th>
                     <th>Fecha de desembolso</th>
                     <th>Banco</th>
+                    <th>Detalles</th>
                     <th>Pagado</th>
                     <th>Cuotas (Pagadas/Total)</th>
                     <th>Total de deuda</th>
@@ -78,6 +81,7 @@
                         <td>{{ item.start_date }}</td>
                         <td>{{ item.desembols_date }}</td>
                         <td>{{ item.bank }}</td>
+                        <td>{{ item.detail }}</td>
                         <td>
                             {% if item.is_paid %}
                                 <span class="badge bg-success text-white rounded-pill px-2 py-1">

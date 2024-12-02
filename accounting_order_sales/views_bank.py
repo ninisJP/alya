@@ -55,19 +55,19 @@ def loan_new(request):
 def loan_edit_coutas(request, couta_id):
 	couta = get_object_or_404(models.LoanPayment, id=couta_id)
 
+	context = {}
 	if request.method == 'POST':
 		form = forms.LoanPaymentForm(request.POST, instance=couta)
 		status_save_item = 'no'
 		if form.is_valid():
-			print("valid")
-			form.save()
-			# Save and render
-			status_save_item = 'yes'
-			return render(request, 'bank/loan/status.html', {'status_save_item': status_save_item })
-		print("no valid")
-		return render(request, 'bank/loan/status.html', {'status_save_item': status_save_item })
+			status_save_item, context_items = utils_bank.save_edit_coutas(form, couta)
+			context.update(context_items)
+			context['status_save_item'] = status_save_item
+			return render(request, 'bank/loan/status.html', context)
+		context['status_save_item'] = status_save_item
+		return render(request, 'bank/loan/status.html', context)
 
-	return render(request, 'bank/loan/status.html', {})
+	return render(request, 'bank/loan/status.html', context)
 
 def loan_see(request, loan_id):
 	loan = get_object_or_404(models.BankLoan, id=loan_id)

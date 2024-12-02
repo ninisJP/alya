@@ -31,6 +31,37 @@ def loan_new(form):
 
 	return 0, loan
 
+def save_edit_coutas(form, couta):
+	context = {}
+	status = "no"
+	form.save()
+
+	new_amount = form.cleaned_data['amount']
+
+	# Get all amount
+	total_pay_calculate = 0
+	for individual_pay in models.LoanPayment.objects.filter(loan=couta.loan):
+		total_pay_calculate += individual_pay.amount
+
+	total_pay = couta.loan.total_debt
+
+	context['total_pay_calculate'] = total_pay_calculate
+	context['total_pay'] = total_pay
+
+	diff = abs(total_pay - total_pay_calculate)/total_pay
+	# Max porcentage to variation
+	context['total_pay_status'] = 0
+	context['total_pay_variation'] = int(diff*100)
+	if diff > 0.20 :
+		status = "exceso"
+		context['total_pay_status'] = 20
+		return status, context
+	elif diff > 0.1 :
+		context['total_pay_status'] = 10
+
+	status = "yes"
+	return status, context
+
 def classify_loan(all_models):
 	context = {}
 	loan_credito = all_models.filter(credit_type='credito')
