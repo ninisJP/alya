@@ -1,32 +1,13 @@
-<div class="container-fluid">
-    <!-- Nota en amarillo -->
-    <div class="alert-custom-warning d-flex justify-content-between align-items-center">
-        <div>
-            <strong>Nota:</strong> Si tu orden de requerimiento no está aquí, es porque no está aprobada por contabilidad.
-        </div>
-        <div class="d-flex align-items-center">
-            <!-- Enlace al listado de ítems aprobados -->
-            <a href="{% url 'requirement_order_approved_list' %}" class="btn btn-outline-primary">
-                <i class="fas fa-tasks"></i> Listado de items Aprobadas
-            </a>
-            <!-- Botones para alternar entre los tres filtros -->
-            <div class="btn-group ms-3">
-                <!-- Mostrar todo -->
-                <!-- Mostrar solo pendientes -->
-                <a href="{% url 'requirement_order_list' %}?show_pending=true" class="btn btn-outline-primary">
-                    <i class="fas fa-filter"></i> Mostrar Pendientes
-                </a>
-                <!-- Mostrar pendientes y comprando -->
-                <a href="{% url 'requirement_order_list' %}?show_pending=true&show_comprando=true" class="btn btn-outline-primary">
-                    <i class="fas fa-filter"></i> Mostrar Pendientes y Comprando
-                </a>
-                <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-primary">
-                    <i class="fas fa-list"></i> Mostrar Todo
-                </a>
-            </div>
-        </div>
-    </div>
+<!-- CSS de DataTables -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 
+<!-- jQuery (requerido por DataTables) -->
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- JS de DataTables -->
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+<div class="container-fluid">
 
     <!-- Tabla de órdenes -->
     <div class="table-responsive">
@@ -46,64 +27,75 @@
                 </tr>
             </thead>
             <tbody>
-                {% for order in requirement_orders %}
-                <tr>
-                    <td>{{ order.order_number }}</td>
-                    <td>{{ order.sales_order.sapcode }}</td>
-                    <td>{{ order.sales_order.project.name }}</td>
-                    <td>{{ order.sales_order.project.client.legal_name }}</td>
-                    <td>
-                        {% with order.requested_date|date:"l" as day %}
-                            <span class="badge bg-info">{{ day }}</span> {{ order.requested_date|date:"d F Y" }}
-                        {% endwith %}
-                    </td>
-                    <td>{{ order.created_at }}</td>
-                    <td>{{ order.notes }}</td>
-                    <td>
-                        {% if order.state == "NO REVISADO" %}
-                            <span class="badge bg-warning text-dark">No Revisado</span>
-                        {% elif order.state == "APROBADO" %}
-                            <span class="badge bg-success">Aprobado</span>
-                        {% elif order.state == "RECHAZADO" %}
-                            <span class="badge bg-danger">Rechazado</span>
-                        {% else %}
-                            <span class="badge bg-secondary">{{ order.state }}</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if order.global_state == "Listo" %}
-                            <span class="badge bg-success">Listo</span>
-                        {% elif order.global_state == "Comprando" %}
-                            <span class="badge bg-primary">Comprando</span>
-                        {% elif order.global_state == "Pendiente" %}
-                            <span class="badge bg-warning text-dark">Pendiente</span>
-                        {% else %}
-                            <span class="badge bg-secondary">{{ order.global_state }}</span>
-                        {% endif %}
-                    </td>                   
-                    <td>
-                        <div class="btn-group" role="group">
-                            <a href="{% url 'export_order_to_excel' order.id %}" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-file-excel"></i> Exportar Excel
-                            </a>
-
-                            {% comment %} <button hx-get="{% url 'requirement_order_detail_partial' order.id %}"
-                                    hx-target="#order-details-{{ order.id }}"
-                                    hx-swap="outerHTML"
-                                    class="btn btn-warning btn-sm">
-                                <i class="fas fa-info-circle"></i> Previsualizar
-                            </button> {% endcomment %}
-                            {% if order.state == "APROBADO" %}
-                                <a href="{% url 'requirement_order_detail' order.id %}?filtrar=P" class="btn btn-info btn-sm">
-                                    <i class="fas fa-info-circle"></i> Detalles
-                                </a>
-                            {% endif %}    
-                        </div>
-                    </td>
-                </tr>
-                <tr id="order-details-{{ order.id }}"></tr>
-                {% endfor %}
-            </tbody>            
+                {% if requirement_orders %}
+                    {% for order in requirement_orders %}
+                        <tr>
+                            <td>{{ order.order_number }}</td>
+                            <td>{{ order.sales_order.sapcode }}</td>
+                            <td>{{ order.sales_order.project.name }}</td>
+                            <td>{{ order.sales_order.project.client.legal_name }}</td>
+                            <td>
+                                {% with order.requested_date|date:"l" as day %}
+                                    <span class="badge bg-info">{{ day }}</span> {{ order.requested_date|date:"d F Y" }}
+                                {% endwith %}
+                            </td>
+                            <td>{{ order.created_at }}</td>
+                            <td>{{ order.notes }}</td>
+                            <td>
+                                {% if order.state == "NO REVISADO" %}
+                                    <span class="badge bg-warning text-dark">No Revisado</span>
+                                {% elif order.state == "APROBADO" %}
+                                    <span class="badge bg-success">Aprobado</span>
+                                {% elif order.state == "RECHAZADO" %}
+                                    <span class="badge bg-danger">Rechazado</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ order.state }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if order.global_state == "Listo" %}
+                                    <span class="badge bg-success">Listo</span>
+                                {% elif order.global_state == "Comprando" %}
+                                    <span class="badge bg-primary">Comprando</span>
+                                {% elif order.global_state == "Pendiente" %}
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ order.global_state }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'export_order_to_excel' order.id %}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-file-excel"></i> Exportar Excel
+                                    </a>
+                                    {% if order.state == "APROBADO" %}
+                                        <a href="{% url 'requirement_order_detail' order.id %}?filtrar=P" class="btn btn-info btn-sm">
+                                            <i class="fas fa-info-circle"></i> Detalles
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="10">No se encontraron resultados para la búsqueda.</td>
+                    </tr>
+                {% endif %}
+            </tbody>                        
         </table>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        // Inicializa DataTables en la tabla
+        var table = $('table').DataTable({
+            "responsive": true,  // Hace que la tabla sea responsiva
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.11.5/i18n/Spanish.json"  // Configura el idioma a español
+            },
+            "pageLength": 50,  // Muestra 50 registros por página
+        });
+    });
+</script>

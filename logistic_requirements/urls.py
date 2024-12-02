@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     path('requirement-orders/', RequirementOrderListView.as_view(), name='requirement_order_list'),
-    path('requirement/search/', search_requirement_order_list_view, name='requirement-order-search'),  # URL para la búsqueda
+    path('requirement-orders/search/', search_requirement_order_list_view, name='requirement-order-search'),  # URL para la búsqueda
     path('requirement-orders-approved/', requirement_order_approved_list, name='requirement_order_approved_list'),
     path('requirement-order-detail-partial/<int:pk>/', requirement_order_detail_partial, name='requirement_order_detail_partial'),
     path('requirement-order/detail/<int:pk>/', requirement_order_detail_view, name='requirement_order_detail'),

@@ -74,17 +74,19 @@ class RequirementOrderListView(ListView):
 
 
 def search_requirement_order_list_view(request):
-	query = request.GET.get('q','')
+    query = request.GET.get('q', '')
+    print(f"Search Query: {query}")  # Agregar log
 
-	if query:
-		requirement_order = RequirementOrder.objects.filter(Q(notes__icontains=query)
-		).order_by('-id')
-	else:
-		requirement_order = RequirementOrder.objects.all().order_by('-id')
+    if query:
+        requirement_orders = RequirementOrder.objects.filter(Q(order_number__icontains=query) | Q(estado__icontains=query)
+                                                            | Q(notes__icontains=query)).order_by('-id')
+    else:
+        requirement_orders = RequirementOrder.objects.all().order_by('-id')
+    
+    print(requirement_orders)
 
-	context = {'requiment_order':'requirement_order','form' : RequirementOrderListForm()}
-
-	return render(request, 'requirement_order_list.html' , context)
+    context = {'requirement_orders': requirement_orders, 'form': RequirementOrderListForm()}
+    return render(request, 'requirement_order_list.html', context)
 
 def requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)

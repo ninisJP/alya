@@ -19,7 +19,7 @@ class RequirementOrderListForm(forms.ModelForm):
 	
 	class Meta:
 		model = RequirementOrder
-		fields = ['notes']         
+		fields = ['order_number','notes', 'estado']         
 
 
 # Formulario para RequirementOrderItem
