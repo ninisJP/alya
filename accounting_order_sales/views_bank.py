@@ -40,10 +40,13 @@ def loan_new(request):
 			return render(request, 'bank/loan/form_cuotas.html', context)
 
 		context['status'] = status
-	loan = models.BankLoan.objects.all()
+
+	context_items = utils_bank.get_all_loan()
+	context.update(context_items)
+
 	form = forms.BankLoanForm()
-	context['loan_bank'] = loan
 	context['form'] = form
+
 	return render(request, 'bank/loan/home.html', context)
 
 def loan_edit_coutas(request, couta_id):
@@ -53,20 +56,24 @@ def loan_edit_coutas(request, couta_id):
 		form = forms.LoanPaymentForm(request.POST, instance=couta)
 		status_save_item = 'no'
 		if form.is_valid():
+			print("valid")
 			form.save()
 			# Save and render
 			status_save_item = 'yes'
-			return render(request, 'bank/loan/status.html', {'status_save_item ': status_save_item })
-		return render(request, 'bank/loan/status.html', {'status_save_item ': status_save_item })
+			return render(request, 'bank/loan/status.html', {'status_save_item': status_save_item })
+		print("no valid")
+		return render(request, 'bank/loan/status.html', {'status_save_item': status_save_item })
 
 	return render(request, 'bank/loan/status.html', {})
 
 def loan_see(request, loan_id):
 	loan = get_object_or_404(models.BankLoan, id=loan_id)
-	loan_payment = models.LoanPayment.objects.filter(loan=loan)
 	context = {}
+
+	context_items = utils_bank.get_all_pay(loan, all_pay=True)
+	context.update(context_items)
+
 	context["loan"] = loan
-	context["loan_cuota"] = loan_payment
 	return render(request, 'bank/loan/see.html', context)
 
 def loan_pay(request, loan_id):

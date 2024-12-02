@@ -60,8 +60,10 @@ def get_all_loan():
 	context["loan_prestamo"] = list_prestamo
 	return context
 
-def get_all_pay(loan):
+def get_all_pay(loan, all_pay=False):
+
 	payment = models.LoanPayment.objects.filter(loan=loan, is_paid=False)
+
 	context = {}
 
 	list_pay = []
@@ -78,6 +80,22 @@ def get_all_pay(loan):
 		pay["total"] = total_pay
 		pay["error"] = error
 		list_pay.append(pay)
+
+	if all_pay:
+		payment = models.LoanPayment.objects.filter(loan=loan, is_paid=True)
+		for item in payment :
+			pay = (item.__dict__)
+			total_pay = 0
+
+			for individual_pay in models.PartialPayment.objects.filter(loan_payment=item):
+				total_pay += individual_pay.partial_amount
+
+			error = False
+			if item.amount < total_pay :
+				error = True
+			pay["total"] = total_pay
+			pay["error"] = error
+			list_pay.append(pay)
 
 	context["loan_cuota"] = list_pay
 
@@ -106,3 +124,4 @@ def save_pay(form):
 
 	status = "yes"
 	return status
+

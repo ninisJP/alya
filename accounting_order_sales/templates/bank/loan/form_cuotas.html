@@ -1,61 +1,66 @@
 {% load widget_tweaks %}
 
-<div class="custom-card mb-4">
-    <div class="custom-card-header bg-dark text-white p-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Detalles del Prestamo#{{ loan.id }}</h4>
-        </div>
-    </div>
-    <div class="p-4">
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <p><strong>Banco:</strong> {{ loan.bank }}</p>
-                <p><strong>Tipo de crédito:</strong> {{ loan.credit_type }}</p>
-                <p><strong>Moneda:</strong> {{ loan.currency }}</p>
-            </div>
-            <div class="col-md-6 mb-4">
-                <p><strong>Fecha de inicio:</strong> {{ loan.start_date }}</p>
-                <p><strong>Fecha de desembolso:</strong> {{ loan.desembols_date }}</p>
-            </div>
-            <div class="col-md-6 mb-4">
-                <p><strong>Total de la deuda:</strong> {{ loan.total_debt }}</p>
-                <p><strong>Numero de cuotas:</strong> {{ loan.cuotas }}</p>
+<div id="bank_loan_windows" class="w-100">
+    <div class="custom-card mb-4">
+        <div class="custom-card-header bg-dark text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Detalles del Prestamo#{{ loan.id }}</h4>
             </div>
         </div>
-    </div>
-</div>
-
-<div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
-    <div class="card-body text-center py-2">
-        <h1 class="mb-0">Cuotas</h1>
-    </div>
-</div>
-
-<div class="table-responsive">
-    {% for item in loan_payment %}
-        <div id="item-{{ item.id }}">
-        <form hx-post="{% url 'bank_loan_form_coutas' item.id %}" hx-target="#item-status" hx-swap="innerHTML" hx-trigger="keyup delay:0.2s" class="w-100m b-5 p-4 border rounded shadow-sm">
-            {% csrf_token %}
-        <table>
-        <tbody>
-        <tr>
-        <th>
-            <label for="{{ item.form.amount.id_for_label }}" > Monto {{ item.form.amount.label}}: </label>
-            {{ item.form.amount }}
-        </th>
-        <th>
-            <label for="{{ item.form.pay_date.id_for_label }}" > {{ item.form.pay_date.label}}: </label>
-            {{ item.form.pay_date }}
-        </th>
-        </tr>
-        </tbody>
-        </table>
-        </form>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <p><strong>Banco:</strong> {{ loan.bank }}</p>
+                    <p><strong>Tipo de crédito:</strong> {{ loan.credit_type }}</p>
+                    <p><strong>Moneda:</strong> {{ loan.currency }}</p>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <p><strong>Fecha de inicio:</strong> {{ loan.start_date }}</p>
+                    <p><strong>Fecha de desembolso:</strong> {{ loan.desembols_date }}</p>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <p><strong>Total de la deuda:</strong> {{ loan.total_debt }}</p>
+                    <p><strong>Numero de cuotas:</strong> {{ loan.cuotas }}</p>
+                </div>
+            </div>
         </div>
-    {% endfor %}
-</div>
-</div>
+    </div>
 
-<div id="item-status">
+    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
+        <div class="card-body text-center py-2">
+            <h1 class="mb-0">Cuotas</h1>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        {% for item in loan_payment %}
+            <div id="item-{{ item.id }}">
+                <form hx-post="{% url 'bank_loan_form_coutas' item.id %}" hx-target="#item-status" hx-swap="innerHTML" hx-trigger="keyup delay:0.2s" class="w-100m b-5 p-4 border rounded shadow-sm">
+                    {% csrf_token %}
+                <table>
+                <tbody>
+                <tr>
+                <th>
+                    <label for="{{ item.form.amount.id_for_label }}" > Monto {{ item.form.amount.label}}: </label>
+                    {{ item.form.amount }}
+                </th>
+                <th>
+                    <label for="{{ item.form.pay_date.id_for_label }}" > {{ item.form.pay_date.label}}: </label>
+                    {{ item.form.pay_date }}
+                </th>
+                </tr>
+                </tbody>
+                </table>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+
     {% include 'bank/loan/status.html' %}
+
+    <button hx-get="{% url 'bank_loan_index' %}"
+        hx-target="#bank_loan_windows"
+        hx-swap="outerHTML"
+        class="btn btn-primary">Atrás</button>
+
 </div>
