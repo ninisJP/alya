@@ -1,5 +1,6 @@
 {% extends 'base_logistic.html' %}
 
+
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 <style>
@@ -36,19 +37,35 @@
         color: #fff;
     }
 
-    /* Tabla estilizada */
-    .table-responsive {
-        border-radius: 15px;
-        overflow: hidden;
+    /* Establecer el contenedor principal para usar toda la altura disponible */
+    .container-fluid {
+        min-height: 100vh;  /* Asegura que el contenedor ocupe al menos toda la pantalla */
+        display: flex;
+        flex-direction: column;
     }
+
+    /* Contenedor de la tabla que puede desplazarse si es necesario */
+    .table-responsive {
+        flex-grow: 1;  /* Esto hace que la tabla ocupe el espacio restante */
+        overflow-y: auto;  /* Añadir desplazamiento vertical si el contenido es más grande que la altura disponible */
+    }
+
+    /* Tabla estilizada */
+    .table {
+        margin-bottom: 0;  /* Evita el espacio extra debajo de la tabla */
+    }
+
+    /* Encabezado de la tabla sticky */
     .table thead {
+        position: sticky;
+        top: 0;
         background-color: #343a40;
         color: #ffffff;
         font-weight: bold;
+        z-index: 10;  /* Asegurarse de que el encabezado esté por encima de las filas */
     }
+
     .table thead th {
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
         padding: 1rem;
         font-size: 1.1rem;
     }
@@ -58,6 +75,16 @@
         font-size: 0.9rem;
         padding: 0.5rem 1rem;
         border-radius: 20px;
+    }
+
+    /* Estilos para las celdas de la tabla */
+    .table td, .table th {
+        vertical-align: middle;  /* Centrar el contenido de las celdas */
+    }
+
+    /* Añadir estilo a las filas al pasar el mouse */
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;  /* Color de fondo al pasar el mouse */
     }
 </style>
 {% endblock %}
@@ -92,8 +119,6 @@
         </div>
     </div>
     
-    
-
     <!-- Tabla de órdenes -->
     <div class="table-responsive">
         <table class="table table-hover text-center align-middle bg-white shadow-sm">
@@ -103,8 +128,8 @@
                     <th>Proyecto</th>
                     <th>Cliente</th>
                     <th>Orden de Venta</th>
-                    <th>F. Solicitada</th>
-                    <th>F. Creada</th>
+                    <th>Fecha Solicitada</th>
+                    <th>Fecha Creada</th>
                     <th>Detalles</th>
                     <th>Validado</th>
                     <th>Estado de Ítems</th>
@@ -118,7 +143,11 @@
                     <td>{{ order.sales_order.sapcode }}</td>
                     <td>{{ order.sales_order.project.name }}</td>
                     <td>{{ order.sales_order.project.client.legal_name }}</td>
-                    <td>{{ order.requested_date }}</td>
+                    <td>
+                        {% with order.requested_date|date:"l" as day %}
+                            <span class="badge bg-info">{{ day }}</span> {{ order.requested_date|date:"d F Y" }}
+                        {% endwith %}
+                    </td>
                     <td>{{ order.created_at }}</td>
                     <td>{{ order.notes }}</td>
                     <td>
