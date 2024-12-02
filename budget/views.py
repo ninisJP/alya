@@ -30,20 +30,34 @@ from django.db import transaction
 from .forms import AddBudgetItemForm
 from collections import defaultdict
 from django.shortcuts import get_object_or_404, redirect
+from decimal import Decimal
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.db import transaction
+from django.db import models
 
 def index_budget(request):
     budgets = Budget.objects.all()  # Recupera todos los presupuestos
     return render(request, 'index_budget.html', {'budgets': budgets})
 
-
-
 def catalog_item_search(request):
     if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         term = request.GET.get('term', '')
-        items = CatalogItem.objects.filter(description__icontains=term).order_by('description')
+        
+        # Filtramos los resultados, primero por el término de búsqueda
+        items = CatalogItem.objects.all()
+
+        if term:
+            # Filtrar por descripción o SAP, dependiendo del término de búsqueda
+            items = items.filter(
+                models.Q(description__icontains=term) | models.Q(sap__icontains=term)
+            )
+        
+        # Ordenamos los resultados por descripción
+        items = items.order_by('description')
         
         # Paginamos los resultados para evitar devolver demasiados ítems de una vez
-        paginator = Paginator(items, 10)  # Mostramos 10 resultados por página
+        paginator = Paginator(items, 100)  # Mostramos 10 resultados por página
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
         
@@ -267,10 +281,7 @@ def duplicate_budget(request, pk):
     return redirect('detail_budget', pk=duplicated_budget.pk)
 
 def create_sales_order_from_budget(request, budget_id):
-    from decimal import Decimal
-    from django.shortcuts import get_object_or_404, redirect
-    from django.contrib import messages
-    from django.db import transaction
+
 
     # Obtener el presupuesto seleccionado
     budget = get_object_or_404(Budget, id=budget_id)

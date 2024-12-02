@@ -1,0 +1,245 @@
+<style>
+    /* Estilo general para la tabla */
+    .excel-table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed; /* Controlar el ancho automáticamente */
+    }
+
+    /* Estilo general para las celdas */
+    .excel-table th,
+    .excel-table td {
+        border: 1px solid #ccc;
+        text-align: center; /* Alinear horizontalmente */
+        vertical-align: middle; /* Alinear verticalmente */
+        padding: 4px;
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Fondo para la cabecera */
+    .excel-table thead {
+        background-color: #f4f4f4;
+    }
+
+    /* Hover para filas */
+    .excel-table tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* Input estilo celda */
+    .excel-table input[type="number"],
+    .excel-table input[type="text"] {
+        width: 100%;
+        border: none;
+        background: transparent;
+        text-align: center;
+        font-size: 13px;
+        outline: none;
+        padding: 2px;
+    }
+
+    /* Input con bordes al hacer foco */
+    .excel-table input:focus {
+        border: 1px solid #007bff;
+        background-color: #eaf4ff;
+    }
+
+    /* Botones alineados */
+    .excel-table button {
+        font-size: 12px;
+        padding: 3px 8px;
+    }
+
+    /* Elimina las flechitas de los inputs tipo número */
+    .excel-table input[type="number"]::-webkit-inner-spin-button,
+    .excel-table input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .excel-table input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    /* Ajuste del ancho de las columnas */
+    .excel-table th:nth-child(1), /* # */
+    .excel-table td:nth-child(1) {
+        width: 5%; /* Ancho para la columna de números */
+    }
+
+    .excel-table th:nth-child(2), /* SAP */
+    .excel-table td:nth-child(2),
+    .excel-table th:nth-child(3), /* CAT. */
+    .excel-table td:nth-child(3) {
+        width: 8%; /* Igual ancho para SAP y CAT. */
+    }
+
+    .excel-table th:nth-child(4), /* Ítem */
+    .excel-table td:nth-child(4) {
+        width: 32%; /* Aumentado el ancho de la columna Ítem */
+        white-space: normal; /* Permitir texto en varias líneas */
+        word-wrap: break-word;
+    }
+
+    .excel-table th:nth-child(5), /* UND */
+    .excel-table td:nth-child(5),
+    .excel-table th:nth-child(6), /* CANT */
+    .excel-table td:nth-child(6),
+    .excel-table th:nth-child(7), /* HORAS */
+    .excel-table td:nth-child(7),
+    .excel-table th:nth-child(8), /* PRECIO H. */
+    .excel-table td:nth-child(8),
+    .excel-table th:nth-child(9), /* PRECIO D. */
+    .excel-table td:nth-child(9) {
+        width: 8%; /* Ancho igual para las columnas de PRECIO H. y PRECIO D. */
+    }
+
+    .excel-table th:nth-child(10), /* PRECIO U. */
+    .excel-table td:nth-child(10),
+    .excel-table th:nth-child(11), /* PRECIO P. */
+    .excel-table td:nth-child(11) {
+        width: 10%; /* Moderado */
+    }
+
+    .excel-table th:nth-child(12), /* ACT */
+    .excel-table td:nth-child(12) {
+        width: 5%; /* Botones pequeños */
+    }
+
+    /* Añadir estilo para las cabeceras A, B, C, etc. */
+    .excel-table .letter-header {
+        font-weight: bold;
+        background-color: #eaeaea;
+        text-align: center;
+    }
+
+    /* Añadir estilo para los números de fila */
+    .excel-table .row-number {
+        font-weight: bold;
+        background-color: #f1f1f1;
+        padding: 10px 0; /* Aumentamos el padding para mayor visibilidad */
+        text-align: center;
+    }
+
+    /* Asegurar que los botones (iconos) estén bien alineados */
+    .excel-table .btn {
+        padding: 5px 10px;
+        font-size: 14px; /* Aumentar el tamaño de los botones */
+    }
+
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cells = document.querySelectorAll('.excel-table input[type="number"], .excel-table input[type="text"]');
+        
+        cells.forEach(cell => {
+            cell.addEventListener('keydown', function(e) {
+                const currentCell = e.target;
+                let nextCell;
+                
+                // Movimiento hacia la derecha
+                if (e.key === 'ArrowRight') {
+                    nextCell = currentCell.parentElement.nextElementSibling?.querySelector('input');
+                }
+                // Movimiento hacia la izquierda
+                if (e.key === 'ArrowLeft') {
+                    nextCell = currentCell.parentElement.previousElementSibling?.querySelector('input');
+                }
+                // Movimiento hacia abajo
+                if (e.key === 'ArrowDown') {
+                    nextCell = currentCell.closest('tr').nextElementSibling?.querySelector(`td:nth-child(${currentCell.closest('td').cellIndex + 1}) input`);
+                }
+                // Movimiento hacia arriba
+                if (e.key === 'ArrowUp') {
+                    nextCell = currentCell.closest('tr').previousElementSibling?.querySelector(`td:nth-child(${currentCell.closest('td').cellIndex + 1}) input`);
+                }
+                
+                if (nextCell) {
+                    nextCell.focus();
+                    e.preventDefault(); // Prevenir comportamiento por defecto de las flechas
+                }
+            });
+        });
+    });
+</script>
+
+<div id="budget_item_plus">
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="card mt-4 shadow-sm">
+            <div class="card-body p-0">
+                <table class="table excel-table">
+                    <thead>
+                        <tr>
+                            <th class="letter-header"></th> <!-- Espacio para las letras -->
+                            <th class="letter-header">A</th>
+                            <th class="letter-header">B</th>
+                            <th class="letter-header">C</th>
+                            <th class="letter-header">D</th>
+                            <th class="letter-header">E</th>
+                            <th class="letter-header">F</th>
+                            <th class="letter-header">G</th>
+                            <th class="letter-header">H</th>
+                            <th class="letter-header">I</th>
+                            <th class="letter-header">J</th>
+                            <th class="letter-header">K</th>
+                        </tr>
+                        <tr>
+                            <th class="letter-header">#</th>
+                            <th>SAP</th>
+                            <th>CAT.</th>
+                            <th>ITEM</th>
+                            <th>UND</th>
+                            <th>CANT</th>
+                            <th>HORAS</th>
+                            <th>PRECIO H.</th>
+                            <th>PRECIO D.</th>
+                            <th>PRECIO U.</th>
+                            <th>PRECIO P.</th>
+                            <th>ACT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr id="item-{{ item.id }}">
+                            <td class="row-number">{{ loop.index }}</td> <!-- Números de fila -->
+                            <td>{{ item.item.sap }}</td>
+                            <td>{{ item.item.category }}</td>
+                            <td>{{ item.item.description }}</td>
+                            <td>{{ item.unit }}</td>
+                            <td>
+                                <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}">
+                            </td>
+                            <td>
+                                <input type="number" name="custom_quantity_{{ item.id }}" value="{{ item.custom_quantity|default:0 }}">
+                            </td>
+                            <td>
+                                <input type="number" name="custom_price_per_hour_{{ item.id }}" value="{{ item.custom_price_per_hour|default:0 }}">
+                            </td>
+                            <td>
+                                <input type="number" name="custom_price_per_day_{{ item.id }}" value="{{ item.custom_price_per_day }}">
+                            </td>
+                            <td>
+                                <input type="number" name="custom_price_{{ item.id }}" value="{{ item.custom_price }}">
+                            </td>
+                            <td>{{ item.total_price }}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" hx-delete="{% url 'budget_item_delete' item.id %}" hx-target="#budget_item_plus" hx-swap="outerHTML">
+                                    <i class="fas fa-trash-alt"></i> <!-- Icono de eliminar -->
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Guardar Cambios</button>
+    </form>
+</div>

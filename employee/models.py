@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
 class Supervisor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='supervisors')
     first_name = models.CharField(max_length=100)
@@ -11,14 +10,12 @@ class Supervisor(models.Model):
     email = models.EmailField(max_length=254)
     dni = models.CharField(max_length=8, null=True, blank=True)
 
-
     def __str__(self):
         return f'{self.first_name} {self.last_name} - {self.position}'
     
     class Meta:
         verbose_name = "Supervisor"
         verbose_name_plural = "Supervisores"
-
 
 class Technician(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='technician')

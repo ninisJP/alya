@@ -1,0 +1,35 @@
+<!-- Partial de la columna de datos generales y resumen de totales -->
+<div class="col-4">
+    <!-- Columna con datos generales del presupuesto -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-light">
+            <h4>Datos del Presupuesto</h4>
+        </div>
+        <div class="card-body">
+            <h5>Detalles</h5>
+            <ul class="list-unstyled">
+                <li><strong>Cliente:</strong> {{ budget.client }}</li>
+                <li><strong>Presupuesto:</strong> {{ budget.budget_name }}</li>
+                <li><strong>Fecha:</strong> {{ budget.budget_date }}</li>
+                <li><strong>Duración:</strong> {{ budget.budget_days }} días</li>
+                <li><strong>Precio Base:</strong> S/ {{ budget.budget_price }}</li>
+                <li><strong>Gastos:</strong> {{ budget.budget_expenses }}%</li>
+                <li><strong>Utilidad:</strong> {{ budget.budget_utility }}%</li>
+                <li><strong>Precio Final:</strong> S/ {{ budget.budget_final_price }}</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Resumen de Totales -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h4>Resumen de Totales</h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-unstyled">
+                <li><strong>Total Ítems:</strong> S/ {{ budget.calculate_budget_price }}</li>
+                <li><strong>Total Final:</strong> S/ {{ budget.budget_final_price }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
