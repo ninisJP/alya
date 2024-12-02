@@ -16,14 +16,15 @@
 {% endif %}
 
 <!-- Contenedor principal -->
-<div class="container mb-4">
+<!-- Contenedor principal -->
+<div class="container-fluid mb-4">
     <div class="row align-items-center justify-content-center mb-4">
         <!-- Título -->
-        <div class="col-md-8 text-center">
+        <div class="col-12 text-center">
             <h2 class="text-primary fw-bold display-5">Presupuesto compra - venta</h2>
         </div>
         <!-- Botón -->
-        <div class="col-md-4 text-center">
+        <div class="col-12 text-center mt-3">
             <a href="{% url 'index_budget' %}" class="btn btn-outline-primary btn-lg" style="font-weight: bold;">
                 <i class="fas fa-plus-circle"></i> Presupuestos servicios
             </a>
@@ -35,7 +36,7 @@
         <div class="table-responsive">
             <table class="table table-hover text-center align-middle w-100" id="budgetTable">
                 <thead class="table-dark text-white">
-                    <tr style="border-radius: 8px 8px 0 0;">
+                    <tr>
                         <th class="rounded-start">Presupuestos</th>
                         <th>Cliente</th>
                         <th>Días</th>
@@ -77,6 +78,7 @@
         </div>
     {% endif %}
 </div>
+
 
 <!-- DataTables CSS y JavaScript -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css"/>

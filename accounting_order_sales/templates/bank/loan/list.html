@@ -32,7 +32,7 @@
                                 <button hx-get="{% url 'bank_loan_pay' item.id %}"
                                         hx-target="#bank_windows"
                                         hx-swap="outerHTML"
-                                        class="btn btn-primary">Pagar</button>
+                                        class="btn btn-success">Pagar</button>
                             </td>
                             </td>
                         </tr>
@@ -75,6 +75,11 @@
                                         hx-target="#bank_windows"
                                         hx-swap="outerHTML"
                                         class="btn btn-primary">Detalles</button>
+                                <button hx-get="{% url 'bank_loan_pay' item.id %}"
+                                        hx-target="#bank_windows"
+                                        hx-swap="outerHTML"
+                                        class="btn btn-success">Pagar</button>
+                            </td>
                             </td>
                         </tr>
                     {% empty %}

@@ -32,7 +32,7 @@ class Budget(models.Model):
     budget_utility = models.DecimalField(max_digits=5, decimal_places=2, choices=PERCENTAGE_CHOICES, default=0.00)
     budget_final_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     budget_deliverytime = models.CharField(max_length=100, choices=TIME_CHOICES, blank=True, null=True)
-    budget_servicetime = models.CharField(max_length=100, choices=TIME_CHOICES, blank=True, null=True)
+    budget_servicetime = models.CharField(max_length=100, blank=True, null=True)
     budget_warrantytime = models.CharField(max_length=100, choices=TIME_CHOICES, blank=True, null=True)
 
     def calculate_budget_price(self):
@@ -101,7 +101,7 @@ class CatalogItem(models.Model):
 class BudgetItem(models.Model):
     budget = models.ForeignKey('Budget', on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey('CatalogItem', on_delete=models.CASCADE, related_name='budget_items')
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1.00)
     custom_quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     custom_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     custom_price_per_day = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
