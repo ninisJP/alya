@@ -11,16 +11,16 @@ from openpyxl.utils import get_column_letter
 from logistic_inventory.models import Item
 from logistic_suppliers.models import Suppliers
 from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
-from .forms import RequirementOrderForm, RequirementOrderItemFormSet
+from .forms import RequirementOrderForm, RequirementOrderItemFormSet , RequirementOrderListForm
 from .models import RequirementOrder, RequirementOrderItem
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from .models import RequirementOrderItem
-
+    
 # Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente o todas las órdenes sin filtros
 class RequirementOrderListView(ListView):
     model = RequirementOrder
-    template_name = 'requirement_order_list.html'
+    template_name = 'requirement_order_index.html'
     context_object_name = 'requirement_orders'
 
     def get_queryset(self):
@@ -72,6 +72,19 @@ class RequirementOrderListView(ListView):
 
         return queryset
 
+
+def search_requirement_order_list_view(request):
+	query = request.GET.get('q','')
+
+	if query:
+		requirement_order = RequirementOrder.objects.filter(Q(notes__icontains=query)
+		).order_by('-id')
+	else:
+		requirement_order = RequirementOrder.objects.all().order_by('-id')
+
+	context = {'requiment_order':'requirement_order','form' : RequirementOrderListForm()}
+
+	return render(request, 'requirement_order_list.html' , context)
 
 def requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
