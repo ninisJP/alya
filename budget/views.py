@@ -40,7 +40,18 @@ def index_budget(request):
 def catalog_item_search(request):
     if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         term = request.GET.get('term', '')
-        items = CatalogItem.objects.filter(description__icontains=term).order_by('description')
+        
+        # Filtramos los resultados, primero por el término de búsqueda
+        items = CatalogItem.objects.all()
+
+        if term:
+            # Filtrar por descripción o SAP, dependiendo del término de búsqueda
+            items = items.filter(
+                models.Q(description__icontains=term) | models.Q(sap__icontains=term)
+            )
+        
+        # Ordenamos los resultados por descripción
+        items = items.order_by('description')
         
         # Paginamos los resultados para evitar devolver demasiados ítems de una vez
         paginator = Paginator(items, 10)  # Mostramos 10 resultados por página
