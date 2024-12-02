@@ -30,6 +30,7 @@ from django.db import transaction
 from .forms import AddBudgetItemForm
 from collections import defaultdict
 from django.shortcuts import get_object_or_404, redirect
+from django.db import models
 
 def index_budget(request):
     budgets = Budget.objects.all()  # Recupera todos los presupuestos
