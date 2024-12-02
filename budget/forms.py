@@ -85,15 +85,6 @@ BudgetItemFormSet = inlineformset_factory(
     extra=0,
 )
 
-
-
-
-
-
-
-
-
-
 class NewBudgetItemForm(forms.ModelForm):
     class Meta:
         model = BudgetItem
@@ -114,10 +105,6 @@ class NewBudgetItemForm(forms.ModelForm):
         self.fields['custom_price'].label = 'Precio Unitario'
         self.fields['custom_price_per_day'].label = 'Precio por Día'
         self.fields['unit'].label = 'Unidad de Medida'
-
-
-
-
 
 
 from django import forms
@@ -143,7 +130,7 @@ class BudgetEditNewForm(forms.ModelForm):
             'budget_expenses': forms.Select(attrs={'class': 'form-control'}),
             'budget_utility': forms.Select(attrs={'class': 'form-control'}),
             'budget_deliverytime': forms.Select(attrs={'class': 'form-control'}),
-            'budget_servicetime': forms.Select(attrs={'class': 'form-control'}),
+            'budget_servicetime': forms.NumberInput(attrs={'class': 'form-control'}),
             'budget_warrantytime': forms.Select(attrs={'class': 'form-control'}),
         }
     
@@ -160,20 +147,6 @@ class BudgetEditNewForm(forms.ModelForm):
         self.fields['budget_deliverytime'].label = 'Tiempo de Entrega'
         self.fields['budget_servicetime'].label = 'Tiempo de Servicio'
         self.fields['budget_warrantytime'].label = 'Tiempo de Garantía'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
