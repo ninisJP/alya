@@ -31,10 +31,10 @@ def loan_new(form):
 
 	return 0, loan
 
-def get_all_loan():
+def classify_loan(all_models):
 	context = {}
-	loan_credito = list(models.BankLoan.objects.filter(credit_type='credito'))
-	loan_prestamo = models.BankLoan.objects.filter(credit_type='prestamo')
+	loan_credito = all_models.filter(credit_type='credito')
+	loan_prestamo = all_models.filter(credit_type='prestamo')
 
 	list_prestamo = []
 	for item in loan_prestamo :
@@ -60,10 +60,8 @@ def get_all_loan():
 	context["loan_prestamo"] = list_prestamo
 	return context
 
-def get_all_pay(loan, all_pay=False):
-
+def get_no_pay(loan):
 	payment = models.LoanPayment.objects.filter(loan=loan, is_paid=False)
-
 	context = {}
 
 	list_pay = []
@@ -81,29 +79,36 @@ def get_all_pay(loan, all_pay=False):
 		pay["error"] = error
 		list_pay.append(pay)
 
-	if all_pay:
-		payment = models.LoanPayment.objects.filter(loan=loan, is_paid=True)
-		for item in payment :
-			pay = (item.__dict__)
-			total_pay = 0
+	context["loan_cuota"] = list_pay
+	return context
 
-			for individual_pay in models.PartialPayment.objects.filter(loan_payment=item):
-				total_pay += individual_pay.partial_amount
+def get_all_pay(loan):
+	payment = models.LoanPayment.objects.filter(loan=loan)
+	context = {}
+	list_pay = []
+	for item in payment :
+		pay = (item.__dict__)
+		total_pay = 0
+		partial = models.PartialPayment.objects.filter(loan_payment=item)
+		for individual_pay in partial :
+			total_pay += individual_pay.partial_amount
 
-			error = False
-			if item.amount < total_pay :
-				error = True
-			pay["total"] = total_pay
-			pay["error"] = error
-			list_pay.append(pay)
+		error = False
+		if item.amount < total_pay :
+			error = True
+		pay["total"] = total_pay
+		pay["error"] = error
+
+		# Get partial pay
+		pay["partial"] = partial
+		# Add to list
+		list_pay.append(pay)
 
 	context["loan_cuota"] = list_pay
-
 	return context
 
 def save_pay(form):
 	status = "no"
-
 	list_pay = []
 
 	loan_payment = form.cleaned_data['loan_payment']
@@ -116,12 +121,20 @@ def save_pay(form):
 	if loan_payment.amount < total_pay :
 		return status
 
+	print(form)
+	print(form.cleaned_data['receipt'])
 	form.save()
-	# Complete
+	# Complete pay
 	if loan_payment.amount == total_pay :
 		loan_payment.is_paid = True
 		loan_payment.save()
 
+	# Complete loan
+	loan = loan_payment.loan
+	payment_all = models.LoanPayment.objects.filter(loan=loan, is_paid=False)
+	if not payment_all :
+		loan.is_paid = True
+		loan.save()
+
 	status = "yes"
 	return status
-

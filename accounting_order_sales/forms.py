@@ -174,3 +174,6 @@ class PartialPaymentForm(forms.ModelForm):
         super(PartialPaymentForm, self).__init__(*args, **kwargs)
 
         self.fields['loan_payment'].queryset = models.LoanPayment.objects.filter(loan=loan, is_paid=False)
+
+class SearchLoanForm(forms.Form):
+    bank = forms.CharField(label="Banco", max_length=100, required=False)

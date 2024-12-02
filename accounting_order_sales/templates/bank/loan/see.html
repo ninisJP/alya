@@ -35,39 +35,49 @@
                 </tr>
                 <tr>
                     <th>Monto Actual/Total</th>
-                    <th>fecha a pagar</th>
-                    <th>¿pagado?</th>
+                    <th>Fecha a Pagar</th>
+                    <th>¿Pagado?</th>
                     <th>¿Exceso de pago?</th>
+                    <th>Pago parcial</th>
+                    <th>Monto</th>
+                    <th>Recibo</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in loan_cuota %}
+                    {% for partial in item.partial %}
                     <tr>
-                        <td>{{ item.total }}/{{ item.amount }}</td>
-                        <td>{{ item.pay_date }}</td>
-                        <td>
-                            {% if item.is_paid %}
-                                <span class="badge bg-success text-white rounded-pill px-2 py-1">
-                                    {{ budget.budget_days }} SI
-                                </span>
-                            {% else %}
-                                <span class="badge bg-danger text-white rounded-pill px-2 py-1">
-                                    {{ budget.budget_days }} NO
-                                </span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if item.error %}
-                                <span class="badge bg-danger text-white rounded-pill px-2 py-1">
-                                    {{ budget.budget_days }} SI
-                                </span>
-                            {% else %}
-                                <span class="badge bg-success text-white rounded-pill px-2 py-1">
-                                    {{ budget.budget_days }} No
-                                </span>
-                            {% endif %}
-                        </td>
+                        {% if forloop.counter == 1 %}
+                            <th rowspan="{{ item.partial|length }}">{{ item.total }}/{{ item.amount }}</th>
+                            <th rowspan="{{ item.partial|length }}">{{ item.pay_date }}</th>
+                            <th rowspan="{{ item.partial|length }}">
+                                {% if item.is_paid %}
+                                    <span class="badge bg-success text-white rounded-pill px-2 py-1">
+                                        {{ budget.budget_days }} SI
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger text-white rounded-pill px-2 py-1">
+                                        {{ budget.budget_days }} NO
+                                    </span>
+                                {% endif %}
+                            </th>
+                            <th rowspan="{{ item.partial|length }}">
+                                {% if item.error %}
+                                    <span class="badge bg-danger text-white rounded-pill px-2 py-1">
+                                        {{ budget.budget_days }} SI
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-success text-white rounded-pill px-2 py-1">
+                                        {{ budget.budget_days }} No
+                                    </span>
+                                {% endif %}
+                            </th>
+                        {% endif %}
+                        <td>{{ partial.receipt_date }}</td>
+                        <td>{{ partial.partial_amount }}</td>
+                        <td>{{ partial.receipt }}</td>
                     </tr>
+                    {% endfor %}
                 {% endfor %}
             </tbody>
         </table>

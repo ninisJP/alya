@@ -1,0 +1,10 @@
+{% load widget_tweaks %}
+
+<form hx-post="{% url 'bank_loan_search' %}" hx-target="#bank_loan_list" hx-swap="innerHTML" hx-trigger="keyup delay:0.2s" class="w-100 mb-5 p-4 border rounded shadow-sm">
+    <div class="row">
+        <div class="col-6 col-md-2 mb-3">
+            <label for="{{ search.bank.id_for_label }}" > Por {{ search.bank.label }} </label>
+            {{ search.bank }}
+        </div>
+    </div>
+</form>

@@ -1,94 +1,114 @@
 <div class="row">
-    <div class="column">
-        <!-- Purchase items -->
-        <div class="table-responsive">
-            <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
-                <thead class="table-dark custom-thead-rounded">
+    <!-- Purchase items -->
+    <div class="table-responsive">
+        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+            <thead class="table-dark custom-thead-rounded">
+                <tr>
+                    <th colspan="10">Creditos</th>
+                </tr>
+                <tr>
+                    <th>Fecha de inicio</th>
+                    <th>Fecha de desembolso</th>
+                    <th>Banco</th>
+                    <th>Pagado</th>
+                    <th>Cuotas (Pagadas/Total)</th>
+                    <th>Total de deuda</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in loan_credito %}
                     <tr>
-                        <th colspan="10">Creditos</th>
+                        <td>{{ item.start_date }}</td>
+                        <td>{{ item.desembols_date }}</td>
+                        <td>{{ item.bank }}</td>
+                        <td>
+                            {% if item.is_paid %}
+                                <span class="badge bg-success text-white rounded-pill px-2 py-1">
+                                    {{ budget.budget_days }} SI
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger text-white rounded-pill px-2 py-1">
+                                    {{ budget.budget_days }} NO
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.coutes_paid }}/{{ item.cuotas }}</td>
+                        <td>{{ item.total_debt }}</td>
+                        <td>
+                            <button hx-get="{% url 'bank_loan_see' item.id %}"
+                                    hx-target="#bank_windows"
+                                    hx-swap="outerHTML"
+                                    class="btn btn-primary">Detalles</button>
+                            <button hx-get="{% url 'bank_loan_pay' item.id %}"
+                                    hx-target="#bank_windows"
+                                    hx-swap="outerHTML"
+                                    class="btn btn-success">Pagar</button>
+                        </td>
+                        </td>
                     </tr>
-                    <tr>
-                        <th>Fecha de inicio</th>
-                        <th>Fecha de desembolso</th>
-                        <th>Banco</th>
-                        <th>Cuotas (Pagadas/Total)</th>
-                        <th>Total de deuda</th>
-                        <th>Acciones</th>
+                {% empty %}
+                    <tr class="bg-red-200 text-red-700">
+                        <td colspan="10" >No hay coincidencias</td>
                     </tr>
-                </thead>
-                <tbody>
-                    {% for item in loan_credito %}
-                        <tr>
-                            <td>{{ item.start_date }}</td>
-                            <td>{{ item.desembols_date }}</td>
-                            <td>{{ item.bank }}</td>
-                            <td>{{ item.coutes_paid }}/{{ item.cuotas }}</td>
-                            <td>{{ item.total_debt }}</td>
-                            <td>
-                                <button hx-get="{% url 'bank_loan_see' item.id %}"
-                                        hx-target="#bank_windows"
-                                        hx-swap="outerHTML"
-                                        class="btn btn-primary">Detalles</button>
-                                <button hx-get="{% url 'bank_loan_pay' item.id %}"
-                                        hx-target="#bank_windows"
-                                        hx-swap="outerHTML"
-                                        class="btn btn-success">Pagar</button>
-                            </td>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr class="bg-red-200 text-red-700">
-                            <td colspan="10" >No hay coincidencias</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    <div class="column">
-        <!-- Purchase items -->
-        <div class="table-responsive">
-            <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
-                <thead class="table-dark custom-thead-rounded">
-                    <tr>
-                        <th colspan="10">Prestamos</th>
+    <!-- Purchase items -->
+    <div class="table-responsive">
+        <table class="table table-hover align-middle text-center bg-white bg-opacity-75 shadow-sm custom-rounded-top">
+            <thead class="table-dark custom-thead-rounded">
+                <tr>
+                    <th colspan="10">Prestamos</th>
+                </tr>
+                <tr>
+                    <th>Fecha de inicio</th>
+                    <th>Fecha de desembolso</th>
+                    <th>Banco</th>
+                    <th>Pagado</th>
+                    <th>Cuotas (Pagadas/Total)</th>
+                    <th>Total de deuda</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in loan_prestamo %}
+                    <tr class="rounded-3">
+                        <td>{{ item.start_date }}</td>
+                        <td>{{ item.desembols_date }}</td>
+                        <td>{{ item.bank }}</td>
+                        <td>
+                            {% if item.is_paid %}
+                                <span class="badge bg-success text-white rounded-pill px-2 py-1">
+                                    {{ budget.budget_days }} SI
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger text-white rounded-pill px-2 py-1">
+                                    {{ budget.budget_days }} NO
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.coutes_paid }}/{{ item.cuotas }}</td>
+                        <td>{{ item.total_debt }}</td>
+                        <td>
+                            <button hx-get="{% url 'bank_loan_see' item.id %}"
+                                    hx-target="#bank_windows"
+                                    hx-swap="outerHTML"
+                                    class="btn btn-primary">Detalles</button>
+                            <button hx-get="{% url 'bank_loan_pay' item.id %}"
+                                    hx-target="#bank_windows"
+                                    hx-swap="outerHTML"
+                                    class="btn btn-success">Pagar</button>
+                        </td>
+                        </td>
                     </tr>
-                    <tr>
-                        <th>Fecha de inicio</th>
-                        <th>Fecha de desembolso</th>
-                        <th>Banco</th>
-                        <th>Cuotas (Pagadas/Total)</th>
-                        <th>Total de deuda</th>
-                        <th>Acciones</th>
+                {% empty %}
+                    <tr class="bg-red-200 text-red-700">
+                        <td colspan="10" >No hay coincidencias</td>
                     </tr>
-                </thead>
-                <tbody>
-                    {% for item in loan_prestamo %}
-                        <tr class="rounded-3">
-                            <td>{{ item.start_date }}</td>
-                            <td>{{ item.desembols_date }}</td>
-                            <td>{{ item.bank }}</td>
-                            <td>{{ item.coutes_paid }}/{{ item.cuotas }}</td>
-                            <td>{{ item.total_debt }}</td>
-                            <td>
-                                <button hx-get="{% url 'bank_loan_see' item.id %}"
-                                        hx-target="#bank_windows"
-                                        hx-swap="outerHTML"
-                                        class="btn btn-primary">Detalles</button>
-                                <button hx-get="{% url 'bank_loan_pay' item.id %}"
-                                        hx-target="#bank_windows"
-                                        hx-swap="outerHTML"
-                                        class="btn btn-success">Pagar</button>
-                            </td>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr class="bg-red-200 text-red-700">
-                            <td colspan="10" >No hay coincidencias</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>

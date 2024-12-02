@@ -289,15 +289,16 @@ class BankLoan(models.Model):
     bank = models.CharField(max_length=100)  # Nombre del banco
     currency = models.CharField(max_length=10, choices=Currency.choices, default=Currency.PEN) # Moneda (ej. "USD", "PEN")
     cuotas = models.PositiveIntegerField()  # Número total de cuotas
-    document = models.FileField(upload_to='documents/', blank=True, null=True)  # Documento asociado
+    document = models.FileField(upload_to='documents/', blank=True, null=True) # Documento asociado
     total_debt = models.DecimalField(max_digits=12, decimal_places=2)
     credit_type = models.CharField(max_length=20, choices=CREDIT_TYPE_CHOICES)
+    is_paid = models.BooleanField(default=False) # Indicador de si está pagada o no
 
 class LoanPayment(models.Model):
     loan = models.ForeignKey(BankLoan, on_delete=models.CASCADE, related_name="payments")  # Relación con el préstamo
-    amount = models.DecimalField(max_digits=10, decimal_places=2)  # Monto de la cuota
+    amount = models.DecimalField(max_digits=10, decimal_places=2) # Monto de la cuota
     pay_date = models.DateField()  # Fecha en que debe pagarse la cuota
-    is_paid = models.BooleanField(default=False)  # Indicador de si está pagada o no
+    is_paid = models.BooleanField(default=False) # Indicador de si está pagada o no
 
     def __str__(self):
         return f"Cuota del {self.pay_date} de {self.amount}"
@@ -305,7 +306,14 @@ class LoanPayment(models.Model):
 class PartialPayment(models.Model):
     loan_payment = models.ForeignKey(LoanPayment, on_delete=models.CASCADE, related_name="partial_payments")
     partial_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    receipt = models.FileField(upload_to='receipts/', blank=True, null=True)  # Recibo de pago
+    receipt = models.FileField(  # Recibo de pago
+        upload_to='receipts/',
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'jpeg', 'png'])],
+        help_text="Sube un archivo PDF o una imagen (JPG, PNG)."
+    )
+
     receipt_date = models.DateField()
 
     def __str__(self):
