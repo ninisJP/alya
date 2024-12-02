@@ -55,7 +55,7 @@ def catalog_item_search(request):
         items = items.order_by('description')
         
         # Paginamos los resultados para evitar devolver demasiados ítems de una vez
-        paginator = Paginator(items, 10)  # Mostramos 10 resultados por página
+        paginator = Paginator(items, 100)  # Mostramos 10 resultados por página
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
         
