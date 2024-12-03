@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*', 'alya-production.up.railway.app']
 
@@ -104,7 +104,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'alya.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
+    }
 }
 
 

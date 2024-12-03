@@ -21,7 +21,9 @@
                 <h1 class="mb-0">Búsqueda de Items</h1>
             </div>
         </div>
-
+        <a href="{% url 'export_catalog' %}" class="btn btn-primary">
+            Descargar Catálogo Completo
+        </a>
         <ul id="budget_catalog_search" class="mt-8 space-y-4">
             {% include 'catalog/search.html' %}
         </ul>

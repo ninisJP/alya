@@ -1,25 +1,25 @@
 {% extends "base_budget.html" %}
 
-{% block title %}Subir Catálogo (CSV){% endblock %}
+{% block title %}Subir Catálogo (CSV o XLSX){% endblock %}
 
 {% block content %}
 
-<!-- Formulario para subir archivo CSV -->
+<!-- Formulario para subir archivo CSV o XLSX -->
 <div class="container mt-5">
     <div class="card -sm"> 
         <div class="card-header bg-primary text-white">
-            <h3>Subir Catálogo (CSV)</h3>
+            <h3>Subir Catálogo (CSV o XLSX)</h3>
         </div>
         <div class="card-body">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label for="file" class="form-label">Selecciona el archivo CSV:</label>
+                    <label for="file" class="form-label">Selecciona el archivo:</label>
                     {{ form.file }} <!-- Campo de subida de archivos -->
                 </div>
-                <!-- Nota indicando el formato requerido -->
+                <!-- Nota indicando los formatos requeridos -->
                 <div class="alert alert-warning">
-                    <strong>Nota:</strong> Por favor, sube el archivo en formato CSV. Asegúrate de que los datos sean correctos y las columnas coincidan con el formato requerido.
+                    <strong>Nota:</strong> Por favor, sube el archivo en formato CSV o XLSX. Asegúrate de que los datos sean correctos y las columnas coincidan con el formato requerido.
                 </div>
                 <button type="submit" class="btn btn-success">Subir</button>
             </form>
