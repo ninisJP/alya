@@ -32,23 +32,19 @@ def accounts_payable_detail(request):# Cuentas por pagar
     return render(request, 'partials/accounts_payable_detail.html', context)
 
 def accounts_receivable_detail(request):# Cuentas por cobrar
-    details = CollectionOrders.objects.all()
-    context = {'details': details}
+    context = utils.get_model_receivable()
     return render(request, 'partials/accounts_receivable_detail.html', context)
 
 def total_purchases_detail(request):# Total Compras
-    details = PurchaseOrder.objects.all()
-    context = {'details': details}
+    context = utils.get_model_purchase()
     return render(request, 'partials/total_purchases_detail.html', context)
 
 def total_sales_detail(request):# Total Ventas
-    details = PurchaseOrder.objects.all()
-    context = {'details': details}
+    context = utils.get_model_sale()
     return render(request, 'partials/total_sales_detail.html', context)
 
 def total_income_detail(request):# Total Ingresos
-    details = PurchaseOrder.objects.all()
-    context = {'details': details}
+    context = utils.get_model_income()
     return render(request, 'partials/total_income_detail.html', context)
 
 def total_expenses_detail(request):# Total Egresos

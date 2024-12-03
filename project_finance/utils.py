@@ -24,6 +24,19 @@ def calculate_all():
 
 	return context
 
+# INGRESOS
+def get_model_income():
+	context = {}
+	loan_pen = accounting_order_sales_models.BankLoan.objects.filter(currency='Soles')
+	loan_usd = accounting_order_sales_models.BankLoan.objects.filter(currency='Dolares')
+	context['income_list_pen'] = loan_pen
+	context['income_list_usd'] = loan_usd
+
+	context_sale = get_model_sale()
+	context.update(context_sale)
+
+	return context
+
 def calculate_income():
 	context = {}
 
@@ -44,6 +57,27 @@ def calculate_income():
 	context['total_income_usd'] = total_loan_usd
 
 	return total_loan_pen, total_loan_usd, context
+
+# EGRESOS
+def get_model_expenses():
+	context = {}
+
+	# Loan
+	list_pen = []
+	list_usd = []
+	for item in accounting_order_sales_models.PartialPayment.objects.all() :
+		if item.loan_payment.loan.currency == "Soles" :
+			list_pen.append(item.pk)
+		else :
+			list_usd.append(item.pk)
+
+	loan_pen = accounting_order_sales_models.PartialPayment.objects.filter(pk__in=list_pen)
+	loan_usd = accounting_order_sales_models.PartialPayment.objects.filter(pk__in=list_usd)
+
+	context['expense_list'] = loan_pen
+	context['expense_list'] = loan_usd
+
+	return context
 
 def calculate_expenses():
 	context = {}
@@ -75,7 +109,19 @@ def calculate_expenses():
 
 	return total_expenses_pen, total_expenses_usd, context
 
-# Ventas
+# VENTA
+def get_model_sale():
+	context = {}
+
+	# Loan
+	sale_pen = accounting_order_sales_models.CollectionOrders.objects.filter(tipo_moneda='SOLES', factura_pagado=True)
+	sale_usd = accounting_order_sales_models.CollectionOrders.objects.filter(tipo_moneda='DOLARES', factura_pagado=True)
+
+	context['sale_list_pen'] = sale_pen
+	context['sale_list_usd'] = sale_usd
+
+	return context
+
 def calculate_sale():
 	context = {}
 
@@ -91,11 +137,21 @@ def calculate_sale():
 
 	return sale_pen, sale_usd, context
 
-# Compras
+# COMPRAS
+def get_model_purchase():
+	context = {}
+
+	# Purchase
+	purchase_pen = accounting_order_sales_models.PurchaseOrderItem.objects.filter(payment_status='Pagado')
+	# TOTAL
+	context['purchase_list_pen'] = purchase_pen
+
+	return context
+
 def calculate_purchase():
 	context = {}
 
-	# Loan
+	# Purchase
 	purchase_pen = accounting_order_sales_models.PurchaseOrderItem.objects.filter(payment_status='Pagado').aggregate(total=Sum('price_total'))['total'] or 0
 	# TOTAL
 	total_purchase_pen = purchase_pen
@@ -105,15 +161,24 @@ def calculate_purchase():
 	return total_purchase_pen, 0, context
 
 # Cuentas por Cobrar
+def get_model_receivable():
+	context = {}
+
+	# Callection
+	collection_pen = accounting_order_sales_models.CollectionOrders.objects.filter(tipo_moneda='SOLES', factura_pagado=False)
+	collection_usd = accounting_order_sales_models.CollectionOrders.objects.filter(tipo_moneda='DOLARES', factura_pagado=False)
+
+	context['receivable_list_pen'] = collection_pen
+	context['receivable_list_usd'] = collection_usd
+
+	return context
+
 def calculate_receivable():
 	context = {}
 
 	# Loan
 	collection_pen = accounting_order_sales_models.CollectionOrders.objects.filter(tipo_moneda='SOLES', factura_pagado=False).aggregate(total=Sum('importe_total'))['total'] or 0
 	collection_usd = accounting_order_sales_models.CollectionOrders.objects.filter(tipo_moneda='DOLARES', factura_pagado=False).aggregate(total=Sum('importe_total'))['total'] or 0
-
-	# Sale order
-	# TODO: facturas habilitadas
 
 	# TOTAL
 	total_receivable_pen = collection_pen
@@ -125,6 +190,22 @@ def calculate_receivable():
 	return context
 
 # Cuentas por cobrar
+def get_model_payable():
+	context = {}
+
+	# Puchase
+	#purchase_pen = accounting_order_sales_models.PurchaseOrderItem.objects.filter(payment_status='No Pagado')
+	# SUNAT
+	#sunat_pen = accounting_sunat_models.Pago.objects.filter(pagado=False).aggregate(total=Sum('total'))['total'] or 0
+
+	# TOTAL
+	#total_payable_pen = purchase_pen + sunat_pen
+
+	#context['total_payable_pen'] = total_payable_pen
+
+	return context
+
+
 def calculate_payable():
 	context = {}
 
