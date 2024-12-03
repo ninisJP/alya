@@ -39,12 +39,16 @@ class SalesOrderForm(forms.ModelForm):
 
     class Meta:
         model = SalesOrder
-        fields = ["sapcode", "project", "detail", "date"]
+        fields = ["sapcode", "project", "detail", "date", "is_active"]
         widgets = {
             'sapcode': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Código SAP'}),
             'project': forms.Select(attrs={'class': 'form-control'}),
             'detail': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Detalle'}),
         }
+        labels = {
+                'is_active' : 'Activo',
+        }
+
 
 class ItemSalesOrderForm(forms.ModelForm):
     class Meta:
