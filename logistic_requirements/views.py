@@ -28,24 +28,25 @@ class RequirementOrderListView(ListView):
         # show_pending = self.request.GET.get('show_pending') == 'true'
         show_comprando = self.request.GET.get('show_comprando') == 'true'
         show_all = self.request.GET.get('show_all') == 'true'
+        show_refused = self.request.GET.get('show_refused' == 'true')
         
         # Iniciar queryset con todas las órdenes APROBADAS por contabilidad
-        queryset = RequirementOrder.objects.filter(state='APROBADO').order_by('-id').prefetch_related('items')
+        queryset = RequirementOrder.objects.order_by('-id').prefetch_related('items') # filter(state='APROBADO')
         
         if show_all:
             queryset = queryset.distinct()
         elif show_comprando:
             # Mostrar solo las órdenes con ítems en estado Pendiente o Comprando
-            queryset = queryset.filter(
+            queryset = queryset.filter(state='APROBADO').filter(
                 items__estado__in=['P', 'C']
             ).distinct()
-        # elif show_comprando:
+        # elif show_refused:
         #     # Mostrar solo las órdenes con ítems en estado Comprando
         #     queryset = queryset.filter(
         #         items__estado='C'
         #     ).distinct()
         else:
-            queryset = queryset.filter(
+            queryset = queryset.filter(state='APROBADO').filter(
                 items__estado='P'
             ).distinct()
             
