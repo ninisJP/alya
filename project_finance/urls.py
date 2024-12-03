@@ -16,4 +16,3 @@ htmxpatterns = [
 ]
 
 urlpatterns += htmxpatterns
-

@@ -1,13 +1,15 @@
+<div id="salesorder-list">
 <!-- salesorder-list.html -->
 <div class="container-fluid">
     <ul class="list-group">
         <!-- Header -->
         <li class="list-group-item d-flex justify-content-between align-items-center fw-bold bg-light">
             <div class="row w-100">
-                <span class="col-2 text-center">SAP</span>
+                <span class="col-1 text-center">SAP</span>
                 <span class="col-2 text-center">Proyecto</span>
-                <span class="col-4 text-center">Detalle</span>
+                <span class="col-3 text-center">Detalle</span>
                 <span class="col-2 text-center">Total</span>
+                <span class="col-1 text-center">Activo</span>
                 <span class="col-2 text-center">Acciones</span>
             </div>
         </li>
@@ -16,10 +18,17 @@
         {% for saleorder in salesorders %}
             <li id="saleorder-{{ saleorder.id }}" class="list-group-item">
                 <div class="row w-100 align-items-center">
-                    <span class="col-2 text-center"><strong>{{ saleorder.sapcode }}</strong></span>
+                    <span class="col-1 text-center"><strong>{{ saleorder.sapcode }}</strong></span>
                     <span class="col-2 text-center">{{ saleorder.project }}</span>
-                    <span class="col-4 text-center"><strong>{{ saleorder.detail }}</strong></span>
+                    <span class="col-3 text-center"><strong>{{ saleorder.detail }}</strong></span>
                     <span class="col-2 text-center"><strong>{{ saleorder.total_sales_order }}</strong></span>
+
+                    {% if saleorder.is_active %}
+                        <span class="col-1 text-center"><strong>Si</strong></span>
+                    {% else %}
+                        <span class="col-1 text-center"><strong>No</strong></span>
+                    {% endif %}
+
                     <div class="col-2 d-flex justify-content-around">
                         <button class="btn btn-warning btn-sm" hx-get="{% url 'edit-salesorder' saleorder.id %}" hx-target="#saleorder-{{ saleorder.id }}" hx-swap="outerHTML" title="Editar">
                             <i class="fas fa-edit"></i>
@@ -43,4 +52,5 @@
             </li>
         {% endfor %}
     </ul>
+</div>
 </div>

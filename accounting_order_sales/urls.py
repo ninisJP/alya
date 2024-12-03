@@ -57,10 +57,8 @@ htmxurlpatters = [
     path('petty_cash_state/', views.petty_cash_state, name='petty_cash_state'),
     path('update_payment_status/<int:item_id>/', views.update_payment_status, name='update_payment_status'),
 
-
     # ajax concilations
     path('assign_bank_statement/<int:item_id>/<int:statement_id>/', views.assign_bank_statement, name='assign_bank_statement'),
-
 
     # Bank
     path('banks/loan/', views_bank.loan_main, name='bank_loan_index'),
@@ -68,6 +66,7 @@ htmxurlpatters = [
     path('banks/loan/new/coutas/<int:couta_id>/', views_bank.loan_edit_coutas, name='bank_loan_form_coutas'),
     path('banks/loan/see/<int:loan_id>/', views_bank.loan_see, name='bank_loan_see'),
     path('banks/loan/pay/<int:loan_id>/', views_bank.loan_pay, name='bank_loan_pay'),
+    path('banks/loan/search/', views_bank.loan_search, name='bank_loan_search'),
 ]
 
 urlpatterns += htmxurlpatters

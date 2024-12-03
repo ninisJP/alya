@@ -53,7 +53,7 @@ def salesorder(request):
 
 def salesorder_search(request):
     query = request.GET.get('q', '')  # Obtener la consulta de búsqueda desde el request
-    
+
     # Si hay una búsqueda, filtrar las órdenes de venta basadas en la consulta
     if query:
         salesorders = SalesOrder.objects.filter(
@@ -61,7 +61,7 @@ def salesorder_search(request):
             ).order_by('-id')
     else:
         salesorders = SalesOrder.objects.all().order_by('-id')  # Mostrar todas las órdenes de venta si no hay búsqueda
-    
+
     context = {'salesorders': salesorders , 'form': SalesOrderForm()}
     # Devolver solo el fragmento de la lista
     return render(request, 'salesorder/salesorder-list.html', context)
@@ -82,6 +82,7 @@ def edit_salesorder(request, salesorder_id):
     salesorder = get_object_or_404(SalesOrder, id=salesorder_id)
     if request.method == 'GET':
         form = SalesOrderForm(instance=salesorder)
+        print(form)
         return render(request, 'salesorder/salesorder-edit.html', {'form': form, 'salesorder': salesorder})
     elif request.method == 'POST':
         form = SalesOrderForm(request.POST, instance=salesorder)

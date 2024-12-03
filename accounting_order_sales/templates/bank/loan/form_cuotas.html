@@ -38,18 +38,18 @@
                 <form hx-post="{% url 'bank_loan_form_coutas' item.id %}" hx-target="#item-status" hx-swap="innerHTML" hx-trigger="keyup delay:0.2s" class="w-100m b-5 p-4 border rounded shadow-sm">
                     {% csrf_token %}
                 <table>
-                <tbody>
-                <tr>
-                <th>
-                    <label for="{{ item.form.amount.id_for_label }}" > Monto {{ item.form.amount.label}}: </label>
-                    {{ item.form.amount }}
-                </th>
-                <th>
-                    <label for="{{ item.form.pay_date.id_for_label }}" > {{ item.form.pay_date.label}}: </label>
-                    {{ item.form.pay_date }}
-                </th>
-                </tr>
-                </tbody>
+                    <tbody>
+                        <tr>
+                            <th>
+                                <label for="{{ item.form.amount.id_for_label }}" > Monto {{ item.form.amount.label}}: </label>
+                                {{ item.form.amount }}
+                            </th>
+                            <th>
+                                <label for="{{ item.form.pay_date.id_for_label }}" > {{ item.form.pay_date.label}}: </label>
+                                {{ item.form.pay_date }}
+                            </th>
+                        </tr>
+                    </tbody>
                 </table>
                 </form>
             </div>
