@@ -13,6 +13,15 @@ class RequirementOrderForm(forms.ModelForm):
             'estado': forms.CheckboxInput(),  # Se renderiza como un checkbox
         }
 
+# Search Forms para RequirementOrder
+
+class RequirementOrderListForm(forms.ModelForm):
+	
+	class Meta:
+		model = RequirementOrder
+		fields = ['order_number','notes', 'estado']         
+
+
 # Formulario para RequirementOrderItem
 class RequirementOrderItemForm(forms.ModelForm):
     item_name = forms.CharField(

@@ -1,0 +1,129 @@
+
+{% extends 'base_logistic.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<style>
+    /* Estilos para la alerta de advertencia */
+    .alert-custom-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+        font-size: 1rem;
+    }
+    .alert-custom-warning .btn {
+        border-radius: 30px;
+    }
+
+    /* Botones de acción */
+    .btn-outline-primary, .btn-info, .btn-warning {
+        font-weight: bold;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        color: #fff;
+    }
+    .btn-warning:hover {
+        background-color: #ffca2c;
+        color: #fff;
+    }
+    .btn-info:hover {
+        background-color: #17a2b8;
+        color: #fff;
+    }
+
+    /* Establecer el contenedor principal para usar toda la altura disponible */
+    .container-fluid {
+        min-height: 100vh;  /* Asegura que el contenedor ocupe al menos toda la pantalla */
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Contenedor de la tabla que puede desplazarse si es necesario */
+    .table-responsive {
+        flex-grow: 1;  /* Esto hace que la tabla ocupe el espacio restante */
+        overflow-y: auto;  /* Añadir desplazamiento vertical si el contenido es más grande que la altura disponible */
+    }
+
+    /* Tabla estilizada */
+    .table {
+        margin-bottom: 0;  /* Evita el espacio extra debajo de la tabla */
+    }
+
+    /* Encabezado de la tabla sticky */
+    .table thead {
+        position: sticky;
+        top: 0;
+        background-color: #343a40;
+        color: #ffffff;
+        font-weight: bold;
+        z-index: 10;  /* Asegurarse de que el encabezado esté por encima de las filas */
+    }
+
+    .table thead th {
+        padding: 1rem;
+        font-size: 1.1rem;
+    }
+
+    /* Estilos para las badges de estado */
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+
+    /* Estilos para las celdas de la tabla */
+    .table td, .table th {
+        vertical-align: middle;  /* Centrar el contenido de las celdas */
+    }
+
+    /* Añadir estilo a las filas al pasar el mouse */
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;  /* Color de fondo al pasar el mouse */
+    }
+</style>
+
+<div class="requirementorder-container">
+        <!-- Nota en amarillo -->
+        <div class="alert-custom-warning d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Nota:</strong> Si tu orden de requerimiento no está aquí, es porque no está aprobada por contabilidad.
+            </div>
+            <div class="d-flex align-items-center">
+                <!-- Enlace al listado de ítems aprobados -->
+                <a href="{% url 'requirement_order_approved_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-tasks"></i> Listado de items Aprobadas
+                </a>
+                <!-- Botones para alternar entre los tres filtros -->
+                <div class="btn-group ms-3">
+                    <!-- Mostrar todo -->
+                    <!-- Mostrar solo pendientes -->
+                    <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-filter"></i> Mostrar Pendientes
+                    </a>
+                    <!-- Mostrar pendientes y comprando -->
+                    <a href="{% url 'requirement_order_list' %}?show_comprando=true" class="btn btn-outline-primary">
+                        <i class="fas fa-filter"></i> Mostrar Pendientes y Comprando
+                    </a>
+                    <a href="{% url 'requirement_order_list' %}?show_all=true" class="btn btn-outline-primary">
+                        <i class="fas fa-list"></i> Mostrar Todo
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+    {% comment %} <!-- La lista de ventas se renderiza aquí y se actualiza con HTMX -->
+    <form hx-get="{% url 'requirement-order-search' %}" hx-target="#requirementorder-list" hx-trigger="keyup delay:0.2s" hx-debounce="500ms">
+        <input type="text" name="q" placeholder="Buscar por " class="form-control" id="search-input">
+    </form> {% endcomment %}
+
+    <div id="requirementorder-list">
+        {% include 'requirement_order_list.html' %}
+    </div>
+</div>
+{% endblock %}

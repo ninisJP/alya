@@ -11,16 +11,16 @@ from openpyxl.utils import get_column_letter
 from logistic_inventory.models import Item
 from logistic_suppliers.models import Suppliers
 from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem
-from .forms import RequirementOrderForm, RequirementOrderItemFormSet
+from .forms import RequirementOrderForm, RequirementOrderItemFormSet , RequirementOrderListForm
 from .models import RequirementOrder, RequirementOrderItem
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from .models import RequirementOrderItem
-
+    
 # Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente o todas las órdenes sin filtros
 class RequirementOrderListView(ListView):
     model = RequirementOrder
-    template_name = 'requirement_order_list.html'
+    template_name = 'requirement_order_index.html'
     context_object_name = 'requirement_orders'
 
     def get_queryset(self):
@@ -28,24 +28,25 @@ class RequirementOrderListView(ListView):
         # show_pending = self.request.GET.get('show_pending') == 'true'
         show_comprando = self.request.GET.get('show_comprando') == 'true'
         show_all = self.request.GET.get('show_all') == 'true'
+        show_refused = self.request.GET.get('show_refused' == 'true')
         
         # Iniciar queryset con todas las órdenes APROBADAS por contabilidad
-        queryset = RequirementOrder.objects.filter(state='APROBADO').order_by('-id').prefetch_related('items')
+        queryset = RequirementOrder.objects.order_by('-id').prefetch_related('items') # filter(state='APROBADO')
         
         if show_all:
             queryset = queryset.distinct()
         elif show_comprando:
             # Mostrar solo las órdenes con ítems en estado Pendiente o Comprando
-            queryset = queryset.filter(
+            queryset = queryset.filter(state='APROBADO').filter(
                 items__estado__in=['P', 'C']
             ).distinct()
-        # elif show_comprando:
+        # elif show_refused:
         #     # Mostrar solo las órdenes con ítems en estado Comprando
         #     queryset = queryset.filter(
         #         items__estado='C'
         #     ).distinct()
         else:
-            queryset = queryset.filter(
+            queryset = queryset.filter(state='APROBADO').filter(
                 items__estado='P'
             ).distinct()
             
@@ -75,6 +76,21 @@ class RequirementOrderListView(ListView):
 
         return queryset
 
+
+def search_requirement_order_list_view(request):
+    query = request.GET.get('q', '')
+    print(f"Search Query: {query}")  # Agregar log
+
+    if query:
+        requirement_orders = RequirementOrder.objects.filter(Q(order_number__icontains=query) | Q(estado__icontains=query)
+                                                            | Q(notes__icontains=query)).order_by('-id')
+    else:
+        requirement_orders = RequirementOrder.objects.all().order_by('-id')
+    
+    print(requirement_orders)
+
+    context = {'requirement_orders': requirement_orders, 'form': RequirementOrderListForm()}
+    return render(request, 'requirement_order_list.html', context)
 
 def requirement_order_detail_view(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
