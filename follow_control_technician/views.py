@@ -381,8 +381,64 @@ def create_task_group(request):
 #         'items_with_forms': edit_forms,
 #     })
 
+# def detail_task_group(request, group_id):
+#     group = get_object_or_404(TechnicianTaskGroup, id=group_id)
+    
+#     if request.method == 'POST':
+#         # Agregar tareas al grupo
+#         if 'add_tasks' in request.POST:
+#             add_form = AddTasksToGroupForm(request.POST)
+#             if add_form.is_valid():
+#                 tasks = add_form.cleaned_data['tasks']
+#                 for task in tasks:
+#                     TechnicianTaskGroupItem.objects.create(
+#                         task_group=group,
+#                         task=task,
+#                         quantity=1,  # Default quantity
+#                         order=TechnicianTaskGroupItem.objects.filter(task_group=group).count() + 1,
+#                         saler_order=None  # Optional
+#                     )
+#                 return redirect('detail_task_group', group_id=group.id)
+
+#         # Editar elementos del grupo
+#         elif 'edit_items' in request.POST:
+#             # Aquí obtenemos los datos del formulario para cada item
+#             for item in group.group_items.all():
+#                 form = EditGroupItemForm(request.POST, instance=item, prefix=f'item_{item.id}')
+#                 if form.is_valid():
+#                     form.save()
+
+#             return redirect('detail_task_group', group_id=group.id)
+
+#         # Eliminar un elemento del grupo
+#         elif 'delete_item' in request.POST:
+#             item_id = request.POST.get('delete_item')
+#             item = TechnicianTaskGroupItem.objects.get(id=item_id)
+#             item.delete()
+#             return redirect('detail_task_group', group_id=group.id)
+
+#     add_form = AddTasksToGroupForm()
+#     items = group.group_items.all()
+#     edit_forms = [(item, EditGroupItemForm(instance=item, prefix=f'item_{item.id}')) for item in items]
+
+#     return render(request, 'technician_groups/task_group_detail.html', {
+#         'group': group,
+#         'add_form': add_form,
+#         'items_with_forms': edit_forms,
+#     })
+
 def detail_task_group(request, group_id):
     group = get_object_or_404(TechnicianTaskGroup, id=group_id)
+
+    # Buscar tareas
+    search_query = request.GET.get('search', '')  # Obtiene el término de búsqueda desde el GET
+    if search_query:
+        tasks = TechnicianTask.objects.filter(
+            verb__icontains=search_query  # Filtra las tareas que contienen el término de búsqueda en 'verb'
+        ).order_by('-time')  # Ordena por tiempo (puedes cambiar el campo de orden si es necesario)
+    else:
+        tasks = TechnicianTask.objects.all().order_by('-time')  # Muestra todas las tareas si no hay búsqueda
+
     if request.method == 'POST':
         # Agregar tareas al grupo
         if 'add_tasks' in request.POST:
@@ -401,12 +457,10 @@ def detail_task_group(request, group_id):
 
         # Editar elementos del grupo
         elif 'edit_items' in request.POST:
-            # Aquí obtenemos los datos del formulario para cada item
             for item in group.group_items.all():
                 form = EditGroupItemForm(request.POST, instance=item, prefix=f'item_{item.id}')
                 if form.is_valid():
                     form.save()
-
             return redirect('detail_task_group', group_id=group.id)
 
         # Eliminar un elemento del grupo
@@ -424,7 +478,10 @@ def detail_task_group(request, group_id):
         'group': group,
         'add_form': add_form,
         'items_with_forms': edit_forms,
+        'tasks': tasks,  # Pasa las tareas filtradas para mostrarlas en el formulario
+        'search_query': search_query,
     })
+
         
 def delete_task_group(request, group_id):
     group = get_object_or_404(TechnicianTaskGroup, id=group_id)
