@@ -197,8 +197,7 @@ class AddBudgetItemPlus(forms.ModelForm):
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad'}),
             'unit': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unidad de medida'}),
             'custom_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio Unitario'}),
-            'custom_price_per_day': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio por Día'}),   
-        }
+         }
 
     def __init__(self, *args, **kwargs):
         super(AddBudgetItemPlus, self).__init__(*args, **kwargs)
@@ -206,5 +205,4 @@ class AddBudgetItemPlus(forms.ModelForm):
         self.fields['quantity'].label = 'Cantidad'
         self.fields['unit'].label = 'Unidad de medida'
         self.fields['custom_price'].label = 'Precio Unitario'
-        self.fields['custom_price_per_day'].label = 'Precio por Día'
 

@@ -6,7 +6,7 @@
 
 {% block content %}
 <!-- Eliminar padding y márgenes globalmente -->
-<div class="container">
+<div class="container-fluid">
     <!-- Fila 1: Formulario para agregar ítem -->
     <div class="row g-0 mt-4">
         <div class="col-12">
@@ -41,17 +41,16 @@
         </div>
     </div>
 
-    <!-- Fila 2: Lista de ítems y Detalles del presupuesto -->
-    <div class="">
-        <!-- Columna 1: Lista de ítems (50%) -->
-        <div class="col-8>
+    <div class="row">
+        <!-- Columna 1: Lista de ítems (70%) -->
+        <div class="col-9">
             <div id="budget_item_plus" class="w-100">
                 {% include 'budgetplus/budget_item_plus.html' %}
             </div>
         </div>
-
-        <!-- Columna 2: Detalles del presupuesto (50%) -->
-        <div class="col-6">
+        
+        <!-- Columna 2: Detalles del presupuesto (30%) -->
+        <div class="col-3">
             <div id="budget_detail_plus" class="w-100">
                 {% include 'budgetplus/budget_detail_plus.html' %}
             </div>
