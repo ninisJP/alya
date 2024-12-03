@@ -14,32 +14,9 @@ def dashboard(request):
     """
     context = {}
 
-    #accounts_payable = PurchaseOrderItem.objects.filter(payment_status='No Pagado').aggregate(total=Sum('price_total'))['total'] or 0# Cuentas por pagar
-    #accounts_receivable = CollectionOrders.objects.aggregate(total=Sum('monto_neto_cobrar'))['total'] or 0 # Cuentas por cobrar
-    #total_purchases = PurchaseOrderItem.objects.filter(payment_status='Pagado').aggregate(total=Sum('price_total'))['total'] or 0 # Total compras
-    #total_sales = CollectionOrders.objects.filter(factura_pagado=True).aggregate(total=Sum('monto_neto_cobrar'))['total'] or 0 # Total ventas
-
-    #total_expenses = PurchaseOrderItem.objects.all().aggregate(total=Sum('price_total'))['total'] or 0 # Total egresos
-    #total_utility = total_income - total_expenses # Total utilidad
-
-    # Total Ingresos
+    # Finances calculate
     context_all = utils.calculate_all()
     context.update(context_all)
-
-    # Total Ingresos
-    #context_expenses = utils.calculate_expenses()
-    #context.update(context_expenses)
-
-
-    #context = {
-    #        'accounts_payable' : accounts_payable,
-    #        'accounts_receivable' : accounts_receivable,
-    #        'total_purchases' : total_purchases,
-    #        'total_sales' : total_sales,
-    #        'total_income' : total_income,
-    #        'total_expenses' : total_expenses,
-    #        'total_utility' : total_utility
-    #    }
 
     return render(request, 'dashboard.html', context)
 

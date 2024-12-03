@@ -45,7 +45,8 @@
                 <div class="card bg-light shadow-lg h-100 d-flex align-items-center justify-content-center border-primary">
                     <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
                     <h4 class="fw-bold text-primary mb-2" style="font-size: 1.75rem;">Ventas</h4>
-                    <p class="display-4 fw-bold text-primary">{{ total_sales|floatformat:2 }}</p>
+                    <p class="display-4 fw-bold text-primary">S/.{{ total_sale_pen|floatformat:2 }}</p>
+                    <p class="display-4 fw-bold text-primary">${{ total_sale_usd|floatformat:2 }}</p>
                 </div>
             </a>
         </div>
@@ -55,7 +56,7 @@
                 <div class="card bg-light shadow-lg h-100 d-flex align-items-center justify-content-center border-info">
                     <i class="fas fa-shopping-cart fa-3x text-info mb-3"></i>
                     <h4 class="fw-bold text-info mb-2" style="font-size: 1.75rem;">Compras</h4>
-                    <p class="display-4 fw-bold text-info">{{ total_purchases|floatformat:2 }}</p>
+                    <p class="display-4 fw-bold text-info">S/.{{ total_purchase_pen|floatformat:2 }}</p>
                 </div>
             </a>
         </div>
@@ -64,7 +65,8 @@
                 <div class="card bg-light shadow-lg h-100 d-flex align-items-center justify-content-center border-warning">
                     <i class="fas fa-hand-holding-usd fa-3x text-warning mb-3"></i>
                     <h4 class="fw-bold text-warning mb-2" style="font-size: 1.75rem;">Cuentas por Cobrar</h4>
-                    <p class="display-4 fw-bold text-warning">{{ accounts_receivable|floatformat:2 }}</p>
+                    <p class="display-4 fw-bold text-warning">S/.{{ total_receivable_pen|floatformat:2 }}</p>
+                    <p class="display-4 fw-bold text-warning">${{ total_receivable_usd|floatformat:2 }}</p>
                 </div>
             </a>
         </div>
@@ -73,7 +75,7 @@
                 <div class="card bg-light shadow-lg h-100 d-flex align-items-center justify-content-center border-danger">
                     <i class="fas fa-money-bill-wave fa-3x text-danger mb-3"></i>
                     <h4 class="fw-bold text-danger mb-2" style="font-size: 1.75rem;">Cuentas por Pagar</h4>
-                    <p class="display-4 fw-bold text-danger">{{ accounts_payable|floatformat:2 }}</p>
+                    <p class="display-4 fw-bold text-danger">S/.{{ total_payable_pen|floatformat:2 }}</p>
                 </div>
             </a>
         </div>

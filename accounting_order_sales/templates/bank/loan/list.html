@@ -14,6 +14,7 @@
                     <th>Pagado</th>
                     <th>Cuotas (Pagadas/Total)</th>
                     <th>Total de deuda</th>
+                    <th>Moneda</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -36,7 +37,15 @@
                             {% endif %}
                         </td>
                         <td>{{ item.coutes_paid }}/{{ item.cuotas }}</td>
-                        <td>{{ item.total_debt }}</td>
+                        <td>
+                            {% if item.currency == 'Soles' %}
+                                S/.
+                            {% elif item.currency == 'Dolares'%}
+                                $
+                            {% endif %}
+                            {{ item.total_debt }}
+                        </td>
+                        <td>{{ item.currency }}</td>
                         <td>
                             <button hx-get="{% url 'bank_loan_see' item.id %}"
                                     hx-target="#bank_windows"
@@ -72,6 +81,7 @@
                     <th>Pagado</th>
                     <th>Cuotas (Pagadas/Total)</th>
                     <th>Total de deuda</th>
+                    <th>Moneda</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -94,7 +104,15 @@
                             {% endif %}
                         </td>
                         <td>{{ item.coutes_paid }}/{{ item.cuotas }}</td>
-                        <td>{{ item.total_debt }}</td>
+                        <td>
+                            {% if item.currency == 'Soles' %}
+                                S/.
+                            {% elif item.currency == 'Dolares'%}
+                                $
+                            {% endif %}
+                            {{ item.total_debt }}
+                        </td>
+                        <td>{{ item.currency }}</td>
                         <td>
                             <button hx-get="{% url 'bank_loan_see' item.id %}"
                                     hx-target="#bank_windows"
