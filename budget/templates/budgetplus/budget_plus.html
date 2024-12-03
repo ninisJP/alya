@@ -1,0 +1,99 @@
+{% extends "base_budget.html" %}
+
+{% block title %}Detalle del Presupuesto{% endblock %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+<!-- Eliminar padding y márgenes globalmente -->
+<div class="container-fluid">
+    <!-- Fila 1: Formulario para agregar ítem -->
+    <div class="row g-0 mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-secondary text-white">
+                    <h1>{{ budget.budget_name }}</h1>
+                </div>
+                <div class="card-body">
+                    <form hx-post="{% url 'budget_item_plus' budget.pk %}" hx-target="#budget_item_plus" hx-swap="outerHTML" class="row g-3">
+                        {% csrf_token %}
+                        <div class="col-md-3">
+                            {{ form.item|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ form.quantity|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ form.unit|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ form.custom_price|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ form.custom_price_per_day|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Agregar</button>
+                        </div>
+                    </form>                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Columna 1: Lista de ítems (70%) -->
+        <div class="col-9">
+            <div id="budget_item_plus" class="w-100">
+                {% include 'budgetplus/budget_item_plus.html' %}
+            </div>
+        </div>
+        
+        <!-- Columna 2: Detalles del presupuesto (30%) -->
+        <div class="col-3">
+            <div id="budget_detail_plus" class="w-100">
+                {% include 'budgetplus/budget_detail_plus.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Librerías de Select2 y jQuery -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    function initializeSelect2(selector) {
+        if (!$(selector).hasClass("select2-hidden-accessible")) {
+            $(selector).select2({
+                placeholder: 'Seleccione un ítem',
+                allowClear: true,
+                ajax: {
+                    url: $(selector).data('ajax--url'),
+                    dataType: 'json',
+                    delay: 150,
+                    data: function(params) {
+                        return { term: params.term };
+                    },
+                    processResults: function(data) {
+                        return { results: data.results };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 1,
+                dropdownCssClass: "form-control", // Clase para el dropdown
+                containerCssClass: "form-control" // Clase para el contenedor
+            });
+        }
+    }
+
+    // Inicializar Select2
+    $('.select2-ajax').each(function() {
+        initializeSelect2(this);
+    });
+});
+</script>
+
+{% endblock %}

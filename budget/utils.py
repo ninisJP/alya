@@ -7,6 +7,7 @@ from django.conf import settings
 import pandas as pd
 from decimal import Decimal
 from .models import CatalogItem
+from django.db import transaction
 
 def export_budget_report_to_excel(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
@@ -261,13 +262,7 @@ def determine_category(sap_code):
     else:
         return CatalogItem.Category.EQUIPO  # Asignar una categoría por defecto si no coincide
 
-from decimal import Decimal
-import pandas as pd
-
 def process_sap_excel(excel_file, budget):
-    import pandas as pd
-    from decimal import Decimal
-    from django.db import transaction
 
     xls = pd.ExcelFile(excel_file)
     if 'listado' not in xls.sheet_names:

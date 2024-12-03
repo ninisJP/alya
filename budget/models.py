@@ -40,14 +40,6 @@ class Budget(models.Model):
         print(f"Debug: Calculando budget_price, Total calculado: {total}")
         return total
 
-    def calculate_final_price(self):
-        price = self.budget_price
-        expenses = price * (self.budget_expenses / 100)
-        utility = price * (self.budget_utility / 100)
-        total = price + expenses + utility
-        print(f"Debug: Calculando budget_final_price, price={price}, expenses={expenses}, utility={utility}, total={total}")
-        return total
-
     def save(self, *args, **kwargs):
         if not self.pk:
             # Guardar inicialmente para obtener un ID si es un nuevo presupuesto
@@ -61,10 +53,6 @@ class Budget(models.Model):
             self.budget_price = self.calculate_budget_price()
             print(f"Recalculando budget_price: {self.budget_price}")
 
-        # Calcular el precio final siempre
-        self.budget_final_price = self.calculate_final_price()
-
-        # Guardar los cambios
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -73,7 +61,6 @@ class Budget(models.Model):
     class Meta:
         verbose_name = "Presupuesto"
         verbose_name_plural = "Presupuestos"
-
 
 class CatalogItem(models.Model):
     class Category(models.TextChoices):
@@ -88,6 +75,7 @@ class CatalogItem(models.Model):
     description = models.CharField(max_length=256, db_index=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    life_time = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     sap = models.CharField(max_length=100, unique=True, db_index=True)
     unit = models.CharField(max_length=100, default='UND')
 
