@@ -1,21 +1,25 @@
 <form hx-post="{% url 'edit-salesorder' salesorder.id %}" hx-target="#salesorder-list" hx-swap="outerHTML" class="w-100">
     {% csrf_token %}
     <div class="row">
-        <div class="col-6 col-md-2 mb-1"> 
+        <div class="col-2 col-md-2 mb-1">
             <label for="{{ form.sapcode.id_for_label }}" class="visually-hidden">{{ form.sapcode.label }}</label>
             {{ form.sapcode }}
         </div>
-        <div class="col-6 col-md-2 mb-1">
+        <div class="col-2 col-md-2 mb-1">
             <label for="{{ form.project.id_for_label }}" class="visually-hidden">{{ form.project.label }}</label>
             {{ form.project }}
         </div>
-        <div class="col-6 col-md-2 mb-1"> 
+        <div class="col-2 col-md-2 mb-1">
             <label for="{{ form.date.id_for_label }}" class="visually-hidden">{{ form.date.label }}</label>
             {{ form.date }}
         </div>
-        <div class="col-6 col-md-5 mb-1"> 
+        <div class="col-3 col-md-5 mb-1">
             <label for="{{ form.detail.id_for_label }}" class="visually-hidden">{{ form.detail.label }}</label>
             {{ form.detail }}
+        </div>
+        <div class="col-1 col-md-1 mb-1">
+            <label for="{{ form.is_active.id_for_label }}" class="visually-hidden">{{ form.is_active.label }}</label>
+            {{ form.is_active }}
         </div>
         <div class="col-12 col-md-1 mb-1 d-flex align-items-end">
             <button type="submit" class="btn btn-primary w-100">Crear</button>
