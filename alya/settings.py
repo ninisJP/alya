@@ -3,13 +3,18 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
+if not os.path.exists('/documents'):
+    print("La ruta /documents no existe o no está montada.")
+else:
+    print("La ruta /documents está disponible.")
+    
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*', 'alya-production.up.railway.app']
 
@@ -98,13 +103,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'alya.wsgi.application'
 
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / "db.sqlite3",
-    }
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -155,8 +157,8 @@ LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = '/'
 
 # MEDIA ROOT
+MEDIA_ROOT = '/documents'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # Configuración para Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
