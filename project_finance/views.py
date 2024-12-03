@@ -1,35 +1,45 @@
-from django.shortcuts import render
-from accounting_order_sales.models import PurchaseOrder, CollectionOrders, PurchaseOrderItem
 from django.db.models import Sum
+from django.shortcuts import render
+
 from accounting_order_sales import models as accounting_order_sales_models
+from accounting_order_sales.models import PurchaseOrder, CollectionOrders, PurchaseOrderItem
+
+from . import utils
+
+
 
 def dashboard(request):
     """
     Calculamos los totales de compras, ventas, cuentas por pagar y cobrar
     """
-    accounts_payable = PurchaseOrderItem.objects.filter(payment_status='No Pagado').aggregate(total=Sum('price_total'))['total'] or 0# Cuentas por pagar
-    accounts_receivable = CollectionOrders.objects.aggregate(total=Sum('monto_neto_cobrar'))['total'] or 0 # Cuentas por cobrar
-    total_purchases = PurchaseOrderItem.objects.filter(payment_status='Pagado').aggregate(total=Sum('price_total'))['total'] or 0 # Total compras
-    total_sales = CollectionOrders.objects.filter(factura_pagado=True).aggregate(total=Sum('monto_neto_cobrar'))['total'] or 0 # Total ventas
+    context = {}
+
+    #accounts_payable = PurchaseOrderItem.objects.filter(payment_status='No Pagado').aggregate(total=Sum('price_total'))['total'] or 0# Cuentas por pagar
+    #accounts_receivable = CollectionOrders.objects.aggregate(total=Sum('monto_neto_cobrar'))['total'] or 0 # Cuentas por cobrar
+    #total_purchases = PurchaseOrderItem.objects.filter(payment_status='Pagado').aggregate(total=Sum('price_total'))['total'] or 0 # Total compras
+    #total_sales = CollectionOrders.objects.filter(factura_pagado=True).aggregate(total=Sum('monto_neto_cobrar'))['total'] or 0 # Total ventas
+
+    #total_expenses = PurchaseOrderItem.objects.all().aggregate(total=Sum('price_total'))['total'] or 0 # Total egresos
+    #total_utility = total_income - total_expenses # Total utilidad
 
     # Total Ingresos
-    total_loan_pen = accounting_order_sales_models.BankLoan.objects.filter(currency='PEN')
-    print(total_loan_pen)
-    total_income = total_sales # Total ingresos
+    context_all = utils.calculate_all()
+    context.update(context_all)
+
+    # Total Ingresos
+    #context_expenses = utils.calculate_expenses()
+    #context.update(context_expenses)
 
 
-    total_expenses = PurchaseOrderItem.objects.all().aggregate(total=Sum('price_total'))['total'] or 0 # Total egresos
-    total_utility = total_income - total_expenses # Total utilidad
-
-    context = {
-            'accounts_payable' : accounts_payable,
-            'accounts_receivable' : accounts_receivable,
-            'total_purchases' : total_purchases,
-            'total_sales' : total_sales,
-            'total_income' : total_income,
-            'total_expenses' : total_expenses,
-            'total_utility' : total_utility
-        }
+    #context = {
+    #        'accounts_payable' : accounts_payable,
+    #        'accounts_receivable' : accounts_receivable,
+    #        'total_purchases' : total_purchases,
+    #        'total_sales' : total_sales,
+    #        'total_income' : total_income,
+    #        'total_expenses' : total_expenses,
+    #        'total_utility' : total_utility
+    #    }
 
     return render(request, 'dashboard.html', context)
 

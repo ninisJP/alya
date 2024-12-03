@@ -3,9 +3,6 @@
 {% block content %}
 <div id="dashboard-container" class="container-fluid p-3 d-flex flex-column vh-100">
     <!-- Título de Dashboard -->
-    <div class="text-center mb-4">
-        <h1 class="fw-bold" style="color: #333; font-size: 3rem;">Dashboard Financiero</h1>
-    </div>
 
     <!-- Sección Principal: Ingresos, Egresos, Saldo -->
     <div class="row g-4 flex-grow-1">
@@ -14,7 +11,8 @@
                 <div class="card text-white bg-primary shadow-lg h-100 d-flex align-items-center justify-content-center">
                     <i class="fas fa-coins fa-3x mb-3"></i>
                     <h3 class="fw-bold mb-2" style="font-size: 2rem;">Ingresos</h3>
-                    <p class="display-3 fw-bold">{{ total_income|floatformat:2 }}</p>
+                    <p class="display-3 fw-bold">S/.{{ total_income_pen|floatformat:2 }}</p>
+                    <p class="display-3 fw-bold">${{ total_income_usd|floatformat:2 }}</p>
                 </div>
             </a>
         </div>
@@ -23,7 +21,8 @@
                 <div class="card text-white bg-danger shadow-lg h-100 d-flex align-items-center justify-content-center">
                     <i class="fas fa-file-invoice-dollar fa-3x mb-3"></i>
                     <h3 class="fw-bold mb-2" style="font-size: 2rem;">Egresos</h3>
-                    <p class="display-3 fw-bold">{{ total_expenses|floatformat:2 }}</p>
+                    <p class="display-3 fw-bold">S/.{{ total_expenses_pen|floatformat:2 }}</p>
+                    <p class="display-3 fw-bold">${{ total_expenses_usd|floatformat:2 }}</p>
                 </div>
             </a>
         </div>
@@ -32,7 +31,8 @@
                 <div class="card text-white bg-success shadow-lg h-100 d-flex align-items-center justify-content-center">
                     <i class="fas fa-wallet fa-3x mb-3"></i>
                     <h3 class="fw-bold mb-2" style="font-size: 2rem;">Saldo</h3>
-                    <p class="display-3 fw-bold">{{ total_utility|floatformat:2 }}</p>
+                    <p class="display-3 fw-bold">S/.{{ total_utility_pen|floatformat:2 }}</p>
+                    <p class="display-3 fw-bold">${{ total_utility_usd|floatformat:2 }}</p>
                 </div>
             </a>
         </div>
