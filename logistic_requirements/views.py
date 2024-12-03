@@ -16,7 +16,10 @@ from .models import RequirementOrder, RequirementOrderItem
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from .models import RequirementOrderItem
-    
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.timezone import localdate
+import json
+
 # Vista para listar todas las RequirementOrders aprobadas con ítems en estado Pendiente o todas las órdenes sin filtros
 class RequirementOrderListView(ListView):
     model = RequirementOrder
@@ -389,3 +392,95 @@ def export_order_to_excel(request, pk):
 
     return response
 
+
+#caja chica
+def logistic_petty_cash(request):
+    # Obtener la fecha de hoy según la zona horaria configurada
+    today = localdate()
+
+    # Obtenemos los parámetros del rango de fechas (si existen)
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Si no se han proporcionado fechas, mostrar ítems del día actual
+    if not start_date and not end_date:
+        items = PurchaseOrderItem.objects.filter(purchaseorder__scheduled_date=today).select_related(
+            'purchaseorder', 'sales_order_item__salesorder', 'supplier'
+        )
+    else:
+        # Si se proporcionan fechas, buscar entre esas dos fechas
+        if not end_date:
+            end_date = today  # Si solo hay fecha de inicio, el rango termina en el día actual
+
+        items = PurchaseOrderItem.objects.filter(
+            purchaseorder__scheduled_date__range=[start_date, end_date]
+        ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
+
+    context = {
+        'items': items,
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+
+    return render(request, 'logistic_pettycash/petty_cash_items.html', context)
+
+def logistic_petty_cash_state(request):
+    # Obtener los parámetros de filtro
+    payment_status = request.GET.get('status')  # Puede ser "Pagado" o "No Pagado"
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Inicializar el queryset base
+    items = PurchaseOrderItem.objects.select_related(
+        'purchaseorder', 'sales_order_item__salesorder', 'supplier'
+    )
+
+    # Filtrar por estado de pago si está definido
+    if payment_status:
+        items = items.filter(payment_status=payment_status)
+
+    # Si no se filtra por estado de pago, aplicar el filtro de fechas
+    elif start_date or end_date:
+        if not end_date:
+            end_date = localdate()  # Fecha actual como final si no se especifica
+        if not start_date:
+            start_date = localdate()  # Fecha actual como inicio si no se especifica
+
+        items = items.filter(purchaseorder__scheduled_date__range=[start_date, end_date])
+
+    context = {
+        'items': items,
+        'start_date': start_date,
+        'end_date': end_date,
+        'payment_status': payment_status,
+        'class_pay_choices': PurchaseOrderItem.CLASS_PAY_CHOICES,
+        'type_pay_choices': PurchaseOrderItem.TYPE_PAY_CHOICES,
+    }
+    return render(request, 'logistic_pettycash/petty_cash_state.html', context)
+
+def update_payment_status(request, item_id):
+    item = get_object_or_404(PurchaseOrderItem, id=item_id)
+    item.payment_status = 'Pagado' if item.payment_status == 'No Pagado' else 'No Pagado'
+    item.save()
+    return JsonResponse({'status': item.payment_status})
+
+@csrf_exempt
+def update_field(request, item_id):
+    try:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            field = data.get('field')
+            value = data.get('value')
+
+            item = get_object_or_404(PurchaseOrderItem, id=item_id)
+
+            if field in ['class_pay', 'type_pay']:
+                setattr(item, field, value)
+                item.save()
+                return JsonResponse({'success': True, 'field': field, 'value': value})
+
+            return JsonResponse({'success': False, 'error': 'Campo no válido.'}, status=400)
+
+        return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
