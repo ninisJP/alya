@@ -2,11 +2,6 @@ import dj_database_url
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-
-if not os.path.exists('/documents'):
-    print("La ruta /documents no existe o no está montada.")
-else:
-    print("La ruta /documents está disponible.")
     
 load_dotenv()
 
