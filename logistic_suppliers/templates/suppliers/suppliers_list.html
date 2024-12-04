@@ -1,34 +1,59 @@
-<ul class="list-group">
+{% load static %}
+<ul class="list-group list-group-flush shadow-sm rounded">
     {% for supplier in suppliers %}
-        <li id="supplier-{{ supplier.id }}" class="list-group-item d-flex justify-content-between align-items-center">
-            <div class="d-flex flex-column">
-                <small>Proveedor: <strong class="text-dark">{{ supplier.name }}</strong></small>
-                <small>RUC/DNI: {{ supplier.document }}</small>
-                <small>Banco: {{ supplier.bank }} | Tipo de Moneda: {{ supplier.currency }}</small>
-                <small>Cuenta: {{ supplier.account }} | Cuenta Interbancaria: {{ supplier.interbank_currency }}</small>
+    <li id="supplier-{{ supplier.id }}" class="list-group-item list-group-item-action px-3 py-3 bg-white hover-bg-light">
+        <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1 me-3">
+                <div class="d-flex flex-column">
+                    <h6 class="mb-1 text-primary">
+                        <i class="fas fa-building me-2"></i>{{ supplier.name }}
+                    </h6>
+                    <div class="small text-muted">
+                        <div class="mb-1">
+                            <strong>RUC/DNI:</strong> {{ supplier.document }}
+                        </div>
+                        <div class="mb-1">
+                            <i class="fas fa-university me-1"></i>
+                            <strong>Banco:</strong> {{ supplier.bank }} 
+                            | <strong>Moneda:</strong> {{ supplier.currency }}
+                        </div>
+                        <div>
+                            <i class="fas fa-credit-card me-1"></i>
+                            <strong>Cuenta:</strong> {{ supplier.account }} 
+                            | <strong>Interbancaria:</strong> {{ supplier.interbank_currency }}
+                        </div>
+                    </div>
+                </div>
             </div>
-                <tr>
-            <div class="d-flex align-items-center">
-                <button class="btn btn-warning btn-sm me-2 d-flex align-items-center"
-                        hx-get="{% url 'supplier_detail' supplier.id %}"
-                        hx-target="#supplier-{{ supplier.id }}"
-                        hx-swap="outerHTML">
-                    <i class="fas fa-edit me-1"></i> Detalle
-                </button>
-                <button class="btn btn-warning btn-sm me-2 d-flex align-items-center"
-                        hx-get="{% url 'edit-supplier' supplier.id %}" 
-                        hx-target="#supplier-{{ supplier.id }}" 
-                        hx-swap="outerHTML">
-                    <i class="fas fa-edit me-1"></i> Editar
-                </button>
-                <button class="btn btn-danger btn-sm d-flex align-items-center" 
-                        hx-post="{% url 'delete-supplier' supplier.id %}" 
-                        hx-confirm="¿Estás seguro de eliminar el Proveedor?" 
-                        hx-target="#supplier-{{ supplier.id }}" 
-                        hx-swap="outerHTML">
-                    <i class="fas fa-trash me-1"></i> Eliminar
-                </button>
+            <div class="d-flex flex-column align-items-end">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-outline-warning d-flex align-items-center"
+                            hx-get="{% url 'edit-supplier' supplier.id %}"
+                            hx-target="#supplier-{{ supplier.id }}"
+                            hx-swap="outerHTML">
+                        <i class="fas fa-edit me-1"></i> Editar
+                    </button>
+                    <button class="btn btn-outline-danger d-flex align-items-center"
+                            hx-post="{% url 'delete-supplier' supplier.id %}"
+                            hx-confirm="¿Estás seguro de eliminar el Proveedor?"
+                            hx-target="#supplier-{{ supplier.id }}"
+                            hx-swap="outerHTML">
+                        <i class="fas fa-trash me-1"></i> Eliminar
+                    </button>
+                </div>
             </div>
-        </li>
+        </div>
+    </li>
+    {% empty %}
+    <li class="list-group-item text-center text-muted py-4">
+        <i class="fas fa-info-circle me-2"></i>No hay proveedores registrados
+    </li>
     {% endfor %}
 </ul>
+
+<style>
+.hover-bg-light:hover {
+    background-color: #f8f9fa !important;
+    transition: background-color 0.2s ease;
+}
+</style>
