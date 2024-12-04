@@ -28,7 +28,7 @@ class RequirementOrderListView(ListView):
 
     def get_queryset(self):
         # Obtener los parámetros de los filtros
-        # show_pending = self.request.GET.get('show_pending') == 'true'
+        show_pending = self.request.GET.get('show_pending') == 'true'
         show_comprando = self.request.GET.get('show_comprando') == 'true'
         show_all = self.request.GET.get('show_all') == 'true'
         show_refused = self.request.GET.get('show_refused' == 'true')
@@ -41,16 +41,16 @@ class RequirementOrderListView(ListView):
         elif show_comprando:
             # Mostrar solo las órdenes con ítems en estado Pendiente o Comprando
             queryset = queryset.filter(state='APROBADO').filter(
-                items__estado__in=['P', 'C']
+                    items__estado='C'# items__estado__in=['P', 'C']
             ).distinct()
-        # elif show_refused:
-        #     # Mostrar solo las órdenes con ítems en estado Comprando
-        #     queryset = queryset.filter(
-        #         items__estado='C'
-        #     ).distinct()
-        else:
+        elif show_pending:
+            # Mostrar solo las órdenes con ítems en estado Comprando
             queryset = queryset.filter(state='APROBADO').filter(
                 items__estado='P'
+            ).distinct()
+        else:
+            queryset = queryset.filter(state='APROBADO').filter(
+                items__estado__in=['P', 'C'] # items__estado='P'
             ).distinct()
             
         
