@@ -16,7 +16,7 @@
             <!-- Columna izquierda: Tareas en el grupo -->
             <div class="col-lg-8">
                 <div class="p-3 bg-light rounded shadow-sm">
-                    <form method="post">
+                    <form method="POST">
                         {% csrf_token %}
                         <!-- Tabla para editar tareas -->
                         <table class="table table-bordered table-hover">
@@ -58,10 +58,18 @@
             <!-- Columna derecha: Lista de tareas disponibles -->
             <div class="col-lg-4">
                 <div class="p-3 bg-light rounded shadow-sm h-100" style="overflow-y: auto; height: 600px;">
-                    <form method="post">
+                    <!-- Formulario de búsqueda -->
+                    <form method="GET" action="{% url 'detail_task_group' group.id %}">
                         {% csrf_token %}
-                        <div class="list-group">
-                            {% for task in add_form.fields.tasks.queryset %}
+                        <input type="text" name="search" class="form-control mb-3" placeholder="Buscar tarea..." value="{{ search_query }}">
+                        <button type="submit" class="btn btn-secondary btn-block mt-3 w-100">Buscar</button>
+                    </form>
+                    
+                    <!-- Formulario para agregar tareas al grupo -->
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="list-group mt-4">
+                            {% for task in tasks %}
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span class="flex-grow-1 me-3">{{ task }}</span>
                                 <input type="checkbox" name="tasks" value="{{ task.id }}" style="width: 20px; height: 20px;">
@@ -71,9 +79,9 @@
                         <button type="submit" name="add_tasks" class="btn btn-primary btn-block mt-3 w-100">
                             Agregar al Grupo
                         </button>
-                    </form>
+                    </form>                    
                 </div>
-            </div>
+            </div>            
         </div>
     </div>
 </div>

@@ -39,12 +39,16 @@ class SalesOrderForm(forms.ModelForm):
 
     class Meta:
         model = SalesOrder
-        fields = ["sapcode", "project", "detail", "date"]
+        fields = ["sapcode", "project", "detail", "date", "is_active"]
         widgets = {
             'sapcode': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Código SAP'}),
             'project': forms.Select(attrs={'class': 'form-control'}),
             'detail': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Detalle'}),
         }
+        labels = {
+                'is_active' : 'Activo',
+        }
+
 
 class ItemSalesOrderForm(forms.ModelForm):
     class Meta:
@@ -135,12 +139,13 @@ class CollectionOrdersForm(forms.ModelForm):
 class BankLoanForm(forms.ModelForm):
     class Meta:
         model = models.BankLoan
-        fields = ('start_date', 'desembols_date', 'bank', 'currency', 'cuotas', 'document', 'total_debt', 'credit_type')
+        fields = ('start_date', 'desembols_date', 'bank', 'detail','currency', 'cuotas', 'document', 'total_debt', 'credit_type')
 
         labels = {
-                'start_date'    : 'Fecha de inicio (2024-12-20)',
-                'desembols_date': 'Fecha de desembolso (2024-12-20)',
+                'start_date'    : 'Fecha de inicio',
+                'desembols_date': 'Fecha de desembolso',
                 'bank'          : 'Banco',
+                'detail'       : 'Detalles',
                 'currency'      : 'Moneda (USD, PEN)',
                 'cuotas'        : 'Cuotas',
                 'document'      : 'Documento asociado',
@@ -174,3 +179,6 @@ class PartialPaymentForm(forms.ModelForm):
         super(PartialPaymentForm, self).__init__(*args, **kwargs)
 
         self.fields['loan_payment'].queryset = models.LoanPayment.objects.filter(loan=loan, is_paid=False)
+
+class SearchLoanForm(forms.Form):
+    bank = forms.CharField(label="Banco", max_length=100, required=False)

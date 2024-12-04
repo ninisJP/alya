@@ -4,38 +4,45 @@
         {% csrf_token %}
         <div class="row mb-4">
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.start_date.id_for_label }}" > Por {{ form.start_date.label}}: </label>
+                <label for="{{ form.start_date.id_for_label }}" >{{ form.start_date.label}}<br>(2020-12-31):</label>
                 {{ form.start_date }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.desembols_date.id_for_label }}" > Por {{ form.desembols_date.label}}: </label>
+                <label for="{{ form.desembols_date.id_for_label }}" >{{ form.desembols_date.label}}<br>(2020-12-31):</label>
                 {{ form.desembols_date }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.bank.id_for_label }}" > Por {{ form.bank.label}}: </label>
+                <label for="{{ form.bank.id_for_label }}" >{{ form.bank.label}}: </label>
                 {{ form.bank }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.currency.id_for_label }}" > Por {{ form.currency.label}}: </label>
-                {{ form.currency }}
+                <label for="{{ form.detail.id_for_label }}" >{{ form.detail.label}}: </label>
+                {{ form.detail }}
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-6 col-md-2 mb-3">
+                <label for="{{ form.currency.id_for_label }}" >{{ form.currency.label}}:<br></label>
+                <br>{{ form.currency }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.cuotas.id_for_label }}" > Por {{ form.cuotas.label}}: </label>
+                <label for="{{ form.cuotas.id_for_label }}" >{{ form.cuotas.label}}: </label>
                 {{ form.cuotas }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.document.id_for_label }}" > Por {{ form.document.label}}: </label>
+                <label for="{{ form.document.id_for_label }}" >{{ form.document.label}}: </label>
                 {{ form.document }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.total_debt.id_for_label }}" > Por {{ form.total_debt.label}}: </label>
+                <label for="{{ form.total_debt.id_for_label }}" >{{ form.total_debt.label}}: </label>
                 {{ form.total_debt }}
             </div>
             <div class="col-6 col-md-2 mb-3">
-                <label for="{{ form.credit_type.id_for_label }}" > Por {{ form.credit_type.label}}: </label>
-                {{ form.credit_type }}
+                <label for="{{ form.credit_type.id_for_label }}" >{{ form.credit_type.label}}: </label>
+                <br>{{ form.credit_type }}
             </div>
-
+        </div>
+        <div class="row mb-4">
             <div class="col-4 col-md-2 ml-8 d-flex align-items-end d-flex justify-content-start">
                 <button type="submit" class="btn btn-primary">Agregar Prestamo</button>
             </div>

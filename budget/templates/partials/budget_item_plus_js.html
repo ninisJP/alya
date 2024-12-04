@@ -1,0 +1,35 @@
+
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cells = document.querySelectorAll('.excel-table input[type="number"], .excel-table input[type="text"]');
+            
+            cells.forEach(cell => {
+                cell.addEventListener('keydown', function(e) {
+                    const currentCell = e.target;
+                    let nextCell;
+                    
+                    // Movimiento hacia la derecha
+                    if (e.key === 'ArrowRight') {
+                        nextCell = currentCell.parentElement.nextElementSibling?.querySelector('input');
+                    }
+                    // Movimiento hacia la izquierda
+                    if (e.key === 'ArrowLeft') {
+                        nextCell = currentCell.parentElement.previousElementSibling?.querySelector('input');
+                    }
+                    // Movimiento hacia abajo
+                    if (e.key === 'ArrowDown') {
+                        nextCell = currentCell.closest('tr').nextElementSibling?.querySelector(`td:nth-child(${currentCell.closest('td').cellIndex + 1}) input`);
+                    }
+                    // Movimiento hacia arriba
+                    if (e.key === 'ArrowUp') {
+                        nextCell = currentCell.closest('tr').previousElementSibling?.querySelector(`td:nth-child(${currentCell.closest('td').cellIndex + 1}) input`);
+                    }
+                    
+                    if (nextCell) {
+                        nextCell.focus();
+                        e.preventDefault(); // Prevenir comportamiento por defecto de las flechas
+                    }
+                });
+            });
+        });
+</script>

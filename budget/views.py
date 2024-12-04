@@ -31,12 +31,29 @@ from .forms import AddBudgetItemForm
 from collections import defaultdict
 from django.shortcuts import get_object_or_404, redirect
 from django.db import models
+from django.contrib import messages
+from django.db.models import Sum
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse
+from django.core.paginator import Paginator
+from django.core.files.storage import FileSystemStorage
+from django.db import transaction
+
+from follow_control_card.forms import TaskForm
+from .forms import BudgetEditNewForm, BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm, NewBudgetItemForm, EditBudgetItemForm, BudgetUploadForm, ExcelUploadForm, AddBudgetItemForm
+from .models import Budget, BudgetItem, CatalogItem
+from accounting_order_sales.models import SalesOrder, SalesOrderItem
+
+from .utils import export_budget_report_to_excel, process_budget_excel, process_sap_excel
+import pandas as pd
+from decimal import Decimal
+import re
+import openpyxl
+
 
 def index_budget(request):
     budgets = Budget.objects.all()  # Recupera todos los presupuestos
     return render(request, 'index_budget.html', {'budgets': budgets})
-
-
 
 def catalog_item_search(request):
     if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -279,10 +296,7 @@ def duplicate_budget(request, pk):
     return redirect('detail_budget', pk=duplicated_budget.pk)
 
 def create_sales_order_from_budget(request, budget_id):
-    from decimal import Decimal
-    from django.shortcuts import get_object_or_404, redirect
-    from django.contrib import messages
-    from django.db import transaction
+
 
     # Obtener el presupuesto seleccionado
     budget = get_object_or_404(Budget, id=budget_id)
@@ -491,18 +505,26 @@ def upload_excel(request):
         form = ExcelUploadForm(request.POST, request.FILES)
         if form.is_valid():
             file = request.FILES['file']
-            
+
             try:
-                df = pd.read_csv(file)
-                
+                # Verificar la extensión del archivo
+                if file.name.endswith('.csv'):
+                    df = pd.read_csv(file)  # Leer archivo CSV
+                elif file.name.endswith('.xlsx'):
+                    df = pd.read_excel(file)  # Leer archivo Excel
+                else:
+                    messages.error(request, "Solo se permiten archivos .csv y .xlsx.")
+                    return redirect('budget_catalog_excel')
+
                 if df.empty:
                     messages.error(request, "El archivo está vacío.")
                     return redirect('budget_catalog_excel')
 
+                # Columnas requeridas
                 required_columns = ['Número de artículo', 'Descripción del artículo', 'Grupo de artículos', 'Unidad de medida de inventario', 'Último precio de compra']
                 missing_columns = [col for col in required_columns if col not in df.columns]
                 if missing_columns:
-                    messages.error(request, f"El archivo CSV no contiene las columnas necesarias: {', '.join(missing_columns)}")
+                    messages.error(request, f"El archivo no contiene las columnas necesarias: {', '.join(missing_columns)}")
                     return redirect('budget_catalog_excel')
 
                 items_to_create = []
@@ -513,12 +535,12 @@ def upload_excel(request):
                         try:
                             if pd.isnull(row['Número de artículo']) or pd.isnull(row['Descripción del artículo']):
                                 continue
-                            
+
                             sap = str(row['Número de artículo']).strip()
                             description = str(row['Descripción del artículo']).strip()
                             category = str(row['Grupo de artículos']).strip()
                             unit = str(row['Unidad de medida de inventario']).strip() if pd.notnull(row['Unidad de medida de inventario']) else 'UND'
-                            
+
                             price_str = str(row['Último precio de compra']).strip()
                             price_cleaned = re.sub(r'[^\d.,]', '', price_str).replace(',', '')
                             price = float(price_cleaned) if price_cleaned else 0.0
@@ -541,12 +563,12 @@ def upload_excel(request):
 
                 if items_to_create:
                     CatalogItem.objects.bulk_create(items_to_create, ignore_conflicts=True)
-                
-                messages.success(request, "El archivo CSV se ha procesado y los datos se han guardado o actualizado exitosamente.")
+
+                messages.success(request, "El archivo se ha procesado y los datos se han guardado o actualizado exitosamente.")
                 return redirect('budget_catalog_excel')
 
             except pd.errors.ParserError as e:
-                messages.error(request, f"Error de formato en el archivo CSV: {e}")
+                messages.error(request, f"Error de formato en el archivo: {e}")
                 return redirect('budget_catalog_excel')
 
             except ValueError as e:
@@ -563,5 +585,50 @@ def upload_excel(request):
 
     else:
         form = ExcelUploadForm()
-    
+
     return render(request, 'upload_excel.html', {'form': form})
+
+# Download CatalogItem Excel
+
+    # category = models.CharField(max_length=100, choices=Category.choices, default=Category.EQUIPO)
+    # description = models.CharField(max_length=256, db_index=True)
+    # price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    # price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    # sap = models.CharField(max_length=100, unique=True, db_index=True)
+    # unit = models.CharField(max_length=100, default='UND')
+
+from openpyxl import Workbook
+
+def export_catalog(request):
+    # Crear un archivo Excel en memoria
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Catalogo"
+
+    # Crear las cabeceras de las columnas (esto será el formato de exportación)
+    ws.append(['Número de artículo', 'Descripción del artículo', 'Grupo de artículos', 'Unidad de medida de inventario','Último precio de compra',])
+
+                            #     sap = str(row['Número de artículo']).strip()
+                            # description = str(row['Descripción del artículo']).strip()
+                            # category = str(row['Grupo de artículos']).strip()
+                            # unit = str(row['Unidad de medida de inventario']).strip() if pd.notnull(row['Unidad de medida de inventario']) else 'UND'
+
+                            # price_str = str(row['Último precio de compra']).strip()
+                            # price_cleaned = re.sub(r'[^\d.,]', '', price_str).replace(',', '')
+                            # price = float(price_cleaned) if price_cleaned else 0.0
+
+    # Obtener todos los elementos del catálogo
+    catalog_items = CatalogItem.objects.all()
+
+    # Añadir los datos al archivo Excel, renombrando las columnas en el proceso
+    for item in catalog_items:
+        ws.append([item.sap, item.description, item.category, item.unit, item.price])
+
+    # Preparar la respuesta HTTP para descargar el archivo Excel
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="catalogo.xlsx"'
+
+    # Guardar el archivo Excel en la respuesta HTTP
+    wb.save(response)
+
+    return response

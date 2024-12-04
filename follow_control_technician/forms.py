@@ -77,6 +77,11 @@ class AddTasksToGroupForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,  # Opcional: Cambia según tu preferencia
         label="Seleccionar Tareas"
     )
+    search = forms.CharField(
+        required=False,
+        label="Buscar tarea",
+        widget=forms.TextInput(attrs={'placeholder': 'Buscar tarea...', 'class': 'form-control'})
+    )
 
 class EditGroupItemForm(forms.ModelForm):
     class Meta:

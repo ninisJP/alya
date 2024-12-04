@@ -159,9 +159,13 @@
 <!-- Botón para subir el archivo Excel -->
 <a href="{% url 'budget_catalog_excel' %}" class="list-group-item list-group-item-action">
     <i class="fas fa-upload"></i>
-    <span>Subir Catálogo (CSV)</span>
+    <span>Subir Catálogo (CSV/XLSX)</span>
 </a>
 {%endif%}
+<a href="{% url 'export_catalog' %}" class="list-group-item list-group-item-action">
+    <i class="fa-solid fa-download"></i>
+    <span>Descargar Catálogo (CSV/XLSX)</span>
+</a>
 
 
 

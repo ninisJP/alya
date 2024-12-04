@@ -4,31 +4,72 @@
             <th>SAP Code</th>
             <th>Descripción</th>
             <th>Cantidad</th>
-            <th>Precio Unitario</th>
-            <th>Precio Total</th>
+            <th>Moneda</th>
             <th>Proveedor</th>
             <th>Estado de Pago</th>
         </tr>
     </thead>
     <tbody>
         {% for item in items %}
-        <tr>
-            <td>{{ item.sap_code }}</td>
-            <td>{{ item.notes }}</td>
-            <td>{{ item.quantity_requested }}</td>
-            <td>{{ item.price }}</td>
-            <td>{{ item.price_total }}</td>
-            <td>{% if item.supplier %}{{ item.supplier.name }}{% else %}Sin proveedor{% endif %}</td>
-            <td>{{ item.payment_status }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="7" style="text-align: center;">No hay ítems en estado "No Pagado".</td>
-        </tr>
+            <tr>
+                <td>{{ item.sap_code }}</td>
+                <td>{{ item.notes }}</td>
+                <td>{{ item.quantity_requested }}</td>
+                <td>{% if item.supplier %}{{ item.supplier.name }}{% else %}Sin proveedor{% endif %}</td>
+                <td></td>
+                <td>{{ item.payment_status }}</td>
+            </tr>
+        {% endfor %}
+
+        <!-- Loan -->
+        {% for item in loans %}
+            <tr>
+                <td>Prestamos</td>
+                <td>{{ item.detail }}</td>
+                <td>
+                    {% if item.currency == 'Soles' %} S/.
+                    {% elif item.currency == 'Dolares' %} $
+                    {% endif %}
+                    {{ item.total_debt }}
+                </td>
+                <td>{{ item.currency }}</td>
+                <td></td>
+                <td>
+                    {% if item.is_paid %}
+                        <span class="badge bg-success text-white rounded-pill px-2 py-1">
+                            {{ budget.budget_days }} SI
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger text-white rounded-pill px-2 py-1">
+                            {{ budget.budget_days }} NO
+                        </span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+
+        <!-- Collection -->
+        {% for item in collections %}
+            <tr>
+                <td></td>
+                <td>{{ item.orden_venta }}</td>
+                <td>{{ item.description }}</td>
+                <td>{{ item.monto_neto_cobrar }}</td>
+                <td>
+                    {% if item.is_paid %}
+                        <span class="badge bg-success text-white rounded-pill px-2 py-1">
+                            {{ budget.budget_days }} SI
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger text-white rounded-pill px-2 py-1">
+                            {{ budget.budget_days }} NO
+                        </span>
+                    {% endif %}
+                </td>
+            </tr>
         {% endfor %}
     </tbody>
 </table>
-
 
 
 <button class="btn btn-primary" hx-get="{% url 'dashboard' %}" hx-target="body"> Flechita para atras >.< </button>

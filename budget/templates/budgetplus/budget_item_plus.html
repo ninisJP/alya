@@ -1,0 +1,110 @@
+{% include 'partials/budget_item_plus_css.html' %}
+
+<div id="budget_item_plus">
+    <form method="POST" hx-post="{% url 'budget_item_update' budget.id %}" hx-target="#budget_item_plus" hx-swap="outerHTML">
+        {% csrf_token %}
+        <div class="card mt-4 shadow-sm">
+            <div class="card-body p-0">
+                <table class="table excel-table">
+                    <thead>
+                        <tr>
+                            <th class="letter-header"></th>
+                            <th class="letter-header">A</th>
+                            <th class="letter-header">B</th>
+                            <th class="letter-header">C</th>
+                            <th class="letter-header">D</th>
+                            <th class="letter-header">E</th>
+                            <th class="letter-header">F</th>
+                            <th class="letter-header">G</th>
+                            <th class="letter-header">H</th>
+                            <th class="letter-header">I</th>
+                            <th class="letter-header">J</th>
+                            <th class="letter-header">K</th>
+                        </tr>
+                        <tr>
+                            <th class="letter-header">#</th>
+                            <th>SAP</th>
+                            <th>CAT.</th>
+                            <th>ITEM</th>
+                            <th>UND</th>
+                            <th>CANT</th>
+                            <th>HORAS</th>
+                            <th>PRECIO H.</th>
+                            <th>PRECIO D.</th>
+                            <th>PRECIO U.</th>
+                            <th>PRECIO P.</th>
+                            <th>ACT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr id="item-{{ item.id }}">
+                            <td class="row-number">{{ loop.index }}</td>
+                            <td>{{ item.item.sap }}</td>
+                            <td>{{ item.item.category }}</td>
+                            <td>{{ item.item.description }}</td>
+                            <td>{{ item.unit }}</td>
+                            <td>
+                                <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" class="form-control quantity" data-item-id="{{ item.id }}">
+                            </td>
+                            <td>
+                                <input type="number" name="custom_quantity_{{ item.id }}" value="{{ item.custom_quantity|default:0 }}" class="form-control">
+                            </td>
+                            <td>
+                                <input type="number" name="custom_price_per_hour_{{ item.id }}" value="{{ item.custom_price_per_hour|default:0 }}" class="form-control">
+                            </td>
+                            <td>
+                                <input type="number" name="custom_price_per_day_{{ item.id }}" value="{{ item.custom_price_per_day }}" class="form-control">
+                            </td>
+                            <td>
+                                <input type="number" name="custom_price_{{ item.id }}" value="{{ item.custom_price }}" class="form-control price" data-item-id="{{ item.id }}">
+                            </td>
+                            <td><span class="total-price" id="total-price-{{ item.id }}">{{ item.total_price }}</span></td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" 
+                                        hx-delete="{% url 'budget_item_delete' item.id %}" 
+                                        hx-target="#item-{{ item.id }}" 
+                                        hx-swap="outerHTML">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Guardar Cambios</button>
+    </form>
+</div>
+
+{% include 'partials/budget_item_plus_js.html' %}
+
+<script>
+    // Función para actualizar el precio total
+    function updateTotalPrice(itemId) {
+        var quantity = parseFloat(document.querySelector('input[name="quantity_' + itemId + '"]').value) || 0;
+        var price = parseFloat(document.querySelector('input[name="custom_price_' + itemId + '"]').value) || 0;
+        
+        // Calcula el precio total
+        var totalPrice = quantity * price;
+        
+        // Actualiza el precio total en la tabla
+        document.querySelector('#total-price-' + itemId).innerText = totalPrice.toFixed(2);
+    }
+
+    // Agregar event listeners para detectar cambios en cantidad y precio
+    document.querySelectorAll('.quantity').forEach(function(input) {
+        input.addEventListener('input', function() {
+            var itemId = input.getAttribute('data-item-id');
+            updateTotalPrice(itemId);
+        });
+    });
+
+    document.querySelectorAll('.price').forEach(function(input) {
+        input.addEventListener('input', function() {
+            var itemId = input.getAttribute('data-item-id');
+            updateTotalPrice(itemId);
+        });
+    });
+</script>

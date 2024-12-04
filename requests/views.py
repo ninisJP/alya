@@ -2,7 +2,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from logistic_requirements.models import RequirementOrder, RequirementOrderItem
-from .forms import CreateRequirementOrderForm, CreateRequirementOrderItemFormSet 
+from .forms import CreateRequirementOrderForm, CreateRequirementOrderItemFormSet
 from django.views.generic import DetailView
 from django.forms import inlineformset_factory
 from .forms import CreateRequirementOrderForm, CreateRequirementOrderItemForm, CreateRequirementOrderItemFormSet
@@ -18,7 +18,7 @@ from logistic_suppliers.models import Suppliers
 from django.core.cache import cache
 
 def index_requests(request):
-    sales_orders = SalesOrder.objects.all().order_by('-id')
+    sales_orders = SalesOrder.objects.filter(is_active=True).order_by('-id')
     return render(request, 'index_requests.html', {'sales_orders': sales_orders})
 
 def my_requests(request):
@@ -59,7 +59,7 @@ def create_requests(request, order_id):
                 for item in items:
                     item.requirement_order = requirement_order
                     item.price = item.price or item.sales_order_item.price
-                    
+
                     try:
                         item.clean()
                         item.save()
@@ -180,19 +180,19 @@ def create_prepopulated_request(request, order_id):
 class MyRequestDetail(DetailView):
     model = RequirementOrder
     template_name = 'requests/my_request_detail.html'
-    context_object_name = 'order'   
-    
+    context_object_name = 'order'
+
 def delete_requirement_order_item(request, item_id):
     # Obtener el item a eliminar y su RequirementOrder asociado
     item = get_object_or_404(RequirementOrderItem, id=item_id)
     order = item.requirement_order
-    
+
     # Eliminar el item
     item.delete()
-    
+
     # Re-renderizar el partial `items_table.html` con la lista de ítems actualizada
     return render(request, 'partials/item_table.html', {'order': order})
-    
+
 def ajax_load_suppliers(request):
     term = request.GET.get('term', '').strip().lower()  # Filtrar y limpiar el término de búsqueda
 
@@ -206,14 +206,14 @@ def ajax_load_suppliers(request):
         cache.set(cache_key, supplier_list, timeout=60 * 5)  # Cachea la respuesta por 5 minutos
 
     return JsonResponse({'results': supplier_list})
-    
-# Nueva vista para pedidos rapidos 
+
+# Nueva vista para pedidos rapidos
 def RequestSalesOrder(request, pk):
     # Usamos select_related para evitar consultas adicionales de clave externa
     sales_order = get_object_or_404(SalesOrder.objects.select_related('project'), id=pk)
     # Prefetch_related permite cargar `requirementorderitem_set` de forma eficiente
     sales_order_items = sales_order.items.all().prefetch_related('requirementorderitem_set')
-    
+
     # Elimina la carga de suppliers
     context = {
         'sales_order': sales_order,

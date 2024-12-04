@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*', 'alya-production.up.railway.app']
 
@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #DJANGO BROWSER RELOA
-    #"django_browser_reload",
+    "django_browser_reload",
     'django_htmx',
     'rest_framework',
     'rest_framework.authtoken',
@@ -79,7 +79,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.LoginRequiredMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'django_browser_reload.middleware.BrowserReloadMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
@@ -104,7 +104,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'alya.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
+    }
 }
 
 

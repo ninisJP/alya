@@ -34,9 +34,10 @@
                     <i class="fas fa-file-excel"></i> Descargar en Excel
                 </a>
                 <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger mb-2 w-100">Eliminar Presupuesto</a>
+                {% if user.is_superuser %}
                 <a href="{% url 'create_sales_order' budget.id %}" class="btn btn-primary w-100">Crear Orden de Venta</a>
+                {% endif %}            
             </div>
-
             <!-- Subida de archivo Excel (normal) -->
             <div class="card mb-3">
                 <div class="card-header bg-light p-2">

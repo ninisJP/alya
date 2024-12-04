@@ -3,6 +3,8 @@ from .models import Budget, BudgetItem, CatalogItem
 from django.forms import inlineformset_factory
 from django import forms
 from django.urls import reverse_lazy
+from .models import Budget
+from django import forms
 
 class Select2AjaxWidget(forms.Select):
     class Media:
@@ -106,14 +108,8 @@ class NewBudgetItemForm(forms.ModelForm):
         self.fields['custom_price_per_day'].label = 'Precio por Día'
         self.fields['unit'].label = 'Unidad de Medida'
 
-
-from django import forms
-
 class BudgetUploadForm(forms.Form):
     excel_file = forms.FileField(label='Subir Excel')
-
-from django import forms
-from .models import Budget
 
 class BudgetEditNewForm(forms.ModelForm):
     class Meta:
@@ -148,8 +144,6 @@ class BudgetEditNewForm(forms.ModelForm):
         self.fields['budget_servicetime'].label = 'Tiempo de Servicio'
         self.fields['budget_warrantytime'].label = 'Tiempo de Garantía'
 
-
-
 class CatalogItemForm(forms.ModelForm):
     class Meta:
         model = CatalogItem
@@ -163,7 +157,6 @@ class CatalogItemForm(forms.ModelForm):
             'unit': 'Unidad de medida',
         }
 
-
 class SearchCatalogItemForm(forms.Form):
     sap = forms.CharField(label="sap", max_length=100, required=False)
     description = forms.CharField(label="description", max_length=100, required=False)
@@ -171,12 +164,13 @@ class SearchCatalogItemForm(forms.Form):
 class ExcelUploadForm(forms.Form):
     file = forms.FileField(label="Selecciona el archivo Excel")
     
+# borrarlo si ya no vanausar el pemtodo normal 
 class AddBudgetItemForm(forms.ModelForm):
     class Meta:
         model = BudgetItem
         fields = ['item', 'quantity', 'custom_price', 'custom_price_per_day']
         widgets = {
-            'item': Select2AjaxWidget(),  # Usa el mismo widget select2-ajax
+            'item': Select2AjaxWidget(),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad'}),
             'custom_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio Unitario'}),
             'custom_price_per_day': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio por Día'}),
@@ -193,3 +187,22 @@ class EditBudgetItemForm(forms.ModelForm):
     class Meta:
         model = BudgetItem
         fields = ['quantity', 'custom_price', 'custom_price_per_day']
+
+class AddBudgetItemPlus(forms.ModelForm):
+    class Meta:
+        model = BudgetItem
+        fields = ['item', 'quantity', 'unit','custom_price', 'custom_price_per_day']
+        widgets = {
+            'item': Select2AjaxWidget(),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad'}),
+            'unit': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unidad de medida'}),
+            'custom_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio Unitario'}),
+         }
+
+    def __init__(self, *args, **kwargs):
+        super(AddBudgetItemPlus, self).__init__(*args, **kwargs)
+        self.fields['item'].label = 'Ítem'
+        self.fields['quantity'].label = 'Cantidad'
+        self.fields['unit'].label = 'Unidad de medida'
+        self.fields['custom_price'].label = 'Precio Unitario'
+

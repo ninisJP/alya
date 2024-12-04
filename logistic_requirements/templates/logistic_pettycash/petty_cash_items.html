@@ -1,0 +1,199 @@
+{% extends 'base_logistic.html' %}
+
+{% block title %}Caja Chica - Ítems de Órdenes de Compra{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <header class="bg-light p-4 rounded shadow-sm mb-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0 fw-bold" style="font-size: 1.5rem;">
+                Caja Chica
+            </h2>
+            <div class="d-flex justify-content-end mb-3">
+                <a href="{% url 'logistic_petty_cash_state' %}" class="btn btn-info me-2">Ver Estado de Pagos</a>
+                <button onclick="exportToExcel()" class="btn btn-success me-2">Descargar Excel</button>
+                <button onclick="exportToPDF()" class="btn btn-danger">Descargar PDF</button>
+            </div>
+        
+            <!-- Formulario de filtros entre fechas -->
+            <form method="GET" class="row g-2">
+                <div class="col-auto">
+                    <label for="start_date" class="visually-hidden">Desde:</label>
+                    <input type="date" name="start_date" id="start_date" class="form-control" placeholder="Desde" value="{{ start_date }}">
+                </div>
+                <div class="col-auto">
+                    <label for="end_date" class="visually-hidden">Hasta:</label>
+                    <input type="date" name="end_date" id="end_date" class="form-control" placeholder="Hasta" value="{{ end_date }}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url 'logistic_petty_cash' %}" class="btn btn-secondary">Limpiar</a>
+                </div>
+            </form>
+        </div>        
+    </header>
+    
+    
+
+    <!-- Tabla de ítems de órdenes de compra -->
+    <div class="table-responsive mt-3">
+        <table class="table table-striped table-hover table-sm text-center"> <!-- Añadimos 'text-center' a la tabla -->
+            <thead>
+                <tr class="text-center"> <!-- Centramos las cabeceras -->
+                    <th>USR</th>
+                    <th>O. VENTA</th>
+                    <th>PROYECTO</th>
+                    <th>PROVEED</th>
+                    <th>DESC</th>
+                    <th>OBS</th>
+                    <th>BANK</th>
+                    <th>NRO CUENTA</th>
+                    <th>CCI</th>
+                    <th>MONEDA</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr class="align-middle"> <!-- Centramos las celdas verticalmente con 'align-middle' -->
+                    <td>{{ item.purchaseorder.requested_by }}</td>
+                    <td>{{ item.sales_order_item.salesorder.sapcode }}</td>
+                    <td>{{ item.sales_order_item.salesorder.project.name }}</td>
+                    <td>{{ item.supplier.name }}</td>
+                    <td>{{ item.sales_order_item.description }}</td>
+                    <td>{{ item.notes }}</td>
+                    <td>{{ item.supplier.bank }}</td>
+                    <td>{{ item.supplier.account }}</td>
+                    <td>{{ item.supplier.interbank_currency }}</td>
+                    <td>{{ item.supplier.currency }}</td>
+                    <td>{{ item.price_total }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center">No se encontraron ordenes de pago para esta fecha</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function exportToPDF() {
+        // Selecciona la tabla
+        const { jsPDF } = window.jspdf;
+        let pdf = new jsPDF();
+
+        pdf.text("Caja Chica - Ítems de Órdenes de Compra", 10, 10);
+        
+        // Variables de inicio para la posición en el PDF
+        let y = 20;
+
+        // Recorrer filas de la tabla
+        document.querySelectorAll("table tbody tr").forEach((row, index) => {
+            let rowData = [];
+            row.querySelectorAll("td").forEach(cell => {
+                rowData.push(cell.innerText);
+            });
+
+            // Agregar texto al PDF
+            pdf.text(rowData.join("  "), 10, y);
+            y += 10;
+
+            // Crear nueva página si la altura es mayor a 280
+            if (y > 280) {
+                pdf.addPage();
+                y = 10;
+            }
+        });
+
+        // Descargar el archivo PDF
+        pdf.save("Caja_Chica.pdf");
+    }
+</script>
+<script>
+    function exportToExcel() {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet("Caja Chica");
+    
+        // Definir los encabezados con estilo
+        const headers = ["USR", "O. Venta", "Proyecto", "Proveedor", "Ítem", "Detalle", "Banco", "Número de Cuenta", "Cuenta Interbancaria", "Moneda", "Total"];
+        sheet.addRow(headers);
+    
+        // Estilos para los encabezados
+        sheet.getRow(1).eachCell(cell => {
+            cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '4CAF50' } };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.border = { 
+                top: { style: 'thin' }, 
+                left: { style: 'thin' }, 
+                bottom: { style: 'thin' }, 
+                right: { style: 'thin' }
+            };
+        });
+    
+        // Seleccionar todas las filas de la tabla
+        const rows = Array.from(document.querySelectorAll("table tbody tr"));
+        
+        rows.forEach(row => {
+            const rowData = [
+                row.querySelectorAll("td")[0].innerText,  // USR
+                row.querySelectorAll("td")[1].innerText,  // O. Venta
+                row.querySelectorAll("td")[2].innerText,  // Proyecto
+                row.querySelectorAll("td")[3].innerText,  // Proveedor
+                row.querySelectorAll("td")[4].innerText,  // Ítem
+                row.querySelectorAll("td")[5].innerText,  // Detalle
+                row.querySelectorAll("td")[6].innerText,  // Banco
+                row.querySelectorAll("td")[7].innerText,  // Número de Cuenta
+                row.querySelectorAll("td")[8].innerText,  // Cuenta Interbancaria
+                row.querySelectorAll("td")[9].innerText,  // Moneda
+                row.querySelectorAll("td")[10].innerText  // Total
+            ];
+            const addedRow = sheet.addRow(rowData);
+    
+            // Estilos de cada fila
+            addedRow.eachCell(cell => {
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                cell.border = { 
+                    top: { style: 'thin' }, 
+                    left: { style: 'thin' }, 
+                    bottom: { style: 'thin' }, 
+                    right: { style: 'thin' }
+                };
+            });
+        });
+    
+        // Ajustar ancho de las columnas automáticamente
+        sheet.columns.forEach(column => {
+            let maxWidth = 10; // Valor inicial mínimo
+            column.eachCell({ includeEmpty: true }, cell => {
+                const cellValue = cell.value ? cell.value.toString() : "";
+                maxWidth = Math.max(maxWidth, cellValue.length + 5); // Añade un margen extra de +5
+            });
+            column.width = maxWidth;
+        });
+    
+        // Descargar el archivo Excel
+        workbook.xlsx.writeBuffer().then(buffer => {
+            const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = "Caja_Chica_Styled.xlsx";
+            link.click();
+        });
+    }
+    
+</script>
+
+
+
+
+
+{% endblock %}
+
+
