@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView
@@ -139,20 +140,36 @@ def update_requirement_order_items(request, pk):
         item.notes = request.POST.get(f'notes_{item.id}', item.notes)
         item.supplier_id = request.POST.get(f'supplier_{item.id}')
         item.estado = request.POST.get(f'estado_{item.id}', item.estado)
+
+        # Guardar la fecha de la orden de compra
+        date_str = request.POST.get(f'date_{item.id}')
+        if date_str:
+            try:
+                item.date_purchase_order = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                item.date_purchase_order = None
+
+
         updated_items.append(item)
 
     # Usar bulk_update para mejorar el rendimiento
-    RequirementOrderItem.objects.bulk_update(updated_items, ['quantity_requested', 'price', 'notes', 'supplier_id', 'estado'])
+    RequirementOrderItem.objects.bulk_update(
+        updated_items, 
+        ['quantity_requested', 'price', 'notes', 'supplier_id', 'estado', 'date_purchase_order']
+    )
 
     # Recalcular remaining_requirement para todos los sales_order_items relacionados
     for item in updated_items:
         item.sales_order_item.update_remaining_requirement()
+        print(f'Item ID: {item.id}, Fecha: {item.date_purchase_order}')
+
 
     # Retornar el mensaje directamente en HTML
     return HttpResponse(
         '<div class="alert alert-success" role="alert">Items actualizados con éxito</div>',
         status=200
     )
+
 
 
 def create_purchase_order(request, pk):
