@@ -48,6 +48,5 @@ def total_income_detail(request):# Total Ingresos
     return render(request, 'partials/total_income_detail.html', context)
 
 def total_expenses_detail(request):# Total Egresos
-    details = PurchaseOrder.objects.all()
-    context = {'details': details}
+    context = utils.get_model_expenses()
     return render(request, 'partials/total_expenses_detail.html', context)

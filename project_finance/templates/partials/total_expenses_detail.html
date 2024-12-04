@@ -1,0 +1,72 @@
+<style>
+    .row {
+        display: flex;
+    }
+
+    .column {
+        flex: 40%;
+    }
+</style>
+
+<div class="row">
+    <div class="column">
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Banco</th>
+                    <th>Detalle</th>
+                    <th>Fecha de la cuota</th>
+                    <th>Fecha del pago parcial</th>
+                    <th>Monto</th>
+                    <th>Moneda</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in expense_list_pen %}
+                    <tr>
+                        <td>{{ item.loan_payment.loan.bank }}</td>
+                        <td>{{ item.loan_payment.loan.detail }}</td>
+                        <td>{{ item.loan_payment.pay_date }}</td>
+                        <td>{{ item.receipt_date }}</td>
+                        <td>S/.{{ item.partial_amount }}</td>
+                        <td>{{ item.loan_payment.loan.currency }}</td>
+                    </tr>
+                {% endfor %}
+                {% for item in expense_list_usd %}
+                    <tr>
+                        <td>{{ item.loan_payment.loan.bank }}</td>
+                        <td>{{ item.loan_payment.loan.detail }}</td>
+                        <td>{{ item.loan_payment.pay_date }}</td>
+                        <td>{{ item.receipt_date }}</td>
+                        <td>$ {{ item.partial_amount }}</td>
+                        <td>{{ item.loan_payment.loan.currency }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    <div class="column">
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Numero cuota</th>
+                    <th>Detalle</th>
+                    <th>Fecha de la cuota</th>
+                    <th>Fecha del pago parcial</th>
+                    <th>Monto</th>
+                    <th>Moneda</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sunat_list_pen %}
+                    <tr>
+                        <td>{{ item.numero_cuota }}</td>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+
+<button class="btn btn-primary" hx-get="{% url 'dashboard' %}" hx-target="body"> Flechita para atras >.< </button>

@@ -47,7 +47,6 @@ def calculate_income():
 	# Sale
 	sale_pen, sale_usd, context_sale = calculate_sale()
 
-
 	# TOTAL
 	total_loan_pen = loan_pen + sale_pen
 	total_loan_usd = loan_usd + sale_usd
@@ -74,8 +73,12 @@ def get_model_expenses():
 	loan_pen = accounting_order_sales_models.PartialPayment.objects.filter(pk__in=list_pen)
 	loan_usd = accounting_order_sales_models.PartialPayment.objects.filter(pk__in=list_usd)
 
-	context['expense_list'] = loan_pen
-	context['expense_list'] = loan_usd
+	# SUNAT
+	sunat_pen = accounting_sunat_models.Pago.objects.filter(pagado=True)
+
+	context['expense_list_pen'] = loan_pen
+	context['expense_list_usd'] = loan_usd
+	context['sunat_list_pen'] = sunat_pen
 
 	return context
 
