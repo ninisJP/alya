@@ -103,13 +103,19 @@
                 <div class="btn-group ms-3">
                     <!-- Mostrar todo -->
                     <!-- Mostrar solo pendientes -->
-                    <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-primary">
+                    <a href="{% url 'requirement_order_list' %}?show_pending=true" class="btn btn-outline-primary">
                         <i class="fas fa-filter"></i> Mostrar Pendientes
                     </a>
-                    <!-- Mostrar pendientes y comprando -->
                     <a href="{% url 'requirement_order_list' %}?show_comprando=true" class="btn btn-outline-primary">
-                        <i class="fas fa-filter"></i> Mostrar Pendientes y Comprando
+                        <i class="fas fa-filter"></i> Mostrar Comprando
                     </a>
+                    <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-filter"></i> Mostrar Pendientes y Comprando
+                    </a>                    
+                    <!-- Mostrar pendientes y comprando -->
+                    {% comment %} <a href="{% url 'requirement_order_list' %}?show_comprando=true" class="btn btn-outline-primary">
+                        <i class="fas fa-filter"></i> Mostrar Pendientes y Comprando
+                    </a> {% endcomment %}
                     <a href="{% url 'requirement_order_list' %}?show_all=true" class="btn btn-outline-primary">
                         <i class="fas fa-list"></i> Mostrar Todo
                     </a>
