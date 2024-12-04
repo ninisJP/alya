@@ -2,20 +2,39 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Encabezado en una sola fila -->
     <div class="card shadow-sm mb-4 rounded" style="background-color: #f8f9fa;">
         <div class="card-body">
             <div class="row align-items-center">
-                <div class="col-md-8 d-flex flex-column">
-                    <h4 class="mb-2">Detalles de la Orden de Requerimiento #{{ requirement_order.order_number }}</h4>
-                    <div class="d-flex gap-2">
-                        <span class="badge bg-light text-dark border">Fecha Solicitada: {{ requirement_order.requested_date }}</span>
-                        <span class="badge {{ requirement_order.estado }}">
-                            {{ requirement_order.estado }}
-                        </span>
+                <!-- Información de la orden de requerimiento -->
+                <div class="col">
+                    <div class="d-flex align-items-center">
+                        <div class="badge bg-danger text-white rounded-pill p-3" style="font-size: 1.5rem; font-weight: 700;">
+                            <strong>{{ requirement_order.order_number }}</strong>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <div class="col">
+                    <span class="text-dark" style="font-weight: 600;">{{ requirement_order.sales_order.project.name }}</span>
+                </div>
+                <div class="col">
+                    <span class="text-dark" style="font-weight: 600;">{{ requirement_order.notes }}</span>
+                </div>
+                <div class="col">
+                    <strong style="font-weight: 700;">Días:</strong> <span class="text-dark" style="font-weight: 600;">{{ requirement_order.sales_order.days }}</span>
+                </div>
+                <div class="col">
+                    <strong style="font-weight: 700;">Pedido:</strong> <span class="text-dark" style="font-weight: 600;">{{ requirement_order.user }}</span>
+                </div>
+                <div class="col">
+                    <strong style="font-weight: 700;">Creado el:</strong>
+                    <span class="badge bg-light text-dark border" style="font-weight: 700;">{{ requirement_order.created_at }}</span>
+                </div>
+                <div class="col">
+                    <strong style="font-weight: 700;">Solicitado el:</strong>
+                    <span class="badge bg-light text-dark border" style="font-weight: 700;">{{ requirement_order.requested_date }}</span>
+                </div>
+                <!-- Botón de volver -->
+                <div class="col text-md-end mt-3 mt-md-0">
                     <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left"></i> Volver
                     </a>
@@ -23,63 +42,26 @@
             </div>
         </div>
     </div>
-
-    <!-- Información General en Tabla -->
-    <div class="card shadow-sm mb-4 rounded" style="background-color: #f8f9fa;">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-sm mb-0 w-100">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Pedido</th>
-                            <th>Orden de Venta</th>
-                            <th>Cliente</th>
-                            <th>Proyecto</th>
-                            <th>F. Creada</th>
-                            <th>Días</th> <!-- Nueva columna para mostrar los días de la orden -->
-                            <th>Detalles</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ requirement_order.user }}</td>
-                            <td>{{ requirement_order.sales_order.sapcode }}</td>
-                            <td>{{ requirement_order.sales_order.project.client.legal_name }}</td>
-                            <td>{{ requirement_order.sales_order.project.name }}</td>
-                            <td>{{ requirement_order.created_at }}</td>
-                            <td>{{ requirement_order.sales_order.days }}</td>
-                            <td>{{ requirement_order.notes }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Botones de Filtrado y Exportar -->
+        <!-- Botones de Filtrado y Exportar -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div class="d-flex gap-2">
-            <a href="{% url 'requirement_order_detail' requirement_order.pk %}"
-               class="btn btn-outline-secondary {% if not filtrar %}active{% endif %}">Ver Todos</a>
-            <a href="{% url 'requirement_order_detail' requirement_order.pk %}?filtrar=P"
-               class="btn btn-outline-secondary {% if filtrar == 'P' %}active{% endif %}">Ver Pendientes</a>
-        </div>
-        <div class="d-flex gap-2">
+            <a href="{% url 'list_requirement_order_guides' requirement_order.pk %}" class="btn btn-outline-info">
+                <i class="fas fa-list"></i> Ver Guías de Salida
+            </a>
             <button type="button" class="btn btn-outline-primary" onclick="downloadExcel()">
                 <i class="fas fa-file-excel"></i> Exportar Excel
-            </button>
-            <button type="button" class="btn btn-outline-danger" onclick="downloadPDF()">
-                <i class="fas fa-file-pdf"></i> Exportar PDF
             </button>
                     <!-- Nuevo Botón para Crear Guía de Salida -->
                     <a href="{% url 'create_exit_guide' requirement_order.pk %}" class="btn btn-outline-success">
                         <i class="fas fa-truck"></i> Crear Guía de Salida
                     </a>
-                        <!-- Botón para ver las Guías de Salida -->
-    <a href="{% url 'list_requirement_order_guides' requirement_order.pk %}" class="btn btn-outline-info">
-        <i class="fas fa-list"></i> Ver Guías de Salida
-    </a>
-                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'requirement_order_detail' requirement_order.pk %}"
+                           class="btn btn-outline-secondary {% if not filtrar %}active{% endif %}">Ver Todos</a>
+                        <a href="{% url 'requirement_order_detail' requirement_order.pk %}?filtrar=P"
+                           class="btn btn-outline-secondary {% if filtrar == 'P' %}active{% endif %}">Ver Pendientes</a>
+                    </div>
+                    <!-- Botón para ver las Guías de Salida -->                   
             <div class="btn-group">
                 <button type="button" class="btn btn-outline-success" onclick="updateAllItemsState('L')">L</button>
                 <button type="button" class="btn btn-outline-primary" onclick="updateAllItemsState('C')">C</button>
@@ -87,7 +69,6 @@
                 <button type="button" class="btn btn-outline-danger" onclick="updateAllItemsState('R')">R</button>
             </div>
         </div>
-        
     </div>
 
     <!-- Tabla de Ítems -->
@@ -99,30 +80,30 @@
               <table class="table table-bordered table-hover align-middle w-100">
                 <thead class="table-dark">
                     <tr>
-                        <th style="width: 80px;">SAP</th>
-                        <th style="width: 100px;">CATEGORÍA</th>
+                        <th style="width: 80px;">SAP - CAT</th>
                         <th style="width: 200px;">ITEM</th>
                         <th style="width: 250px;">DETALLE</th>
                         <th style="width: 100px;">UND</th>
-                        <th style="width: 100px;">CANT U.</th>
-                        <th style="width: 100px;">CANT H.</th>
+                        <th style="width: 100px;">CANT</th>
+                        <th style="width: 100px;">HORAS</th>
                         <th style="width: 80px;">STOCK</th>
                         {% if not filtrar == 'P' %}
-                            <th style="width: 100px;">P. UNIT</th>
+                            <th style="width: 100px;">UNIT</th>
                         {% endif %}
-                        <th style="width: 100px;">P. TOTAL</th>
+                        <th style="width: 100px;">TOTAL</th>
                         <th style="width: 150px;">PROVEEDOR</th>
                         <th style="width: 60px;">DOC</th>
+                        <th style="width: 100px;">
+                            <i class="fas fa-check-circle" style="color: green;"></i> PAGADO
+                        </th>
                         <th style="width: 100px;">ESTADO</th>
-                        <th style="width: 120px;">FECHA</th> <!-- Nueva columna Fecha -->
-                        <th style="width: 100px;">PAGADO</th>
+
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in items %}
                     <tr id="item-row-{{ item.id }}">
-                        <td>{{ item.sap_code }}</td>
-                        <td>{{ item.sales_order_item.category }}</td>
+                        <td>{{ item.sap_code }} - {{ item.sales_order_item.category }}</td>
                         <td style="white-space: normal;">{{ item.sales_order_item.description }}</td>
                         <td>
                             <input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control" style="min-height: 50px;">
@@ -160,6 +141,13 @@
                             {% endif %}
                         </td>
                         <td>
+                            {% if item.is_paid %}
+                                <span class="badge bg-success">Si</span>
+                            {% else %}
+                                <span class="badge bg-danger">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
                             <div class="btn-group" role="group" aria-label="Estado">
                                 <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
                                 <button type="button" class="btn btn-sm {% if item.estado == 'E' %}btn-secondary{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'E')">E</button>
@@ -168,20 +156,6 @@
                                 <button type="button" class="btn btn-sm {% if item.estado == 'P' %}btn-warning{% else %}btn-outline-warning{% endif %}" onclick="setEstado('{{ item.id }}', 'P')">P</button>
                                 <button type="button" class="btn btn-sm {% if item.estado == 'R' %}btn-danger{% else %}btn-outline-danger{% endif %}" onclick="setEstado('{{ item.id }}', 'R')">R</button>
                             </div>
-                        </td>
-                        <td>
-                            <input type="date" 
-                            name="date_{{ item.id }}" 
-                            value="{{ item.date_purchase_order|date:'Y-m-d' }}" 
-                            class="form-control text-center" 
-                            style="width: 120px;">                    
-                        </td>
-                        <td>
-                            {% if item.is_paid %}
-                                <span class="badge bg-success">Pagado</span>
-                            {% else %}
-                                <span class="badge bg-danger">No Pagado</span>
-                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
