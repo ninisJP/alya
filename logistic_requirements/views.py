@@ -50,7 +50,7 @@ class RequirementOrderListView(ListView):
             ).distinct()
         else:
             queryset = queryset.filter(state='APROBADO').filter(
-                items__estado__in=['P', 'C'] # items__estado='P'
+                items__estado='P' # items__estado__in=['P', 'C']
             ).distinct()
             
         
