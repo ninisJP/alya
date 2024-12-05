@@ -188,6 +188,28 @@ def tasks(request):
     context = {'form': TaskForm(), 'tasks': user_tasks}
     return render(request, 'tasks/task.html', context)
 
+def task_search(request):
+    query = request.GET.get('q', '')  # Obtener la consulta de búsqueda desde el request
+
+    # Si hay una búsqueda, filtrar las órdenes de venta basadas en la consulta
+    if query:
+        tasks = Task.objects.filter(
+            Q(verb__icontains=query) | 
+            Q(object__icontains=query) | 
+            Q(sale_order__detail__icontains=query) | 
+            Q(measurement__icontains=query) | 
+            Q(task_time__icontains=query)
+            ).order_by('-id')
+    else:
+        tasks = Task.objects.all().order_by('-id')  # Mostrar todas las órdenes de venta si no hay búsqueda
+
+    context = {'tasks': tasks , 'form': TaskForm()}
+    # Devolver solo el fragmento de la lista
+    return render(request, 'partials/task-list.html', context)
+
+
+
+
 def create_tasks(request):
     if request.method == 'POST':
         form = TaskForm(request.POST)

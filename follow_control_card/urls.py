@@ -1,10 +1,11 @@
 from django.urls import path
 
-from .views import DailyCardList, add_daily_task, delete_daily_task, search_task, add_task_to_card, sort_tasks, tasks, create_tasks, delete_task, edit_task, toggle_task_state
+from .views import DailyCardList, add_daily_task, delete_daily_task, search_task, add_task_to_card, sort_tasks, tasks, create_tasks, delete_task, edit_task, toggle_task_state , task_search
 
 urlpatterns = [
     path('daily_card/<int:pk>/', DailyCardList.as_view(), name='daily_card'),
-    path('tasks', tasks, name='tasks'),
+    path('tasks/', tasks, name='tasks'),
+    path('tasks/search/task',task_search, name='task_search'),
 
     # Otras rutas...
 ]
