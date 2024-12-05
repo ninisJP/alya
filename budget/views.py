@@ -418,27 +418,45 @@ def create_sales_order_from_budget(request, budget_id):
 def export_budget_report(request, pk):
     return export_budget_report_to_excel(request, pk)
 
-def catalog(request):
-    user_tasks = CatalogItem.objects.all()
-    context = {'form': TaskForm(), 'tasks': user_tasks}
-    return render(request, '', context)
+# def catalog(request):
+#     user_tasks = CatalogItem.objects.all()
+#     context = {'form': TaskForm(), 'tasks': user_tasks}
+#     return render(request, '', context)
 
 # CATALOG
+from django.core.paginator import Paginator
+from django.core.cache import cache
+
+
 def catalog(request):
     # Formularios de creación y búsqueda
     form = CatalogItemForm()
     search_form = SearchCatalogItemForm()
 
-    # Listado de ítems de catálogo
-    catalogs = CatalogItem.objects.all()
+    # Intentar obtener los datos desde el caché
+    catalogs = cache.get('catalog_items')
+    
+    # Si no están en caché, obtener los datos de la base de datos
+    if not catalogs:
+        catalogs = CatalogItem.objects.all()
+        # Guardar los ítems en caché por 1 hora
+        cache.set('catalog_items', catalogs, timeout=3600)
 
+    # Paginación
+    paginator = Paginator(catalogs, 25)  # 25 ítems por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Contexto con los formularios y los ítems paginados
     context = {
         'form': form,
         'search': search_form,
-        'catalogs': catalogs,
+        'catalogs': page_obj,  # Usamos page_obj para la paginación
     }
 
+    # Renderizar la plantilla con el contexto
     return render(request, 'catalog/home.html', context)
+
 
 def catalog_edit(request, catalog_id):
     catalog = get_object_or_404(CatalogItem, id=catalog_id)
@@ -470,35 +488,49 @@ def catalog_new(request):
 
     return render(request, 'catalog/form.html', context)
 
+# def catalog_search(request):
+#     context = {}
+#     if request.method == 'POST':
+#         form = SearchCatalogItemForm(request.POST)
+#         if form.is_valid():
+
+#             # Search catalogs
+#             if form.cleaned_data['sap'] and not form.cleaned_data['description'] :
+#                 # Only SAP
+#                 status, catalogs = utils.search_model(CatalogItem.objects.all(), 'sap', form.cleaned_data['sap'], accept_all=True)
+#             elif form.cleaned_data['sap'] and form.cleaned_data['description'] :
+#                 # SAP and description
+#                 status, catalogs = utils.search_model(CatalogItem.objects.all(), 'sap', form.cleaned_data['sap'], accept_all=True)
+#                 status, catalogs = utils.search_model(catalogs, 'description', form.cleaned_data['description'], accept_all=True)
+#             elif form.cleaned_data['description']:
+#                 # Only description
+#                 status, catalogs = utils.search_model(CatalogItem.objects.all(), 'description', form.cleaned_data['description'], accept_all=True)
+#             else :
+#                 # Item
+#                 catalogs = CatalogItem.objects.all()
+#                 status = 0
+
+#             # Sort
+#             catalogs = catalogs.order_by('sap')
+
+#             context['catalogs'] = catalogs
+#             context['search_status'] = status
+#     context['search'] = SearchCatalogItemForm()
+#     return render(request, 'catalog/list.html', context)
+
+# new Catalog search 
+from django.db.models import  Q
+
 def catalog_search(request):
-    context = {}
-    if request.method == 'POST':
-        form = SearchCatalogItemForm(request.POST)
-        if form.is_valid():
-
-            # Search catalogs
-            if form.cleaned_data['sap'] and not form.cleaned_data['description'] :
-                # Only SAP
-                status, catalogs = utils.search_model(CatalogItem.objects.all(), 'sap', form.cleaned_data['sap'], accept_all=True)
-            elif form.cleaned_data['sap'] and form.cleaned_data['description'] :
-                # SAP and description
-                status, catalogs = utils.search_model(CatalogItem.objects.all(), 'sap', form.cleaned_data['sap'], accept_all=True)
-                status, catalogs = utils.search_model(catalogs, 'description', form.cleaned_data['description'], accept_all=True)
-            elif form.cleaned_data['description']:
-                # Only description
-                status, catalogs = utils.search_model(CatalogItem.objects.all(), 'description', form.cleaned_data['description'], accept_all=True)
-            else :
-                # Item
-                catalogs = CatalogItem.objects.all()
-                status = 0
-
-            # Sort
-            catalogs = catalogs.order_by('sap')
-
-            context['catalogs'] = catalogs
-            context['search_status'] = status
-    context['search'] = SearchCatalogItemForm()
-    return render(request, 'catalog/list.html', context)
+    query= request.GET.get('q','')
+    if query:
+        catalogs = CatalogItem.objects.filter(
+            Q(sap__icontains=query) | Q(category__icontains=query) | Q(description__icontains=query)
+        )
+    else:
+        catalogs = CatalogItem.objects.all()
+    context = {'catalogs':catalogs, 'form':CatalogItemForm()}
+    return render(request, 'catalog/list_element.html', context)
 
 def upload_excel(request):
     if request.method == "POST":

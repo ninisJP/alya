@@ -21,13 +21,13 @@
                 <h1 class="mb-0">Búsqueda de Items</h1>
             </div>
         </div>
-        <a href="{% url 'export_catalog' %}" class="btn btn-primary">
-            Descargar Catálogo Completo
-        </a>
-        <ul id="budget_catalog_search" class="mt-8 space-y-4">
-            {% include 'catalog/search.html' %}
-        </ul>
 
+        {% comment %} <ul id="budget_catalog_search" class="mt-8 space-y-4">
+            {% include 'catalog/search.html' %}
+        </ul> {% endcomment %}
+        <form hx-get="{% url 'budget_catalog_search' %}" hx-target="#budget_catalog_list" hx-trigger="keyup delay:0.2s" hx-debounce="1500ms">
+            <input type="text" name="q" placeholder="Buscar por SAP,Projecto, Detalle" class="form-control" id="search-input">
+        </form>
         <ul id="budget_catalog_list" class="mt-8 space-y-4">
             {% include 'catalog/list.html' %}
         </ul>
