@@ -4,7 +4,7 @@ from .views import DailyCardList, add_daily_task, delete_daily_task, search_task
 
 urlpatterns = [
     path('daily_card/<int:pk>/', DailyCardList.as_view(), name='daily_card'),
-    path('tasks', tasks, name='tasks'),
+    path('tasks/', tasks, name='tasks'),
 
     # Otras rutas...
 ]

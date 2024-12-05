@@ -1,6 +1,6 @@
 from django import forms
 from accounting_order_sales.models import SalesOrder
-from .models import Task
+from .models import Task, Card
 
 class TaskForm(forms.ModelForm):
     class Meta:
@@ -29,3 +29,7 @@ class TaskForm(forms.ModelForm):
             if obj.project and obj.project.client else f'{obj.detail} - Sin Cliente'
         )
 
+class CardForm(forms.ModelForm):
+    class Meta:
+        model = Card
+        fields = ['user', 'date', 'valuation', 'total_time', 'efficiency_percentage']
