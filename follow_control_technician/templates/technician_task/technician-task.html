@@ -33,6 +33,10 @@
     <div id="tasks-forms" class="w-100">
         {% include 'technician_task/technician-task-form.html' %}
     </div>
+
+    <form hx-get="{% url 'techniciantask_search' %}" hx-target="#task-list" hx-trigger="keyup delay:0.2s" hx-debounce="500ms" class="mb-4"> <!-- Añadí mb-4 al formulario -->
+        <input type="text" name="q" placeholder="Buscar Tareas" class="form-control" id="search-input">
+    </form>
     
     <div id="task-list">
         {% include 'technician_task/technician-task-list.html' %}
