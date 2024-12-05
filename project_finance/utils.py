@@ -76,6 +76,11 @@ def get_model_expenses():
 	# SUNAT
 	sunat_pen = accounting_sunat_models.Pago.objects.filter(pagado=True)
 
+	# Purchase
+	context_purchase = get_model_purchase()
+	context.update(context_purchase)
+
+
 	context['expense_list_pen'] = loan_pen
 	context['expense_list_usd'] = loan_usd
 	context['sunat_list_pen'] = sunat_pen
@@ -192,19 +197,18 @@ def calculate_receivable():
 
 	return context
 
-# Cuentas por cobrar
+# Cuentas por pagar
 def get_model_payable():
 	context = {}
 
 	# Puchase
-	#purchase_pen = accounting_order_sales_models.PurchaseOrderItem.objects.filter(payment_status='No Pagado')
+	purchase_pen = accounting_order_sales_models.PurchaseOrderItem.objects.filter(payment_status='No Pagado')
 	# SUNAT
-	#sunat_pen = accounting_sunat_models.Pago.objects.filter(pagado=False).aggregate(total=Sum('total'))['total'] or 0
+	sunat_pen = accounting_sunat_models.Pago.objects.filter(pagado=False)
 
-	# TOTAL
-	#total_payable_pen = purchase_pen + sunat_pen
 
-	#context['total_payable_pen'] = total_payable_pen
+	context['purchase_list_pen'] = purchase_pen
+	context['sunat_list_pen'] = sunat_pen
 
 	return context
 

@@ -44,27 +44,31 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
 
+    <!-- purchase --->
     <div class="column">
         <table border="1" style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr>
-                    <th>Numero cuota</th>
-                    <th>Detalle</th>
-                    <th>Fecha de la cuota</th>
-                    <th>Fecha del pago parcial</th>
+                    <th>SAP Code</th>
+                    <th>Descripción</th>
                     <th>Monto</th>
-                    <th>Moneda</th>
+                    <th>Proveedor</th>
                 </tr>
             </thead>
             <tbody>
-                {% for item in sunat_list_pen %}
+                {% for item in purchase_list_pen %}
                     <tr>
-                        <td>{{ item.numero_cuota }}</td>
+                        <td>{{ item.sap_code }}</td>
+                        <td>{{ item.notes }}</td>
+                        <td>S/. {{ item.price_total }}</td>
+                        <td>{% if item.supplier %}{{ item.supplier.name }}{% else %}Sin proveedor{% endif %}</td>
+                        <td></td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
-
     </div>
 </div>
 

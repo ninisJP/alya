@@ -22,12 +22,13 @@ def dashboard(request):
 
 def accounts_payable_detail(request):# Cuentas por pagar
     #items = PurchaseOrderItem.objects.filter(payment_status='No Pagado')
-    loans = accounting_order_sales_models.BankLoan.objects.all()
-    collections = accounting_order_sales_models.CollectionOrders.objects.all()
+    #loans = accounting_order_sales_models.BankLoan.objects.all()
+    #collections = accounting_order_sales_models.CollectionOrders.objects.all()
 
-    context = {}
-    context['loans'] = loans
-    context['collections '] = collections
+    #context = {}
+    #context['loans'] = loans
+    #context['collections '] = collections
+    context = utils.get_model_payable()
 
     return render(request, 'partials/accounts_payable_detail.html', context)
 
