@@ -23,7 +23,7 @@ urlpatterns = [
     path('catalog/new/', views.catalog_new, name='budget_catalog_new'),
     path('catalog/search/', views.catalog_search, name='budget_catalog_search'),
     path('catalog/edit/<int:catalog_id>/', views.catalog_edit, name='catalog_edit'),
-    path('catalog/new/', views.catalog_new, name='budget_catalog_new'),
+    # path('catalog/new/', views.catalog_new, name='budget_catalog_new'),
     path('catalog/excel/', views.upload_excel, name='budget_catalog_excel'),
     path('presupuestos/export_catalog/', views.export_catalog, name='export_catalog'),
     # Nueva URL para subir archivo Excel
