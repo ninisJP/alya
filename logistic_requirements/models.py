@@ -105,8 +105,22 @@ class RequirementOrderItem(models.Model):
         )['total_sent'] or Decimal(0)  # Considera 0 si no hay envíos
         return self.quantity_requested - sent_quantity
 
+    def clean(self):
+        """Validación personalizada para el precio total."""
+        # Validar que el total solicitado no exceda el total permitido por el `SalesOrderItem`
+        if self.sales_order_item:
+            total_permitido = self.sales_order_item.price_total
+            total_solicitado = self.total_price
+
+            if total_solicitado > total_permitido:
+                raise ValidationError(
+                    f"El total solicitado ({total_solicitado}) excede el total permitido ({total_permitido}) para el ítem '{self.sales_order_item.description}'."
+
     def save(self, *args, **kwargs):
+        # Llama al método `clean()` para validar antes de guardar
+        self.clean()
         # Si el ítem es nuevo, inicializar quantity_requested_remaining con quantity_requested
+        
         if not self.pk:  # Es un nuevo ítem
             self.quantity_requested_remaining = self.quantity_requested
         else:
