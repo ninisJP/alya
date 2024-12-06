@@ -1,0 +1,19 @@
+{% for saleorder in sales_orders %}
+<li id="saleorder-{{ saleorder.id }}" class="list-group-item d-flex justify-content-between align-items-center">
+    <span class="col-2 text-center"><strong>{{ saleorder.sapcode }}</strong></span>
+    <span class="col-3 text-center">{{ saleorder.project }}</span>
+    <span class="col-4 text-center"><strong>{{ saleorder.detail }}</strong></span>
+    <div class="col-3 d-flex justify-content-around align-items-center">
+        <!-- Formulario de carga de PDF -->
+        <form method="post" enctype="multipart/form-data" class="d-flex align-items-center">
+            {% csrf_token %}
+            <input type="hidden" name="salesorder_id" value="{{ saleorder.id }}">
+            <input type="file" name="pdf_file" accept="application/pdf" required class="form-control form-control-sm me-2" style="width: auto;">
+            <button type="submit" class="btn btn-primary btn-sm">Subir PDF</button>
+        </form>
+                            <!-- Enlace a la vista de detalle de CollectionOrders -->
+                            <a href="{% url 'collection_order_detail' saleorder.id %}" class="btn btn-info btn-sm me-2">Ver Detalle</a>
+        
+    </div>
+</li>
+{% endfor %}
