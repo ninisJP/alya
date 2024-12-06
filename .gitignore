@@ -1,12 +1,25 @@
+# Env
 venv
 .venv
-__pycache__
-db.sqlite3
 .env
+
+# Python
+__pycache__
+
+# Database
+db.sqlite3
 **/migrations/*.py
 !**/migrations/__init__.py
+
+# Files
 *png
 *pdf
 media/item_qr/*.png
 *xlsx
 *csv
+
+# Docker
+Dockerfile
+Dockerfile.prod
+entrypoint.prod.sh
+entrypoint.sh
