@@ -5,6 +5,8 @@ from . import views
 urlpatterns = [
     path('suppliers-list/', index_suppliers, name='suppliers'),
     path('supplier/<int:supplier_id>/', views.supplier_detail, name='supplier_detail'),
+    # view search
+    path('supplier/search/', supplier_search, name='supplier_search'),
 
 ]
 

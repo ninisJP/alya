@@ -17,6 +17,7 @@ from django.shortcuts import render, redirect
 from .forms import ExcelUploadForm, TechnicianTaskForm, AddTasksToGroupForm, EditGroupItemForm
 from .models import TechnicianTask, TechnicianTaskGroupItem
 from .utils import process_technician_tasks_excel
+from django.db.models import Q
 
 class TechniciansMonth(TemplateView):
     template_name = 'technicians_month.html'
@@ -113,15 +114,32 @@ def create_technician_card(request, mes, anio):
         'anio': anio,
     })
 
+
+from django.db.models import Sum
+from django.shortcuts import render, get_object_or_404
+from .models import TechnicianCard, TechnicianCardTask
+
 def view_technician_card(request, card_id):
     tarjeta = get_object_or_404(TechnicianCard, id=card_id)
     form = TechnicianCardTaskForm()
 
+    # Obtener todas las tareas asociadas a esta tarjeta
     tareas_con_foto = TechnicianCardTask.objects.filter(technician_card=tarjeta).select_related('task')
+
+    # Calcular los minutos totales de las tareas asociadas a esta tarjeta
+    total_minutes = tareas_con_foto.aggregate(total_time=Sum('task__time'))['total_time'] or 0
 
     # Obtener todos los grupos de tareas
     grupos_tareas = TechnicianTaskGroup.objects.all()
 
+    # Si es una solicitud HTMX (para agregar o eliminar tareas), devolvemos tanto las tareas como los minutos actualizados
+    if request.htmx:
+        return render(request, 'partials/technician_tasks_list.html', {
+            'tareas_con_foto': tareas_con_foto,
+            'total_minutes': total_minutes,  # Aseguramos que el total de minutos se pase
+        })
+
+    # Si no es una solicitud HTMX, devolvemos la vista completa
     context = {
         'tarjeta': tarjeta,
         'tecnico': tarjeta.technician,
@@ -129,8 +147,11 @@ def view_technician_card(request, card_id):
         'form': form,
         'tareas_con_foto': tareas_con_foto,
         'grupos_tareas': grupos_tareas,  # Pasar los grupos al contexto
+        'total_minutes': total_minutes,  # Incluir el total de minutos en el contexto
     }
     return render(request, 'technician_card/view_technician_card.html', context)
+
+
 
 
 def add_technician_task(request, card_id):
@@ -203,6 +224,20 @@ def technician_task(request):
         'tasks': technicians_tasks
     }
     return render(request, 'technician_task/technician-task.html', context)
+
+def techniciantask_search(request):
+    query = request.GET.get('q','')
+    
+    if query:
+        technicians_tasks = TechnicianTask.objects.filter(
+            Q(verb__icontains=query) | Q(object__icontains=query) | Q(measurement__icontains=query) | Q(time__icontains=query)     # fields = ('verb', 'object', 'measurement', 'time')
+
+        ).order_by('-id')
+    else:
+        technicians_tasks = TechnicianTask.objects.all().order_by('-id')
+    
+    context = {'tasks':technicians_tasks, 'form':TechnicianTaskForm()}
+    return render(request,'technician_task/technician-task-list.html', context)
 
 
 def create_technician_task(request):
@@ -335,97 +370,7 @@ def create_task_group(request):
             return render(request, 'technician_groups/task_group_row.html', {'task_group': new_group})  # Renderizamos solo la fila nueva
     return HttpResponse(status=400)  # Devuelve un error si algo falla
 
-# def detail_task_group(request, group_id):
-#     group = get_object_or_404(TechnicianTaskGroup, id=group_id)
-#     if request.method == 'POST':
-#         # Agregar tareas al grupo
-#         if 'add_tasks' in request.POST:
-#             add_form = AddTasksToGroupForm(request.POST)
-#             if add_form.is_valid():
-#                 tasks = add_form.cleaned_data['tasks']
-#                 for task in tasks:
-#                     TechnicianTaskGroupItem.objects.create(
-#                         task_group=group,
-#                         task=task,
-#                         quantity=1,  # Default quantity
-#                         order=TechnicianTaskGroupItem.objects.filter(task_group=group).count() + 1,
-#                         saler_order=None  # Optional
-#                     )
-#                 return redirect('detail_task_group', group_id=group.id)
-
-#         # Editar elementos del grupo
-#         elif 'edit_items' in request.POST:
-#             item_ids = request.POST.getlist('item_ids')
-#             for item_id in item_ids:
-#                 item = TechnicianTaskGroupItem.objects.get(id=item_id)
-#                 form = EditGroupItemForm(request.POST, instance=item, prefix=f'item_{item_id}')
-#                 if form.is_valid():
-#                     form.save()
-
-#             return redirect('detail_task_group', group_id=group.id)
-
-#         # Eliminar un elemento del grupo
-#         elif 'delete_item' in request.POST:
-#             item_id = request.POST.get('delete_item')
-#             item = TechnicianTaskGroupItem.objects.get(id=item_id)
-#             item.delete()
-#             print(item)
-#             return redirect('detail_task_group', group_id=group.id)
-
-#     add_form = AddTasksToGroupForm()
-#     items = group.group_items.all()
-#     edit_forms = [(item, EditGroupItemForm(instance=item, prefix=f'item_{item.id}')) for item in items]
-#     return render(request, 'technician_groups/task_group_detail.html', {
-#         'group': group,
-#         'add_form': add_form,
-#         'items_with_forms': edit_forms,
-#     })
-
-# def detail_task_group(request, group_id):
-#     group = get_object_or_404(TechnicianTaskGroup, id=group_id)
-    
-#     if request.method == 'POST':
-#         # Agregar tareas al grupo
-#         if 'add_tasks' in request.POST:
-#             add_form = AddTasksToGroupForm(request.POST)
-#             if add_form.is_valid():
-#                 tasks = add_form.cleaned_data['tasks']
-#                 for task in tasks:
-#                     TechnicianTaskGroupItem.objects.create(
-#                         task_group=group,
-#                         task=task,
-#                         quantity=1,  # Default quantity
-#                         order=TechnicianTaskGroupItem.objects.filter(task_group=group).count() + 1,
-#                         saler_order=None  # Optional
-#                     )
-#                 return redirect('detail_task_group', group_id=group.id)
-
-#         # Editar elementos del grupo
-#         elif 'edit_items' in request.POST:
-#             # Aquí obtenemos los datos del formulario para cada item
-#             for item in group.group_items.all():
-#                 form = EditGroupItemForm(request.POST, instance=item, prefix=f'item_{item.id}')
-#                 if form.is_valid():
-#                     form.save()
-
-#             return redirect('detail_task_group', group_id=group.id)
-
-#         # Eliminar un elemento del grupo
-#         elif 'delete_item' in request.POST:
-#             item_id = request.POST.get('delete_item')
-#             item = TechnicianTaskGroupItem.objects.get(id=item_id)
-#             item.delete()
-#             return redirect('detail_task_group', group_id=group.id)
-
-#     add_form = AddTasksToGroupForm()
-#     items = group.group_items.all()
-#     edit_forms = [(item, EditGroupItemForm(instance=item, prefix=f'item_{item.id}')) for item in items]
-
-#     return render(request, 'technician_groups/task_group_detail.html', {
-#         'group': group,
-#         'add_form': add_form,
-#         'items_with_forms': edit_forms,
-#     })
+from django.db.models import Sum
 
 def detail_task_group(request, group_id):
     group = get_object_or_404(TechnicianTaskGroup, id=group_id)
@@ -435,17 +380,29 @@ def detail_task_group(request, group_id):
     if search_query:
         tasks = TechnicianTask.objects.filter(
             verb__icontains=search_query  # Filtra las tareas que contienen el término de búsqueda en 'verb'
-        ).order_by('-time')  # Ordena por tiempo (puedes cambiar el campo de orden si es necesario)
+        ).order_by('-time')  # Ordena por tiempo
     else:
         tasks = TechnicianTask.objects.all().order_by('-time')  # Muestra todas las tareas si no hay búsqueda
 
+    # Inicializar total_minutes con 0
+    total_minutes = 0
+
+    # Calcular la suma de los minutos de las tareas que ya están en el grupo
+    total_minutes = group.group_items.aggregate(total_time=Sum('task__time'))['total_time'] or 0
+
+    # Calcular la suma de los minutos de las tareas seleccionadas solo cuando se envía un formulario
     if request.method == 'POST':
         # Agregar tareas al grupo
         if 'add_tasks' in request.POST:
             add_form = AddTasksToGroupForm(request.POST)
             if add_form.is_valid():
-                tasks = add_form.cleaned_data['tasks']
-                for task in tasks:
+                selected_tasks = add_form.cleaned_data['tasks']  # Obtén las tareas seleccionadas
+                # Sumar los tiempos de las tareas seleccionadas antes de agregarlas al grupo
+                selected_time = selected_tasks.aggregate(total_time=Sum('time'))['total_time'] or 0
+                total_minutes += selected_time  # Agregar los minutos de las tareas seleccionadas a total_minutes
+
+                # Agregar las tareas al grupo
+                for task in selected_tasks:
                     TechnicianTaskGroupItem.objects.create(
                         task_group=group,
                         task=task,
@@ -453,6 +410,7 @@ def detail_task_group(request, group_id):
                         order=TechnicianTaskGroupItem.objects.filter(task_group=group).count() + 1,
                         saler_order=None  # Optional
                     )
+
                 return redirect('detail_task_group', group_id=group.id)
 
         # Editar elementos del grupo
@@ -480,7 +438,9 @@ def detail_task_group(request, group_id):
         'items_with_forms': edit_forms,
         'tasks': tasks,  # Pasa las tareas filtradas para mostrarlas en el formulario
         'search_query': search_query,
+        'total_minutes': total_minutes,  # Pasa la suma total de minutos a la plantilla
     })
+
 
         
 def delete_task_group(request, group_id):

@@ -1,0 +1,79 @@
+<style>
+    .row {
+        display: flex;
+    }
+
+    .column {
+        flex: 40%;
+    }
+</style>
+
+<div class="row">
+    <div class="column">
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Banco</th>
+                    <th>Fecha de inicio</th>
+                    <th>Detalle</th>
+                    <th>Monto</th>
+                    <th>Moneda</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in income_list_pen %}
+                    <tr>
+                        <td>{{ item.bank }}</td>
+                        <td>{{ item.start_date }}</td>
+                        <td>{{ item.detail }}</td>
+                        <td>S/. {{ item.total_debt }}</td>
+                        <td>{{ item.currency }}</td>
+                        <td>{{ item.credit_type }}</td>
+                    </tr>
+                {% endfor %}
+                {% for item in income_list_usd %}
+                    <tr>
+                        <td>{{ item.bank }}</td>
+                        <td>{{ item.start_date }}</td>
+                        <td>{{ item.detail }}</td>
+                        <td>$ {{ item.total_debt }}</td>
+                        <td>{{ item.currency }}</td>
+                        <td>{{ item.credit_type }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="column">
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Orden de venta</th>
+                    <th>Descripción</th>
+                    <th>Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sale_list_pen %}
+                    <tr>
+                        <td>{{ item.orden_venta.sapcode }}</td>
+                        <td>{{ item.cliente }}</td>
+                        <td>S/. {{ item.importe_total }}</td>
+                    </tr>
+                {% endfor %}
+                {% for item in sale_list_usd %}
+                    <tr>
+                        <td>{{ item.orden_venta.sapcode }}</td>
+                        <td>{{ item.cliente }}</td>
+                        <td>$ {{ item.importe_total }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<button class="btn btn-primary" hx-get="{% url 'dashboard' %}" hx-target="body"> Flechita para atras >.< </button>

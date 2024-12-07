@@ -5,6 +5,7 @@ from accounting_order_sales.models import PurchaseOrderItem
 from django.shortcuts import render,get_object_or_404
 from django.views.decorators.http import require_POST, require_http_methods
 from django.http import HttpResponse, JsonResponse
+from django.db.models import Q
 
 # Create your views here.
 # Iniciamos vista y metodos HTMX para tareas
@@ -12,6 +13,18 @@ def index_suppliers(request):
     suppliers = Suppliers.objects.all()
     context = {'form': SuppliersForm(), 'suppliers': suppliers}
     return render(request, 'suppliers/suppliers.html', context)
+
+
+# Add Search Supplier
+def supplier_search(request):
+    query = request.GET.get('q','')
+    if query:
+        suppliers=Suppliers.objects.filter(Q(document__icontains=query) | Q(name__icontains=query) | Q(bank__icontains=query)| Q(currency__icontains=query)).order_by('-id')
+    else:
+        suppliers=Suppliers.objects.all().order_by('-id') 
+    
+    context={'suppliers':suppliers , 'form': SuppliersForm()}
+    return render(request,'suppliers/suppliers_list.html', context)
 
 def create_suppliers(request):
     if request.method == 'POST':

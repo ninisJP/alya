@@ -13,6 +13,7 @@ urlpatterns = [
     path('groups/<int:group_id>/', views.detail_task_group, name='detail_task_group'),
     path('groups/<int:group_id>/delete/', views.delete_task_group, name='delete_task_group'),
     path('technician-card/<int:card_id>/associate-group/', views.associate_group_to_card, name='associate_group_to_card'),
+    path('technician-task/search/', views.techniciantask_search, name='techniciantask_search' )
 
     
 ]

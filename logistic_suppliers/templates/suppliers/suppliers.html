@@ -9,6 +9,9 @@
     <div id="tasks-forms" class="w-100">
         {% include 'suppliers/suppliers_form.html' %}
     </div>
+    <form hx-get="{% url 'supplier_search' %}" hx-target="#task-list" hx-trigger="keyup delay:0.2s" hx-debounce="500ms">
+        <input type="text" name="q" placeholder="Buscar..." class="form-control" id="search-input">
+    </form>
     <div id="task-list">
         {% include 'suppliers/suppliers_list.html' %}
     </div>

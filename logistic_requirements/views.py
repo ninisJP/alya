@@ -31,28 +31,30 @@ class RequirementOrderListView(ListView):
         show_pending = self.request.GET.get('show_pending') == 'true'
         show_comprando = self.request.GET.get('show_comprando') == 'true'
         show_all = self.request.GET.get('show_all') == 'true'
-        show_refused = self.request.GET.get('show_refused' == 'true')
         
         # Iniciar queryset con todas las órdenes APROBADAS por contabilidad
         queryset = RequirementOrder.objects.order_by('-id').prefetch_related('items') # filter(state='APROBADO')
         
         if show_all:
             queryset = queryset.distinct()
+            print(show_all)
         elif show_comprando:
             # Mostrar solo las órdenes con ítems en estado Pendiente o Comprando
             queryset = queryset.filter(state='APROBADO').filter(
                     items__estado='C'# items__estado__in=['P', 'C']
             ).distinct()
+            print(show_comprando)
         elif show_pending:
-            # Mostrar solo las órdenes con ítems en estado Comprando
+            # Mostrar solo las órdenes con ítems en estado Pendiente o Comprando
             queryset = queryset.filter(state='APROBADO').filter(
-                items__estado='P'
+                    items__estado__in=['P', 'C']
             ).distinct()
+            print(show_pending)
         else:
             queryset = queryset.filter(state='APROBADO').filter(
-                items__estado='P' # items__estado__in=['P', 'C']
+                items__estado='P' #items__estado__in=['P', 'C']
             ).distinct()
-            
+         
         
         # Calcular el estado general de cada orden
         for order in queryset:

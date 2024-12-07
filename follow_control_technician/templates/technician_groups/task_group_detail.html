@@ -5,7 +5,9 @@
     <div class="p-4 bg-white rounded shadow">
         <!-- Título y encabezado -->
         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <h1 class="display-6 text-dark">GRUPO: "<strong>{{ group.name }}</strong>"</h1>
+            <h1 class="display-6 text-dark">GRUPO: "<strong>{{ group.name }}</strong>" - Total: <span class="badge bg-success text-white rounded-pill px-2 py-1">
+                {{ total_minutes }} minutos
+            </span></h1>
             <a href="{% url 'list_task_groups' %}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Regresar a Grupos
             </a>
@@ -82,6 +84,11 @@
                     </form>                    
                 </div>
             </div>            
+
+            <!-- Mostrar la suma de los minutos -->
+            <div class="col-12 mt-4">
+                <h2>Total de minutos de las tareas seleccionadas: <span class="badge bg-primary text-white rounded-pill px-2 py-1">{{ total_minutes }} minutos</span></h2>
+            </div>        
         </div>
     </div>
 </div>

@@ -3,6 +3,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
 <style>
     /* Estilos para la alerta de advertencia */
     .alert-custom-warning {
@@ -103,13 +104,13 @@
                 <div class="btn-group ms-3">
                     <!-- Mostrar todo -->
                     <!-- Mostrar solo pendientes -->
-                    <a href="{% url 'requirement_order_list' %}?show_pending=true" class="btn btn-outline-primary">
+                    <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-primary">
                         <i class="fas fa-filter"></i> Mostrar Pendientes
                     </a>
                     <a href="{% url 'requirement_order_list' %}?show_comprando=true" class="btn btn-outline-primary">
                         <i class="fas fa-filter"></i> Mostrar Comprando
                     </a>
-                    <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-primary">
+                    <a href="{% url 'requirement_order_list' %}?show_pending=true"class="btn btn-outline-primary">
                         <i class="fas fa-filter"></i> Mostrar Pendientes y Comprando
                     </a>                    
                     <!-- Mostrar pendientes y comprando -->
