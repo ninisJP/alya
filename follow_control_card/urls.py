@@ -6,8 +6,6 @@ urlpatterns = [
     path('daily_card/<int:pk>/', DailyCardList.as_view(), name='daily_card'),
     path('tasks/', tasks, name='tasks'),
     path('tasks/search/task',task_search, name='task_search'),
-
-    # Otras rutas...
 ]
 
 htmxurlpatters = [
