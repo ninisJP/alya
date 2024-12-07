@@ -7,7 +7,7 @@
     <!-- Sección Principal: Ingresos, Egresos, Saldo -->
     <div class="row g-4 flex-grow-1">
         <div class="col-lg-4 col-md-4 col-sm-12">
-            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+            <a hx-get="{% url 'total_income' %}" hx-target="#dashboard-container">
                 <div class="card text-white bg-primary shadow-lg h-100 d-flex align-items-center justify-content-center">
                     <i class="fas fa-coins fa-3x mb-3"></i>
                     <h3 class="fw-bold mb-2" style="font-size: 2rem;">Ingresos</h3>
@@ -17,7 +17,7 @@
             </a>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-12">
-            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+            <a hx-get="{% url 'total_expenses' %}" hx-target="#dashboard-container">
                 <div class="card text-white bg-danger shadow-lg h-100 d-flex align-items-center justify-content-center">
                     <i class="fas fa-file-invoice-dollar fa-3x mb-3"></i>
                     <h3 class="fw-bold mb-2" style="font-size: 2rem;">Egresos</h3>
@@ -27,21 +27,19 @@
             </a>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-12">
-            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
                 <div class="card text-white bg-success shadow-lg h-100 d-flex align-items-center justify-content-center">
                     <i class="fas fa-wallet fa-3x mb-3"></i>
                     <h3 class="fw-bold mb-2" style="font-size: 2rem;">Saldo</h3>
                     <p class="display-3 fw-bold">S/.{{ total_utility_pen|floatformat:2 }}</p>
                     <p class="display-3 fw-bold">${{ total_utility_usd|floatformat:2 }}</p>
                 </div>
-            </a>
         </div>
     </div>
 
     <!-- Sección de Transacciones: Ventas, Compras, Cuentas por Cobrar, Cuentas por Pagar -->
     <div class="row g-4 flex-grow-1 mt-3">
         <div class="col-lg-3 col-md-6 col-sm-12">
-            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+            <a hx-get="{% url 'total_sales_detail' %}" hx-target="#dashboard-container">
                 <div class="card bg-light shadow-lg h-100 d-flex align-items-center justify-content-center border-primary">
                     <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
                     <h4 class="fw-bold text-primary mb-2" style="font-size: 1.75rem;">Ventas</h4>
@@ -52,7 +50,7 @@
         </div>
 
         <div class="col-lg-3 col-md-6 col-sm-12">
-            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+            <a hx-get="{% url 'total_purchases_detail' %}" hx-target="#dashboard-container">
                 <div class="card bg-light shadow-lg h-100 d-flex align-items-center justify-content-center border-info">
                     <i class="fas fa-shopping-cart fa-3x text-info mb-3"></i>
                     <h4 class="fw-bold text-info mb-2" style="font-size: 1.75rem;">Compras</h4>
@@ -61,7 +59,7 @@
             </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-12">
-            <a hx-get="{% url 'accounts_payable_detail' %}" hx-target="#dashboard-container">
+            <a hx-get="{% url 'accounts_receivable' %}" hx-target="#dashboard-container">
                 <div class="card bg-light shadow-lg h-100 d-flex align-items-center justify-content-center border-warning">
                     <i class="fas fa-hand-holding-usd fa-3x text-warning mb-3"></i>
                     <h4 class="fw-bold text-warning mb-2" style="font-size: 1.75rem;">Cuentas por Cobrar</h4>
