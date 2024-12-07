@@ -85,6 +85,8 @@ class RequirementOrderItem(models.Model):
         validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'jpeg', 'png'])],
         help_text="Sube un archivo PDF o una imagen (JPG, PNG)."
     )
+    date_purchase_order = models.DateField(null=True, blank=True)
+   
 
     @property
     def is_paid(self):
