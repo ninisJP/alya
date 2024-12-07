@@ -54,7 +54,7 @@ class RequirementOrderListView(ListView):
             queryset = queryset.filter(state='APROBADO').filter(
                 items__estado='P' #items__estado__in=['P', 'C']
             ).distinct()
-            
+         
         
         # Calcular el estado general de cada orden
         for order in queryset:
