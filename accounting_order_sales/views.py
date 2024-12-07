@@ -422,15 +422,16 @@ def assign_bank_statement(request, item_id, statement_id):
 
 # Bank loands and credit cards
 def bank_loans(request):
-    prestamo = BankLoan.objects.filter(credit_type = 'prestamo')
-    credito = BankLoan.objects.filter(credit_type = 'credito')
+    pass
+    # prestamo = BankLoan.objects.filter(credit_type = 'prestamo')
+    # credito = BankLoan.objects.filter(credit_type = 'credito')
 
-    context = {
-        'prestamos': prestamos,
-        'creditos': creditos
-    }
+    # context = {
+    #     'prestamos': prestamos,
+    #     'creditos': creditos
+    # }
 
-    return render(request, 'bank_loans.html', )
+    # return render(request, 'bank_loans.html', )
 
 #caja chica
 def petty_cash(request):
@@ -817,6 +818,16 @@ def collection_orders(request):
         'sales_orders': sales_orders,
     }
     return render(request, 'collectionorders/collection_orders.html', context)
+
+def collection_orders_search(request):
+    query = request.GET.get('q','')
+    if query:
+        sales_orders = SalesOrder.objects.filter(Q(sapcode__icontains=query)).order_by('-id')
+    else:
+        sales_orders = SalesOrder.objects.all().order_by('-id')
+        
+    context = {'sales_orders':sales_orders,'form':SalesOrderForm()}
+    return render(request,'collectionorders/collection_orders_list.html',context)
 
 def collection_order_detail(request, salesorder_id):
     # Obtiene la SalesOrder y sus CollectionOrders asociadas
