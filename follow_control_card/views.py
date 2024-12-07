@@ -208,8 +208,6 @@ def task_search(request):
     return render(request, 'partials/task-list.html', context)
 
 
-
-
 def create_tasks(request):
     if request.method == 'POST':
         form = TaskForm(request.POST)
