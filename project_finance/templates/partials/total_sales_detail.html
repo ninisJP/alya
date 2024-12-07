@@ -1,0 +1,46 @@
+<table border="1" style="width: 100%; border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th>Orden de Venta (SAP)</th>
+            <th>Orden de Venta (Detalle)</th>
+            <th>Serie y Correlativo</th>
+            <th>Cliente</th>
+            <th>RUC Cliente</th>
+            <th>Importe total</th>
+            <th>Moneda</th>
+            <th>Extracto bancario</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in sale_list_pen %}
+            <tr>
+                <td>{{ item.orden_venta.sapcode }}</td>
+                <td>{{ item.orden_venta.detail }}</td>
+                <td>{{ item.serie_correlativo }}</td>
+                <td>{{ item.cliente }}</td>
+                <td>{{ item.ruc_cliente }}</td>
+                <td>S/. {{ item.importe_total }}</td>
+                <td>{{ item.tipo_moneda }}</td>
+                <td>{{ item.extracto_banco }}</td>
+                <td>{{ item.payment_status }}</td>
+            </tr>
+        {% endfor %}
+
+        {% for item in sale_list_usd %}
+            <tr>
+                <td>{{ item.orden_venta }}</td>
+                <td>{{ item.serie_correlativo }}</td>
+                <td>{{ item.cliente }}</td>
+                <td>{{ item.ruc_cliente }}</td>
+                <td>{{ item.importe_total }}</td>
+                <td>$ {{ item.tipo_moneda }}</td>
+                <td>{{ item.extracto_banco }}</td>
+                <td>{{ item.payment_status }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<button class="btn btn-primary" hx-get="{% url 'dashboard' %}" hx-target="body"> Flechita para atras >.< </button>
