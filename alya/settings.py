@@ -97,7 +97,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'alya.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
     "default": {
         "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
         "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
