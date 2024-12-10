@@ -17,8 +17,8 @@
                 <div class="card-body">
                     <form hx-post="{% url 'budget_item_plus' budget.pk %}" hx-target="#budget_item_plus" hx-swap="outerHTML" class="row g-3">
                         {% csrf_token %}
-                        <div class="col-md-3">
-                            {{ form.item|add_class:"form-control" }}
+                        <div class="col-md-4">
+                            {{ form.item|add_class:"form-control select2-ajax" }}
                         </div>
                         <div class="col-md-2">
                             {{ form.quantity|add_class:"form-control" }}
@@ -29,10 +29,7 @@
                         <div class="col-md-2">
                             {{ form.custom_price|add_class:"form-control" }}
                         </div>
-                        <div class="col-md-2">
-                            {{ form.custom_price_per_day|add_class:"form-control" }}
-                        </div>
-                        <div class="col-md-1 d-flex align-items-end">
+                        <div class="col-md-2 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary w-100">Agregar</button>
                         </div>
                     </form>                    
@@ -92,6 +89,15 @@ $(document).ready(function() {
     // Inicializar Select2
     $('.select2-ajax').each(function() {
         initializeSelect2(this);
+    });
+
+    // Devolver foco al campo de selección después de agregar un ítem
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+        if (event.target.id === 'budget_item_plus') {
+            // Devolver foco al campo de selección
+            $('#id_item').select2('open');  // Abre el dropdown de Select2
+            $('#id_item').focus(); // También asegura que el campo reciba el foco
+        }
     });
 });
 </script>

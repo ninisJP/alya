@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <!-- Select2 CSS OPCIONAL PARA CADA REQUERIMieNTP-->
+    <!-- Select2 CSS OPCIONAL PARA CADA REQUERIMIEÑTP-->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
@@ -27,110 +27,118 @@
     <script src="{% static 'js/htmx.min.js' %}" defer></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<style>
-    * {
-        font-family: 'Montserrat', sans-serif;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    html, body {
-        width: 100%;
-        height: 100%;
-    }
-    body {
-        overflow: hidden;
-        background: #F5F5F5; /* Blanco humo */
-    }
-    #wrapper {
-        height: 100vh;
-        display: flex;
-        padding: 10px;
-    }
-    .sidebar-heading {
-        font-size: 2em;
-        color: #FFFFFF; /* Texto blanco */
-        background-color: #212121; /* Color oscuro para la barra */
-        padding: 10px;
-        border-radius: 10px;
-        text-align: center;
-        font-weight: bold;
-    }
-    #sidebar-wrapper {
-        display: flex;
-        flex-direction: column;
-        width: 100px;
-        height: calc(100vh - 20px);
-        background-color: #212121; /* Modo oscuro */
-        border-right: 2px solid #424242; /* Borde gris oscuro */
-        box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5); /* Sombra fuerte */
-        border-radius: 17px;
-        color: #FFFFFF; /* Texto blanco */
-        overflow-y: auto;
-        flex-shrink: 0;
-        margin-right: 10px;
-    }
-    #sidebar-wrapper::-webkit-scrollbar {
-        display: none;
-    }
+    
+    <style>
+        * {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+        body {
+            overflow: hidden;
+            background: #F5F5F5; /* Blanco humo */
+        }
+        #wrapper {
+            height: 100vh;
+            display: flex;
+            padding: 10px;
+        }
+        .sidebar-heading {
+            font-size: 2em;
+            color: #FFFFFF; /* Texto blanco */
+            background-color: #212121; /* Color oscuro para la barra */
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        #sidebar-wrapper {
+            display: flex;
+            flex-direction: column;
+            width: 100px;
+            height: calc(100vh - 20px);
+            background-color: #212121; /* Modo oscuro */
+            border-right: 2px solid #424242; /* Borde gris oscuro */
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5); /* Sombra fuerte */
+            border-radius: 17px;
+            color: #FFFFFF; /* Texto blanco */
+            overflow-y: auto;
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+        #sidebar-wrapper::-webkit-scrollbar {
+            display: none;
+        }
 
-    #sidebar-wrapper .list-group-item {
-        padding: 0.5rem;
-        border: none;
-        border-radius: 20px;
-        color: #FFFFFF;
-        background-color: #212121; /* Modo oscuro */
-        transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 10px;
-        text-align: center;
-        font-weight: bold;
-    }
+        #sidebar-wrapper .list-group-item {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 20px;
+            color: #FFFFFF;
+            background-color: #212121; /* Modo oscuro */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
 
-    #sidebar-wrapper .list-group-item i {
-        margin-bottom: 5px;
-        font-size: 1.9em;
-        color: #FFFFFF; /* Íconos en blanco */
-    }
+        #sidebar-wrapper .list-group-item i {
+            margin-bottom: 5px;
+            font-size: 1.9em;
+            color: #FFFFFF; /* Íconos en blanco */
+        }
 
-    #sidebar-wrapper .list-group-item:hover,
-    #sidebar-wrapper .list-group-item:focus {
-        background-color: #424242; /* Gris oscuro al hacer hover */
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Sombra más intensa */
-    }
+        #sidebar-wrapper .list-group-item:hover,
+        #sidebar-wrapper .list-group-item:focus {
+            background-color: #424242; /* Gris oscuro al hacer hover */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Sombra más intensa */
+        }
 
-    #sidebar-wrapper .list-group-item span {
-        font-size: 0.65em;
-        font-weight: bold;
-    }
+        #sidebar-wrapper .list-group-item span {
+            font-size: 0.65em;
+            font-weight: bold;
+        }
 
-    #page-content-wrapper {
-        flex-grow: 1;
-        overflow: auto;
-        padding: 10px;
-        background-color: #F5F5F5; /* Blanco humo */
-    }
+        #page-content-wrapper {
+            flex-grow: 1;
+            overflow: auto;
+            padding: 10px;
+            background-color: #F5F5F5; /* Blanco humo */
+        }
 
-    .container-fluid {
-        padding: 0px;
-        height: 100%;
-    }
+        .container-fluid {
+            padding: 0px;
+            height: 100%;
+        }
 
-    .logout-container {
-        margin-top: auto;
-    }
+        .logout-container {
+            margin-top: auto;
+        }
 
-    .task-list::-webkit-scrollbar {
-        width: 8px;
-    }
+        .task-list::-webkit-scrollbar {
+            width: 8px;
+        }
 
-    .content {
-        flex-grow: 1;
-        overflow: auto;
-    }
-</style>
+        .content {
+            flex-grow: 1;
+            overflow: auto;
+        }
+
+        /* Estilo para el título del modal */
+        .modal-title {
+            color: black; /* Cambiar color del título a negro */
+            text-align: center; /* Centrar el título */
+        }
+    </style>
+
     {% block extra_css %}{% endblock %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
@@ -142,37 +150,61 @@
                 </a>
             </div>
             <div class="list-group list-group-flush">
-<a href="{% url 'index_budget' %}" class="list-group-item list-group-item-action">
-    <i class="fas fa-file-invoice-dollar"></i>
-    <span>Presupuestos</span>
-</a>
-<a href="{% url 'create_budget' %}" class="list-group-item list-group-item-action">
+                <a href="{% url 'index_budget' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Presupuestos</span>
+                </a>
+
+<!-- Enlace para abrir el modal -->
+<a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#createBudgetModal">
     <i class="fas fa-plus-circle"></i>
-    <span>Crear Presupuestos</span>
+    <span>Crear Presupuesto</span>
 </a>
 
-{% if user.is_superuser %}
-<a href="{% url 'budget_catalog' %}" class="list-group-item list-group-item-action">
-    <i class="fas fa-book-open"></i>
-    <span>Catálogo</span>
-</a>
-<!-- Botón para subir el archivo Excel -->
-<a href="{% url 'budget_catalog_excel' %}" class="list-group-item list-group-item-action">
-    <i class="fas fa-upload"></i>
-    <span>Subir Catálogo (CSV/XLSX)</span>
-</a>
-{%endif%}
-<a href="{% url 'export_catalog' %}" class="list-group-item list-group-item-action">
-    <i class="fa-solid fa-download"></i>
-    <span>Descargar Catálogo (CSV/XLSX)</span>
-</a>
+<!-- Modal donde se cargará el formulario -->
+<div class="modal fade" id="createBudgetModal" tabindex="-1" role="dialog" aria-labelledby="createBudgetModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createBudgetModalLabel">Crear Presupuesto</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Aquí cargamos el formulario -->
+                <form method="POST" action="{% url 'create_budget_plus' %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}  <!-- Esto renderiza el formulario -->
+                    <button type="submit" class="btn btn-primary">Crear</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
+                {% if user.is_superuser %}
+                <a href="{% url 'budget_catalog' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-book-open"></i>
+                    <span>Catálogo</span>
+                </a>
+                <!-- Botón para subir el archivo Excel -->
+                <a href="{% url 'budget_catalog_excel' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-upload"></i>
+                    <span>Subir Catálogo (CSV/XLSX)</span>
+                </a>
+                {% endif %}
+                
+                <a href="{% url 'export_catalog' %}" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Descargar Catálogo (CSV/XLSX)</span>
+                </a>
             </div>
 
             <!-- Contenedor específico para el botón de logout -->
-            <div id="" class="logout-container">
+            <div class="logout-container">
                 {% if request.user.is_authenticated %}
                 <a href="javascript:{}" onclick="document.getElementById('logout-form').submit();" class="list-group-item list-group-item-action">
                     <i class="fas fa-sign-out-alt" style="color: red;"></i><br>Logout
@@ -193,6 +225,16 @@
             {% block content %}{% endblock %}
         </div>
     </div>
+
+    <script>
+        document.addEventListener('htmx:afterSwap', function(event) {
+            // Verifica si el contenido se cargó en el modal
+            if (event.target.id === 'modal-body-content') {
+                var modal = new bootstrap.Modal(document.getElementById('createBudgetModal'));
+                modal.show();
+            }
+        });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>

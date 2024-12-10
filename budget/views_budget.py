@@ -1,10 +1,19 @@
 # views_budget.py
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Budget, BudgetItem, CatalogItem
-from .forms import AddBudgetItemPlus
+from .forms import AddBudgetItemPlus, BudgetPlusForm
 from decimal import Decimal
 from decimal import ROUND_HALF_UP
 from django.db import transaction
+from django.http import JsonResponse
+
+def create_budget_plus(request):
+    if request.method == 'POST':
+        form = BudgetPlusForm(request.POST)
+        if form.is_valid():
+            budget = form.save()
+            return redirect('detail_budget_plus', pk=budget.pk) # O redirigir
+
 
 def detail_budget_plus(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
@@ -26,7 +35,12 @@ def budget_item_plus(request, pk):
             new_item = form.save(commit=False)
             new_item.budget = budget
 
+            # Asignar life_time por defecto si no tiene un valor
+            if new_item.item.life_time == 0 or new_item.item.life_time is None:
+                new_item.item.life_time = 365
+
             if 'HORAS' in new_item.unit.upper():
+                # Realizamos el cálculo con el life_time ahora asegurado
                 new_item.custom_price_per_day = (new_item.custom_price / new_item.item.life_time).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
                 new_item.custom_price_per_hour = (new_item.custom_price_per_day / 8).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
                 new_item.custom_quantity = Decimal(budget.budget_days) * 8 * new_item.quantity
@@ -97,7 +111,6 @@ def budget_item_update(request, pk):
     else:
         # Si no es una solicitud POST, redirigir al detalle del presupuesto
         return redirect('detail_budget_plus', pk=pk)
-
 
 def budget_item_delete(request, item_id):
     item = get_object_or_404(BudgetItem, id=item_id)

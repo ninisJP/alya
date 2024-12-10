@@ -43,7 +43,9 @@
                             <td>{{ item.item.sap }}</td>
                             <td>{{ item.item.category }}</td>
                             <td>{{ item.item.description }}</td>
-                            <td>{{ item.unit }}</td>
+                            <td>
+                                <input type="text" name="unit_{{ item.id }}" value="{{ item.unit }}" class="form-control unit" data-item-id="{{ item.id }}">
+                            </td>
                             <td>
                                 <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" class="form-control quantity" data-item-id="{{ item.id }}">
                             </td>
@@ -83,17 +85,44 @@
 <script>
     // Función para actualizar el precio total
     function updateTotalPrice(itemId) {
-        var quantity = parseFloat(document.querySelector('input[name="quantity_' + itemId + '"]').value) || 0;
-        var price = parseFloat(document.querySelector('input[name="custom_price_' + itemId + '"]').value) || 0;
-        
-        // Calcula el precio total
-        var totalPrice = quantity * price;
-        
+        var quantityInput = document.querySelector('input[name="quantity_' + itemId + '"]');
+        var priceInput = document.querySelector('input[name="custom_price_' + itemId + '"]');
+        var quantityInputHour = document.querySelector('input[name="custom_quantity_' + itemId + '"]');
+        var unitInput = document.querySelector('input[name="unit_' + itemId + '"]'); 
+
+        if (!quantityInput || !priceInput || !unitInput || !quantityInputHour) {
+            console.log("Uno de los elementos no se encontró.");
+            return;
+        }
+
+        var quantity = parseFloat(quantityInput.value) || 0;
+        var price = parseFloat(priceInput.value) || 0;
+        var quantityHour = parseFloat(quantityInputHour.value) || 0;
+        var unit = unitInput.value || "";
+
+        var totalPrice = 0;
+
+        // Si la unidad de medida contiene 'HORAS', calculamos con el precio por hora
+        if (unit.toUpperCase().includes("HORAS")) {
+            var pricePerHourInput = document.querySelector('input[name="custom_price_per_hour_' + itemId + '"]');
+            if (!pricePerHourInput) {
+                console.log("Precio por hora no encontrado.");
+                return;
+            }
+            var pricePerHour = parseFloat(pricePerHourInput.value) || 0;
+            totalPrice = quantityHour * pricePerHour; // Usar la cantidad de horas y el precio por hora
+        } else {
+            totalPrice = quantity * price; // Usar la cantidad estándar y el precio
+        }
+
         // Actualiza el precio total en la tabla
-        document.querySelector('#total-price-' + itemId).innerText = totalPrice.toFixed(2);
+        var totalPriceElement = document.querySelector('#total-price-' + itemId);
+        if (totalPriceElement) {
+            totalPriceElement.innerText = totalPrice.toFixed(2);
+        }
     }
 
-    // Agregar event listeners para detectar cambios en cantidad y precio
+    // Agregar event listeners para detectar cambios en cantidad, precio y unidad
     document.querySelectorAll('.quantity').forEach(function(input) {
         input.addEventListener('input', function() {
             var itemId = input.getAttribute('data-item-id');
@@ -104,6 +133,22 @@
     document.querySelectorAll('.price').forEach(function(input) {
         input.addEventListener('input', function() {
             var itemId = input.getAttribute('data-item-id');
+            updateTotalPrice(itemId);
+        });
+    });
+
+    // Agregar listener para cambios en la unidad
+    document.querySelectorAll('.unit').forEach(function(input) {
+        input.addEventListener('input', function() {
+            var itemId = input.getAttribute('data-item-id');
+            updateTotalPrice(itemId);
+        });
+    });
+
+    // Agregar listener para cambios en la cantidad de horas
+    document.querySelectorAll('input[name^="custom_quantity_"]').forEach(function(input) {
+        input.addEventListener('input', function() {
+            var itemId = input.getAttribute('name').split('_')[2]; // Obtener el itemId
             updateTotalPrice(itemId);
         });
     });
