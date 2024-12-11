@@ -1,0 +1,34 @@
+{% load widget_tweaks %}
+
+<form method="post" href="{% url 'create_budget_plus' %}" class="p-3">
+  {% csrf_token %}
+
+  <!-- Campo Cliente -->
+  <div class="mb-3">
+      <label for="id_client" class="form-label fw-bold text-dark">{{ form.client.label }}</label>
+      {{ form.client|add_class:"form-select bg-light text-dark" }}
+  </div>
+
+  <!-- Campo Nombre del Presupuesto -->
+  <div class="mb-3">
+      <label for="id_budget_name" class="form-label fw-bold text-dark">{{ form.budget_name.label }}</label>
+      {{ form.budget_name|add_class:"form-control bg-light text-dark" }}
+  </div>
+
+  <!-- Campo Días del Presupuesto -->
+  <div class="mb-3">
+      <label for="id_budget_days" class="form-label fw-bold text-dark">{{ form.budget_days.label }}</label>
+      {{ form.budget_days|add_class:"form-control bg-light text-dark" }}
+  </div>
+
+  <!-- Campo Fecha del Presupuesto -->
+  <div class="mb-3">
+      <label for="id_budget_date" class="form-label fw-bold text-dark">{{ form.budget_date.label }}</label>
+      {{ form.budget_date|add_class:"form-control bg-light text-dark" }}
+  </div>
+
+  <!-- Botón Guardar -->
+  <button type="submit" class="btn btn-primary btn-block mt-3" style="width: 100%; font-weight: bold; font-size: 1.2em;">
+      Guardar
+  </button>
+</form>

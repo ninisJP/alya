@@ -53,7 +53,6 @@ class BudgetForm(forms.ModelForm):
         self.fields['budget_servicetime'].label = 'Tiempo de Servicio'
         self.fields['budget_warrantytime'].label = 'Tiempo de Garantía'
 
-
 class BudgetItemForm(forms.ModelForm):
     class Meta:
         model = BudgetItem
@@ -164,7 +163,6 @@ class SearchCatalogItemForm(forms.Form):
 class ExcelUploadForm(forms.Form):
     file = forms.FileField(label="Selecciona el archivo Excel")
     
-# borrarlo si ya no vanausar el pemtodo normal 
 class AddBudgetItemForm(forms.ModelForm):
     class Meta:
         model = BudgetItem
@@ -205,4 +203,31 @@ class AddBudgetItemPlus(forms.ModelForm):
         self.fields['quantity'].label = 'Cantidad'
         self.fields['unit'].label = 'Unidad de medida'
         self.fields['custom_price'].label = 'Precio Unitario'
+
+class BudgetPlusForm(forms.ModelForm):
+    class Meta:
+        model = Budget
+        fields = [
+            'client', 'budget_name', 'budget_days', 'budget_date',
+            'budget_expenses'
+        ]
+        widgets = {
+            'budget_date': forms.DateInput(attrs={
+                'type': 'date', 'class': 'form-control'
+            }),
+            'client': forms.Select(attrs={'class': 'form-select'}),
+            'budget_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'budget_days': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['client'].empty_label = 'Seleccione un cliente'
+
+        # Etiquetas en español
+        self.fields['client'].label = 'Cliente'
+        self.fields['budget_name'].label = 'Nombre del Presupuesto'
+        self.fields['budget_days'].label = 'Días del Presupuesto'
+        self.fields['budget_date'].label = 'Fecha del Presupuesto'
+
 

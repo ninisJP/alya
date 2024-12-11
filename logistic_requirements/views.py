@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView
@@ -141,20 +142,36 @@ def update_requirement_order_items(request, pk):
         item.notes = request.POST.get(f'notes_{item.id}', item.notes)
         item.supplier_id = request.POST.get(f'supplier_{item.id}')
         item.estado = request.POST.get(f'estado_{item.id}', item.estado)
+
+        # Guardar la fecha de la orden de compra
+        date_str = request.POST.get(f'date_{item.id}')
+        if date_str:
+            try:
+                item.date_purchase_order = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                item.date_purchase_order = None
+
+
         updated_items.append(item)
 
     # Usar bulk_update para mejorar el rendimiento
-    RequirementOrderItem.objects.bulk_update(updated_items, ['quantity_requested', 'price', 'notes', 'supplier_id', 'estado'])
+    RequirementOrderItem.objects.bulk_update(
+        updated_items, 
+        ['quantity_requested', 'price', 'notes', 'supplier_id', 'estado', 'date_purchase_order']
+    )
 
     # Recalcular remaining_requirement para todos los sales_order_items relacionados
     for item in updated_items:
         item.sales_order_item.update_remaining_requirement()
+        print(f'Item ID: {item.id}, Fecha: {item.date_purchase_order}')
+
 
     # Retornar el mensaje directamente en HTML
     return HttpResponse(
         '<div class="alert alert-success" role="alert">Items actualizados con éxito</div>',
         status=200
     )
+
 
 
 def create_purchase_order(request, pk):
@@ -313,7 +330,9 @@ def requirement_order_detail_partial(request, pk):
 def export_order_to_excel(request, pk):
     # Obtener la orden específica
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
-    items = requirement_order.items.filter(estado='P')
+    items = requirement_order.items.all().select_related(
+        'sales_order_item', 'supplier'
+    ).order_by('sales_order_item__description')
 
     # Crear un nuevo libro de Excel
     wb = openpyxl.Workbook()
@@ -331,7 +350,7 @@ def export_order_to_excel(request, pk):
         f"Cliente: {requirement_order.sales_order.project.client.legal_name}",
         f"Fecha Solicitada: {requirement_order.requested_date}",
         f"Fecha Creada: {requirement_order.created_at}",
-        f"Notas: {requirement_order.notes}",
+        f"Pedido: {requirement_order.notes or 'Sin notas'}",
     ]
 
     for idx, detail in enumerate(details, start=2):
@@ -339,9 +358,9 @@ def export_order_to_excel(request, pk):
 
     # Encabezados de la tabla
     headers = [
-        "SAP", "Categoría", "Ítem", "Detalle", "Unidad", 
-        "Cantidad en Unidades", "Cantidad en Horas", 
-        "Stock", "Proveedor", "Documento", "Estado"
+        "SAP","ITEM", "DETALLE", "UNIDAD", 
+        "CANTIDAD", "HORAS", 
+        "PROVEEDOR", "ESTADO"
     ]
     header_fill = PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid")
     header_font = Font(bold=True)
@@ -368,17 +387,14 @@ def export_order_to_excel(request, pk):
     for row_num, item in enumerate(items, start=11):
         sales_order_item = item.sales_order_item
         data = [
-            sales_order_item.sap_code,
-            sales_order_item.category,
-            sales_order_item.description,
+            sales_order_item.sap_code or "N/A",
+            sales_order_item.description or "N/A",
             item.notes or "",
-            sales_order_item.unit_of_measurement,
-            item.quantity_requested,
+            sales_order_item.unit_of_measurement or "N/A",
+            float(item.quantity_requested) if item.quantity_requested else 0,
             getattr(sales_order_item, "custom_quantity", "N/A"),
-            item.sales_order_item.remaining_requirement,
             item.supplier.name if item.supplier else "N/A",
-            "Sí" if item.file_attachment else "No",
-            item.get_estado_display(),
+            item.get_estado_display() or "N/A",
         ]
         for col_num, value in enumerate(data, 1):
             cell = ws.cell(row=row_num, column=col_num, value=value)
@@ -394,7 +410,6 @@ def export_order_to_excel(request, pk):
     wb.save(response)
 
     return response
-
 
 #caja chica
 def logistic_petty_cash(request):

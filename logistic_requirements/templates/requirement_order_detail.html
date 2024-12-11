@@ -2,20 +2,39 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Encabezado en una sola fila -->
     <div class="card shadow-sm mb-4 rounded" style="background-color: #f8f9fa;">
         <div class="card-body">
             <div class="row align-items-center">
-                <div class="col-md-8 d-flex flex-column">
-                    <h4 class="mb-2">Detalles de la Orden de Requerimiento #{{ requirement_order.order_number }}</h4>
-                    <div class="d-flex gap-2">
-                        <span class="badge bg-light text-dark border">Fecha Solicitada: {{ requirement_order.requested_date }}</span>
-                        <span class="badge {{ requirement_order.estado }}">
-                            {{ requirement_order.estado }}
-                        </span>
+                <!-- Información de la orden de requerimiento -->
+                <div class="col">
+                    <div class="d-flex align-items-center">
+                        <div class="badge bg-danger text-white rounded-pill p-3" style="font-size: 1.5rem; font-weight: 700;">
+                            <strong>{{ requirement_order.order_number }}</strong>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <div class="col">
+                    <span class="text-dark" style="font-weight: 600;">{{ requirement_order.sales_order.project.name }}</span>
+                </div>
+                <div class="col">
+                    <span class="text-dark" style="font-weight: 600;">{{ requirement_order.notes }}</span>
+                </div>
+                <div class="col">
+                    <strong style="font-weight: 700;">Días:</strong> <span class="text-dark" style="font-weight: 600;">{{ requirement_order.sales_order.days }}</span>
+                </div>
+                <div class="col">
+                    <strong style="font-weight: 700;">Pedido:</strong> <span class="text-dark" style="font-weight: 600;">{{ requirement_order.user }}</span>
+                </div>
+                <div class="col">
+                    <strong style="font-weight: 700;">Creado el:</strong>
+                    <span class="badge bg-light text-dark border" style="font-weight: 700;">{{ requirement_order.created_at }}</span>
+                </div>
+                <div class="col">
+                    <strong style="font-weight: 700;">Solicitado el:</strong>
+                    <span class="badge bg-light text-dark border" style="font-weight: 700;">{{ requirement_order.requested_date }}</span>
+                </div>
+                <!-- Botón de volver -->
+                <div class="col text-md-end mt-3 mt-md-0">
                     <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left"></i> Volver
                     </a>
@@ -23,178 +42,151 @@
             </div>
         </div>
     </div>
-
-    <!-- Información General en Tabla -->
-    <div class="card shadow-sm mb-4 rounded" style="background-color: #f8f9fa;">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-sm mb-0 w-100">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Pedido</th>
-                            <th>Orden de Venta</th>
-                            <th>Cliente</th>
-                            <th>Proyecto</th>
-                            <th>F. Creada</th>
-                            <th>Días</th> <!-- Nueva columna para mostrar los días de la orden -->
-                            <th>Detalles</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ requirement_order.user }}</td>
-                            <td>{{ requirement_order.sales_order.sapcode }}</td>
-                            <td>{{ requirement_order.sales_order.project.client.legal_name }}</td>
-                            <td>{{ requirement_order.sales_order.project.name }}</td>
-                            <td>{{ requirement_order.created_at }}</td>
-                            <td>{{ requirement_order.sales_order.days }}</td>
-                            <td>{{ requirement_order.notes }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<!-- Botones de Filtrado y Exportar -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <!-- Botones: Ver Guías de Salida y Crear Guía de Salida -->
+    <div class="d-flex gap-3 align-items-center">
+        <a href="{% url 'list_requirement_order_guides' requirement_order.pk %}" class="btn btn-warning text-white">
+            <i class="fas fa-list"></i> Ver Guías de Salida
+        </a>
+        <a href="{% url 'create_exit_guide' requirement_order.pk %}" class="btn btn-primary text-white">
+            <i class="fas fa-truck"></i> Crear Guía de Salida
+        </a>
     </div>
 
-    <!-- Botones de Filtrado y Exportar -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <!-- Botón: Exportar Excel -->
+    <div>
+        <a href="{% url 'export_order_to_excel' requirement_order.pk %}" class="btn btn-success text-white">
+            <i class="fas fa-file-excel"></i> Exportar Excel
+        </a>
+    </div>
+
+    <!-- Botones: Ver Todos, Ver Pendientes, Estados L, C, P, R -->
+    <div class="d-flex gap-2 align-items-center">
         <div class="d-flex gap-2">
             <a href="{% url 'requirement_order_detail' requirement_order.pk %}"
                class="btn btn-outline-secondary {% if not filtrar %}active{% endif %}">Ver Todos</a>
             <a href="{% url 'requirement_order_detail' requirement_order.pk %}?filtrar=P"
                class="btn btn-outline-secondary {% if filtrar == 'P' %}active{% endif %}">Ver Pendientes</a>
         </div>
-        <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-primary" onclick="downloadExcel()">
-                <i class="fas fa-file-excel"></i> Exportar Excel
-            </button>
-            <button type="button" class="btn btn-outline-danger" onclick="downloadPDF()">
-                <i class="fas fa-file-pdf"></i> Exportar PDF
-            </button>
-                    <!-- Nuevo Botón para Crear Guía de Salida -->
-                    <a href="{% url 'create_exit_guide' requirement_order.pk %}" class="btn btn-outline-success">
-                        <i class="fas fa-truck"></i> Crear Guía de Salida
-                    </a>
-                        <!-- Botón para ver las Guías de Salida -->
-    <a href="{% url 'list_requirement_order_guides' requirement_order.pk %}" class="btn btn-outline-info">
-        <i class="fas fa-list"></i> Ver Guías de Salida
-    </a>
-                    
-            <div class="btn-group">
-                <button type="button" class="btn btn-outline-success" onclick="updateAllItemsState('L')">L</button>
-                <button type="button" class="btn btn-outline-primary" onclick="updateAllItemsState('C')">C</button>
-                <button type="button" class="btn btn-outline-warning" onclick="updateAllItemsState('P')">P</button>
-                <button type="button" class="btn btn-outline-danger" onclick="updateAllItemsState('R')">R</button>
-            </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-success fw-bold" onclick="updateAllItemsState('L')">L</button>
+            <button type="button" class="btn btn-outline-primary fw-bold" onclick="updateAllItemsState('C')">C</button>
+            <button type="button" class="btn btn-outline-warning fw-bold" onclick="updateAllItemsState('P')">P</button>
+            <button type="button" class="btn btn-outline-danger fw-bold" onclick="updateAllItemsState('R')">R</button>
         </div>
-        
     </div>
+</div>
 
-    <!-- Tabla de Ítems -->
-    <div class="table-responsive w-100">
-        <form hx-post="{% url 'update_requirement_order_items' requirement_order.pk %}"
-              hx-target="#response-message"
-              hx-swap="innerHTML"
-              id="requirement-order-form">
-              <table class="table table-bordered table-hover align-middle w-100">
-                <thead class="table-dark">
-                    <tr>
-                        <th style="width: 80px;">SAP</th>
-                        <th style="width: 100px;">CATEGORÍA</th>
-                        <th style="width: 200px;">ITEM</th>
-                        <th style="width: 250px;">DETALLE</th>
-                        <th style="width: 100px;">UND</th>
-                        <th style="width: 100px;">CANT U.</th>
-                        <th style="width: 100px;">CANT H.</th>
-                        <th style="width: 80px;">STOCK</th>
-                        {% if not filtrar == 'P' %}
-                            <th style="width: 100px;">P. UNIT</th>
-                            <th style="width: 100px;">P. TOTAL</th>
+
+
+<div class="table-responsive w-100" style="overflow-y: auto; max-height: 750px;">
+    <form hx-post="{% url 'update_requirement_order_items' requirement_order.pk %}"
+          hx-target="#response-message"
+          hx-swap="innerHTML"
+          id="requirement-order-form">
+        <table class="table table-bordered table-hover align-middle w-100">
+            <thead class="table-dark" style="position: sticky; top: 0; z-index: 1020;">
+                <tr>
+                    <th style="width: 80px;">SAP - CAT</th>
+                    <th style="width: 200px;">ITEM</th>
+                    <th style="width: 250px;">DETALLE</th>
+                    <th style="width: 100px;">UND</th>
+                    <th style="width: 100px;">CANT</th>
+                    <th style="width: 100px;">HORAS</th>
+                    <th style="width: 80px;">STOCK</th>
+                    {% if not filtrar == 'P' %}
+                        <th style="width: 100px;">UNIT</th>
+                    {% endif %}
+                    <th style="width: 100px;">TOTAL</th>
+                    <th style="width: 150px;">PROVEEDOR</th>
+                    <th style="width: 60px;">DOC</th>
+                    <th style="width: 100px;">
+                        <i class="fas fa-check-circle" style="color: green;"></i> PAGADO
+                    </th>
+                    <th style="width: 100px;">ESTADO</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr id="item-row-{{ item.id }}">
+                    <td>{{ item.sap_code }} - {{ item.sales_order_item.category }}</td>
+                    <td style="white-space: normal;">{{ item.sales_order_item.description }}</td>
+                    <td>
+                        <input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control" style="min-height: 50px;">
+                    </td>
+                    <td>{{ item.sales_order_item.unit_of_measurement }}</td>
+                    <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="0.01"></td>
+                    
+                    <td>
+                        {% if item.sales_order_item.custom_quantity %}
+                            {{ item.sales_order_item.custom_quantity }} hrs
+                        {% else %}
+                            <span class="text-muted">N/A</span>
                         {% endif %}
-                        <th style="width: 150px;">PROVEEDOR</th>
-                        <th style="width: 60px;">DOC</th>
-                        <th style="width: 100px;">ESTADO</th>
-                        <th style="width: 100px;">PAGADO</th> <!-- Nueva columna para "Pagado" -->
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in items %}
-                    <tr id="item-row-{{ item.id }}">
-                        <td>{{ item.sap_code }}</td>
-                        <td>{{ item.sales_order_item.category }}</td>
-                        <td style="white-space: normal;">{{ item.sales_order_item.description }}</td>
+                    </td>
+                    <td>{{ item.disponible_inventario }}</td>
+                    {% if not filtrar == 'P' %}
                         <td>
-                            <input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control" style="min-height: 50px;">
+                            <input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" style="width: 100px;" min="0" step="0.01">
                         </td>
-                        <td>{{ item.sales_order_item.unit_of_measurement }}</td>
-                        <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="0.01"></td>
-                        <td>
-                            {% if item.sales_order_item.custom_quantity %}
-                                {{ item.sales_order_item.custom_quantity }} hrs
-                            {% else %}
-                                <span class="text-muted">N/A</span>
+                    {% endif %}
+                    <td>
+                        <input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" style="width: 100px;" readonly>
+                    </td>
+                    <td>
+                        <select name="supplier_{{ item.id }}" class="form-select select2-supplier" style="width: 100%;" data-ajax-url="{% url 'ajax_load_suppliers' %}" data-placeholder="Seleccionar proveedor">
+                            {% if item.supplier %}
+                                <option value="{{ item.supplier.id }}" selected>{{ item.supplier.name }}</option>
                             {% endif %}
-                        </td>
-                        <td>{{ item.disponible_inventario }}</td>
-                        {% if not filtrar == 'P' %}
-                            <td>
-                                <input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" style="width: 100px;" min="0" step="0.01">
-                            </td>
-                            <td>
-                                <input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" style="width: 100px;" readonly>
-                            </td>
+                        </select>
+                    </td>
+                    <td>
+                        {% if item.file_attachment %}
+                            <a href="{{ item.file_attachment.url }}" target="_blank"><i class="fas fa-file-alt"></i></a>
+                        {% else %}
+                            <i class="fas fa-times text-muted"></i>
                         {% endif %}
-                        <td>
-                            <select name="supplier_{{ item.id }}" class="form-select select2-supplier" style="width: 100%;" data-ajax-url="{% url 'ajax_load_suppliers' %}" data-placeholder="Seleccionar proveedor">
-                                {% if item.supplier %}
-                                    <option value="{{ item.supplier.id }}" selected>{{ item.supplier.name }}</option>
-                                {% endif %}
-                            </select>
-                        </td>
-                        <td>
-                            {% if item.file_attachment %}
-                                <a href="{{ item.file_attachment.url }}" target="_blank"><i class="fas fa-file-alt"></i></a>
-                            {% else %}
-                                <i class="fas fa-times text-muted"></i>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group" role="group" aria-label="Estado">
-                                <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
-                                <button type="button" class="btn btn-sm {% if item.estado == 'E' %}btn-secondary{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'E')">E</button>
-                                <button type="button" class="btn btn-sm {% if item.estado == 'L' %}btn-success{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'L')">L</button>
-                                <button type="button" class="btn btn-sm {% if item.estado == 'C' %}btn-primary{% else %}btn-outline-primary{% endif %}" onclick="setEstado('{{ item.id }}', 'C')">C</button>
-                                <button type="button" class="btn btn-sm {% if item.estado == 'P' %}btn-warning{% else %}btn-outline-warning{% endif %}" onclick="setEstado('{{ item.id }}', 'P')">P</button>
-                                <button type="button" class="btn btn-sm {% if item.estado == 'R' %}btn-danger{% else %}btn-outline-danger{% endif %}" onclick="setEstado('{{ item.id }}', 'R')">R</button>
-                            </div>
-                        </td>
-                        <td>
-                            <!-- Mostrar si el item está pagado o no -->
-                            {% if item.is_paid %}
-                                <span class="badge bg-success">Pagado</span>
-                            {% else %}
-                                <span class="badge bg-danger">No Pagado</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            
+                    </td>
+                    <td>
+                        {% if item.is_paid %}
+                            <span class="badge bg-success">Si</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Estado">
+                            <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
+                            <button type="button" class="btn btn-sm {% if item.estado == 'E' %}btn-secondary{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'E')">E</button>
+                            <button type="button" class="btn btn-sm {% if item.estado == 'L' %}btn-success{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'L')">L</button>
+                            <button type="button" class="btn btn-sm {% if item.estado == 'C' %}btn-primary{% else %}btn-outline-primary{% endif %}" onclick="setEstado('{{ item.id }}', 'C')">C</button>
+                            <button type="button" class="btn btn-sm {% if item.estado == 'P' %}btn-warning{% else %}btn-outline-warning{% endif %}" onclick="setEstado('{{ item.id }}', 'P')">P</button>
+                            <button type="button" class="btn btn-sm {% if item.estado == 'R' %}btn-danger{% else %}btn-outline-danger{% endif %}" onclick="setEstado('{{ item.id }}', 'R')">R</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-            <div id="response-message" class="alert-message mt-2"></div>
+        <div id="response-message" class="alert-message mt-2"></div>
+    </form>
+</div>
 
-            <div class="d-flex justify-content-between mt-4">
-                <button type="submit" class="btn btn-primary flex-grow-1 me-2">
-                    <i class="fas fa-save"></i> Guardar Cambios
-                </button>
-                <button hx-post="{% url 'create_purchase_order' requirement_order.pk %}"
-                        hx-target="#response-message"
-                        hx-swap="innerHTML"
-                        class="btn btn-success flex-grow-1 ms-2">
-                    <i class="fas fa-shopping-cart"></i> Crear Orden de Compra
-                </button>
-            </div>
+<!-- Botones Sticky al Final -->
+<div class="d-flex justify-content-between mt-4 bg-light p-3 sticky-bottom" style="position: sticky; bottom: 0; z-index: 1020; border-top: 1px solid #ccc;">
+    <button type="submit" class="btn btn-primary flex-grow-1 me-2">
+        <i class="fas fa-save"></i> Guardar Cambios
+    </button>
+    <button hx-post="{% url 'create_purchase_order' requirement_order.pk %}"
+            hx-target="#response-message"
+            hx-swap="innerHTML"
+            class="btn btn-success flex-grow-1 ms-2">
+        <i class="fas fa-shopping-cart"></i> Crear Orden de Compra
+    </button>
+</div>
+
         </form>
     </div>
 </div>

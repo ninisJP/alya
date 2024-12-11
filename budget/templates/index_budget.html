@@ -8,7 +8,7 @@
 {% if messages %}
     <div class="container mt-4">
         {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-success{% endif %} text-center" role="alert">
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-success{% endif %} text-center" role="alert" style="font-size: 1.1em; font-weight: bold;">
                 {{ message }}
             </div>
         {% endfor %}
@@ -16,23 +16,51 @@
 {% endif %}
 
 <!-- Contenedor principal -->
-<div class="container-fluid mb-4">
-    <div class="row align-items-center justify-content-center mb-4">
+<div class="container-fluid mb-5">
+    <div class="row align-items-center justify-content-between mb-4">
         <!-- Título -->
-        <div class="col-12 text-center">
-            <h2 class="text-primary fw-bold display-5">Listado de Presupuestos</h2>
+        <div class="col-md-4 col-12 text-center mb-3">
+            <h2 class="text-primary fw-bold display-4">Presupuestos</h2>
         </div>
-        <!-- Botón -->
-        <div class="col-12 text-center mt-2">
-            <a href="{% url 'index_budget_commercial' %}" class="btn btn-outline-primary btn-lg" style="font-weight: bold;">
-                <i class="fas fa-plus-circle"></i> Presupuestos compras - ventas
+    
+        <!-- Enlace para abrir el modal -->
+        <div class="col-md-4 col-12 text-center mb-3">
+            <a href="#" class="btn btn-success btn-lg w-100" data-bs-toggle="modal" data-bs-target="#createBudgetModal" style="font-weight: bold; border-radius: 30px;">
+                <i class="fas fa-plus-circle"></i> Crear Presupuesto
+            </a>
+        </div>
+    
+        <!-- Botón para otras acciones -->
+        <div class="col-md-4 col-12 text-center mb-3">
+            <a href="{% url 'index_budget_commercial' %}" class="btn btn-outline-primary btn-lg w-100" style="font-weight: bold; border-radius: 30px;">
+                <i class="fas fa-plus-circle"></i> Presupuestos Compras - Ventas
             </a>
         </div>
     </div>
+    
+    
+    
+
+        <!-- Modal donde se cargará el formulario -->
+        <div class="modal fade" id="createBudgetModal" tabindex="-1" role="dialog" aria-labelledby="createBudgetModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-white">
+                        <h5 class="modal-title" id="createBudgetModalLabel">Crear Presupuesto</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% include 'budgetplus/create_budget_plus.html' %}
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <!-- Tabla de presupuestos -->
     {% if budgets %}
-        <div class="table-responsive">
+        <div class="table-responsive mt-4">
             <table class="table table-hover text-center align-middle w-100" id="budgetTable">
                 <thead class="table-dark text-white">
                     <tr>
@@ -58,17 +86,14 @@
                             <td>{{ budget.budget_date }}</td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a href="{% url 'detail_budget' budget.id %}" class="btn btn-info btn-sm" title="Ver detalles">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
                                     <a href="{% url 'detail_budget_plus' budget.id %}" class="btn btn-info btn-sm" title="Ver detalles">
-                                        <i class="fas fa-eye">Plus</i>
+                                        <i class="fas fa-eye"></i> Ver
                                     </a>
                                     <a href="{% url 'duplicate_budget' pk=budget.pk %}" class="btn btn-warning btn-sm" title="Duplicar">
-                                        <i class="fas fa-copy"></i>
+                                        <i class="fas fa-copy"></i> Duplicar
                                     </a>
                                     <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger btn-sm" title="Eliminar">
-                                        <i class="fas fa-trash-alt"></i>
+                                        <i class="fas fa-trash-alt"></i> Eliminar
                                     </a>
                                 </div>
                             </td>
@@ -83,7 +108,6 @@
         </div>
     {% endif %}
 </div>
-
 
 <!-- DataTables CSS y JavaScript -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css"/>
