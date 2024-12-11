@@ -17,7 +17,8 @@ from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from .forms import (
     BudgetEditNewForm, 
     BudgetForm, 
-    BudgetItemFormSet, 
+    BudgetItemFormSet,
+    BudgetPlusForm, 
     CatalogItemForm, 
     SearchCatalogItemForm, 
     NewBudgetItemForm, 
@@ -35,9 +36,16 @@ from .utils import (
 )
 
 def index_budget(request):
-    budgets = Budget.objects.all()  # Recupera todos los presupuestos
-    return render(request, 'index_budget.html', {'budgets': budgets})
-  
+    budgets = Budget.objects.all()
+    form = BudgetPlusForm(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            budget = form.save()
+            return redirect('detail_budget_plus', pk=budget.pk) 
+
+    return render(request, 'index_budget.html', {'budgets': budgets, 'form': form})
+
 def edit_budget_item_htmx(request, item_id):
     item = get_object_or_404(BudgetItem, id=item_id)
     
@@ -138,7 +146,7 @@ def duplicate_budget(request, pk):
         duplicated_item.save()
 
     # Redirigir a la vista de detalle del nuevo presupuesto
-    return redirect('detail_budget', pk=duplicated_budget.pk)
+    return redirect('detail_budget_plus', pk=duplicated_budget.pk)
 
 def create_sales_order_from_budget(request, budget_id):
     # Obtener el presupuesto seleccionado

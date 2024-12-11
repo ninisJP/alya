@@ -39,6 +39,27 @@ class Budget(models.Model):
         total = sum(item.total_price for item in self.items.all())
         print(f"Debug: Calculando budget_price, Total calculado: {total}")
         return total
+    
+    def get_category_totals(self):
+        # Crear un diccionario vacío para los totales por categoría
+        category_totals = {}
+
+        # Iterar a través de los items del presupuesto y sumar el total por categoría
+        for budget_item in self.items.all():
+            category = budget_item.item.category
+
+            # Si la categoría aún no está en el diccionario, la inicializamos
+            if category not in category_totals:
+                category_totals[category] = Decimal(0.00)
+
+            # Sumamos el total_price al valor de la categoría
+            category_totals[category] += budget_item.total_price
+
+        return category_totals
+
+    def update_budget_price(self):
+        self.budget_price = self.calculate_budget_price()
+        self.save(update_fields=['budget_price'])
 
     def save(self, *args, **kwargs):
         if not self.pk:

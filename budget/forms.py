@@ -218,7 +218,6 @@ class BudgetPlusForm(forms.ModelForm):
             'client': forms.Select(attrs={'class': 'form-select'}),
             'budget_name': forms.TextInput(attrs={'class': 'form-control'}),
             'budget_days': forms.NumberInput(attrs={'class': 'form-control'}),
-            'budget_expenses': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -230,6 +229,5 @@ class BudgetPlusForm(forms.ModelForm):
         self.fields['budget_name'].label = 'Nombre del Presupuesto'
         self.fields['budget_days'].label = 'Días del Presupuesto'
         self.fields['budget_date'].label = 'Fecha del Presupuesto'
-        self.fields['budget_expenses'].label = 'Gastos'
 
 
