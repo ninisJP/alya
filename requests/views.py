@@ -309,48 +309,119 @@ def create_requirement_order(request, order_id):
         print(f"[Error] Excepción al crear la orden de requerimiento: {str(e)}")
         return JsonResponse({"message": f"Error inesperado: {str(e)}", "type": "error"}, status=400)
 
-from django.http import HttpResponse
+from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from decimal import Decimal
 
 def export_requirement_order(request, order_id):
     # Obtener la orden de requerimiento que quieres exportar
     order = get_object_or_404(RequirementOrder, id=order_id)
-    
+
     # Crear un libro de trabajo (workbook)
     wb = Workbook()
     ws = wb.active
     ws.title = "Orden de Requerimiento"
 
-    # Agregar encabezados
+    # Colores para la información general
+    general_info_fill = PatternFill(start_color="89b5fa", end_color="89b5fa", fill_type="solid") 
+    general_info_alignment = Alignment(horizontal="left", vertical="center")  # Alineación izquierda
+
+    # Agregar información general de la orden de requerimiento
+    general_info = [
+        ("Orden de Venta:", str(order.sales_order)),
+        ("Fecha Solicitada:", order.requested_date),
+        ("Fecha de Creación:", order.created_at.strftime("%d/%m/%Y")),
+        ("Detalle del Requerimiento:", order.notes if order.notes else "No disponible"),
+        ("Estado de la Orden:", dict(RequirementOrder.STATE_CHOICES).get(order.state, 'Desconocido')),
+        ("Total de la Orden:", order.total_order),
+    ]
+    
+    # Escribir la información general en las primeras filas con color y formato
+    row_num = 1
+    for label, value in general_info:
+        ws.append([label, value])
+        # Obtener la fila actual
+        row_cells = ws[row_num]
+        for cell in row_cells:
+            cell.fill = general_info_fill  # Aplicar el color de fondo
+            cell.alignment = general_info_alignment  # Alineación
+        row_num += 1
+
+    # Agregar una fila vacía para separar la información general de los detalles de los artículos
+    ws.append([])
+
+    # Agregar encabezados para los detalles de los artículos
     headers = [
-        "Item", 
-        "Info", 
-        "Cantidad", 
-        "Precio Unitario", 
-        "Precio Total", 
-        "Doc", 
+        "Item",
+        "Info",
+        "Cantidad",
+        "Precio Unitario",
+        "Precio Total",
         "Estado"
     ]
     ws.append(headers)
+
+    # Aplicar formato a los encabezados (colorear y centrar el texto)
+    header_fill = PatternFill(start_color="4CAF50", end_color="4CAF50", fill_type="solid")  # Verde
+    header_font = Font(color="FFFFFF", bold=True)  # Texto blanco y en negrita
+    header_alignment = Alignment(horizontal="center", vertical="center")  # Centrado
+
+    # Aplicar formato a todas las celdas de los encabezados (primera fila)
+    for cell in ws[ws.max_row]:  # Primera fila (encabezados)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = header_alignment
+
+    # Definir los colores para los estados
+    estado_colors = {
+        'L': PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid"),  # Verde claro - Listo
+        'P': PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid"),  # Amarillo - Pendiente
+        'C': PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid"),  # Naranja - Comprando
+        'R': PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid"),  # Rojo - Rechazado
+        'E': PatternFill(start_color="ADD8E6", end_color="ADD8E6", fill_type="solid"),  # Azul claro - Enviado
+        'A': PatternFill(start_color="FFFFE0", end_color="FFFFE0", fill_type="solid"),  # Amarillo claro - Aceptado
+    }
 
     # Llenar el archivo con los datos de la tabla
     for item in order.items.all():
         # Se calcula el total_price como cantidad * precio
         total_price = item.quantity_requested * item.price if item.price else 0
-        file_attachment = item.file_attachment.url if item.file_attachment else "No disponible"
         estado = dict(RequirementOrderItem.ESTADO_CHOICES).get(item.estado, 'Desconocido')
 
+        # Crear una fila para agregar
         row = [
             item.sales_order_item.description,
             item.notes if item.notes else "",
             item.quantity_requested,
             item.price if item.price else "",
             total_price,
-            file_attachment,
             estado
         ]
+
+        # Agregar la fila a la hoja
         ws.append(row)
+
+        # Obtener la fila recién agregada (última fila)
+        row_cells = ws[ws.max_row]  # Accede a la última fila (nueva)
+
+        # Aplicar el color a toda la fila
+        if item.estado in estado_colors:
+            for cell in row_cells:
+                cell.fill = estado_colors[item.estado]
+
+    # Ajustar el ancho de las columnas basado en el contenido
+    for col in range(1, len(headers) + 1):  # Desde la columna 1 hasta la columna de los encabezados
+        max_length = 0
+        column = ws.column_dimensions[get_column_letter(col)]  # Obtenemos la columna actual
+        for row in ws.iter_rows(min_col=col, max_col=col):
+            for cell in row:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))  # Obtener el largo del valor más largo
+        adjusted_width = (max_length + 2)  # Añadimos un margen extra
+        column.width = adjusted_width  # Ajustar el ancho de la columna
 
     # Crear una respuesta HTTP con el archivo Excel como un adjunto
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
