@@ -308,3 +308,55 @@ def create_requirement_order(request, order_id):
     except Exception as e:
         print(f"[Error] Excepción al crear la orden de requerimiento: {str(e)}")
         return JsonResponse({"message": f"Error inesperado: {str(e)}", "type": "error"}, status=400)
+
+from django.http import HttpResponse
+from openpyxl import Workbook
+from django.shortcuts import get_object_or_404
+
+def export_requirement_order(request, order_id):
+    # Obtener la orden de requerimiento que quieres exportar
+    order = get_object_or_404(RequirementOrder, id=order_id)
+    
+    # Crear un libro de trabajo (workbook)
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Orden de Requerimiento"
+
+    # Agregar encabezados
+    headers = [
+        "Item", 
+        "Info", 
+        "Cantidad", 
+        "Precio Unitario", 
+        "Precio Total", 
+        "Doc", 
+        "Estado"
+    ]
+    ws.append(headers)
+
+    # Llenar el archivo con los datos de la tabla
+    for item in order.items.all():
+        # Se calcula el total_price como cantidad * precio
+        total_price = item.quantity_requested * item.price if item.price else 0
+        file_attachment = item.file_attachment.url if item.file_attachment else "No disponible"
+        estado = dict(RequirementOrderItem.ESTADO_CHOICES).get(item.estado, 'Desconocido')
+
+        row = [
+            item.sales_order_item.description,
+            item.notes if item.notes else "",
+            item.quantity_requested,
+            item.price if item.price else "",
+            total_price,
+            file_attachment,
+            estado
+        ]
+        ws.append(row)
+
+    # Crear una respuesta HTTP con el archivo Excel como un adjunto
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename=orden_requerimiento_{order_id}.xlsx'
+
+    # Guardar el libro de trabajo en la respuesta
+    wb.save(response)
+
+    return response
