@@ -9,17 +9,9 @@
                     <thead>
                         <tr>
                             <th class="letter-header"></th>
-                            <th class="letter-header">A</th>
-                            <th class="letter-header">B</th>
-                            <th class="letter-header">C</th>
-                            <th class="letter-header">D</th>
-                            <th class="letter-header">E</th>
-                            <th class="letter-header">F</th>
-                            <th class="letter-header">G</th>
-                            <th class="letter-header">H</th>
-                            <th class="letter-header">I</th>
-                            <th class="letter-header">J</th>
-                            <th class="letter-header">K</th>
+                            {% for col in 'ABCDEFGHIJK' %}
+                            <th class="letter-header">{{ col }}</th>
+                            {% endfor %}
                         </tr>
                         <tr>
                             <th class="letter-header">#</th>
@@ -44,29 +36,84 @@
                             <td>{{ item.item.category }}</td>
                             <td>{{ item.item.description }}</td>
                             <td>
-                                <input type="text" name="unit_{{ item.id }}" value="{{ item.unit }}" class="form-control unit" data-item-id="{{ item.id }}">
+                                <input 
+                                    type="text" 
+                                    name="unit_{{ item.id }}" 
+                                    value="{{ item.unit }}" 
+                                    class="form-control update-trigger"
+                                    hx-post="{% url 'budget_item_update' budget.id %}"
+                                    hx-target="#budget_item_plus"
+                                    hx-swap="outerHTML"
+                                    hx-trigger="keyup changed delay:2s"
+                                >
                             </td>
                             <td>
-                                <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" class="form-control quantity" data-item-id="{{ item.id }}">
+                                <input 
+                                    type="number" 
+                                    name="quantity_{{ item.id }}" 
+                                    value="{{ item.quantity }}" 
+                                    class="form-control update-trigger"
+                                    hx-post="{% url 'budget_item_update' budget.id %}"
+                                    hx-target="#budget_item_plus"
+                                    hx-swap="outerHTML"
+                                    hx-trigger="keyup changed delay:2s"
+                                >
                             </td>
                             <td>
-                                <input type="number" name="custom_quantity_{{ item.id }}" value="{{ item.custom_quantity|default:0 }}" class="form-control">
+                                <input 
+                                    type="number" 
+                                    name="custom_quantity_{{ item.id }}" 
+                                    value="{{ item.custom_quantity|default:0 }}" 
+                                    class="form-control update-trigger"
+                                    hx-post="{% url 'budget_item_update' budget.id %}"
+                                    hx-target="#budget_item_plus"
+                                    hx-swap="outerHTML"
+                                    hx-trigger="keyup changed delay:2s"
+                                >
                             </td>
                             <td>
-                                <input type="number" name="custom_price_per_hour_{{ item.id }}" value="{{ item.custom_price_per_hour|default:0 }}" class="form-control">
+                                <input 
+                                    type="number" 
+                                    name="custom_price_per_hour_{{ item.id }}" 
+                                    value="{{ item.custom_price_per_hour|default:0 }}" 
+                                    class="form-control update-trigger"
+                                    hx-post="{% url 'budget_item_update' budget.id %}"
+                                    hx-target="#budget_item_plus"
+                                    hx-swap="outerHTML"
+                                    hx-trigger="keyup changed delay:2s"
+                                >
                             </td>
                             <td>
-                                <input type="number" name="custom_price_per_day_{{ item.id }}" value="{{ item.custom_price_per_day }}" class="form-control">
+                                <input 
+                                    type="number" 
+                                    name="custom_price_per_day_{{ item.id }}" 
+                                    value="{{ item.custom_price_per_day }}" 
+                                    class="form-control update-trigger"
+                                    hx-post="{% url 'budget_item_update' budget.id %}"
+                                    hx-target="#budget_item_plus"
+                                    hx-swap="outerHTML"
+                                    hx-trigger="keyup changed delay:2s"
+                                >
                             </td>
                             <td>
-                                <input type="number" name="custom_price_{{ item.id }}" value="{{ item.custom_price }}" class="form-control price" data-item-id="{{ item.id }}">
+                                <input 
+                                    type="number" 
+                                    name="custom_price_{{ item.id }}" 
+                                    value="{{ item.custom_price }}" 
+                                    class="form-control update-trigger"
+                                    hx-post="{% url 'budget_item_update' budget.id %}"
+                                    hx-target="#budget_item_plus"
+                                    hx-swap="outerHTML"
+                                    hx-trigger="keyup changed delay:2s"
+                                >
                             </td>
                             <td><span class="total-price" id="total-price-{{ item.id }}">{{ item.total_price }}</span></td>
                             <td>
-                                <button class="btn btn-danger btn-sm" 
-                                        hx-delete="{% url 'budget_item_delete' item.id %}" 
-                                        hx-target="#item-{{ item.id }}" 
-                                        hx-swap="outerHTML">
+                                <button 
+                                    class="btn btn-danger btn-sm" 
+                                    hx-delete="{% url 'budget_item_delete' item.id %}" 
+                                    hx-target="#item-{{ item.id }}" 
+                                    hx-swap="outerHTML">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </td>
@@ -76,80 +123,7 @@
                 </table>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Guardar Cambios</button>
     </form>
 </div>
 
 {% include 'partials/budget_item_plus_js.html' %}
-
-<script>
-    // Función para actualizar el precio total
-    function updateTotalPrice(itemId) {
-        var quantityInput = document.querySelector('input[name="quantity_' + itemId + '"]');
-        var priceInput = document.querySelector('input[name="custom_price_' + itemId + '"]');
-        var quantityInputHour = document.querySelector('input[name="custom_quantity_' + itemId + '"]');
-        var unitInput = document.querySelector('input[name="unit_' + itemId + '"]'); 
-
-        if (!quantityInput || !priceInput || !unitInput || !quantityInputHour) {
-            console.log("Uno de los elementos no se encontró.");
-            return;
-        }
-
-        var quantity = parseFloat(quantityInput.value) || 0;
-        var price = parseFloat(priceInput.value) || 0;
-        var quantityHour = parseFloat(quantityInputHour.value) || 0;
-        var unit = unitInput.value || "";
-
-        var totalPrice = 0;
-
-        // Si la unidad de medida contiene 'HORAS', calculamos con el precio por hora
-        if (unit.toUpperCase().includes("HORAS")) {
-            var pricePerHourInput = document.querySelector('input[name="custom_price_per_hour_' + itemId + '"]');
-            if (!pricePerHourInput) {
-                console.log("Precio por hora no encontrado.");
-                return;
-            }
-            var pricePerHour = parseFloat(pricePerHourInput.value) || 0;
-            totalPrice = quantityHour * pricePerHour; // Usar la cantidad de horas y el precio por hora
-        } else {
-            totalPrice = quantity * price; // Usar la cantidad estándar y el precio
-        }
-
-        // Actualiza el precio total en la tabla
-        var totalPriceElement = document.querySelector('#total-price-' + itemId);
-        if (totalPriceElement) {
-            totalPriceElement.innerText = totalPrice.toFixed(2);
-        }
-    }
-
-    // Agregar event listeners para detectar cambios en cantidad, precio y unidad
-    document.querySelectorAll('.quantity').forEach(function(input) {
-        input.addEventListener('input', function() {
-            var itemId = input.getAttribute('data-item-id');
-            updateTotalPrice(itemId);
-        });
-    });
-
-    document.querySelectorAll('.price').forEach(function(input) {
-        input.addEventListener('input', function() {
-            var itemId = input.getAttribute('data-item-id');
-            updateTotalPrice(itemId);
-        });
-    });
-
-    // Agregar listener para cambios en la unidad
-    document.querySelectorAll('.unit').forEach(function(input) {
-        input.addEventListener('input', function() {
-            var itemId = input.getAttribute('data-item-id');
-            updateTotalPrice(itemId);
-        });
-    });
-
-    // Agregar listener para cambios en la cantidad de horas
-    document.querySelectorAll('input[name^="custom_quantity_"]').forEach(function(input) {
-        input.addEventListener('input', function() {
-            var itemId = input.getAttribute('name').split('_')[2]; // Obtener el itemId
-            updateTotalPrice(itemId);
-        });
-    });
-</script>

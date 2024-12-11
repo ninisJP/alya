@@ -60,21 +60,18 @@ def budget_item_plus(request, pk):
         return redirect('detail_budget_plus', pk=pk)
 
 def budget_item_update(request, pk):
-    budget = get_object_or_404(Budget, pk=pk)  # Obtener el presupuesto
-    success_message = None
+    budget = get_object_or_404(Budget, pk=pk)
 
     if request.method == 'POST':
         try:
-            with transaction.atomic():  # Asegurar que todos los cambios sean atómicos
-                for item in budget.items.all():  # Iterar sobre cada ítem del presupuesto
-                    # Obtener los datos modificados para cada ítem
+            with transaction.atomic():
+                for item in budget.items.all():
                     quantity = request.POST.get(f'quantity_{item.id}')
                     custom_quantity = request.POST.get(f'custom_quantity_{item.id}')
                     custom_price_per_hour = request.POST.get(f'custom_price_per_hour_{item.id}')
                     custom_price_per_day = request.POST.get(f'custom_price_per_day_{item.id}')
                     custom_price = request.POST.get(f'custom_price_{item.id}')
 
-                    # Verificar si los valores fueron modificados y actualizar
                     if quantity:
                         item.quantity = Decimal(quantity)
                     if custom_quantity:
@@ -86,31 +83,26 @@ def budget_item_update(request, pk):
                     if custom_price:
                         item.custom_price = Decimal(custom_price)
 
-                    # Recalcular el precio total del ítem
                     if 'HORAS' in item.unit.upper():
                         item.total_price = (item.custom_price_per_day * Decimal(budget.budget_days) * item.quantity).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
                     else:
                         item.total_price = item.quantity * item.custom_price
 
-                    item.save()  # Guardar el ítem actualizado en la base de datos
+                    item.save()
 
-                # Recalcular el presupuesto total después de actualizar los ítems
                 budget.calculate_budget_price()
 
-                success_message = "Los cambios se guardaron correctamente."  # Mensaje de éxito
-
         except Exception as e:
-            success_message = f"Hubo un error al guardar los cambios: {e}"  # Mensaje de error
+            # Si ocurre un error, puedes manejarlo aquí.
+            pass
 
-        # Renderizar la página con los datos actualizados
+        # Renderiza toda la tabla actualizada
         return render(request, 'budgetplus/budget_item_plus.html', {
             'items': budget.items.all(),
             'budget': budget,
-            'success_message': success_message,
         })
-    else:
-        # Si no es una solicitud POST, redirigir al detalle del presupuesto
-        return redirect('detail_budget_plus', pk=pk)
+
+    return redirect('detail_budget_plus', pk=pk)
 
 def budget_item_delete(request, item_id):
     item = get_object_or_404(BudgetItem, id=item_id)
