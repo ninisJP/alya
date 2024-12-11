@@ -330,7 +330,9 @@ def requirement_order_detail_partial(request, pk):
 def export_order_to_excel(request, pk):
     # Obtener la orden específica
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
-    items = requirement_order.items.filter(estado='P')
+    items = requirement_order.items.all().select_related(
+        'sales_order_item', 'supplier'
+    ).order_by('sales_order_item__description')
 
     # Crear un nuevo libro de Excel
     wb = openpyxl.Workbook()
@@ -348,7 +350,7 @@ def export_order_to_excel(request, pk):
         f"Cliente: {requirement_order.sales_order.project.client.legal_name}",
         f"Fecha Solicitada: {requirement_order.requested_date}",
         f"Fecha Creada: {requirement_order.created_at}",
-        f"Notas: {requirement_order.notes}",
+        f"Pedido: {requirement_order.notes or 'Sin notas'}",
     ]
 
     for idx, detail in enumerate(details, start=2):
@@ -356,9 +358,9 @@ def export_order_to_excel(request, pk):
 
     # Encabezados de la tabla
     headers = [
-        "SAP", "Categoría", "Ítem", "Detalle", "Unidad", 
-        "Cantidad en Unidades", "Cantidad en Horas", 
-        "Stock", "Proveedor", "Documento", "Estado"
+        "SAP","ITEM", "DETALLE", "UNIDAD", 
+        "CANTIDAD", "HORAS", 
+        "PROVEEDOR", "ESTADO"
     ]
     header_fill = PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid")
     header_font = Font(bold=True)
@@ -385,17 +387,14 @@ def export_order_to_excel(request, pk):
     for row_num, item in enumerate(items, start=11):
         sales_order_item = item.sales_order_item
         data = [
-            sales_order_item.sap_code,
-            sales_order_item.category,
-            sales_order_item.description,
+            sales_order_item.sap_code or "N/A",
+            sales_order_item.description or "N/A",
             item.notes or "",
-            sales_order_item.unit_of_measurement,
-            item.quantity_requested,
+            sales_order_item.unit_of_measurement or "N/A",
+            float(item.quantity_requested) if item.quantity_requested else 0,
             getattr(sales_order_item, "custom_quantity", "N/A"),
-            item.sales_order_item.remaining_requirement,
             item.supplier.name if item.supplier else "N/A",
-            "Sí" if item.file_attachment else "No",
-            item.get_estado_display(),
+            item.get_estado_display() or "N/A",
         ]
         for col_num, value in enumerate(data, 1):
             cell = ws.cell(row=row_num, column=col_num, value=value)
@@ -411,7 +410,6 @@ def export_order_to_excel(request, pk):
     wb.save(response)
 
     return response
-
 
 #caja chica
 def logistic_petty_cash(request):

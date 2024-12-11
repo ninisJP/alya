@@ -109,14 +109,14 @@ def upload_sap_excel(request, budget_id):
             process_sap_excel(excel_file, budget)  # Pasa la instancia `budget` en lugar de su `id`
             print("Procesamiento completado")
 
-            return redirect('detail_budget', pk=budget_id)
+            return redirect('detail_budget_plus', pk=budget_id)
 
         except Exception as e:
             print(f"Error al procesar el archivo: {str(e)}")
-            return redirect('detail_budget', pk=budget_id)
+            return redirect('detail_budget_plus', pk=budget_id)
 
     print("No se recibió un archivo Excel o no es un POST")
-    return redirect('detail_budget', pk=budget_id)
+    return redirect('detail_budget_plus', pk=budget_id)
 
 def delete_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
