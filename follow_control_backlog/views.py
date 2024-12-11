@@ -204,29 +204,13 @@ def replicate_last_week_tasks(request):
     messages.success(request, "Tareas replicadas exitosamente para la semana actual.")
     return redirect('backlog_default')
 
+# traspaso de tareas un día
 def replicate_tasks_to_future_week(request):
     user = request.user
 
     # Obtener la fecha de hoy y calcular el lunes de esta semana
     today = timezone.now().date()
-    start_of_this_week = today - timedelta(days=today.weekday())
-
-    # Inicializar la semana objetivo con la próxima semana
-    start_of_target_week = start_of_this_week + timedelta(days=7)
-
-    # Verificar semanas sucesivas hasta encontrar una que no tenga tareas
-    while True:
-        target_week_cards = Card.objects.filter(
-            user=user,
-            date__range=(start_of_target_week, start_of_target_week + timedelta(days=6))
-        )
-
-        # Si no hay tarjetas o no tienen tareas, se detiene la búsqueda
-        if not target_week_cards.exists() or not any(card.tasks.exists() for card in target_week_cards):
-            break
-
-        # Mover la semana objetivo a la siguiente semana
-        start_of_target_week += timedelta(days=7)
+    start_of_this_week = today - timedelta(days=today.weekday())  # Lunes de esta semana
 
     # Filtrar las Cards de esta semana
     this_week_cards = Card.objects.filter(
@@ -238,17 +222,26 @@ def replicate_tasks_to_future_week(request):
         messages.error(request, "No se encontraron tarjetas para esta semana.")
         return redirect('backlog_default')
 
-    # Crear o buscar las nuevas Cards para la semana objetivo (próxima disponible)
+    # Crear o buscar las nuevas Cards para el día siguiente (trasladar las tareas un día)
     for this_week_card in this_week_cards:
-        target_week_card_date = this_week_card.date + (start_of_target_week - start_of_this_week)
-        target_week_card, created = Card.objects.get_or_create(
-            user=user,
-            date=target_week_card_date,
-            defaults={'valuation': 'D', 'total_time': 0.00}
-        )
+        # Calcular el día correspondiente en la semana objetivo (el día siguiente)
+        target_day_card_date = this_week_card.date + timedelta(days=1)  # Mover un solo día hacia adelante
 
-        # Replicar las tareas de la Card de esta semana a la nueva Card de la semana objetivo
-        replicate_tasks_to_new_card(this_week_card, target_week_card)
+        # Asegurarse de que no se copien múltiples días. La fecha de destino debe ser solo un día.
+        if target_day_card_date != this_week_card.date:  # Esto asegura que solo se mueva un día
+            # Verificar si el día siguiente es un domingo (weekday() == 6 significa domingo)
+            if target_day_card_date.weekday() == 6:  # Si es domingo, no replicar
+                continue  # Saltar este día, no replicar tareas
+
+            # Buscar o crear la nueva tarjeta para ese día
+            target_day_card, created = Card.objects.get_or_create(
+                user=user,
+                date=target_day_card_date,
+                defaults={'valuation': 'D', 'total_time': 0.00}
+            )
+
+            # Replicar las tareas de la Card de este día a la nueva Card del siguiente día
+            replicate_tasks_to_new_card(this_week_card, target_day_card)
 
     messages.success(request, "Tareas replicadas exitosamente.")
     return redirect('backlog_default')
