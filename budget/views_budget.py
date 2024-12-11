@@ -12,8 +12,7 @@ def create_budget_plus(request):
         form = BudgetPlusForm(request.POST)
         if form.is_valid():
             budget = form.save()
-            return redirect('detail_budget_plus', pk=budget.pk) # O redirigir
-
+            return redirect('detail_budget_plus', pk=budget.pk) 
 
 def detail_budget_plus(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
@@ -46,11 +45,13 @@ def budget_item_plus(request, pk):
                 new_item.custom_quantity = Decimal(budget.budget_days) * 8 * new_item.quantity
                 new_item.total_price = (new_item.custom_price_per_day * Decimal(budget.budget_days) * new_item.quantity).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             else:
-                new_item.custom_price_per_day = 0 
+                new_item.custom_price_per_day = 0
                 new_item.total_price = new_item.quantity * new_item.custom_price
 
             new_item.save()
-            budget.calculate_budget_price()
+            
+            # Actualiza el presupuesto después de agregar el ítem
+            budget.update_budget_price()
 
             return render(request, 'budgetplus/budget_item_plus.html', {
                 'items': budget.items.all(),
@@ -90,8 +91,8 @@ def budget_item_update(request, pk):
 
                     item.save()
 
-                budget.calculate_budget_price()
-
+                budget.update_budget_price()
+                
         except Exception as e:
             # Si ocurre un error, puedes manejarlo aquí.
             pass
@@ -108,8 +109,7 @@ def budget_item_delete(request, item_id):
     item = get_object_or_404(BudgetItem, id=item_id)
     budget = item.budget  
     item.delete()
-
-    budget.calculate_budget_price()
+    budget.update_budget_price()
 
     items = budget.items.all()
 

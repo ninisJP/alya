@@ -15,7 +15,7 @@
                     <h1>{{ budget.budget_name }}</h1>
                 </div>
                 <div class="card-body">
-                    <form hx-post="{% url 'budget_item_plus' budget.pk %}" hx-target="#budget_item_plus" hx-swap="outerHTML" class="row g-3">
+                    <form hx-post="{% url 'budget_item_plus' budget.pk %}" hx-target="#budget_item_plus" hx-swap="innerHTML" class="row g-3">
                         {% csrf_token %}
                         <div class="col-md-4">
                             {{ form.item|add_class:"form-control select2-ajax" }}
@@ -30,7 +30,7 @@
                             {{ form.custom_price|add_class:"form-control" }}
                         </div>
                         <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">Agregar</button>
+                            <button type="submit" class="btn btn-primary w-100" data-htmx-trigger="add-item">Agregar</button>
                         </div>
                     </form>                    
                 </div>
@@ -38,20 +38,9 @@
         </div>
     </div>
 
-    <div class="row">
-        <!-- Columna 1: Lista de ítems (70%) -->
-        <div class="col-9">
-            <div id="budget_item_plus" class="w-100">
-                {% include 'budgetplus/budget_item_plus.html' %}
-            </div>
-        </div>
-        
-        <!-- Columna 2: Detalles del presupuesto (30%) -->
-        <div class="col-3">
-            <div id="budget_detail_plus" class="w-100">
-                {% include 'budgetplus/budget_detail_plus.html' %}
-            </div>
-        </div>
+    <div id="budget_item_plus">
+        {% include 'budgetplus/budget_item_plus.html' %}
+    </div>
     </div>
 </div>
 
@@ -61,6 +50,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
+    
 $(document).ready(function() {
     function initializeSelect2(selector) {
         if (!$(selector).hasClass("select2-hidden-accessible")) {
@@ -100,6 +90,7 @@ $(document).ready(function() {
         }
     });
 });
+
 </script>
 
 {% endblock %}
