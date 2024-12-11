@@ -1,7 +1,7 @@
 # views_budget.py
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Budget, BudgetItem, CatalogItem
-from .forms import AddBudgetItemPlus, BudgetPlusForm
+from .forms import AddBudgetItemPlus, BudgetEditNewForm, BudgetPlusForm
 from decimal import Decimal
 from decimal import ROUND_HALF_UP
 from django.db import transaction
@@ -24,6 +24,17 @@ def detail_budget_plus(request, pk):
         'items': items,
         'form': form  
     })
+
+def update_budget_partial_plus(request, pk):
+    budget = get_object_or_404(Budget, pk=pk)
+    form = BudgetEditNewForm(request.POST or None, instance=budget)  # Cambiamos a BudgetEditNewForm
+
+    if request.method == "POST" and form.is_valid():
+        form.save()  # Guarda los cambios
+        return render(request, "budgetplus/budget_detail_plus.html", {"budget": budget})  # Retorna la tabla actualizada
+
+    # Si es GET o si el formulario no es válido, muestra el formulario
+    return render(request, "partials/_budget_form.html", {"form": form, "budget": budget})
 
 def budget_item_plus(request, pk):
     budget = get_object_or_404(Budget, pk=pk)

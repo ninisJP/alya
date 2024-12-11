@@ -146,7 +146,7 @@ def duplicate_budget(request, pk):
         duplicated_item.save()
 
     # Redirigir a la vista de detalle del nuevo presupuesto
-    return redirect('detail_budget', pk=duplicated_budget.pk)
+    return redirect('detail_budget_plus', pk=duplicated_budget.pk)
 
 def create_sales_order_from_budget(request, budget_id):
     # Obtener el presupuesto seleccionado

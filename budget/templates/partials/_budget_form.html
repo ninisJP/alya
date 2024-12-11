@@ -1,5 +1,5 @@
 <div id="budget-details-container">
-    <form method="POST" hx-post="{% url 'update_budget_partial' budget.id %}" hx-target="#budget-details-container" hx-swap="outerHTML">
+    <form hx-post="{% url 'update_budget_partial_plus' budget.id %}" hx-target="#budget_detail_plus" hx-swap="outerHTML">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-4">
@@ -45,8 +45,8 @@
             <div class="col-md-4 mt-3">
                 <button type="submit" class="btn btn-primary">Actualizar</button>
                 <button type="button" class="btn btn-secondary"
-                        hx-get="{% url 'update_budget_partial' budget.id %}"
-                        hx-target="#budget-details-container"
+                        hx-get="{% url 'update_budget_partial_plus' budget.id %}"
+                        hx-target="#budget_detail_plus"
                         hx-swap="outerHTML">
                     Cancelar
                 </button>

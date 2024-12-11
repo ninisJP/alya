@@ -1,3 +1,5 @@
+<div id="budget_detail_plus">
+<div id="budget-details-container-plus">
 <!-- Datos del Presupuesto -->
 <div class="card shadow-sm mb-4">
     <div class="card-header bg-primary text-white">
@@ -11,8 +13,12 @@
             <li><strong>Duración:</strong> <span class="text-muted">{{ budget.budget_days }} días</span></li>
             <li><strong>Precio Total:</strong> <span class="text-success">S/ {{ budget.budget_price }}</span></li>
             <li><strong>Precio Final:</strong> <span class="text-success">S/ {{ budget.budget_final_price }}</span></li>
+        
         </ul>
     </div>
+    <button class="btn btn-primary mt-3" hx-post="{% url 'update_budget_partial_plus' budget.id %}" hx-target="#budget_detail_plus" hx-swap="outerHTML">
+        Editar Presupuesto
+    </button>
 </div>
 
 <!-- Resumen de Totales -->
@@ -33,8 +39,8 @@
         </ul>
     </div>
 </div>
-
-
+</div>
+</div>
 
 
 
