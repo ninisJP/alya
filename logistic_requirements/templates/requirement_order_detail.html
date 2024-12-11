@@ -127,7 +127,8 @@
                             <input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control" style="min-height: 50px;">
                         </td>
                         <td>{{ item.sales_order_item.unit_of_measurement }}</td>
-                        <td>{{ item.quantity_requested }}</td>
+                        <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="0.01"></td>
+                        
                         <td>
                             {% if item.sales_order_item.custom_quantity %}
                                 {{ item.sales_order_item.custom_quantity }} hrs
