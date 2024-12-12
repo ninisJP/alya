@@ -1,5 +1,5 @@
 from django.db import models
-from accounting_order_sales.models import PurchaseOrderItem, SalesOrder, SalesOrderItem
+from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem, SalesOrder, SalesOrderItem
 from django.utils import timezone
 from django.contrib.auth.models import User
 from logistic_suppliers.models import Suppliers
@@ -15,6 +15,7 @@ class RequirementOrder(models.Model):
         ('RECHAZADO', 'Rechazado'),
         ('NO REVISADO', 'No Revisado')
     ]
+    
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="requirement_orders")
     requested_date = models.DateField()
     notes = models.TextField(blank=True, null=True)
@@ -25,6 +26,7 @@ class RequirementOrder(models.Model):
     total_order = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     purchase_order_created = models.BooleanField(default=False)
     state = models.CharField(max_length=20, choices=STATE_CHOICES, default='NO REVISADO')
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.SET_NULL, null=True, blank=True)
 
     def delete(self, *args, **kwargs):
         affected_sales_order_items = set(item.sales_order_item for item in self.items.all())

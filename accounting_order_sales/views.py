@@ -238,12 +238,27 @@ def edit_purchase_order(request, order_id):
     })
 
 def delete_purchase_order(request, order_id):
-    # Obtener y eliminar la orden de compra
+    # Obtener la orden de compra a eliminar
     order = get_object_or_404(PurchaseOrder, id=order_id)
+
+    # Recuperar los ítems de la orden de compra que están en estado 'C' y han sido procesados
+    items_comprando = RequirementOrderItem.objects.filter(
+        requirement_order__purchase_order=order,  # Aquí usamos 'requirement_order__purchase_order'
+        estado='C',
+        purchase_order_created=True
+    )
+
+    # Revertir el estado de 'purchase_order_created' a False y cambiar el estado a 'P' para los ítems
+    for item in items_comprando:
+        item.purchase_order_created = False  # Revertir la creación de la orden de compra
+        item.estado = 'P'  # Cambiar el estado a 'Pendiente'
+        item.save()
+
+    # Eliminar la orden de compra
     order.delete()
 
     # Retornar un mensaje simple en HTML
-    return HttpResponse('<div class="alert alert-success">Orden de compra eliminada con éxito. Si quieres crear una orden nueva, tendrás que hacerlo desde el pedido.</div>', content_type="text/html")
+    return HttpResponse('<div class="alert alert-success">Orden de compra eliminada con éxito. Los ítems han sido revertidos a estado Pendiente.</div>', content_type="text/html")
 
 # Bank
 def index_bank(request):
