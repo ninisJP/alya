@@ -122,7 +122,7 @@ def create_prepopulated_request(request, order_id):
             request.POST,
             form_kwargs={'sales_order': sales_order}
         )
-
+        print(formset.is_valid())
         if order_form.is_valid() and formset.is_valid():
             try:
                 requirement_order = order_form.save(commit=False)
