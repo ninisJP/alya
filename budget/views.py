@@ -15,23 +15,23 @@ from django.shortcuts import render, redirect, get_object_or_404
 from follow_control_card.forms import TaskForm
 from accounting_order_sales.models import SalesOrder, SalesOrderItem
 from .forms import (
-    BudgetEditNewForm, 
-    BudgetForm, 
+    BudgetEditNewForm,
+    BudgetForm,
     BudgetItemFormSet,
-    BudgetPlusForm, 
-    CatalogItemForm, 
-    SearchCatalogItemForm, 
-    NewBudgetItemForm, 
-    EditBudgetItemForm, 
-    BudgetUploadForm, 
-    ExcelUploadForm, 
+    BudgetPlusForm,
+    CatalogItemForm,
+    SearchCatalogItemForm,
+    NewBudgetItemForm,
+    EditBudgetItemForm,
+    BudgetUploadForm,
+    ExcelUploadForm,
     AddBudgetItemForm
 )
 from django.core.cache import cache
 from .models import Budget, BudgetItem, CatalogItem
 from .utils import (
-    export_budget_report_to_excel, 
-    process_budget_excel, 
+    export_budget_report_to_excel,
+    process_budget_excel,
     process_sap_excel
 )
 
@@ -42,32 +42,32 @@ def index_budget(request):
     if request.method == 'POST':
         if form.is_valid():
             budget = form.save()
-            return redirect('detail_budget_plus', pk=budget.pk) 
+            return redirect('detail_budget_plus', pk=budget.pk)
 
     return render(request, 'index_budget.html', {'budgets': budgets, 'form': form})
 
 def edit_budget_item_htmx(request, item_id):
     item = get_object_or_404(BudgetItem, id=item_id)
-    
+
     print("Método HTTP:", request.method)  # Para depurar el método HTTP
     if request.method == 'POST':
         form = EditBudgetItemForm(request.POST, instance=item)
-        
+
         if form.is_valid():
             # Actualizar valores de total_price en función de los datos actuales
             quantity = form.cleaned_data.get('quantity')
             custom_price = form.cleaned_data.get('custom_price') or item.item.price  # Usar precio del catálogo si está vacío
             custom_price_per_day = form.cleaned_data.get('custom_price_per_day') or item.item.price_per_day
-            
+
             # Realizar el cálculo de total_price según la categoría del ítem
             if item.item.category in [CatalogItem.Category.HERRAMIENTA, CatalogItem.Category.MANODEOBRA, CatalogItem.Category.EPPS]:
                 item.total_price = Decimal(custom_price_per_day) * Decimal(quantity) * Decimal(item.budget.budget_days)
             else:
                 item.total_price = Decimal(custom_price) * Decimal(quantity)
-            
+
             # Guardar el formulario con el total_price actualizado
             form.save()
-            
+
             # Renderizar el template actualizado con el item editado
             return render(request, 'budget/item_row.html', {'item': item})
         else:
@@ -274,7 +274,7 @@ def catalog(request):
 
     # Intentar obtener los datos desde el caché
     catalogs = cache.get('catalog_items')
-    
+
     # Si no están en caché, obtener los datos de la base de datos
     if not catalogs:
         catalogs = CatalogItem.objects.all()
@@ -299,7 +299,7 @@ def catalog(request):
 def catalog_item_search(request):
     if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         term = request.GET.get('term', '')
-        
+
         # Filtramos los resultados, primero por el término de búsqueda
         items = CatalogItem.objects.all()
 
@@ -308,22 +308,22 @@ def catalog_item_search(request):
             items = items.filter(
                 models.Q(description__icontains=term) | models.Q(sap__icontains=term)
             )
-        
+
         # Ordenamos los resultados por descripción
         items = items.order_by('description')
-        
+
         # Paginamos los resultados para evitar devolver demasiados ítems de una vez
         paginator = Paginator(items, 100)  # Mostramos 10 resultados por página
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
-        
+
         results = []
         for item in page_obj:
             results.append({
                 'id': item.id,
                 'text': f'{item.sap} - {item.description}',
             })
-        
+
         return JsonResponse({
             'results': results,
             'pagination': {
@@ -365,12 +365,12 @@ def catalog_new(request):
 
 def catalog_search(request):
     query = request.GET.get('q','')
-    
+
     if query:
         catalogs = CatalogItem.objects.filter(Q(sap__contains=query)).order_by('-id')
     else:
         catalogs = CatalogItem.objects.all().order_by('-id')
-    
+
     context = {'catalogs':catalogs, 'form':CatalogItemForm()}
     return render(request, 'catalog/list.html',context)
 

@@ -12,7 +12,7 @@ def create_budget_plus(request):
         form = BudgetPlusForm(request.POST)
         if form.is_valid():
             budget = form.save()
-            return redirect('detail_budget_plus', pk=budget.pk) 
+            return redirect('detail_budget_plus', pk=budget.pk)
 
 def detail_budget_plus(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
@@ -22,7 +22,7 @@ def detail_budget_plus(request, pk):
     return render(request, 'budgetplus/budget_plus.html', {
         'budget': budget,
         'items': items,
-        'form': form  
+        'form': form
     })
 
 def update_budget_partial_plus(request, pk):
@@ -49,18 +49,20 @@ def budget_item_plus(request, pk):
             if new_item.item.life_time == 0 or new_item.item.life_time is None:
                 new_item.item.life_time = 365
 
-            if 'HORAS' in new_item.unit.upper():
-                # Realizamos el cálculo con el life_time ahora asegurado
-                new_item.custom_price_per_day = (new_item.custom_price / new_item.item.life_time).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-                new_item.custom_price_per_hour = (new_item.custom_price_per_day / 8).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-                new_item.custom_quantity = Decimal(budget.budget_days) * 8 * new_item.quantity
-                new_item.total_price = (new_item.custom_price_per_day * Decimal(budget.budget_days) * new_item.quantity).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            # TODO: check default custom_price and alert from void camps in form
+            if new_item.unit :
+                if 'HORAS' in new_item.unit.upper():
+                    # Realizamos el cálculo con el life_time ahora asegurado
+                    new_item.custom_price_per_day = (new_item.custom_price / new_item.item.life_time).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                    new_item.custom_price_per_hour = (new_item.custom_price_per_day / 8).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                    new_item.custom_quantity = Decimal(budget.budget_days) * 8 * new_item.quantity
+                    new_item.total_price = (new_item.custom_price_per_day * Decimal(budget.budget_days) * new_item.quantity).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             else:
                 new_item.custom_price_per_day = 0
                 new_item.total_price = new_item.quantity * new_item.custom_price
 
             new_item.save()
-            
+
             # Actualiza el presupuesto después de agregar el ítem
             budget.update_budget_price()
 
@@ -103,7 +105,7 @@ def budget_item_update(request, pk):
                     item.save()
 
                 budget.update_budget_price()
-                
+
         except Exception as e:
             # Si ocurre un error, puedes manejarlo aquí.
             pass
@@ -118,7 +120,7 @@ def budget_item_update(request, pk):
 
 def budget_item_delete(request, item_id):
     item = get_object_or_404(BudgetItem, id=item_id)
-    budget = item.budget  
+    budget = item.budget
     item.delete()
     budget.update_budget_price()
 
