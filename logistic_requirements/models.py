@@ -155,6 +155,8 @@ class RequirementOrderItem(models.Model):
 
     @property
     def total_price(self):
+        if not self.price:
+            self.price = 0
         return self.price * self.quantity_requested
 
     class Meta:
