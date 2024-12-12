@@ -1,5 +1,5 @@
 <div id="budget-details-container">
-    <form hx-post="{% url 'update_budget_partial_plus' budget.id %}" hx-target="#budget_detail_plus" hx-swap="outerHTML">
+    <form hx-post="{% url 'update_budget_partial_plus' budget.id %}" hx-target="#budget-details-container" hx-swap="outerHTML">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-4">
