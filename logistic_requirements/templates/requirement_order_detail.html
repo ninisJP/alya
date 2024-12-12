@@ -171,24 +171,22 @@
         </table>
 
         <div id="response-message" class="alert-message mt-2"></div>
+
+        <!-- Botones Sticky al Final -->
+        <div class="d-flex justify-content-between mt-4 bg-light p-3 sticky-bottom" style="position: sticky; bottom: 0; z-index: 1020; border-top: 1px solid #ccc;">
+            <button type="submit" class="btn btn-primary flex-grow-1 me-2">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+            <button hx-post="{% url 'create_purchase_order' requirement_order.pk %}"
+                    hx-target="#response-message"
+                    hx-swap="innerHTML"
+                    class="btn btn-success flex-grow-1 ms-2">
+                <i class="fas fa-shopping-cart"></i> Crear Orden de Compra
+            </button>
+        </div>
     </form>
 </div>
 
-<!-- Botones Sticky al Final -->
-<div class="d-flex justify-content-between mt-4 bg-light p-3 sticky-bottom" style="position: sticky; bottom: 0; z-index: 1020; border-top: 1px solid #ccc;">
-    <button type="submit" class="btn btn-primary flex-grow-1 me-2">
-        <i class="fas fa-save"></i> Guardar Cambios
-    </button>
-    <button hx-post="{% url 'create_purchase_order' requirement_order.pk %}"
-            hx-target="#response-message"
-            hx-swap="innerHTML"
-            class="btn btn-success flex-grow-1 ms-2">
-        <i class="fas fa-shopping-cart"></i> Crear Orden de Compra
-    </button>
-</div>
-
-        </form>
-    </div>
 </div>
 
 {% include 'partials/scripts_requirement_order.html' %}
