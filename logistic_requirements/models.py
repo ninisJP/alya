@@ -86,6 +86,7 @@ class RequirementOrderItem(models.Model):
         help_text="Sube un archivo PDF o una imagen (JPG, PNG)."
     )
     date_purchase_order = models.DateField(null=True, blank=True)
+    purchase_order_created = models.BooleanField(default=False)
    
 
     @property
