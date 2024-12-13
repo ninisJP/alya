@@ -271,33 +271,21 @@ def update_and_create_purchase_order(request, pk):
         ['quantity_requested', 'price', 'notes', 'supplier_id', 'estado', 'date_purchase_order']
     )
 
-    # Crear la Orden de Compra si no existe
-    if not requirement_order.purchase_order_created:
+    # Verificar si ya existe una PurchaseOrder asociada
+    if not requirement_order.purchase_order:  # Si no tiene una orden de compra asociada
         purchase_order = PurchaseOrder.objects.create(
-            salesorder=requirement_order.sales_order,
+            salesorder=requirement_order.sales_order,  # Relacionado con la SalesOrder
             description=f"{requirement_order.notes} - {requirement_order.order_number}",
             requested_date=requirement_order.requested_date,
             requested_by=request.user.username if request.user else 'Desconocido',
             acepted=True
         )
-        # Marcamos la RequirementOrder como procesada
+        # Asociar la nueva PurchaseOrder con la RequirementOrder
+        requirement_order.purchase_order = purchase_order
         requirement_order.purchase_order_created = True
         requirement_order.save()
     else:
-        # Si ya existe una orden de compra, la buscamos
-        try:
-            purchase_order = PurchaseOrder.objects.get(salesorder=requirement_order.sales_order, acepted=True)
-        except PurchaseOrder.DoesNotExist:
-            # Si no existe, la creamos
-            purchase_order = PurchaseOrder.objects.create(
-                salesorder=requirement_order.sales_order,
-                description=f"{requirement_order.notes} - {requirement_order.order_number}",
-                requested_date=requirement_order.requested_date,
-                requested_by=request.user.username if request.user else 'Desconocido',
-                acepted=True
-            )
-            requirement_order.purchase_order_created = True
-            requirement_order.save()
+        purchase_order = requirement_order.purchase_order  # Usar la PurchaseOrder existente
 
     # Filtrar ítems en estado 'C' que no han sido procesados
     items_comprando = RequirementOrderItem.objects.filter(
@@ -332,7 +320,6 @@ def update_and_create_purchase_order(request, pk):
         '<div class="alert alert-success" role="alert">Ítems actualizados y Orden de Compra creada con éxito</div>',
         status=200
     )
-
 
 def ajax_load_suppliers(request):
     term = request.GET.get('term', '')

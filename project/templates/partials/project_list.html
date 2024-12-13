@@ -42,6 +42,11 @@
                            class="bg-blue-500 text-white font-bold py-1 px-3 rounded-full hover:bg-blue-600 inline-flex items-center">
                             <i class="fas fa-question-circle mr-1"></i> Detalles
                         </a>
+                                                <!-- Botón de detalles -->
+                                                <a href="{% url 'project_order_plus' order.id %}" 
+                                                class="bg-blue-500 text-white font-bold py-1 px-3 rounded-full hover:bg-blue-600 inline-flex items-center">
+                                                 <i class="fas fa-question-circle mr-1"></i> Detalles Plus
+                                             </a>
                         <!-- Botón de diagrama -->
                         <button 
                             hx-get="{% url 'diagram_project_orders' order.id %}" 
