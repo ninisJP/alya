@@ -467,8 +467,11 @@ def petty_cash(request):
         if not end_date:
             end_date = today  # Si solo hay fecha de inicio, el rango termina en el día actual
 
+        if not start_date:
+            start_date = today
+
         items = PurchaseOrderItem.objects.filter(
-            purchaseorder__scheduled_date__range=[start_date, end_date]
+            purchase_date__range=[start_date, end_date]
         ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
 
     context = {
@@ -501,7 +504,7 @@ def petty_cash_state(request):
         if not start_date:
             start_date = localdate()  # Fecha actual como inicio si no se especifica
 
-        items = items.filter(purchaseorder__scheduled_date__range=[start_date, end_date])
+        items = items.filter(purchase_date__range=[start_date, end_date])
 
     context = {
         'items': items,
@@ -840,7 +843,7 @@ def collection_orders_search(request):
         sales_orders = SalesOrder.objects.filter(Q(sapcode__icontains=query)).order_by('-id')
     else:
         sales_orders = SalesOrder.objects.all().order_by('-id')
-        
+
     context = {'sales_orders':sales_orders,'form':SalesOrderForm()}
     return render(request,'collectionorders/collection_orders_list.html',context)
 
