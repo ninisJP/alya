@@ -114,13 +114,14 @@ class PurchaseOrderForm(forms.ModelForm):
 class PurchaseOrderItemForm(forms.ModelForm):
     class Meta:
         model = PurchaseOrderItem
-        fields = ['quantity_requested', 'price', 'supplier', 'class_pay', 'type_pay', 'notes']  # Removed 'sales_order_item'
+        fields = ['quantity_requested', 'price', 'supplier', 'class_pay', 'type_pay', 'notes', 'purchase_date' ]  # Removed 'sales_order_item'
         widgets = {
             'quantity_requested': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'supplier': SupplierSelect2Widget(),  # Cambiado para usar AJAX
             'class_pay': forms.Select(attrs={'class': 'form-select'}),
             'type_pay': forms.Select(attrs={'class': 'form-select'}),
+            'purchase_date ': forms.Select(attrs={'class': 'form-select'}),
             'notes': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
