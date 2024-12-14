@@ -160,7 +160,7 @@ class RequirementOrderItem(models.Model):
     def total_price(self):
         if not self.price:
             self.price = 0
-        return self.price * self.quantity_requested
+        return round(self.price * self.quantity_requested, 2)
 
     class Meta:
         verbose_name = "Item Orden de Requerimiento"
