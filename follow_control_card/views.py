@@ -44,7 +44,16 @@ class DailyCardList(ListView):
 
         return context
 
+from datetime import timedelta
+from django.utils import timezone
+from django.db import transaction
+from django.utils import timezone
+
 def add_daily_task(request):
+    """
+    Función que agrega tareas a una tarjeta en función de la frecuencia seleccionada
+    y las asocia con el calendario (fecha).
+    """
     user = request.user
     verb = request.POST.get('taskname', '')
     object_ = request.POST.get('object', '')
@@ -52,7 +61,9 @@ def add_daily_task(request):
     measurement = request.POST.get('measurement', 'minutos')
     task_time = request.POST.get('task_time', None)
     card_id = request.POST.get('card_id')
+    frecuency = request.POST.get('frecuency', 'UNA VEZ')
 
+    # Asegurarse de que la tarjeta esté presente
     if not card_id:
         return render(request, 'partials/daily-task-list.html', {'error': 'Card ID is required'})
 
@@ -61,32 +72,83 @@ def add_daily_task(request):
     # Obtener la instancia de SalesOrder basada en sale_order_id
     sale_order = get_object_or_404(SalesOrder, id=sale_order_id)
 
-    # Crear la nueva tarea diaria
-    daily_task = Task.objects.create(
-        verb=verb,
-        object=object_,
-        sale_order=sale_order,  # Asignar la instancia de SalesOrder
-        measurement=measurement,
-        task_time=task_time,
-        user=user
-    )
+    # Crear la nueva tarea con la frecuencia seleccionada
+    with transaction.atomic():  # Asegurarse de que todo se guarde correctamente
+        if frecuency == 'UNA VEZ':
+            # Solo se crea la tarea una vez en el día de la tarjeta
+            task = Task.objects.create(
+                verb=verb,
+                object=object_,
+                sale_order=sale_order,
+                measurement=measurement,
+                task_time=task_time,
+                user=user,
+                frecuency=frecuency,
+            )
 
-    # Obtener el orden máximo actual para las tareas en esta tarjeta
-    max_order = get_max_order(card)
-    card_task_order = CardTaskOrder.objects.create(task=daily_task, card=card, order=max_order)
+            # Asociar la tarea con la tarjeta
+            CardTaskOrder.objects.create(task=task, card=card, order=1)  # Puedes ajustar el orden si es necesario
 
-    # Calcular las horas de inicio y fin de esta tarea
-    card.calculate_start_times()  # Llamamos al método para calcular las horas
+            print(f"Tarea de una vez creada para el {card.date}")
 
-    # Ahora podemos imprimir las horas de inicio y fin para todas las tareas de esta tarjeta
-    tasks_ordered = CardTaskOrder.objects.filter(card=card).order_by('order').select_related('task')
+        elif frecuency == 'SEMANAL':
+            # Crear tarea semanal para el mismo día de la semana en el próximo ciclo
+            task = Task.objects.create(
+                verb=verb,
+                object=object_,
+                sale_order=sale_order,
+                measurement=measurement,
+                task_time=task_time,
+                user=user,
+                frecuency=frecuency,
+            )
 
-    # Mostrar las horas de inicio y fin para cada tarea
-    for task_order in tasks_ordered:
-        print(f"Tarea: {task_order.task.verb} | Inicio: {task_order.start_time} | Fin: {task_order.end_time}")
-    
-    # Renderizar la lista actualizada de tareas
-    return render(request, 'partials/daily-task-list.html', {'daily_tasks': tasks_ordered, 'card_id': card.id})
+            # Calcular el próximo día específico de la semana (usando el mismo día de la semana de la tarjeta)
+            today = timezone.now()
+            days_until_next_week = 7 - today.weekday()  # Esto da el número de días hasta el próximo lunes
+            next_week_date = today + timedelta(days=days_until_next_week)
+
+            # Asociar la tarea con la tarjeta para la próxima semana
+            CardTaskOrder.objects.create(task=task, card=card, order=1)  # Puedes ajustar el orden
+
+            print(f"Tarea semanal programada para el {next_week_date.strftime('%Y-%m-%d')}")
+
+        elif frecuency == 'DIARIO':
+            # Crear tareas diarias para los próximos 7 días a partir de la `card.date`
+            task = Task.objects.create(
+                verb=verb,
+                object=object_,
+                sale_order=sale_order,
+                measurement=measurement,
+                task_time=task_time,
+                user=user,
+                frecuency=frecuency,
+            )
+
+            # Crear tareas diarias para los próximos 7 días a partir de la `card.date`
+            for i in range(7):  # Crear tareas para cada día de la semana (7 días)
+                next_day = card.date + timedelta(days=i)  # Sumar el número de días a partir de la fecha de la tarjeta
+                
+                # Convertir la fecha naive a aware con la zona horaria activa
+                next_day_aware = timezone.make_aware(datetime.combine(next_day, datetime.min.time()))
+                
+                # Asociar la tarea con la tarjeta y con la fecha calculada
+                CardTaskOrder.objects.create(
+                    task=task, 
+                    card=card, 
+                    order=i+1,  # El orden puede ser ajustado si es necesario
+                    executed_at=next_day_aware  # Establecer la fecha específica para la tarea
+                )
+
+                print(f"Tarea diaria programada para el {next_day_aware.strftime('%Y-%m-%d')}")
+
+        # Actualizar los valores de la tarjeta (tiempo total, eficiencia, etc.)
+        card.calculate_start_times()
+        card.update_card_values()
+        card.update_valuation()
+
+    return render(request, 'partials/daily-task-list.html', {'daily_tasks': card.cardtaskorder_set.all(), 'card_id': card.id})
+
 
 
 @require_http_methods(['DELETE'])
@@ -166,6 +228,7 @@ def sort_tasks(request):
 
 @require_http_methods(["PATCH"])
 def toggle_task_state(request, pk):
+    """La función alterna el estado de una tarea (completada o no completada)"""
     task_order = get_object_or_404(CardTaskOrder, pk=pk, card__user=request.user)
     task_order.state = not task_order.state
 

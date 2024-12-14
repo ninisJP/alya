@@ -11,6 +11,7 @@
                                 <tr>
                                     <th scope="col">Acción</th>
                                     <th scope="col">Objeto</th>
+                                    <th scope="col">frecuencia</th>
                                     <th scope="col">Orden de Venta</th>
                                     <th scope="col">Cliente</th>
                                     <th scope="col">Hora</th>
@@ -24,6 +25,7 @@
                                         <input type="hidden" name="task_order" value="{{ task_order.pk }}" />
                                         <td>{{ task_order.task.verb }}</td>
                                         <td>{{ task_order.task.object }}</td>
+                                        <td>{{ task_order.task.frecuency }}</td>
                                         <td>
                                             <span class="d-inline-block text-truncate" style="max-width: 200px;" title="{{ task_order.task.sale_order }}">
                                                 {{ task_order.task.sale_order.detail }}

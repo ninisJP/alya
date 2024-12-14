@@ -85,7 +85,12 @@
                 <input type="hidden" name="card_id" value="{{ card_id }}">
                 <input type="text" name="taskname" class="form-control-sm" placeholder="Agrega el verbo" />
                 <input type="text" name="object" class="form-control-sm" placeholder="Objeto" />
-                <select name="sale_order" class="select2-field">
+                <select name="frecuency" class="form-control-sm">
+                    <option value="SEMANAL">Semanal</option>
+                    <option value="DIARIO">Diario</option>
+                    <option value="UNA VEZ">Una vez</option>
+                </select>
+                <select name="sale_order" class="select2-field"><!-- el select2-field tiene un casilla para buscar opciones por search  -->
                     <option value="">Selecciona una orden de venta</option>
                     {% for sale_order in sale_orders %}
                         <option value="{{ sale_order.id }}">{{ sale_order.detail }} - {{ sale_order.project.client.legal_name }}</option>

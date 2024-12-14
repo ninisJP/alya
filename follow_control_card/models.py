@@ -102,6 +102,11 @@ class Card(models.Model):
 
 
 class Task(models.Model):
+    FRECUENCY_CHOICES=[
+        ('SEMANAL','semanal'),
+        ('DIARIO','diario'),
+        ('UNA VEZ','una vez')
+    ]
     cards = models.ManyToManyField('Card', related_name='tasks', through='CardTaskOrder')
     verb = models.CharField(max_length=100, default='')
     object = models.CharField(max_length=100, default='')
@@ -110,6 +115,7 @@ class Task(models.Model):
     task_time = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
     label = models.CharField(max_length=20, null=True, blank=True)
+    frecuency = models.CharField(max_length=10,null=True, choices=FRECUENCY_CHOICES, default='UNA VEZ' )
 
     def __str__(self):
         return self.verb

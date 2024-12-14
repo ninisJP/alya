@@ -3,12 +3,6 @@
 {% block title %}Calendario de Tareas{% endblock %}
 
 {% block content %}
-<div class="background-blur"></div> <!-- Fondo con efecto blur -->
-<div class="calendar-container">
-    <h1 class="calendar-title">Calendario de Tareas del Mes</h1>
-    <div id="calendar"></div>
-</div>
-
 <!-- Estilos personalizados -->
 <style>
     /* Fondo desenfocado detrás del calendario */
@@ -88,6 +82,14 @@
         background-color: #0056b3;
     }
 </style>
+
+
+<div class="background-blur"></div> <!-- Fondo con efecto blur -->
+<div class="calendar-container">
+    <h1 class="calendar-title">Calendario de Tareas del Mes</h1>
+    <div id="calendar"></div>
+</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

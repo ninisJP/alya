@@ -12,6 +12,7 @@ class TaskForm(forms.ModelForm):
             'sale_order': 'Orden de Venta',  # Corregido: 'sale_order'
             'measurement': 'Medida',
             'task_time': 'Tiempo',
+            'frecuency':'Frecuencia',
         }
         widgets = {
             'verb': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Verbo'}),
@@ -19,6 +20,7 @@ class TaskForm(forms.ModelForm):
             'sale_order': forms.Select(attrs={'class': 'form-control'}),  # Corregido: 'sale_order'
             'measurement': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Medida'}),
             'task_time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Tiempo'}),
+            'frecuency': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Frecuencia'}),
         }
 
     def __init__(self, *args, **kwargs):
