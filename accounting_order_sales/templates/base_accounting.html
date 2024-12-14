@@ -155,13 +155,13 @@
                     <span>Pedidos por aprobar</span>
                 </a>
             </div>
-            <div class="list-group list-group-flush">
+            {% comment %} <div class="list-group list-group-flush">
                 <!-- Ordenes de Requerimiento -->
                 <a href="{% url 'logistic_requirement_order_list' %}" class="list-group-item list-group-item-action">
                     <i class="fa fa-list" aria-hidden="true"></i>
                     <span>Órdenes Aprobadas</span>
                 </a>
-            </div>
+            </div> {% endcomment %}
             <div class="list-group list-group-flush">
                 <a href="{% url 'salesorder' %}" hx-target="#main" class="list-group-item list-group-item-action">
                     <i class="fas fa-file-invoice-dollar me-2"></i> <!-- Ícono más moderno para orden de venta -->
