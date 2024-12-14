@@ -117,7 +117,7 @@ class RequirementOrderItem(models.Model):
             total_permitido = self.sales_order_item.price_total
             total_solicitado = self.total_price
 
-            if total_solicitado > total_permitido:
+            if (total_solicitado+0.03) > total_permitido:
                 raise ValidationError(
                     f"El total solicitado ({total_solicitado}) excede el total permitido ({total_permitido}) para el ítem '{self.sales_order_item.description}'."
                 )
