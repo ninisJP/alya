@@ -144,14 +144,14 @@ def update_requirement_order_items(request, pk):
         item.estado = request.POST.get(f'estado_{item.id}', item.estado)
 
         # Guardar la fecha de la orden de compra
-        date_str = request.POST.get(f'date_{item.id}')
+        date_str = request.POST.get(f'date_purchase_order_{item.id}')
         if date_str:
             try:
                 item.date_purchase_order = datetime.strptime(date_str, "%Y-%m-%d").date()
             except ValueError:
                 item.date_purchase_order = None
 
-
+        print(f"Item ID: {item.id}, Fecha recibida: {date_str}, Fecha procesada: {item.date_purchase_order}")
         updated_items.append(item)
 
     # Usar bulk_update para mejorar el rendimiento
@@ -172,25 +172,28 @@ def update_requirement_order_items(request, pk):
         status=200
     )
 
-
-
 def create_purchase_order(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
 
     # Verificar si ya existe una orden de compra para esta orden de requerimiento
     if requirement_order.purchase_order_created:
-        error_message = "<div>Ya se se ha creado una Orden de Compra para esta Orden de Requerimiento.</div>"
-        return HttpResponse(error_message, content_type="text/html")
-
-    # Filtrar los ítems que están en estado "C"
-    items_comprando = RequirementOrderItem.objects.filter(requirement_order=requirement_order, estado='C')
-    
-    if not items_comprando.exists():
-        error_message = "<div>No hay ítems en estado 'Comprando' para crear una Orden de Compra.</div>"
-        return HttpResponse(error_message, content_type="text/html")
-
-    # Crear la PurchaseOrder
-    with transaction.atomic():
+        # Si ya existe una orden de compra, la buscamos
+        try:
+            purchase_order = PurchaseOrder.objects.get(salesorder=requirement_order.sales_order, acepted=True)
+        except PurchaseOrder.DoesNotExist:
+            # Si no existe, creamos una nueva
+            purchase_order = PurchaseOrder.objects.create(
+                salesorder=requirement_order.sales_order,
+                description=f"{requirement_order.notes} - {requirement_order.order_number}",
+                requested_date=requirement_order.requested_date,
+                requested_by=request.user.username if request.user else 'Desconocido',
+                acepted=True
+            )
+            # Marcamos la RequirementOrder como procesada
+            requirement_order.purchase_order_created = True
+            requirement_order.save()
+    else:
+        # Si no existe, creamos una nueva
         purchase_order = PurchaseOrder.objects.create(
             salesorder=requirement_order.sales_order,
             description=f"{requirement_order.notes} - {requirement_order.order_number}",
@@ -198,8 +201,100 @@ def create_purchase_order(request, pk):
             requested_by=request.user.username if request.user else 'Desconocido',
             acepted=True
         )
+        # Marcamos la RequirementOrder como procesada
+        requirement_order.purchase_order_created = True
+        requirement_order.save()
 
-        # Crear los PurchaseOrderItems asociados a los ítems comprando
+    # Filtrar ítems en estado 'C' que no han sido procesados
+    items_comprando = RequirementOrderItem.objects.filter(
+        requirement_order=requirement_order, 
+        estado='C',
+        purchase_order_created=False  # Solo ítems no procesados
+    )
+
+    if not items_comprando.exists():
+        error_message = "<div>No hay ítems en estado 'Comprando' sin orden de compra asociada.</div>"
+        return HttpResponse(error_message, content_type="text/html")
+
+    # Crear los PurchaseOrderItems asociados a los ítems comprando
+    purchase_order_items = [
+        PurchaseOrderItem(
+            purchaseorder=purchase_order,
+            sales_order_item=item.sales_order_item,
+            sap_code=item.sap_code,
+            quantity_requested=item.quantity_requested,
+            price=item.price,
+            price_total=item.total_price,
+            notes=item.notes,
+            supplier=item.supplier,
+            purchase_date=item.date_purchase_order
+        )
+        for item in items_comprando
+    ]
+    PurchaseOrderItem.objects.bulk_create(purchase_order_items)
+
+    # Actualizar el campo purchase_order_created a True para los ítems procesados
+    for item in items_comprando:
+        item.purchase_order_created = True
+        item.save()
+
+    # Respuesta de éxito en HTML
+    success_message = f"<div>Ítems añadidos a la Orden de Compra para la Orden de Requerimiento #{requirement_order.order_number}.</div>"
+    return HttpResponse(success_message, content_type="text/html")
+
+@require_POST
+def update_and_create_purchase_order(request, pk):
+    requirement_order = get_object_or_404(RequirementOrder, pk=pk)
+    updated_items = []
+
+    # Procesar cada ítem en la orden de requerimiento
+    for item in requirement_order.items.all():
+        item.quantity_requested = request.POST.get(f'quantity_requested_{item.id}', item.quantity_requested)
+        item.price = request.POST.get(f'price_{item.id}', item.price)
+        item.notes = request.POST.get(f'notes_{item.id}', item.notes)
+        item.supplier_id = request.POST.get(f'supplier_{item.id}')
+        item.estado = request.POST.get(f'estado_{item.id}', item.estado)
+
+        # Guardar la fecha de la orden de compra
+        date_str = request.POST.get(f'date_purchase_order_{item.id}')
+        if date_str:
+            try:
+                item.date_purchase_order = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                item.date_purchase_order = None
+
+        updated_items.append(item)
+
+    # Usar bulk_update para mejorar el rendimiento
+    RequirementOrderItem.objects.bulk_update(
+        updated_items, 
+        ['quantity_requested', 'price', 'notes', 'supplier_id', 'estado', 'date_purchase_order']
+    )
+
+    # Verificar si ya existe una PurchaseOrder asociada
+    if not requirement_order.purchase_order:  # Si no tiene una orden de compra asociada
+        purchase_order = PurchaseOrder.objects.create(
+            salesorder=requirement_order.sales_order,  # Relacionado con la SalesOrder
+            description=f"{requirement_order.notes} - {requirement_order.order_number}",
+            requested_date=requirement_order.requested_date,
+            requested_by=request.user.username if request.user else 'Desconocido',
+            acepted=True
+        )
+        # Asociar la nueva PurchaseOrder con la RequirementOrder
+        requirement_order.purchase_order = purchase_order
+        requirement_order.purchase_order_created = True
+        requirement_order.save()
+    else:
+        purchase_order = requirement_order.purchase_order  # Usar la PurchaseOrder existente
+
+    # Filtrar ítems en estado 'C' que no han sido procesados
+    items_comprando = RequirementOrderItem.objects.filter(
+        requirement_order=requirement_order, 
+        estado='C',
+        purchase_order_created=False
+    )
+
+    if items_comprando.exists():
         purchase_order_items = [
             PurchaseOrderItem(
                 purchaseorder=purchase_order,
@@ -209,19 +304,22 @@ def create_purchase_order(request, pk):
                 price=item.price,
                 price_total=item.total_price,
                 notes=item.notes,
-                supplier=item.supplier
+                supplier=item.supplier,
+                purchase_date=item.date_purchase_order
             )
             for item in items_comprando
         ]
         PurchaseOrderItem.objects.bulk_create(purchase_order_items)
 
-        # Actualizar la RequirementOrder para indicar que la orden de compra ha sido creada
-        requirement_order.purchase_order_created = True
-        requirement_order.save()
+        # Actualizar el campo purchase_order_created a True para los ítems procesados
+        for item in items_comprando:
+            item.purchase_order_created = True
+            item.save()
 
-    # Respuesta de éxito en HTML
-    success_message = f"<div>Orden de Compra creada para la Orden de Requerimiento #{requirement_order.order_number}.</div>"
-    return HttpResponse(success_message, content_type="text/html")
+    return HttpResponse(
+        '<div class="alert alert-success" role="alert">Ítems actualizados y Orden de Compra creada con éxito</div>',
+        status=200
+    )
 
 def ajax_load_suppliers(request):
     term = request.GET.get('term', '')

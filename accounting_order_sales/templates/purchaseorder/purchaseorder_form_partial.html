@@ -3,7 +3,7 @@
     <!-- Formulario de la orden de compra -->
     <form method="post" hx-post="{% url 'edit_purchase_order' order.id %}" hx-target="#orden-{{ order.id }}" hx-swap="outerHTML">
         {% csrf_token %}
-        
+
         <!-- Campo oculto para el order_id -->
         <input type="hidden" name="order_id" value="{{ order.id }}">
 
@@ -33,6 +33,7 @@
                         <th style="width: 10%;">Precio</th>
                         <th style="width: 10%;">Total</th>
                         <th style="width: 10%;">Proveedor</th>
+                        <th style="width: 10%">Fecha</th>
                         <th style="width: 10%;">Clase</th>
                         <th style="width: 12%;">Tipo</th>
                     </tr>
@@ -47,6 +48,7 @@
                             <td>{{ form.price }}</td>
                             <td>{{ form.instance.price_total }}</td>
                             <td>{{ form.supplier|add_class:"select2-ajax w-75" }}</td>
+                            <td>{{ form.purchase_date }}</td>
                             <td>{{ form.class_pay }}</td>
                             <td>{{ form.type_pay }}</td>
                         </tr>
@@ -63,7 +65,7 @@
 <script>
     function initializeSelect2() {
         $('.select2-ajax').each(function() {
-            if ($(this).data('select2')) { 
+            if ($(this).data('select2')) {
                 $(this).select2('destroy');
             }
         });

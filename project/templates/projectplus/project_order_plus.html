@@ -1,0 +1,122 @@
+{% extends "project_base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <article class="card shadow border-0 rounded-3">
+        <div class="card-body p-5 bg-light">
+            <!-- Encabezado principal -->
+            <div class="text-center mb-4">
+                <h1 class="fw-bold text-primary">Resumen de la Orden de Venta</h1>
+            </div>
+            <!-- Información de la Orden -->
+            <div class="row text-center mb-4">
+                <div class="col-md-2">
+                    <p class="text-muted fw-bold">Código SAP</p>
+                    <h5>{{ sales_order.sapcode }}</h5>
+                </div>
+                <div class="col-md-2">
+                    <p class="text-muted fw-bold">Detalle</p>
+                    <h5>{{ sales_order.detail }}</h5>
+                </div>
+                <div class="col-md-2">
+                    <p class="text-muted fw-bold">Fecha</p>
+                    <h5>{{ sales_order.date }}</h5>
+                </div>
+                <div class="col-md-2">
+                    <p class="text-muted fw-bold">Total Orden de Venta</p>
+                    <h5 class="text-success fw-bold">S/ {{ sales_order.total_sales_order|floatformat:2 }}</h5>
+                </div>
+                <div class="col-md-2">
+                    <p class="text-muted fw-bold">Proyecto</p>
+                    <h5>{{ project.name }}</h5>
+                </div>
+                <div class="col-md-2">
+                    <p class="text-muted fw-bold">Cliente</p>
+                    <h5>{{ client.name }}</h5>
+                </div>
+            </div>
+            <!-- Tabla comparativa -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle w-100">
+                    <thead style="background-color: #343a40; color: #ffffff;">
+                        <tr>
+                            <th class="text-center">Descripción Orden de Venta</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Descripción Requerimiento</th>
+                            <th class="text-center">Cantidad Solicitada</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Restante</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in sales_order_items %}
+                            <tr>
+                                <td class="text-center">{{ item.description }}</td>
+                                <td class="text-center">{{ item.amount }}</td>
+                                <td class="fw-bold text-success text-center price-venta" data-venta="{{ item.price_total }}">
+                                    S/ {{ item.price_total|floatformat:2 }}
+                                </td>
+                                
+                                {% for combined_item in combined_items %}
+                                    {% if combined_item.sales_order_item.description == item.description %}
+                                        <td class="text-center">{{ combined_item.sales_order_item.description }}</td>
+                                        <td class="text-center">{{ combined_item.quantity_requested }}</td>
+                                        <td class="fw-bold text-danger text-center price-requerimiento" data-requerimiento="{{ combined_item.total_price|default:0 }}">
+                                            {% if combined_item.total_price %}
+                                                S/ {{ combined_item.total_price|floatformat:2 }}
+                                            {% else %}
+                                                <span class="text-muted">No disponible</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="fw-bold text-center diferencia-precio" style="color: {% if item.price_total > combined_item.total_price|default:0 %}#28a745{% else %}#dc3545{% endif %};"></td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr style="background-color: #f8f9fa;">
+                            <td colspan="3" class="text-center fw-bold">Total Orden de Venta</td>
+                            <td colspan="3" class="text-center fw-bold">Total Orden de Requerimiento + Compra</td>
+                            <td class="text-center fw-bold">Diferencia Total</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" id="total-venta" class="text-center text-success fw-bold"></td>
+                            <td colspan="3" id="total-requerimiento" class="text-center text-danger fw-bold"></td>
+                            <td id="diferencia-total" class="text-center fw-bold text-primary"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </article>
+</div>
+
+<script>
+    function calcularTotales() {
+        let totalVenta = 0;
+        let totalRequerimiento = 0;
+
+        document.querySelectorAll("table tbody tr").forEach(fila => {
+            const precioVenta = parseFloat(fila.querySelector('.price-venta')?.dataset.venta) || 0; 
+            const precioRequerimiento = parseFloat(fila.querySelector('.price-requerimiento')?.dataset.requerimiento) || 0;
+
+            totalVenta += precioVenta;
+            totalRequerimiento += precioRequerimiento;
+
+            const diferencia = precioVenta - precioRequerimiento;
+            fila.querySelector('.diferencia-precio').textContent = diferencia.toFixed(2);
+        });
+
+        document.getElementById('total-venta').textContent = totalVenta.toFixed(2);
+        document.getElementById('total-requerimiento').textContent = totalRequerimiento.toFixed(2);
+        document.getElementById('diferencia-total').textContent = (totalVenta - totalRequerimiento).toFixed(2);
+    }
+
+    window.addEventListener('DOMContentLoaded', calcularTotales);
+</script>
+
+{% endblock %}

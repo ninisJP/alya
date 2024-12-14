@@ -17,6 +17,9 @@
                     <span class="text-dark" style="font-weight: 600;">{{ requirement_order.sales_order.project.name }}</span>
                 </div>
                 <div class="col">
+                    <span class="text-dark" style="font-weight: 600;">{{ requirement_order.sales_order.detail }}</span>
+                </div>
+                <div class="col">
                     <span class="text-dark" style="font-weight: 600;">{{ requirement_order.notes }}</span>
                 </div>
                 <div class="col">
@@ -61,21 +64,36 @@
         </a>
     </div>
 
-    <!-- Botones: Ver Todos, Ver Pendientes, Estados L, C, P, R -->
-    <div class="d-flex gap-2 align-items-center">
-        <div class="d-flex gap-2">
-            <a href="{% url 'requirement_order_detail' requirement_order.pk %}"
-               class="btn btn-outline-secondary {% if not filtrar %}active{% endif %}">Ver Todos</a>
-            <a href="{% url 'requirement_order_detail' requirement_order.pk %}?filtrar=P"
-               class="btn btn-outline-secondary {% if filtrar == 'P' %}active{% endif %}">Ver Pendientes</a>
-        </div>
-        <div class="btn-group">
-            <button type="button" class="btn btn-outline-success fw-bold" onclick="updateAllItemsState('L')">L</button>
-            <button type="button" class="btn btn-outline-primary fw-bold" onclick="updateAllItemsState('C')">C</button>
-            <button type="button" class="btn btn-outline-warning fw-bold" onclick="updateAllItemsState('P')">P</button>
-            <button type="button" class="btn btn-outline-danger fw-bold" onclick="updateAllItemsState('R')">R</button>
-        </div>
+<!-- Botones: Ver Todos, Ver Pendientes, Estados L, C, P, R -->
+<div class="d-flex gap-2 align-items-center">
+    <div class="d-flex gap-2">
+        <a href="{% url 'requirement_order_detail' requirement_order.pk %}"
+           class="btn btn-outline-secondary {% if not filtrar %}active{% endif %}">Ver Todos</a>
+        <a href="{% url 'requirement_order_detail' requirement_order.pk %}?filtrar=P"
+           class="btn btn-outline-secondary {% if filtrar == 'P' %}active{% endif %}">Ver Pendientes</a>
     </div>
+
+    <!-- Sección de actualizar la fecha de compra -->
+    <div class="d-flex gap-3 align-items-center">
+        <!-- Input para seleccionar la fecha -->
+        <div>
+            <input type="date" id="custom-date" class="form-control" />
+        </div>
+        <!-- Botón para actualizar la fecha de todos los ítems en estado "C" -->
+        <button type="button" class="btn btn-info" onclick="updateDateForAllItemsInState('C')">
+            <i class="fas fa-calendar-alt"></i> Fecha de Compra
+        </button>
+    </div>
+
+    <!-- Botones: Actualizar estado de los ítems -->
+    <div class="btn-group">
+        <button type="button" class="btn btn-outline-success fw-bold" onclick="updateAllItemsState('L')">L</button>
+        <button type="button" class="btn btn-outline-primary fw-bold" onclick="updateAllItemsState('C')">C</button>
+        <button type="button" class="btn btn-outline-warning fw-bold" onclick="updateAllItemsState('P')">P</button>
+        <button type="button" class="btn btn-outline-danger fw-bold" onclick="updateAllItemsState('R')">R</button>
+    </div>
+</div>
+
 </div>
 
 
@@ -104,6 +122,7 @@
                     <th style="width: 100px;">
                         <i class="fas fa-check-circle" style="color: green;"></i> PAGADO
                     </th>
+                    <th style="width: 150px;">FECHA PAGO</th>
                     <th style="width: 100px;">ESTADO</th>
                 </tr>
             </thead>
@@ -156,6 +175,15 @@
                         {% endif %}
                     </td>
                     <td>
+                        <input 
+                            type="date" 
+                            name="date_purchase_order_{{ item.id }}" 
+                            value="{{ item.date_purchase_order|date:'Y-m-d' }}" 
+                            class="form-control" 
+                            style="width: 150px;"
+                        >
+                    </td>                    
+                    <td>
                         <div class="btn-group" role="group" aria-label="Estado">
                             <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
                             <button type="button" class="btn btn-sm {% if item.estado == 'E' %}btn-secondary{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'E')">E</button>
@@ -174,16 +202,14 @@
 
         <!-- Botones Sticky al Final -->
         <div class="d-flex justify-content-between mt-4 bg-light p-3 sticky-bottom" style="position: sticky; bottom: 0; z-index: 1020; border-top: 1px solid #ccc;">
-            <button type="submit" class="btn btn-primary flex-grow-1 me-2">
-                <i class="fas fa-save"></i> Guardar Cambios
-            </button>
-            <button hx-post="{% url 'create_purchase_order' requirement_order.pk %}"
+            <button hx-post="{% url 'update_and_create_purchase_order' requirement_order.pk %}"
                     hx-target="#response-message"
                     hx-swap="innerHTML"
-                    class="btn btn-success flex-grow-1 ms-2">
-                <i class="fas fa-shopping-cart"></i> Crear Orden de Compra
+                    class="btn btn-primary flex-grow-1 ms-2">
+                <i class="fas fa-save"></i> Guardar y <i class="fas fa-shopping-cart"></i> Crear Orden de Compra
             </button>
         </div>
+        
     </form>
 </div>
 
