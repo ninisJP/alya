@@ -9,6 +9,14 @@
         <ul class="list-unstyled">
             <li><strong>Cliente:</strong> <span class="text-muted">{{ budget.client }}</span></li>
             <li><strong>Presupuesto:</strong> <span class="text-muted">{{ budget.budget_name }}</span></li>
+            <li>
+                <strong>N° Presupuesto:</strong> 
+                {% if budget.budget_number %}
+                    <span class="badge bg-primary text-white rounded-pill px-2 py-1">{{ budget.budget_number }}</span>
+                {% else %}
+                    <span class="badge bg-danger text-white rounded-pill px-2 py-1">No asignado</span>
+                {% endif %}
+            </li>
             <li><strong>Fecha:</strong> <span class="text-muted">{{ budget.budget_date }}</span></li>
             <li><strong>Duración:</strong> <span class="text-muted">{{ budget.budget_days }} días</span></li>
             <li><strong>Precio Total:</strong> <span class="text-success">S/ {{ budget.budget_price }}</span></li>
