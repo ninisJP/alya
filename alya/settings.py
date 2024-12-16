@@ -148,7 +148,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = ['http://*','https://alya-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_HOSTS").split(" ")
 
 #SETTINGS login accounts
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
