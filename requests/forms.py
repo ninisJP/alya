@@ -12,7 +12,7 @@ class CreateRequirementOrderForm(forms.ModelForm):
         model = RequirementOrder
         fields = ['sales_order', 'requested_date', 'notes']  # El campo 'estado' se elimina
         widgets = {
-            'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=3)).isoformat()}),
+            # 'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=3)).isoformat()}),
             'notes': forms.Textarea(attrs={'required': 'required'})
         }
 
