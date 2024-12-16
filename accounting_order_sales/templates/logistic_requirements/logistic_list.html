@@ -1,0 +1,100 @@
+<!-- CSS de DataTables -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+<!-- jQuery (requerido por DataTables) -->
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- JS de DataTables -->
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+<div class="container-fluid">
+    <!-- Tabla de órdenes -->
+    <div class="table-responsive">
+        <table class="table table-hover text-center align-middle bg-white shadow-sm">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Proyecto</th>
+                    <th>Cliente</th>
+                    <th>Orden de Venta</th>
+                    <th>Fecha Solicitada</th>
+                    <th>Fecha Creada</th>
+                    <th>Detalles</th>
+                    <th>Validado</th>
+                    <th>Estado de Ítems</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if requirement_orders %}
+                    {% for order in requirement_orders %}
+                        <tr>
+                            <td>{{ order.order_number }}</td>
+                            <td>{{ order.sales_order.sapcode }}</td>
+                            <td>{{ order.sales_order.project.name }}</td>
+                            <td>{{ order.sales_order.project.client.legal_name }}</td>
+                            <td>
+                                {% with order.requested_date|date:"l" as day %}
+                                    <span class="badge bg-info">{{ day }}</span> {{ order.requested_date|date:"d F Y" }}
+                                {% endwith %}
+                            </td>
+                            <td>{{ order.created_at }}</td>
+                            <td>{{ order.notes }}</td>
+                            <td>
+                                {% if order.state == "NO REVISADO" %}
+                                    <span class="badge bg-warning text-dark">No Revisado</span>
+                                {% elif order.state == "APROBADO" %}
+                                    <span class="badge bg-success">Aprobado</span>
+                                {% elif order.state == "RECHAZADO" %}
+                                    <span class="badge bg-danger">Rechazado</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ order.state }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if order.global_state == "Listo" %}
+                                    <span class="badge bg-success">Listo</span>
+                                {% elif order.global_state == "Comprando" %}
+                                    <span class="badge bg-primary">Comprando</span>
+                                {% elif order.global_state == "Pendiente" %}
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ order.global_state }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'logistic_export_order_to_excel' order.id %}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-file-excel"></i> Exportar Excel
+                                    </a>
+                                    {% if order.state == "APROBADO" %}
+                                        <a href="{% url 'logistic_requirement_order_detail' order.id %}?filtrar=P" class="btn btn-info btn-sm">
+                                            <i class="fas fa-info-circle"></i> Detalles
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="10">No se encontraron resultados para la búsqueda.</td>
+                    </tr>
+                {% endif %}
+            </tbody>                        
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Inicializa DataTables en la tabla
+        var table = $('table').DataTable({
+            "responsive": true,  // Hace que la tabla sea responsiva
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.11.5/i18n/Spanish.json"  // Configura el idioma a español
+            },
+            "pageLength": 50,  // Muestra 50 registros por página
+        });
+    });
+</script>

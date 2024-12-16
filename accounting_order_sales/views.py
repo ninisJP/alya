@@ -593,7 +593,7 @@ def update_requirement_order_items(request, pk):
 
     return JsonResponse({'message': 'Elementos actualizados con éxito'}, status=200)
 
-def create_purchase_order(request, pk):
+def logistic_create_purchase_order(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
 
     # Verificar si ya existe una orden de compra para esta orden de requerimiento
@@ -909,3 +909,499 @@ def edit_collection_order(request, collection_order_id):
     }
 
     return render(request, 'collectionorders/edit_collection_order.html', context)
+
+# Logistic Requirements Approved
+
+class LogisticRequirementOrderListView(ListView):
+    model = RequirementOrder
+    template_name = 'logistic_requirements/logistic_index.html'
+    context_object_name = 'requirement_orders'
+
+    def get_queryset(self):
+        # Obtener los parámetros de los filtros
+        show_pending = self.request.GET.get('show_pending') == 'true'
+        show_comprando = self.request.GET.get('show_comprando') == 'true'
+        show_all = self.request.GET.get('show_all') == 'true'
+        
+        # Iniciar queryset con todas las órdenes APROBADAS por contabilidad
+        queryset = RequirementOrder.objects.order_by('-id').prefetch_related('items') # filter(state='APROBADO')
+        
+        if show_all:
+            queryset = queryset.distinct()
+            print(show_all)
+        elif show_comprando:
+            # Mostrar solo las órdenes con ítems en estado Pendiente o Comprando
+            queryset = queryset.filter(state='APROBADO').filter(
+                    items__estado='C'# items__estado__in=['P', 'C']
+            ).distinct()
+            print(show_comprando)
+        elif show_pending:
+            # Mostrar solo las órdenes con ítems en estado Pendiente o Comprando
+            queryset = queryset.filter(state='APROBADO').filter(
+                    items__estado__in=['P', 'C']
+            ).distinct()
+            print(show_pending)
+        else:
+            queryset = queryset.filter(state='APROBADO').filter(
+                items__estado='P' #items__estado__in=['P', 'C']
+            ).distinct()
+         
+        
+        # Calcular el estado general de cada orden
+        for order in queryset:
+            items = order.items.all()
+            total_items = items.count()
+
+            if total_items == 0:
+                order.global_state = "No tiene ítems"
+                continue
+
+            ready_count = items.filter(estado='L').count()
+            buying_count = items.filter(estado='C').count()
+            pending_count = items.filter(estado='P').count()
+
+            # Determinar el estado general
+            if ready_count == total_items:
+                order.global_state = "Listo"
+            elif buying_count >= total_items / 2:
+                order.global_state = "Comprando"
+            elif pending_count > 0:
+                order.global_state = "Pendiente"
+            else:
+                order.global_state = "Completado"  # Si no hay items pendientes, listos o comprando
+
+        return queryset
+
+from logistic_requirements.forms import RequirementOrderListForm
+from logistic_inventory.models import Item
+
+def logistic_search_requirement_order_list_view(request):
+    query = request.GET.get('q', '')
+    print(f"Search Query: {query}")  # Agregar log
+
+    if query:
+        requirement_orders = RequirementOrder.objects.filter(Q(order_number__icontains=query) | Q(estado__icontains=query)
+                                                            | Q(notes__icontains=query)).order_by('-id')
+    else:
+        requirement_orders = RequirementOrder.objects.all().order_by('-id')
+    
+    print(requirement_orders)
+
+    context = {'requirement_orders': requirement_orders, 'form': RequirementOrderListForm()}
+    return render(request, 'logistic_list.html', context)
+
+def logistic_requirement_order_detail_view(request, pk):
+    requirement_order = get_object_or_404(RequirementOrder, pk=pk)
+    filtrar = request.GET.get('filtrar')
+
+    # Filtrar los ítems en estado 'P' si se requiere, o cargar todos los ítems ordenados por categoría
+    if filtrar == 'P':
+        items = requirement_order.items.filter(estado='P').select_related('sales_order_item').order_by('sales_order_item__category')
+    else:
+        items = requirement_order.items.all().select_related('sales_order_item').order_by('sales_order_item__category')
+
+    suppliers = Suppliers.objects.all()
+
+    # Crear un diccionario de inventario disponible, usando sap como clave
+    inventory_data = {item.item.sap: item.quantity for item in Item.objects.select_related('item').all()}
+
+    # Agregar disponibilidad y tiempo de servicio a cada item en el queryset
+    for item in items:
+        item.disponible_inventario = inventory_data.get(item.sap_code, 0)
+
+        # Calcular tiempo de servicio en horas solo si la categoría no es 'Material', 'Consumible', o 'Equipo'
+        if item.sales_order_item.category not in ["Material", "Consumible", "Equipo"]:
+            item.tiempo_servicio = requirement_order.sales_order.days * 8 * item.quantity_requested
+        else:
+            item.tiempo_servicio = None
+
+    return render(request, 'logistic_requirements/logistic_detail.html', {
+        'requirement_order': requirement_order,
+        'items': items,
+        'suppliers': suppliers,
+        'filtrar': filtrar,
+    })
+
+@require_POST
+def logistic_update_requirement_order_items(request, pk):
+    requirement_order = get_object_or_404(RequirementOrder, pk=pk)
+    updated_items = []
+
+    # Procesar cada ítem en la orden de requerimiento
+    for item in requirement_order.items.all():
+        item.quantity_requested = request.POST.get(f'quantity_requested_{item.id}', item.quantity_requested)
+        item.price = request.POST.get(f'price_{item.id}', item.price)
+        item.notes = request.POST.get(f'notes_{item.id}', item.notes)
+        item.supplier_id = request.POST.get(f'supplier_{item.id}')
+        item.estado = request.POST.get(f'estado_{item.id}', item.estado)
+
+        # Guardar la fecha de la orden de compra
+        date_str = request.POST.get(f'date_purchase_order_{item.id}')
+        if date_str:
+            try:
+                item.date_purchase_order = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                item.date_purchase_order = None
+
+        print(f"Item ID: {item.id}, Fecha recibida: {date_str}, Fecha procesada: {item.date_purchase_order}")
+        updated_items.append(item)
+
+    # Usar bulk_update para mejorar el rendimiento
+    RequirementOrderItem.objects.bulk_update(
+        updated_items, 
+        ['quantity_requested', 'price', 'notes', 'supplier_id', 'estado', 'date_purchase_order']
+    )
+
+    # Recalcular remaining_requirement para todos los sales_order_items relacionados
+    for item in updated_items:
+        item.sales_order_item.update_remaining_requirement()
+        print(f'Item ID: {item.id}, Fecha: {item.date_purchase_order}')
+
+
+    # Retornar el mensaje directamente en HTML
+    return HttpResponse(
+        '<div class="alert alert-success" role="alert">Items actualizados con éxito</div>',
+        status=200
+    )
+
+def logistic_create_purchase_order(request, pk):
+    requirement_order = get_object_or_404(RequirementOrder, pk=pk)
+
+    # Verificar si ya existe una orden de compra para esta orden de requerimiento
+    if requirement_order.purchase_order_created:
+        # Si ya existe una orden de compra, la buscamos
+        try:
+            purchase_order = PurchaseOrder.objects.get(salesorder=requirement_order.sales_order, acepted=True)
+        except PurchaseOrder.DoesNotExist:
+            # Si no existe, creamos una nueva
+            purchase_order = PurchaseOrder.objects.create(
+                salesorder=requirement_order.sales_order,
+                description=f"{requirement_order.notes} - {requirement_order.order_number}",
+                requested_date=requirement_order.requested_date,
+                requested_by=request.user.username if request.user else 'Desconocido',
+                acepted=True
+            )
+            # Marcamos la RequirementOrder como procesada
+            requirement_order.purchase_order_created = True
+            requirement_order.save()
+    else:
+        # Si no existe, creamos una nueva
+        purchase_order = PurchaseOrder.objects.create(
+            salesorder=requirement_order.sales_order,
+            description=f"{requirement_order.notes} - {requirement_order.order_number}",
+            requested_date=requirement_order.requested_date,
+            requested_by=request.user.username if request.user else 'Desconocido',
+            acepted=True
+        )
+        # Marcamos la RequirementOrder como procesada
+        requirement_order.purchase_order_created = True
+        requirement_order.save()
+
+    # Filtrar ítems en estado 'C' que no han sido procesados
+    items_comprando = RequirementOrderItem.objects.filter(
+        requirement_order=requirement_order, 
+        estado='C',
+        purchase_order_created=False  # Solo ítems no procesados
+    )
+
+    if not items_comprando.exists():
+        error_message = "<div>No hay ítems en estado 'Comprando' sin orden de compra asociada.</div>"
+        return HttpResponse(error_message, content_type="text/html")
+
+    # Crear los PurchaseOrderItems asociados a los ítems comprando
+    purchase_order_items = [
+        PurchaseOrderItem(
+            purchaseorder=purchase_order,
+            sales_order_item=item.sales_order_item,
+            sap_code=item.sap_code,
+            quantity_requested=item.quantity_requested,
+            price=item.price,
+            price_total=item.total_price,
+            notes=item.notes,
+            supplier=item.supplier,
+            purchase_date=item.date_purchase_order
+        )
+        for item in items_comprando
+    ]
+    PurchaseOrderItem.objects.bulk_create(purchase_order_items)
+
+    # Actualizar el campo purchase_order_created a True para los ítems procesados
+    for item in items_comprando:
+        item.purchase_order_created = True
+        item.save()
+
+    # Respuesta de éxito en HTML
+    success_message = f"<div>Ítems añadidos a la Orden de Compra para la Orden de Requerimiento #{requirement_order.order_number}.</div>"
+    return HttpResponse(success_message, content_type="text/html")
+
+@require_POST
+def logistic_update_and_create_purchase_order(request, pk):
+    requirement_order = get_object_or_404(RequirementOrder, pk=pk)
+    updated_items = []
+
+    # Procesar cada ítem en la orden de requerimiento
+    for item in requirement_order.items.all():
+        item.quantity_requested = request.POST.get(f'quantity_requested_{item.id}', item.quantity_requested)
+        item.price = request.POST.get(f'price_{item.id}', item.price)
+        item.notes = request.POST.get(f'notes_{item.id}', item.notes)
+        item.supplier_id = request.POST.get(f'supplier_{item.id}')
+        item.estado = request.POST.get(f'estado_{item.id}', item.estado)
+
+        # Guardar la fecha de la orden de compra
+        date_str = request.POST.get(f'date_purchase_order_{item.id}')
+        if date_str:
+            try:
+                item.date_purchase_order = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                item.date_purchase_order = None
+
+        updated_items.append(item)
+
+    # Usar bulk_update para mejorar el rendimiento
+    RequirementOrderItem.objects.bulk_update(
+        updated_items, 
+        ['quantity_requested', 'price', 'notes', 'supplier_id', 'estado', 'date_purchase_order']
+    )
+
+    # Verificar si ya existe una PurchaseOrder asociada
+    if not requirement_order.purchase_order:  # Si no tiene una orden de compra asociada
+        purchase_order = PurchaseOrder.objects.create(
+            salesorder=requirement_order.sales_order,  # Relacionado con la SalesOrder
+            description=f"{requirement_order.notes} - {requirement_order.order_number}",
+            requested_date=requirement_order.requested_date,
+            requested_by=request.user.username if request.user else 'Desconocido',
+            acepted=True
+        )
+        # Asociar la nueva PurchaseOrder con la RequirementOrder
+        requirement_order.purchase_order = purchase_order
+        requirement_order.purchase_order_created = True
+        requirement_order.save()
+    else:
+        purchase_order = requirement_order.purchase_order  # Usar la PurchaseOrder existente
+
+    # Filtrar ítems en estado 'C' que no han sido procesados
+    items_comprando = RequirementOrderItem.objects.filter(
+        requirement_order=requirement_order, 
+        estado='C',
+        purchase_order_created=False
+    )
+
+    if items_comprando.exists():
+        purchase_order_items = [
+            PurchaseOrderItem(
+                purchaseorder=purchase_order,
+                sales_order_item=item.sales_order_item,
+                sap_code=item.sap_code,
+                quantity_requested=item.quantity_requested,
+                price=item.price,
+                price_total=item.total_price,
+                notes=item.notes,
+                supplier=item.supplier,
+                purchase_date=item.date_purchase_order
+            )
+            for item in items_comprando
+        ]
+        PurchaseOrderItem.objects.bulk_create(purchase_order_items)
+
+        # Actualizar el campo purchase_order_created a True para los ítems procesados
+        for item in items_comprando:
+            item.purchase_order_created = True
+            item.save()
+
+    return HttpResponse(
+        '<div class="alert alert-success" role="alert">Ítems actualizados y Orden de Compra creada con éxito</div>',
+        status=200
+    )
+
+def ajax_load_suppliers(request):
+    term = request.GET.get('term', '')
+    suppliers = Suppliers.objects.filter(name__icontains=term)[:20]
+    supplier_list = [{'id': supplier.id, 'text': supplier.name} for supplier in suppliers]
+    return JsonResponse({'results': supplier_list})
+
+def logistic_requirement_order_approved_list(request):
+    # Obtener los ítems cuyas órdenes de requerimiento están aprobadas y el estado del ítem es Pendiente
+    requirement_order_items = RequirementOrderItem.objects.filter(
+        requirement_order__state='APROBADO',
+        estado='P'  # Filtro adicional para solo obtener los ítems en estado Pendiente
+    ).select_related(
+        'sales_order_item', 
+        'sales_order_item__salesorder',
+        'sales_order_item__salesorder__project',
+        'supplier'
+    ).order_by('-requirement_order__created_at')
+
+    # Obtener la lista de proveedores
+    suppliers = Suppliers.objects.all()
+
+    # Pasar los ítems aprobados y pendientes, y los proveedores al contexto para ser utilizados en el template
+    context = {
+        'requirement_order_items': requirement_order_items,
+        'suppliers': suppliers,
+    }
+
+    return render(request, 'logistic_requirements/logistic_list.html', context)
+
+@require_POST
+def logistic_update_approved_items(request):
+    updated_items = []
+    errors = []
+
+    # Iterar sobre los datos POST
+    for key, value in request.POST.items():
+        try:
+            # Validar que la clave tenga al menos 2 partes tras el split y que el segundo elemento sea un número
+            parts = key.split('_')
+            if len(parts) == 2 and parts[1].isdigit():
+                # Obtener el ID del ítem desde el nombre del campo
+                item_id = int(parts[1])
+
+                # Obtener el ítem correspondiente de la base de datos
+                try:
+                    item = RequirementOrderItem.objects.get(id=item_id)
+                except RequirementOrderItem.DoesNotExist:
+                    errors.append(f"El ítem con ID {item_id} no existe.")
+                    continue
+
+                # Actualizar los campos según la clave
+                if key.startswith('quantity_'):
+                    try:
+                        item.quantity_requested = int(value) if value else 0
+                    except ValueError:
+                        errors.append(f"Error al convertir la cantidad para el ítem {item_id}: {value}")
+                        continue
+
+                elif key.startswith('price_'):
+                    try:
+                        item.price = float(value) if value else 0.0
+                    except ValueError:
+                        errors.append(f"Error al convertir el precio para el ítem {item_id}: {value}")
+                        continue
+
+                elif key.startswith('notes_'):
+                    item.notes = value
+
+                elif key.startswith('supplier_'):
+                    item.supplier_id = value
+
+                elif key.startswith('estado_'):
+                    item.estado = value
+
+                # Guardar el ítem actualizado
+                item.save()
+                updated_items.append(item)
+            else:
+                # Si no tiene la estructura adecuada, añade un error
+                errors.append(f"ID no válido: {parts[1] if len(parts) > 1 else 'desconocido'}")
+        
+        except Exception as e:
+            errors.append(f"Error procesando el ítem: {str(e)}")
+            continue
+
+    # Si hubo errores, devolver un mensaje con los errores
+    if errors:
+        return JsonResponse({'message': 'Hubo errores al actualizar los ítems.', 'errors': errors}, status=400)
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
+    # Si todo fue bien, devolver solo un mensaje de éxito
+    return JsonResponse({'message': 'Ítems actualizados con éxito'}, status=200)
+
+def logistic_requirement_order_detail_partial(request, pk):
+    requirement_order = get_object_or_404(RequirementOrder, pk=pk)
+    items = requirement_order.items.all() 
+    return render(request, 'requirements_approved/requirement_order_detail_partial.html', {
+        'requirement_order': requirement_order,
+        'items': items,  # Pasamos los ítems a la plantilla parcial
+    })
+
+import openpyxl
+from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
+
+
+def logistic_export_order_to_excel(request, pk):
+    # Obtener la orden específica
+    requirement_order = get_object_or_404(RequirementOrder, pk=pk)
+    items = requirement_order.items.all().select_related(
+        'sales_order_item', 'supplier'
+    ).order_by('sales_order_item__description')
+
+    # Crear un nuevo libro de Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f"Orden {requirement_order.order_number}"
+
+    # Encabezado con detalles de la orden
+    ws['A1'] = "Detalles de la Orden de Requerimiento"
+    ws['A1'].font = Font(size=14, bold=True)
+    ws.merge_cells('A1:K1')
+
+    details = [
+        f"ID Orden: {requirement_order.order_number}",
+        f"Proyecto: {requirement_order.sales_order.project.name}",
+        f"Cliente: {requirement_order.sales_order.project.client.legal_name}",
+        f"Fecha Solicitada: {requirement_order.requested_date}",
+        f"Fecha Creada: {requirement_order.created_at}",
+        f"Pedido: {requirement_order.notes or 'Sin notas'}",
+    ]
+
+    for idx, detail in enumerate(details, start=2):
+        ws[f"A{idx}"] = detail
+
+    # Encabezados de la tabla
+    headers = [
+        "SAP","ITEM", "DETALLE", "UNIDAD", 
+        "CANTIDAD", "HORAS", 
+        "PROVEEDOR", "ESTADO"
+    ]
+    header_fill = PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid")
+    header_font = Font(bold=True)
+    border = Border(
+        left=Side(border_style="thin"),
+        right=Side(border_style="thin"),
+        top=Side(border_style="thin"),
+        bottom=Side(border_style="thin")
+    )
+
+    for col_num, column_title in enumerate(headers, 1):
+        cell = ws.cell(row=10, column=col_num, value=column_title)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.border = border
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    # Ajustar el ancho de las columnas
+    column_widths = [15, 20, 25, 30, 10, 20, 15, 15, 25, 15, 10]
+    for i, width in enumerate(column_widths, start=1):
+        ws.column_dimensions[get_column_letter(i)].width = width
+
+    # Agregar datos de los ítems
+    for row_num, item in enumerate(items, start=11):
+        sales_order_item = item.sales_order_item
+        data = [
+            sales_order_item.sap_code or "N/A",
+            sales_order_item.description or "N/A",
+            item.notes or "",
+            sales_order_item.unit_of_measurement or "N/A",
+            float(item.quantity_requested) if item.quantity_requested else 0,
+            getattr(sales_order_item, "custom_quantity", "N/A"),
+            item.supplier.name if item.supplier else "N/A",
+            item.get_estado_display() or "N/A",
+        ]
+        for col_num, value in enumerate(data, 1):
+            cell = ws.cell(row=row_num, column=col_num, value=value)
+            cell.border = border
+            if col_num == 11:  # Estado
+                cell.alignment = Alignment(horizontal="center")
+            else:
+                cell.alignment = Alignment(horizontal="left")
+
+    # Configurar la respuesta HTTP para descargar el archivo
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = f'attachment; filename="order_{requirement_order.order_number}_pending_items.xlsx"'
+    wb.save(response)
+
+    return response
