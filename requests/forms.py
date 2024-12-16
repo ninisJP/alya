@@ -16,12 +16,12 @@ class CreateRequirementOrderForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'required': 'required'})
         }
 
-    def clean_requested_date(self):
-        requested_date = self.cleaned_data.get('requested_date')
-        min_date = date.today() + timedelta(days=3) 
-        if requested_date and requested_date < min_date:
-            raise ValidationError(f"La fecha solicitada no puede ser anterior a {min_date.isoformat()}.")
-        return requested_date
+    # def clean_requested_date(self):
+    #     requested_date = self.cleaned_data.get('requested_date')
+    #     min_date = date.today() + timedelta(days=3) 
+    #     if requested_date and requested_date < min_date:
+    #         raise ValidationError(f"La fecha solicitada no puede ser anterior a {min_date.isoformat()}.")
+    #     return requested_date
     
     def clean_notes(self):
         notes = self.cleaned_data.get('notes')
