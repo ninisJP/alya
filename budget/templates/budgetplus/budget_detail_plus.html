@@ -1,28 +1,47 @@
-<!-- Partial de la columna de datos generales y resumen de totales -->
-<div class="card shadow-sm mb-3">
-    <div class="card-header bg-light">
+<div id="budget_detail_plus">
+<div id="budget-details-container-plus">
+<!-- Datos del Presupuesto -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
         <h4>Datos del Presupuesto</h4>
     </div>
     <div class="card-body">
-        <h5>Detalles</h5>
         <ul class="list-unstyled">
-            <li><strong>Cliente:</strong> {{ budget.client }}</li>
-            <li><strong>Presupuesto:</strong> {{ budget.budget_name }}</li>
-            <li><strong>Fecha:</strong> {{ budget.budget_date }}</li>
-            <li><strong>Duración:</strong> {{ budget.budget_days }} días</li>
-            <li><strong>Precio Total:</strong> S/ {{ budget.budget_price }}</li>
-            <li><strong>Precio Total2:</strong> S/ {{ budget.budget_final_price }}</li>
+            <li><strong>Cliente:</strong> <span class="text-muted">{{ budget.client }}</span></li>
+            <li><strong>Presupuesto:</strong> <span class="text-muted">{{ budget.budget_name }}</span></li>
+            <li><strong>Fecha:</strong> <span class="text-muted">{{ budget.budget_date }}</span></li>
+            <li><strong>Duración:</strong> <span class="text-muted">{{ budget.budget_days }} días</span></li>
+            <li><strong>Precio Total:</strong> <span class="text-success">S/ {{ budget.budget_price }}</span></li>
+            <li><strong>Precio Final:</strong> <span class="text-success">S/ {{ budget.budget_final_price }}</span></li>
+        
         </ul>
     </div>
+    <button class="btn btn-primary mt-3" hx-post="{% url 'update_budget_partial_plus' budget.id %}" hx-target="#budget_detail_plus" hx-swap="outerHTML">
+        Editar Presupuesto
+    </button>
 </div>
 
 <!-- Resumen de Totales -->
 <div class="card shadow-sm">
-    <div class="card-header bg-light">
-        <h4>Resumen de Totales</h4>
+    <div class="card-header bg-dark text-white">
+        <h4>Resumen de Totales por Categoría</h4>
     </div>
-    <div class="card-body">
-        Resumen segun categoria
-
+    <div class="card-body bg-light text-dark">
+        <ul class="list-unstyled">
+            {% for category, total in budget.get_category_totals.items %}
+                <li class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="font-weight-bold text-dark">{{ category }}</span>
+                        <span class="badge badge-pill badge-light text-dark">S/ {{ total }}</span>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
+</div>
+</div>
+
+
+
+

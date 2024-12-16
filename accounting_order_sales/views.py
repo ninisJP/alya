@@ -238,12 +238,27 @@ def edit_purchase_order(request, order_id):
     })
 
 def delete_purchase_order(request, order_id):
-    # Obtener y eliminar la orden de compra
+    # Obtener la orden de compra a eliminar
     order = get_object_or_404(PurchaseOrder, id=order_id)
+
+    # Recuperar los ítems de la orden de compra que están en estado 'C' y han sido procesados
+    items_comprando = RequirementOrderItem.objects.filter(
+        requirement_order__purchase_order=order,  # Aquí usamos 'requirement_order__purchase_order'
+        estado='C',
+        purchase_order_created=True
+    )
+
+    # Revertir el estado de 'purchase_order_created' a False y cambiar el estado a 'P' para los ítems
+    for item in items_comprando:
+        item.purchase_order_created = False  # Revertir la creación de la orden de compra
+        item.estado = 'P'  # Cambiar el estado a 'Pendiente'
+        item.save()
+
+    # Eliminar la orden de compra
     order.delete()
 
     # Retornar un mensaje simple en HTML
-    return HttpResponse('<div class="alert alert-success">Orden de compra eliminada con éxito. Si quieres crear una orden nueva, tendrás que hacerlo desde el pedido.</div>', content_type="text/html")
+    return HttpResponse('<div class="alert alert-success">Orden de compra eliminada con éxito. Los ítems han sido revertidos a estado Pendiente.</div>', content_type="text/html")
 
 # Bank
 def index_bank(request):
@@ -422,15 +437,16 @@ def assign_bank_statement(request, item_id, statement_id):
 
 # Bank loands and credit cards
 def bank_loans(request):
-    prestamo = BankLoan.objects.filter(credit_type = 'prestamo')
-    credito = BankLoan.objects.filter(credit_type = 'credito')
+    pass
+    # prestamo = BankLoan.objects.filter(credit_type = 'prestamo')
+    # credito = BankLoan.objects.filter(credit_type = 'credito')
 
-    context = {
-        'prestamos': prestamos,
-        'creditos': creditos
-    }
+    # context = {
+    #     'prestamos': prestamos,
+    #     'creditos': creditos
+    # }
 
-    return render(request, 'bank_loans.html', )
+    # return render(request, 'bank_loans.html', )
 
 #caja chica
 def petty_cash(request):
@@ -451,8 +467,11 @@ def petty_cash(request):
         if not end_date:
             end_date = today  # Si solo hay fecha de inicio, el rango termina en el día actual
 
+        if not start_date:
+            start_date = today
+
         items = PurchaseOrderItem.objects.filter(
-            purchaseorder__scheduled_date__range=[start_date, end_date]
+            purchase_date__range=[start_date, end_date]
         ).select_related('purchaseorder', 'sales_order_item__salesorder', 'supplier')
 
     context = {
@@ -485,7 +504,7 @@ def petty_cash_state(request):
         if not start_date:
             start_date = localdate()  # Fecha actual como inicio si no se especifica
 
-        items = items.filter(purchaseorder__scheduled_date__range=[start_date, end_date])
+        items = items.filter(purchase_date__range=[start_date, end_date])
 
     context = {
         'items': items,
@@ -817,6 +836,16 @@ def collection_orders(request):
         'sales_orders': sales_orders,
     }
     return render(request, 'collectionorders/collection_orders.html', context)
+
+def collection_orders_search(request):
+    query = request.GET.get('q','')
+    if query:
+        sales_orders = SalesOrder.objects.filter(Q(sapcode__icontains=query)).order_by('-id')
+    else:
+        sales_orders = SalesOrder.objects.all().order_by('-id')
+
+    context = {'sales_orders':sales_orders,'form':SalesOrderForm()}
+    return render(request,'collectionorders/collection_orders_list.html',context)
 
 def collection_order_detail(request, salesorder_id):
     # Obtiene la SalesOrder y sus CollectionOrders asociadas

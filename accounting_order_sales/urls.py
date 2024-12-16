@@ -37,6 +37,7 @@ urlpatterns = [
     path('collection_orders/<int:salesorder_id>/', views.collection_order_detail, name='collection_order_detail'),
     path('collection_orders/<int:collection_order_id>/delete/', views.delete_collection_order, name='delete_collection_order'),
     path('collection_orders/<int:collection_order_id>/edit/', views.edit_collection_order, name='edit_collection_order'),
+    path('collection_orders/search/', views.collection_orders_search, name='collection_orders_search'),
 ]
 
 htmxurlpatters = [

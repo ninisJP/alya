@@ -1,0 +1,27 @@
+<table border="1" style="width: 100%; border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th>SAP Code</th>
+            <th>Descripción</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Precio Total</th>
+            <th>Proveedor</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in purchase_list_pen %}
+            <tr>
+                <td>{{ item.sap_code }}</td>
+                <td>{{ item.notes }}</td>
+                <td>{{ item.quantity_requested }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.price_total }}</td>
+                <td>{{ item.supplier }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<button class="btn btn-primary" hx-get="{% url 'dashboard' %}" hx-target="body"> Flechita para atras >.< </button>

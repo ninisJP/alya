@@ -17,6 +17,7 @@ from django.shortcuts import render, redirect
 from .forms import ExcelUploadForm, TechnicianTaskForm, AddTasksToGroupForm, EditGroupItemForm
 from .models import TechnicianTask, TechnicianTaskGroupItem
 from .utils import process_technician_tasks_excel
+from django.db.models import Q
 
 class TechniciansMonth(TemplateView):
     template_name = 'technicians_month.html'
@@ -223,6 +224,20 @@ def technician_task(request):
         'tasks': technicians_tasks
     }
     return render(request, 'technician_task/technician-task.html', context)
+
+def techniciantask_search(request):
+    query = request.GET.get('q','')
+    
+    if query:
+        technicians_tasks = TechnicianTask.objects.filter(
+            Q(verb__icontains=query) | Q(object__icontains=query) | Q(measurement__icontains=query) | Q(time__icontains=query)     # fields = ('verb', 'object', 'measurement', 'time')
+
+        ).order_by('-id')
+    else:
+        technicians_tasks = TechnicianTask.objects.all().order_by('-id')
+    
+    context = {'tasks':technicians_tasks, 'form':TechnicianTaskForm()}
+    return render(request,'technician_task/technician-task-list.html', context)
 
 
 def create_technician_task(request):

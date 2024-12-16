@@ -1,75 +1,63 @@
-<table border="1" style="width: 100%; border-collapse: collapse;">
-    <thead>
-        <tr>
-            <th>SAP Code</th>
-            <th>Descripción</th>
-            <th>Cantidad</th>
-            <th>Moneda</th>
-            <th>Proveedor</th>
-            <th>Estado de Pago</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in items %}
-            <tr>
-                <td>{{ item.sap_code }}</td>
-                <td>{{ item.notes }}</td>
-                <td>{{ item.quantity_requested }}</td>
-                <td>{% if item.supplier %}{{ item.supplier.name }}{% else %}Sin proveedor{% endif %}</td>
-                <td></td>
-                <td>{{ item.payment_status }}</td>
-            </tr>
-        {% endfor %}
+<style>
+    .row {
+        display: flex;
+    }
 
-        <!-- Loan -->
-        {% for item in loans %}
-            <tr>
-                <td>Prestamos</td>
-                <td>{{ item.detail }}</td>
-                <td>
-                    {% if item.currency == 'Soles' %} S/.
-                    {% elif item.currency == 'Dolares' %} $
-                    {% endif %}
-                    {{ item.total_debt }}
-                </td>
-                <td>{{ item.currency }}</td>
-                <td></td>
-                <td>
-                    {% if item.is_paid %}
-                        <span class="badge bg-success text-white rounded-pill px-2 py-1">
-                            {{ budget.budget_days }} SI
-                        </span>
-                    {% else %}
-                        <span class="badge bg-danger text-white rounded-pill px-2 py-1">
-                            {{ budget.budget_days }} NO
-                        </span>
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
+    .column {
+        flex: 40%;
+    }
+</style>
 
-        <!-- Collection -->
-        {% for item in collections %}
-            <tr>
-                <td></td>
-                <td>{{ item.orden_venta }}</td>
-                <td>{{ item.description }}</td>
-                <td>{{ item.monto_neto_cobrar }}</td>
-                <td>
-                    {% if item.is_paid %}
-                        <span class="badge bg-success text-white rounded-pill px-2 py-1">
-                            {{ budget.budget_days }} SI
-                        </span>
-                    {% else %}
-                        <span class="badge bg-danger text-white rounded-pill px-2 py-1">
-                            {{ budget.budget_days }} NO
-                        </span>
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="row">
+    <div class="column">
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>SAP Code</th>
+                    <th>Descripción</th>
+                    <th>Monto</th>
+                    <th>Proveedor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in purchase_list_pen %}
+                    <tr>
+                        <td>{{ item.sap_code }}</td>
+                        <td>{{ item.notes }}</td>
+                        <td>S/. {{ item.price_total }}</td>
+                        <td>{% if item.supplier %}{{ item.supplier.name }}{% else %}Sin proveedor{% endif %}</td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SUNAT -->
+    <div class="column">
+         <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Resolución</th>
+                    <th>Descripción</th>
+                    <th>Numero de cuota</th>
+                    <th>Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sunat_list_pen %}
+                    <tr>
+                        <td>{{ item.resolucion.numero_resolucion }}</td>
+                        <td>{{ item.resolucion.descripcion }}</td>
+                        <td>{{ item.numero_cuota }}</td>
+                        <td>S/. {{ item.total }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
 
 
 <button class="btn btn-primary" hx-get="{% url 'dashboard' %}" hx-target="body"> Flechita para atras >.< </button>

@@ -1,7 +1,6 @@
 from django.urls import path
-
-
 from .views import project_index, ProjectSalesOrderListView,sales_order_detail, sales_order_partial_view, purchase_order_partial_view, requirement_order_partial_view
+from .project_plus_views import project_order_plus
 from . import views
 
 urlpatterns = [
@@ -16,4 +15,7 @@ urlpatterns = [
     path('output-guide-partial/<int:order_id>/', views.output_guide_partial_view, name='project_detail_guide_output'),
     path('diagram_project_orders/<int:order_id>/', views.diagram_project_orders, name='diagram_project_orders'),
 
+    # project plus
+    path('project_order/<int:order_id>/', project_order_plus, name='project_order_plus'),
 ]
+

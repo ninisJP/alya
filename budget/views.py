@@ -1,220 +1,73 @@
-from django.contrib import messages
-from django.db.models import Sum
-from django.shortcuts import render, redirect, get_object_or_404
-from collections import defaultdict
-from django.http import HttpResponse, JsonResponse
-from follow_control_card.forms import TaskForm
-from .forms import BudgetEditNewForm, BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm, NewBudgetItemForm, EditBudgetItemForm
-from .models import Budget, BudgetItem, CatalogItem
-from .utils import export_budget_report_to_excel
-from accounting_order_sales.models import SalesOrder, SalesOrderItem
-from django.http import HttpResponse
-from django.contrib import messages
-from alya import utils
-from django.core.paginator import Paginator
-import pandas as pd
-from decimal import Decimal
-from .models import CatalogItem
-from django.shortcuts import render, redirect
-from django.core.files.storage import FileSystemStorage
-from .forms import BudgetUploadForm
-from .utils import process_budget_excel
-from .utils import process_sap_excel
-import pandas as pd
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import ExcelUploadForm
-from .models import CatalogItem
-import re
-from django.db import transaction
-from .forms import AddBudgetItemForm
-from collections import defaultdict
-from django.shortcuts import get_object_or_404, redirect
 from django.db import models
-from django.contrib import messages
-from django.db.models import Sum
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
-from django.core.paginator import Paginator
-from django.core.files.storage import FileSystemStorage
-from django.db import transaction
-
-from follow_control_card.forms import TaskForm
-from .forms import BudgetEditNewForm, BudgetForm, BudgetItemFormSet, CatalogItemForm, SearchCatalogItemForm, NewBudgetItemForm, EditBudgetItemForm, BudgetUploadForm, ExcelUploadForm, AddBudgetItemForm
-from .models import Budget, BudgetItem, CatalogItem
-from accounting_order_sales.models import SalesOrder, SalesOrderItem
-
-from .utils import export_budget_report_to_excel, process_budget_excel, process_sap_excel
-import pandas as pd
 from decimal import Decimal
+from collections import defaultdict
+import pandas as pd
 import re
 import openpyxl
-
+from openpyxl import Workbook
+from django.contrib import messages
+from django.core.files.storage import FileSystemStorage
+from django.core.paginator import Paginator
+from django.db import transaction
+from django.db.models import Sum, Q
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from follow_control_card.forms import TaskForm
+from accounting_order_sales.models import SalesOrder, SalesOrderItem
+from .forms import (
+    BudgetEditNewForm,
+    BudgetForm,
+    BudgetItemFormSet,
+    BudgetPlusForm,
+    CatalogItemForm,
+    SearchCatalogItemForm,
+    NewBudgetItemForm,
+    EditBudgetItemForm,
+    BudgetUploadForm,
+    ExcelUploadForm,
+    AddBudgetItemForm
+)
+from django.core.cache import cache
+from .models import Budget, BudgetItem, CatalogItem
+from .utils import (
+    export_budget_report_to_excel,
+    process_budget_excel,
+    process_sap_excel
+)
 
 def index_budget(request):
-    budgets = Budget.objects.all()  # Recupera todos los presupuestos
-    return render(request, 'index_budget.html', {'budgets': budgets})
-
-def catalog_item_search(request):
-    if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        term = request.GET.get('term', '')
-        
-        # Filtramos los resultados, primero por el término de búsqueda
-        items = CatalogItem.objects.all()
-
-        if term:
-            # Filtrar por descripción o SAP, dependiendo del término de búsqueda
-            items = items.filter(
-                models.Q(description__icontains=term) | models.Q(sap__icontains=term)
-            )
-        
-        # Ordenamos los resultados por descripción
-        items = items.order_by('description')
-        
-        # Paginamos los resultados para evitar devolver demasiados ítems de una vez
-        paginator = Paginator(items, 100)  # Mostramos 10 resultados por página
-        page_number = request.GET.get('page', 1)
-        page_obj = paginator.get_page(page_number)
-        
-        results = []
-        for item in page_obj:
-            results.append({
-                'id': item.id,
-                'text': f'{item.sap} - {item.description}',
-            })
-        
-        return JsonResponse({
-            'results': results,
-            'pagination': {
-                'more': page_obj.has_next()  # Indica si hay más resultados
-            }
-        })
-    else:
-        return JsonResponse({'results': []})
-    
-def create_budget(request):
-    if request.method == 'POST':
-        print("Recibida solicitud POST en create_budget")
-        form = BudgetForm(request.POST)
-        if form.is_valid():
-            budget = form.save(commit=False)
-            formset = BudgetItemFormSet(request.POST, instance=budget)
-            print(f"Formset válido: {formset.is_valid()}")
-            if formset.is_valid():
-                budget.save()
-                formset.save()
-                print("Presupuesto y detalles guardados exitosamente")
-                return redirect('detail_budget', pk=budget.pk)
-            else:
-                print(f"Errores en el formset: {formset.errors}")
-        else:
-            print(f"Errores en el formulario: {form.errors}")
-        return render(request, 'budget/budget_form.html', {
-            'form': form,
-            'formset': formset,
-        })
-    else:
-        print("Recibida solicitud GET en create_budget")
-        form = BudgetForm()
-        formset = BudgetItemFormSet()
-    return render(request, 'budget/budget_form.html', {
-        'form': form,
-        'formset': formset,
-    })
-
-def detail_budget(request, pk):
-    # Obtener el presupuesto por su primary key (pk)
-    budget = get_object_or_404(Budget, pk=pk)
-    items_by_category = defaultdict(list)
-
-    # Agrupar los ítems del presupuesto por categoría
-    for item in budget.items.all():
-        items_by_category[item.item.category].append(item)
-
-    # Inicializar el formulario vacío
-    form = AddBudgetItemForm()
-
-    # Renderizar la plantilla principal
-    return render(request, 'budget/detail_budget.html', {
-        'budget': budget,
-        'items_by_category': dict(items_by_category),
-        'form': form  # Pasar el formulario a la plantilla
-    })
-
-def update_budget_partial(request, pk):
-    budget = get_object_or_404(Budget, pk=pk)
-    form = BudgetEditNewForm(request.POST or None, instance=budget)  # Cambiamos a BudgetEditNewForm
-
-    if request.method == "POST" and form.is_valid():
-        form.save()  # Guarda los cambios
-        return render(request, "partials/_budget_table.html", {"budget": budget})  # Retorna la tabla actualizada
-
-    # Si es GET o si el formulario no es válido, muestra el formulario
-    return render(request, "partials/_budget_form.html", {"form": form, "budget": budget})
-    
-def add_budget_item_htmx(request, pk):
-    budget = get_object_or_404(Budget, pk=pk)
+    budgets = Budget.objects.all()
+    form = BudgetPlusForm(request.POST or None)
 
     if request.method == 'POST':
-        form = AddBudgetItemForm(request.POST)
         if form.is_valid():
-            new_item = form.save(commit=False)
-            new_item.budget = budget
-            new_item.save()
+            budget = form.save()
+            return redirect('detail_budget_plus', pk=budget.pk)
 
-            # Agrupar los ítems del presupuesto por categoría
-            items_by_category = defaultdict(list)
-            for item in budget.items.all():
-                items_by_category[item.item.category].append(item)
-
-            # Renderizar solo el fragmento con los ítems actualizados
-            return render(request, 'budget/item_list.html', {
-                'items_by_category': dict(items_by_category),
-                'budget': budget  # Asegúrate de pasar también el presupuesto si es necesario
-            })
-    else:
-        return redirect('detail_budget', pk=pk)
-    
-def delete_budget_item_htmx(request, item_id):
-    item = get_object_or_404(BudgetItem, id=item_id)
-    budget = item.budget  # Obtenemos el presupuesto al que pertenece el ítem
-
-    # Eliminar el ítem
-    item.delete()
-
-    # Volver a agrupar los ítems restantes por categoría
-    items_by_category = defaultdict(list)
-    for remaining_item in budget.items.all():
-        items_by_category[remaining_item.item.category].append(remaining_item)
-
-    # Renderizar solo el fragmento actualizado con los ítems
-    return render(request, 'budget/item_list.html', {
-        'items_by_category': dict(items_by_category),
-        'budget': budget,
-    })
+    return render(request, 'index_budget.html', {'budgets': budgets, 'form': form})
 
 def edit_budget_item_htmx(request, item_id):
     item = get_object_or_404(BudgetItem, id=item_id)
-    
+
     print("Método HTTP:", request.method)  # Para depurar el método HTTP
     if request.method == 'POST':
         form = EditBudgetItemForm(request.POST, instance=item)
-        
+
         if form.is_valid():
             # Actualizar valores de total_price en función de los datos actuales
             quantity = form.cleaned_data.get('quantity')
             custom_price = form.cleaned_data.get('custom_price') or item.item.price  # Usar precio del catálogo si está vacío
             custom_price_per_day = form.cleaned_data.get('custom_price_per_day') or item.item.price_per_day
-            
+
             # Realizar el cálculo de total_price según la categoría del ítem
             if item.item.category in [CatalogItem.Category.HERRAMIENTA, CatalogItem.Category.MANODEOBRA, CatalogItem.Category.EPPS]:
                 item.total_price = Decimal(custom_price_per_day) * Decimal(quantity) * Decimal(item.budget.budget_days)
             else:
                 item.total_price = Decimal(custom_price) * Decimal(quantity)
-            
+
             # Guardar el formulario con el total_price actualizado
             form.save()
-            
+
             # Renderizar el template actualizado con el item editado
             return render(request, 'budget/item_row.html', {'item': item})
         else:
@@ -256,14 +109,14 @@ def upload_sap_excel(request, budget_id):
             process_sap_excel(excel_file, budget)  # Pasa la instancia `budget` en lugar de su `id`
             print("Procesamiento completado")
 
-            return redirect('detail_budget', pk=budget_id)
+            return redirect('detail_budget_plus', pk=budget_id)
 
         except Exception as e:
             print(f"Error al procesar el archivo: {str(e)}")
-            return redirect('detail_budget', pk=budget_id)
+            return redirect('detail_budget_plus', pk=budget_id)
 
     print("No se recibió un archivo Excel o no es un POST")
-    return redirect('detail_budget', pk=budget_id)
+    return redirect('detail_budget_plus', pk=budget_id)
 
 def delete_budget(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
@@ -293,11 +146,9 @@ def duplicate_budget(request, pk):
         duplicated_item.save()
 
     # Redirigir a la vista de detalle del nuevo presupuesto
-    return redirect('detail_budget', pk=duplicated_budget.pk)
+    return redirect('detail_budget_plus', pk=duplicated_budget.pk)
 
 def create_sales_order_from_budget(request, budget_id):
-
-
     # Obtener el presupuesto seleccionado
     budget = get_object_or_404(Budget, id=budget_id)
 
@@ -413,32 +264,74 @@ def create_sales_order_from_budget(request, budget_id):
 
     return redirect('index_budget')
 
-
-
 def export_budget_report(request, pk):
     return export_budget_report_to_excel(request, pk)
 
-def catalog(request):
-    user_tasks = CatalogItem.objects.all()
-    context = {'form': TaskForm(), 'tasks': user_tasks}
-    return render(request, '', context)
-
-# CATALOG
 def catalog(request):
     # Formularios de creación y búsqueda
     form = CatalogItemForm()
     search_form = SearchCatalogItemForm()
 
-    # Listado de ítems de catálogo
-    catalogs = CatalogItem.objects.all()
+    # Intentar obtener los datos desde el caché
+    catalogs = cache.get('catalog_items')
 
+    # Si no están en caché, obtener los datos de la base de datos
+    if not catalogs:
+        catalogs = CatalogItem.objects.all()
+        # Guardar los ítems en caché por 1 hora
+        cache.set('catalog_items', catalogs, timeout=3600)
+
+    # Paginación
+    paginator = Paginator(catalogs, 25)  # 25 ítems por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Contexto con los formularios y los ítems paginados
     context = {
         'form': form,
         'search': search_form,
-        'catalogs': catalogs,
+        'catalogs': page_obj,  # Usamos page_obj para la paginación
     }
 
+    # Renderizar la plantilla con el contexto
     return render(request, 'catalog/home.html', context)
+
+def catalog_item_search(request):
+    if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        term = request.GET.get('term', '')
+
+        # Filtramos los resultados, primero por el término de búsqueda
+        items = CatalogItem.objects.all()
+
+        if term:
+            # Filtrar por descripción o SAP, dependiendo del término de búsqueda
+            items = items.filter(
+                models.Q(description__icontains=term) | models.Q(sap__icontains=term)
+            )
+
+        # Ordenamos los resultados por descripción
+        items = items.order_by('description')
+
+        # Paginamos los resultados para evitar devolver demasiados ítems de una vez
+        paginator = Paginator(items, 100)  # Mostramos 10 resultados por página
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+
+        results = []
+        for item in page_obj:
+            results.append({
+                'id': item.id,
+                'text': f'{item.sap} - {item.description}',
+            })
+
+        return JsonResponse({
+            'results': results,
+            'pagination': {
+                'more': page_obj.has_next()  # Indica si hay más resultados
+            }
+        })
+    else:
+        return JsonResponse({'results': []})
 
 def catalog_edit(request, catalog_id):
     catalog = get_object_or_404(CatalogItem, id=catalog_id)
@@ -471,34 +364,15 @@ def catalog_new(request):
     return render(request, 'catalog/form.html', context)
 
 def catalog_search(request):
-    context = {}
-    if request.method == 'POST':
-        form = SearchCatalogItemForm(request.POST)
-        if form.is_valid():
+    query = request.GET.get('q','')
 
-            # Search catalogs
-            if form.cleaned_data['sap'] and not form.cleaned_data['description'] :
-                # Only SAP
-                status, catalogs = utils.search_model(CatalogItem.objects.all(), 'sap', form.cleaned_data['sap'], accept_all=True)
-            elif form.cleaned_data['sap'] and form.cleaned_data['description'] :
-                # SAP and description
-                status, catalogs = utils.search_model(CatalogItem.objects.all(), 'sap', form.cleaned_data['sap'], accept_all=True)
-                status, catalogs = utils.search_model(catalogs, 'description', form.cleaned_data['description'], accept_all=True)
-            elif form.cleaned_data['description']:
-                # Only description
-                status, catalogs = utils.search_model(CatalogItem.objects.all(), 'description', form.cleaned_data['description'], accept_all=True)
-            else :
-                # Item
-                catalogs = CatalogItem.objects.all()
-                status = 0
+    if query:
+        catalogs = CatalogItem.objects.filter(Q(sap__contains=query)).order_by('-id')
+    else:
+        catalogs = CatalogItem.objects.all().order_by('-id')
 
-            # Sort
-            catalogs = catalogs.order_by('sap')
-
-            context['catalogs'] = catalogs
-            context['search_status'] = status
-    context['search'] = SearchCatalogItemForm()
-    return render(request, 'catalog/list.html', context)
+    context = {'catalogs':catalogs, 'form':CatalogItemForm()}
+    return render(request, 'catalog/list.html',context)
 
 def upload_excel(request):
     if request.method == "POST":
@@ -587,17 +461,6 @@ def upload_excel(request):
         form = ExcelUploadForm()
 
     return render(request, 'upload_excel.html', {'form': form})
-
-# Download CatalogItem Excel
-
-    # category = models.CharField(max_length=100, choices=Category.choices, default=Category.EQUIPO)
-    # description = models.CharField(max_length=256, db_index=True)
-    # price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    # price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    # sap = models.CharField(max_length=100, unique=True, db_index=True)
-    # unit = models.CharField(max_length=100, default='UND')
-
-from openpyxl import Workbook
 
 def export_catalog(request):
     # Crear un archivo Excel en memoria

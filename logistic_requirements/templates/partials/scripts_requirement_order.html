@@ -148,5 +148,39 @@
             }
         });
     }
+    // Función para actualizar la fecha de todos los ítems con estado "C" y sin fecha asignada
+function updateDateForAllItemsInState(state) {
+    // Obtener la fecha seleccionada
+    const customDate = document.getElementById('custom-date').value;
+
+    // Verificar que se haya seleccionado una fecha
+    if (!customDate) {
+        alert('Por favor, selecciona una fecha.');
+        return;
+    }
+
+    // Obtener todos los ítems con el estado especificado
+    const items = document.querySelectorAll('tr[id^="item-row-"]');
+    
+    let updated = false;
+
+    items.forEach(function(item) {
+        const estadoInput = item.querySelector('[name^="estado_"]');
+        const dateInput = item.querySelector('[name^="date_purchase_order_"]');
+
+        if (estadoInput && dateInput && estadoInput.value === state && !dateInput.value) {
+            // Solo actualiza la fecha si el estado es "C" y no tiene fecha
+            dateInput.value = customDate;
+            updated = true;
+        }
+    });
+
+    if (updated) {
+        alert('La fecha seleccionada ha sido asignada a los ítems en estado "C" sin fecha.');
+    } else {
+        alert('No se encontraron ítems con el estado "C" sin fecha.');
+    }
+}
+
     
 </script>

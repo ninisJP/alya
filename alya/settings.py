@@ -19,7 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #DJANGO BROWSER RELOA
-    "django_browser_reload",
+    #"django_browser_reload",
     'django_htmx',
     'rest_framework',
     'rest_framework.authtoken',
@@ -72,7 +72,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.LoginRequiredMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_browser_reload.middleware.BrowserReloadMiddleware',
+    #'django_browser_reload.middleware.BrowserReloadMiddleware',
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
@@ -125,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'America/Lima'
 

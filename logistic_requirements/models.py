@@ -1,5 +1,5 @@
 from django.db import models
-from accounting_order_sales.models import PurchaseOrderItem, SalesOrder, SalesOrderItem
+from accounting_order_sales.models import PurchaseOrder, PurchaseOrderItem, SalesOrder, SalesOrderItem
 from django.utils import timezone
 from django.contrib.auth.models import User
 from logistic_suppliers.models import Suppliers
@@ -15,6 +15,7 @@ class RequirementOrder(models.Model):
         ('RECHAZADO', 'Rechazado'),
         ('NO REVISADO', 'No Revisado')
     ]
+    
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="requirement_orders")
     requested_date = models.DateField()
     notes = models.TextField(blank=True, null=True)
@@ -25,6 +26,7 @@ class RequirementOrder(models.Model):
     total_order = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     purchase_order_created = models.BooleanField(default=False)
     state = models.CharField(max_length=20, choices=STATE_CHOICES, default='NO REVISADO')
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.SET_NULL, null=True, blank=True)
 
     def delete(self, *args, **kwargs):
         affected_sales_order_items = set(item.sales_order_item for item in self.items.all())
@@ -85,6 +87,9 @@ class RequirementOrderItem(models.Model):
         validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'jpeg', 'png'])],
         help_text="Sube un archivo PDF o una imagen (JPG, PNG)."
     )
+    date_purchase_order = models.DateField(null=True, blank=True)
+    purchase_order_created = models.BooleanField(default=False)
+   
 
     @property
     def is_paid(self):
@@ -104,8 +109,22 @@ class RequirementOrderItem(models.Model):
             total_sent=Sum('quantity')
         )['total_sent'] or Decimal(0)  # Considera 0 si no hay envíos
         return self.quantity_requested - sent_quantity
+    
+    def clean(self):
+        """Validación personalizada para el precio total."""
+        # Validar que el total solicitado no exceda el total permitido por el `SalesOrderItem`
+        if self.sales_order_item:
+            total_permitido = self.sales_order_item.price_total
+            total_solicitado = self.total_price
+
+            if float(total_solicitado) > (float(total_permitido)+0.02):
+                raise ValidationError(
+                    f"El total solicitado ({total_solicitado}) excede el total permitido ({total_permitido}) para el ítem '{self.sales_order_item.description}'."
+                )
 
     def save(self, *args, **kwargs):
+        # Llama al método `clean()` para validar antes de guardar
+        self.clean()
         # Si el ítem es nuevo, inicializar quantity_requested_remaining con quantity_requested
         if not self.pk:  # Es un nuevo ítem
             self.quantity_requested_remaining = self.quantity_requested
@@ -139,9 +158,9 @@ class RequirementOrderItem(models.Model):
 
     @property
     def total_price(self):
-        return self.price * self.quantity_requested
-    
-    
+        if not self.price:
+            self.price = 0
+        return round(self.price * self.quantity_requested, 2)
 
     class Meta:
         verbose_name = "Item Orden de Requerimiento"

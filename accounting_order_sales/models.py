@@ -175,6 +175,11 @@ class PurchaseOrderItem(models.Model):
         default='No Pagado',
         verbose_name="Estado de Pago"
     )
+    purchase_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Fecha de Compra"
+    )
 
     def save(self, *args, **kwargs):
         if self.price is not None and self.quantity_requested is not None:

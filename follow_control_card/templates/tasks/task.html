@@ -1,13 +1,13 @@
 {% extends "follow_control_base.html" %}
 {% block content %}
-<div class="container-fluid ">
+<div class="container-fluid">
     <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
         <div class="card-body text-center py-2">
             <h1 class="mb-0">Añadir Tareas</h1>
         </div>
     </div>
 
-    <div id="tasks-forms" class="w-100">
+    <div id="tasks-forms" class="w-100 mb-4"> <!-- Añadí mb-4 aquí -->
         {% include 'partials/task-form.html' %}
     </div>
 
@@ -18,7 +18,9 @@
             hx-swap="beforeend">Crear formulario</button>
         </div>
     </div>
-
+    <form hx-get="{% url 'task_search' %}" hx-target="#task-list" hx-trigger="keyup delay:0.2s" hx-debounce="500ms" class="mb-4"> <!-- Añadí mb-4 al formulario -->
+        <input type="text" name="q" placeholder="Buscar Tareas" class="form-control" id="search-input">
+    </form>
     <div id="task-list">
         {% include 'partials/task-list.html' %}
     </div>

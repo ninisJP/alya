@@ -11,14 +11,66 @@
     <div class="row g-0 mt-4">
         <div class="col-12">
             <div class="card shadow-sm mb-3">
-                <div class="card-header bg-secondary text-white">
-                    <h1>{{ budget.budget_name }}</h1>
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center" style="flex-wrap: nowrap;">
+                    <!-- Título -->
+                    <h1 class="mb-0" style="font-size: 2rem;">{{ budget.budget_name }}</h1>
+            
+                    <!-- Botones de acción (en una sola línea) -->
+                    <div class="d-flex gap-2 align-items-center" style="flex-wrap: nowrap;">
+                        <a href="{% url 'export_budget_report' budget.pk %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-file-excel"></i> Descargar Excel
+                        </a>
+                        <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger btn-sm">Eliminar</a>
+                        {% if user.is_superuser %}
+                            <a href="{% url 'create_sales_order' budget.id %}" class="btn btn-primary btn-sm">Crear Orden</a>
+                        {% endif %}
+                        
+                        <!-- Subir archivo Excel (Normal) -->
+                        <form method="POST" enctype="multipart/form-data" action="{% url 'upload_budget_excel' budget.id %}">
+                            {% csrf_token %}
+                            <div class="d-flex align-items-center">
+                                <!-- Input de archivo oculto -->
+                                <input type="file" name="excel_file" accept=".xlsx" class="form-control form-control-sm mb-2" id="excelFile" style="display: none;">
+                                
+                                <!-- Botón con icono para abrir el selector de archivo -->
+                                <button type="button" class="btn btn-primary btn-sm w-auto" id="browseButton">
+                                    <i class="fas fa-folder-open"></i> <!-- Icono de carpeta -->
+                                </button>
+                                
+                                <!-- Botón de subida -->
+                                <button type="submit" class="btn btn-success btn-sm w-auto">
+                                    <i class="fas fa-upload"></i> Excel
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Subir archivo Excel (SAP) -->
+                        <form method="POST" enctype="multipart/form-data" action="{% url 'upload_sap_excel' budget.id %}">
+                            {% csrf_token %}
+                            <div class="d-flex align-items-center">
+                                <!-- Input de archivo oculto -->
+                                <input type="file" name="excel_file" accept=".xlsx" class="form-control form-control-sm mb-2" id="sapFile" style="display: none;">
+                                
+                                <!-- Botón con icono para abrir el selector de archivo -->
+                                <button type="button" class="btn btn-primary btn-sm w-auto" id="browseSapButton">
+                                    <i class="fas fa-folder-open"></i> <!-- Icono de carpeta -->
+                                </button>
+                                
+                                <!-- Botón de subida -->
+                                <button type="submit" class="btn btn-success btn-sm w-auto">
+                                    <i class="fas fa-upload"></i> SAP
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
+
+                <!-- Formulario para agregar ítem -->
                 <div class="card-body">
-                    <form hx-post="{% url 'budget_item_plus' budget.pk %}" hx-target="#budget_item_plus" hx-swap="outerHTML" class="row g-3">
+                    <form hx-post="{% url 'budget_item_plus' budget.pk %}" hx-target="#budget_item_plus" hx-swap="innerHTML" class="row g-3">
                         {% csrf_token %}
-                        <div class="col-md-3">
-                            {{ form.item|add_class:"form-control" }}
+                        <div class="col-md-4">
+                            {{ form.item|add_class:"form-control select2-ajax" }}
                         </div>
                         <div class="col-md-2">
                             {{ form.quantity|add_class:"form-control" }}
@@ -29,11 +81,8 @@
                         <div class="col-md-2">
                             {{ form.custom_price|add_class:"form-control" }}
                         </div>
-                        <div class="col-md-2">
-                            {{ form.custom_price_per_day|add_class:"form-control" }}
-                        </div>
-                        <div class="col-md-1 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">Agregar</button>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100" data-htmx-trigger="add-item">Agregar</button>
                         </div>
                     </form>                    
                 </div>
@@ -41,20 +90,8 @@
         </div>
     </div>
 
-    <div class="row">
-        <!-- Columna 1: Lista de ítems (70%) -->
-        <div class="col-9">
-            <div id="budget_item_plus" class="w-100">
-                {% include 'budgetplus/budget_item_plus.html' %}
-            </div>
-        </div>
-        
-        <!-- Columna 2: Detalles del presupuesto (30%) -->
-        <div class="col-3">
-            <div id="budget_detail_plus" class="w-100">
-                {% include 'budgetplus/budget_detail_plus.html' %}
-            </div>
-        </div>
+    <div id="budget_item_plus">
+        {% include 'budgetplus/budget_item_plus.html' %}
     </div>
 </div>
 
@@ -93,7 +130,27 @@ $(document).ready(function() {
     $('.select2-ajax').each(function() {
         initializeSelect2(this);
     });
+
+    // Devolver foco al campo de selección después de agregar un ítem
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+        if (event.target.id === 'budget_item_plus') {
+            // Devolver foco al campo de selección
+            $('#id_item').select2('open');  // Abre el dropdown de Select2
+            $('#id_item').focus(); // También asegura que el campo reciba el foco
+        }
+    });
 });
+</script>
+
+<script>
+    // Mostrar el campo de archivo cuando se haga clic en el botón de "Browse"
+    document.getElementById('browseButton').addEventListener('click', function() {
+        document.getElementById('excelFile').click();
+    });
+
+    document.getElementById('browseSapButton').addEventListener('click', function() {
+        document.getElementById('sapFile').click();
+    });
 </script>
 
 {% endblock %}
