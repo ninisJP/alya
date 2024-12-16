@@ -1,6 +1,6 @@
 from django.urls import path
 from accounting_order_sales.forms import supplier_autocomplete
-from .views import delete_purchase_order, purchase_renditions, purchase_conciliations, salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder, edit_purchase_order, general_purchaseorder, quick_create_purchaseorder, petty_cash, index_bank,edit_bank,delete_bank,bank_statements,BankStatementUploadView, AccountingRequirementOrderListView, accounting_requirement_order_detail_view, update_requirement_order_items, update_requirement_order_state, report_conciliations, update_field,salesorder_search
+from .views import delete_purchase_order, purchase_renditions, purchase_conciliations, salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder, edit_purchase_order, general_purchaseorder, quick_create_purchaseorder, petty_cash, index_bank,edit_bank,delete_bank,bank_statements,BankStatementUploadView, AccountingRequirementOrderListView, accounting_requirement_order_detail_view, update_requirement_order_items, update_requirement_order_state, report_conciliations, update_field,salesorder_search,LogisticRequirementOrderListView
 from . import views
 from . import views_bank
 
@@ -38,6 +38,16 @@ urlpatterns = [
     path('collection_orders/<int:collection_order_id>/delete/', views.delete_collection_order, name='delete_collection_order'),
     path('collection_orders/<int:collection_order_id>/edit/', views.edit_collection_order, name='edit_collection_order'),
     path('collection_orders/search/', views.collection_orders_search, name='collection_orders_search'),
+
+    # logistic requirements approved
+    ##
+    path('logistic-requierements/approved/', LogisticRequirementOrderListView.as_view(), name='logistic_requirement_order_list'),
+    path('requirement-orders/search/', views.logistic_search_requirement_order_list_view, name='logistic-requirement-order-search'),  # URL para la búsqueda
+    path('logistic-requirement-orders-approved/', views.logistic_requirement_order_approved_list, name='logistic_requirement_order_approved_list'),
+    path('logistic_requirement-order-detail-partial/<int:pk>/', views.logistic_requirement_order_detail_partial, name='logistic_requirement_order_detail_partial'),
+    path('logistic-requirement-order/detail/<int:pk>/', views.logistic_requirement_order_detail_view, name='logistic_requirement_order_detail'),
+    # path('ajax/load-suppliers/', views.ajax_load_suppliers, name='ajax_load_suppliers'),
+    path('logistic_export_order/<int:pk>/', views.logistic_export_order_to_excel, name='logistic_export_order_to_excel'),
 ]
 
 htmxurlpatters = [
@@ -68,6 +78,14 @@ htmxurlpatters = [
     path('banks/loan/see/<int:loan_id>/', views_bank.loan_see, name='bank_loan_see'),
     path('banks/loan/pay/<int:loan_id>/', views_bank.loan_pay, name='bank_loan_pay'),
     path('banks/loan/search/', views_bank.loan_search, name='bank_loan_search'),
+
+    # htmx logistic requirements
+    ##
+    ###
+    path('logistic-requirement-order/update-items/', views.logistic_update_approved_items, name='logistic_update_approved_items'),
+    path('logistic-requirement-order/update-items/<int:pk>/', views.logistic_update_requirement_order_items, name='logistic_update_requirement_order_items'),
+    path('logistic-requirement-order/create-purchase-order/<int:pk>/', views.logistic_create_purchase_order, name='logistic_create_purchase_order'),
+    path('logistic-update-and-create-purchase-order/<int:pk>/', views.logistic_update_and_create_purchase_order, name='logistic_update_and_create_purchase_order'),
 ]
 
 urlpatterns += htmxurlpatters

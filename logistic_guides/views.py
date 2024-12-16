@@ -70,6 +70,13 @@ def list_requirement_order_guides(request, requirement_order_id):
         }
     )
 
+from reportlab.lib.pagesizes import landscape, letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.platypus import Table, TableStyle
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+
 def export_exit_guide_pdf(request, guide_id):
     """
     Genera un PDF con los detalles de una guía de salida específica.
@@ -81,9 +88,11 @@ def export_exit_guide_pdf(request, guide_id):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="guia_salida_{guide.id}.pdf"'
 
+    # Establecer la orientación horizontal (landscape)
+    width, height = landscape(letter)  # Esto invierte la orientación a horizontal
+
     # Crear el canvas para el PDF
-    buffer = canvas.Canvas(response, pagesize=letter)
-    width, height = letter
+    buffer = canvas.Canvas(response, pagesize=(width, height))
 
     # Título del documento
     buffer.setFont("Helvetica-Bold", 16)
@@ -92,21 +101,31 @@ def export_exit_guide_pdf(request, guide_id):
     buffer.drawString(50, height - 80, f"Fecha: {guide.created_at.strftime('%d/%m/%Y')}")
     buffer.drawString(50, height - 100, f"Descripción: {guide.description or 'Sin descripción'}")
 
-    # Espacio para la tabla
+    # Preparar los datos para la tabla
     data = [["Código SAP", "Descripción", "Cantidad", "Unidad de Medida", "Categoría"]]
+    max_description_length = 0
 
-    # Agregar los ítems de la guía a la tabla
+    # Agregar los ítems de la guía a los datos y calcular el máximo largo de la descripción
     for item in guide.items.all():
+        description = item.requirement_order_item.sales_order_item.description
+        max_description_length = max(max_description_length, len(description))
         data.append([
             item.requirement_order_item.sales_order_item.sap_code,
-            item.requirement_order_item.sales_order_item.description,
+            description,
             str(item.quantity),
             item.requirement_order_item.sales_order_item.unit_of_measurement,
             item.requirement_order_item.sales_order_item.category,
         ])
 
+    # Calcular el ancho disponible para la descripción
+    available_width = width - 150  # Consideramos un margen de 50 a cada lado para la tabla
+    description_col_width = available_width * 0.5  # La descripción ocupará la mitad del ancho disponible
+
+    # Definir los anchos de las columnas
+    col_widths = [80, description_col_width, 80, 100, 100]
+
     # Crear la tabla
-    table = Table(data, colWidths=[80, 150, 80, 100, 100])
+    table = Table(data, colWidths=col_widths)
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -130,4 +149,3 @@ def export_exit_guide_pdf(request, guide_id):
     buffer.save()
 
     return response
-

@@ -491,7 +491,7 @@ def export_order_to_excel(request, pk):
             sales_order_item.unit_of_measurement or "N/A",
             float(item.quantity_requested) if item.quantity_requested else 0,
             getattr(sales_order_item, "custom_quantity", "N/A"),
-            item.supplier.name if item.supplier else "N/A",
+            item.supplier.name if item.supplier and item.supplier.name else "N/A",
             item.get_estado_display() or "N/A",
         ]
         for col_num, value in enumerate(data, 1):

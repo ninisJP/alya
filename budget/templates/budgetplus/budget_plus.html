@@ -22,7 +22,7 @@
                         </a>
                         <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger btn-sm">Eliminar</a>
                         {% if user.is_superuser %}
-                            <a href="{% url 'create_sales_order' budget.id %}" class="btn btn-primary btn-sm">Crear Orden</a>
+                            <a href="#" class="btn btn-primary btn-sm" id="createSalesOrderBtn">Crear Orden</a> <!-- Se traslado la funcion a un script de JS está abajo-->
                         {% endif %}
                         
                         <!-- Subir archivo Excel (Normal) -->
@@ -137,6 +137,15 @@ $(document).ready(function() {
             // Devolver foco al campo de selección
             $('#id_item').select2('open');  // Abre el dropdown de Select2
             $('#id_item').focus(); // También asegura que el campo reciba el foco
+        }
+    });
+
+    // Confirmación antes de crear la orden
+    $('#createSalesOrderBtn').click(function(event) {
+        event.preventDefault(); // Evita que el enlace se siga por defecto
+        const confirmation = confirm("¿Ha verificado que ingresó el número del presupuesto?");
+        if (confirmation) {
+            window.location.href = "{% url 'create_sales_order' budget.id %}"; // Redirigir a la creación de la orden
         }
     });
 });
