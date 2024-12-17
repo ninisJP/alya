@@ -20,13 +20,12 @@ class CreateRequirementOrderForm(forms.ModelForm):
     def clean_requested_date(self):
         requested_date = self.cleaned_data.get('requested_date')
 
-        # Validar solo lunes y excluir martes y jueves
-        if requested_date.weekday() == 1 or requested_date.weekday() == 2:
-            raise forms.ValidationError("No se permiten pedidos los martes ni miercoles. Selecciona un lunes.")
-        
-        if requested_date.weekday() != 0:  # Lunes corresponde a 0
-            raise forms.ValidationError("Solo puedes seleccionar fechas que caigan en lunes.")
-        
+        # Validar solo martes y miercoles (weekday 1 y 2), bloquearlos
+        if requested_date.weekday() == 1:  # Martes
+            raise forms.ValidationError("No se permiten pedidos los martes. Selecciona otra fecha.")
+        if requested_date.weekday() == 2:  # Miércoles
+            raise forms.ValidationError("No se permiten pedidos los miércoles. Selecciona otra fecha.")
+
         return requested_date
 
 
