@@ -17,5 +17,8 @@ urlpatterns = [
 
     # project plus
     path('project_order/<int:order_id>/', project_order_plus, name='project_order_plus'),
+    
+    # search project
+    path('projectos/search/', views.search_project, name='search_project'),
 ]
 
