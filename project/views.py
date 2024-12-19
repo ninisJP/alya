@@ -52,6 +52,51 @@ def project_index(request):
     }
     return render(request, 'project_index.html', context)
 
+from django.db.models import Q
+
+def search_project(request):
+    query = request.GET.get('q', '')  # Obtener la consulta de búsqueda desde el request
+
+    # Si hay una búsqueda, filtrar los proyectos basados en la consulta
+    if query:
+        projects = Project.objects.filter(
+            Q(name__icontains=query)
+        ).order_by('-id')
+    else:
+        projects = Project.objects.all().order_by('-id')  # Mostrar todos los proyectos si no hay búsqueda
+
+    # Preparar los datos de los proyectos (similar a project_index)
+    projects_data = []
+    for project in projects:
+        filtered_sales_orders = project.salesorder_set.filter(
+            purchase_orders__scheduled_date__isnull=False
+        ).distinct()
+
+        # Calcular los totales del proyecto
+        total_sales_sum = sum(order.total_sales_order for order in filtered_sales_orders)
+        total_purchase_sum = sum(
+            sum(purchase_order.total_purchase_order or 0 for purchase_order in order.purchase_orders.all())
+            for order in filtered_sales_orders
+        )
+        total_utility_sum = sum(order.get_utility() for order in filtered_sales_orders)
+
+        projects_data.append({
+            'project': project,
+            'filtered_sales_orders': filtered_sales_orders,
+            'total_sales_sum': total_sales_sum,
+            'total_purchase_sum': total_purchase_sum,
+            'total_utility_sum': total_utility_sum
+        })
+
+    context = {
+        'projects_data': projects_data,
+        'form': ProjectForm(),
+        'purchase_order_items': PurchaseOrderItem.objects.select_related('sales_order_item').all()
+    }
+
+    # Devolver solo el fragmento de la lista
+    return render(request, 'partials/project_list.html', context)
+
 def sales_order_detail(request, order_id):
     # Obtener la orden de venta específica y sus ítems
     sales_order = get_object_or_404(SalesOrder, id=order_id)

@@ -114,10 +114,11 @@ class RequirementOrderItem(models.Model):
         """Validación personalizada para el precio total."""
         # Validar que el total solicitado no exceda el total permitido por el `SalesOrderItem`
         if self.sales_order_item:
-            total_permitido = self.sales_order_item.price_total
+            total_permitido = self.sales_order_item.price_total 
             total_solicitado = self.total_price
 
-            if float(total_solicitado) > (float(total_permitido)+0.02):
+            # TODO: Revisar si es necesario agregar un margen de tolerancia, hablar con el inge.
+            if float(total_solicitado) > (float(total_permitido)+0.10): 
                 raise ValidationError(
                     f"El total solicitado ({total_solicitado}) excede el total permitido ({total_permitido}) para el ítem '{self.sales_order_item.description}'."
                 )

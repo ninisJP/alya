@@ -13,6 +13,9 @@
             Agregar Proyectos
         </button>
     </div>
+    <form hx-get="{% url 'search_project' %}" hx-target="#client-list" hx-trigger="keyup delay:0.2s" hx-debounce="500ms">
+        <input type="text" name="q" placeholder="Buscar nombre o cliente" class="form-control" id="search-input">
+    </form>
 
     <div id="information" class="mt-4 text-lg text-gray-800"></div>
 
@@ -52,8 +55,8 @@
         </div>
     </div>
 
-    <ul id="client-list" class="mt-8 space-y-4">
-        {% include 'partials/project_list.html' %}
-    </ul>
+    <div id="client-list" class="mt-8 space-y-4">
+            {% include 'partials/project_list.html' %}
+    </div>
 </div>
 {% endblock %}
