@@ -99,15 +99,55 @@ def get_no_pay(loan):
 	for item in payment :
 		pay = (item.__dict__)
 		total_pay = 0
+		status_expiration = ""
 
 		for individual_pay in models.PartialPayment.objects.filter(loan_payment=item):
 			total_pay += individual_pay.partial_amount
+
+		today = date.today()
+		expiration = item.pay_date
+
+		# TODO: Eliminar comentarios
+		print("---------")
+
+		delta_time = expiration - today
+		delta_time = delta_time.days
+
+		print(delta_time)
+		if (0 <= delta_time) and ( delta_time <= 30) :
+			status_expiration = "warning"
+			# Check max alarm
+			day = expiration.weekday()
+			if day<2 :
+				print("lunes pasado")
+				day_alarm = expiration + relativedelta(days=-(14+day))
+				print(expiration)
+				print(day_alarm)
+				print(today)
+				if day_alarm <= today :
+					print("alarma")
+					status_expiration = "last"
+			else :
+				print("otro dia")
+				day_alarm = expiration + relativedelta(days=-(7+day))
+				if day_alarm <= today :
+					print("alarma")
+					status_expiration = "last"
+
+			#else
+			#	if delta_time -
+			#	#if coute_date = original_date + relativedelta(months=i)
+			#	if delta_time + relativedelta(days=-7)
+
+		elif delta_time < 0 :
+			status_expiration = "expire"
 
 		error = False
 		if item.amount < total_pay :
 			error = True
 		pay["total"] = total_pay
 		pay["error"] = error
+		pay["expiration"] = status_expiration
 		list_pay.append(pay)
 
 	context["loan_cuota"] = list_pay
