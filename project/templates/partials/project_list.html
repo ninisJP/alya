@@ -32,8 +32,6 @@
                         <td>
                             {% for purchase_order in order.purchase_orders.all %}
                                 {{ purchase_order.total_purchase_order|floatformat:2 }}<br>
-                            {% empty %}
-                                No hay órdenes de compra programadas
                             {% endfor %}
                         </td>
                         <td>{{ order.get_utility|floatformat:2 }}</td>
