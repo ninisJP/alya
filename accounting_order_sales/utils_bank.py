@@ -123,31 +123,20 @@ def get_no_pay(loan):
 		today = date.today()
 		expiration = item.pay_date
 
-		# TODO: Eliminar comentarios
-		print("---------")
-
 		delta_time = expiration - today
 		delta_time = delta_time.days
 
-		print(delta_time)
 		if (0 <= delta_time) and ( delta_time <= 30) :
 			status_expiration = "warning"
 			# Check max alarm
 			day = expiration.weekday()
 			if day<2 :
-				print("lunes pasado")
 				day_alarm = expiration + relativedelta(days=-(14+day))
-				print(expiration)
-				print(day_alarm)
-				print(today)
 				if day_alarm <= today :
-					print("alarma")
 					status_expiration = "last"
 			else :
-				print("otro dia")
 				day_alarm = expiration + relativedelta(days=-(7+day))
 				if day_alarm <= today :
-					print("alarma")
 					status_expiration = "last"
 
 		elif delta_time < 0 :
@@ -203,8 +192,6 @@ def save_pay(form):
 	if loan_payment.amount < total_pay :
 		return status
 
-	print(form)
-	print(form.cleaned_data['receipt'])
 	form.save()
 	# Complete pay
 	if loan_payment.amount == total_pay :
