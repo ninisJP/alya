@@ -76,7 +76,15 @@
             </thead>
             <tbody>
                 {% for item in loan_cuota %}
-                    <tr>
+                    {% if item.expiration == "warning" %}
+                        <tr class="bg-yellow-300">
+                    {% elif item.expiration == "last" %}
+                        <tr class="bg-red-700 text-white">
+                    {% elif item.expiration == "expire" %}
+                        <tr class="bg-red-900 text-white">
+                    {% else %}
+                        <tr>
+                    {% endif %}
                         <td>{{ item.pay_date }}</td>
                         <td>
                             {% if item %}

@@ -60,7 +60,11 @@ class CreateRequirementOrderItemForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if sales_order:
-            self.fields['sales_order_item'].queryset = SalesOrderItem.objects.filter(salesorder=sales_order)
+            # Excluir ítems con remaining_requirement <= 0
+            self.fields['sales_order_item'].queryset = SalesOrderItem.objects.filter(
+                salesorder=sales_order,
+                remaining_requirement__gt=0  # Filtramos para que solo se muestren los ítems disponibles
+            )
         
         self.fields['supplier'].queryset = Suppliers.objects.all()
 
