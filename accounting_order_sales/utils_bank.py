@@ -69,27 +69,43 @@ def classify_loan(all_models):
 
 	list_prestamo = []
 	for item in loan_prestamo :
-		loan = (item.__dict__)
-		payments = 0
-		for pay in models.LoanPayment.objects.filter(loan=item) :
-			if pay.is_paid:
-				payments += 1
-		loan["coutes_paid"] = payments
-		list_prestamo.append(loan)
+		context_temp = get_payments(item)
+		list_prestamo.append(context_temp)
 
 	list_credito = []
 	for item in loan_credito :
-		loan = (item.__dict__)
-		payments = 0
-		for pay in models.LoanPayment.objects.filter(loan=item) :
-			if pay.is_paid:
-				payments += 1
-		loan["coutes_paid"] = payments
-		list_credito.append(loan)
+		context_temp = get_payments(item)
+		list_credito.append(context_temp)
 
 	context["loan_credito"] = list_credito
 	context["loan_prestamo"] = list_prestamo
 	return context
+
+def get_payments(loan):
+		payments = 0
+		context = (loan.__dict__)
+		for pay in models.LoanPayment.objects.filter(loan=loan) :
+			if pay.is_paid:
+				payments += 1
+		context["coutes_paid"] = payments
+
+		# Get status
+		context_temp = get_no_pay(loan)
+		statu_temp = ""
+		list_expiration = []
+		for item in context_temp["loan_cuota"] :
+			list_expiration.append(item['expiration'])
+		list_expiration = set(list_expiration)
+
+		if 'expire' in list_expiration :
+			statu_temp = 'expire'
+		elif 'last' in list_expiration :
+			statu_temp = 'last'
+		elif 'warning' in list_expiration :
+			statu_temp = 'warning'
+		context["expiration"] = statu_temp
+
+		return context
 
 def get_no_pay(loan):
 	payment = models.LoanPayment.objects.filter(loan=loan, is_paid=False)
@@ -133,11 +149,6 @@ def get_no_pay(loan):
 				if day_alarm <= today :
 					print("alarma")
 					status_expiration = "last"
-
-			#else
-			#	if delta_time -
-			#	#if coute_date = original_date + relativedelta(months=i)
-			#	if delta_time + relativedelta(days=-7)
 
 		elif delta_time < 0 :
 			status_expiration = "expire"
