@@ -4,7 +4,7 @@
     <header class="row mb-2 align-items-center">
         <div class="col-lg-2">
             <label><strong>Descripción:</strong></label>
-            <div>{{ order.description }}</div>
+            <span class="badge bg-primary">{{ order.description }}</span>
         </div>
 
         <div class="col-lg-2">
@@ -79,4 +79,9 @@
             </tbody>
         </table>
     </div>
+    <footer class="row mt-3">
+        <div class="badge bg-primary">
+            <strong>Total: </strong> {{ order.total_purchase_order }}
+        </div>
+    </footer>
 </article>

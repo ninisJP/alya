@@ -69,27 +69,43 @@ def classify_loan(all_models):
 
 	list_prestamo = []
 	for item in loan_prestamo :
-		loan = (item.__dict__)
-		payments = 0
-		for pay in models.LoanPayment.objects.filter(loan=item) :
-			if pay.is_paid:
-				payments += 1
-		loan["coutes_paid"] = payments
-		list_prestamo.append(loan)
+		context_temp = get_payments(item)
+		list_prestamo.append(context_temp)
 
 	list_credito = []
 	for item in loan_credito :
-		loan = (item.__dict__)
-		payments = 0
-		for pay in models.LoanPayment.objects.filter(loan=item) :
-			if pay.is_paid:
-				payments += 1
-		loan["coutes_paid"] = payments
-		list_credito.append(loan)
+		context_temp = get_payments(item)
+		list_credito.append(context_temp)
 
 	context["loan_credito"] = list_credito
 	context["loan_prestamo"] = list_prestamo
 	return context
+
+def get_payments(loan):
+		payments = 0
+		context = (loan.__dict__)
+		for pay in models.LoanPayment.objects.filter(loan=loan) :
+			if pay.is_paid:
+				payments += 1
+		context["coutes_paid"] = payments
+
+		# Get status
+		context_temp = get_no_pay(loan)
+		statu_temp = ""
+		list_expiration = []
+		for item in context_temp["loan_cuota"] :
+			list_expiration.append(item['expiration'])
+		list_expiration = set(list_expiration)
+
+		if 'expire' in list_expiration :
+			statu_temp = 'expire'
+		elif 'last' in list_expiration :
+			statu_temp = 'last'
+		elif 'warning' in list_expiration :
+			statu_temp = 'warning'
+		context["expiration"] = statu_temp
+
+		return context
 
 def get_no_pay(loan):
 	payment = models.LoanPayment.objects.filter(loan=loan, is_paid=False)
@@ -99,15 +115,39 @@ def get_no_pay(loan):
 	for item in payment :
 		pay = (item.__dict__)
 		total_pay = 0
+		status_expiration = ""
 
 		for individual_pay in models.PartialPayment.objects.filter(loan_payment=item):
 			total_pay += individual_pay.partial_amount
+
+		today = date.today()
+		expiration = item.pay_date
+
+		delta_time = expiration - today
+		delta_time = delta_time.days
+
+		if (0 <= delta_time) and ( delta_time <= 30) :
+			status_expiration = "warning"
+			# Check max alarm
+			day = expiration.weekday()
+			if day<2 :
+				day_alarm = expiration + relativedelta(days=-(14+day))
+				if day_alarm <= today :
+					status_expiration = "last"
+			else :
+				day_alarm = expiration + relativedelta(days=-(7+day))
+				if day_alarm <= today :
+					status_expiration = "last"
+
+		elif delta_time < 0 :
+			status_expiration = "expire"
 
 		error = False
 		if item.amount < total_pay :
 			error = True
 		pay["total"] = total_pay
 		pay["error"] = error
+		pay["expiration"] = status_expiration
 		list_pay.append(pay)
 
 	context["loan_cuota"] = list_pay
@@ -152,8 +192,6 @@ def save_pay(form):
 	if loan_payment.amount < total_pay :
 		return status
 
-	print(form)
-	print(form.cleaned_data['receipt'])
 	form.save()
 	# Complete pay
 	if loan_payment.amount == total_pay :

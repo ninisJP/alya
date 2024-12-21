@@ -53,26 +53,54 @@ def create_requests(request, order_id):
                 requirement_order = order_form.save(commit=False)
                 requirement_order.sales_order = sales_order
                 requirement_order.user = request.user
-                requirement_order.save()
+                
+                # Conjunto para controlar duplicados de items
+                seen_items = set()
+                valid_items = []
 
-                items = formset.save(commit=False)
-                for item in items:
-                    item.requirement_order = requirement_order
+                for form in formset:
+                    item = form.save(commit=False)
+
+                    # Asegurarse de que el sales_order_item está correctamente asignado
+                    if not item.sales_order_item:
+                        raise ValidationError(f"El ítem '{item.description}' no tiene un artículo de orden de venta asociado.")
+
+                    # Verificar si el ítem ya ha sido agregado
+                    if item.sales_order_item.id in seen_items:
+                        raise ValidationError(f"El ítem '{item.sales_order_item.description}' ya ha sido agregado al pedido.")
+                    seen_items.add(item.sales_order_item.id)  # Agregar el ID del ítem al conjunto de vistos
+
                     item.price = item.price or item.sales_order_item.price
 
-                    try:
-                        item.clean()
-                        item.save()
-                    except ValidationError as e:
-                        item_name = item.sales_order_item.description
-                        for message in e.messages:
-                            messages.error(request, f"Error en el ítem '{item_name}': {message}")
+                    # Validación de cantidad
+                    if item.sales_order_item.remaining_requirement <= 0:
+                        raise ValidationError(f"No hay cantidad disponible para el ítem '{item.sales_order_item.description}'.")
+
+                    if item.quantity_requested > item.sales_order_item.remaining_requirement:
+                        raise ValidationError(f"La cantidad solicitada ({item.quantity_requested}) para '{item.sales_order_item.description}' excede la cantidad disponible ({item.sales_order_item.remaining_requirement}).")
+                    
+                    # Validar que el ítem no tenga cantidad cero
+                    if item.sales_order_item.remaining_requirement <= 0 and item.quantity_requested > 0:
+                        raise ValidationError(f"El ítem '{item.sales_order_item.description}' tiene cantidad cero disponible y no puede ser solicitado.")
+
+                    item.clean()  # Limpiar y validar el ítem
+                    valid_items.append(item)  # Añadir el ítem válido a la lista
+
+                if not valid_items:
+                    raise ValidationError("No hay ítems válidos para agregar al pedido.")
+                
+                # Guardar el pedido si hay al menos un ítem válido
+                requirement_order.save()
+                for item in valid_items:
+                    item.requirement_order = requirement_order
+                    item.save()
 
                 messages.success(request, "Pedido creado exitosamente.")
                 return redirect('index_requests')
 
             except ValidationError as e:
                 messages.error(request, str(e))
+
         else:
             for form in formset:
                 if form.errors:
@@ -81,6 +109,7 @@ def create_requests(request, order_id):
                         for error in errors:
                             messages.error(request, f"Error en {item_name}: {field} - {error}")
             messages.error(request, "Por favor, corrija los errores en el formulario.")
+
     else:
         order_form = CreateRequirementOrderForm(initial={'sales_order': sales_order})
         formset = CreateRequirementOrderItemFormSet(
@@ -253,31 +282,45 @@ def create_requirement_order(request, order_id):
                     order_has_errors = True
                     continue
 
+                # Verificar que la cantidad solicitada no exceda el remaining_requirement
                 if quantity_requested > sales_order_item.remaining_requirement:
                     print(f"[Error] La cantidad solicitada ({quantity_requested}) para '{sales_order_item.description}' excede la cantidad disponible ({sales_order_item.remaining_requirement}).")
-                    messages.error(request, "La cantidad solicitada excede la disponible.")
+                    messages.error(request, f"La cantidad solicitada para '{sales_order_item.description}' excede la cantidad disponible.")
                     order_has_errors = True
                     continue
 
-                supplier_id = request.POST.get(f"items-{sales_order_item_id}-supplier")
-                notes = request.POST.get(f"items-{sales_order_item_id}-notes", "")
-                file_attachment = request.FILES.get(f"items-{sales_order_item_id}-file_attachment")
+                # Verificar que el remaining_requirement sea mayor que cero
+                if sales_order_item.remaining_requirement <= 0:
+                    print(f"[Error] No hay cantidad disponible para '{sales_order_item.description}'.")
+                    messages.error(request, f"No hay cantidad disponible para el ítem '{sales_order_item.description}'.")
+                    order_has_errors = True
+                    continue
 
-                items_to_create.append({
-                    "sales_order_item": sales_order_item,
-                    "quantity_requested": quantity_requested,
-                    "price": price,
-                    "notes": notes,
-                    "file_attachment": file_attachment,
-                    "supplier": Suppliers.objects.get(id=supplier_id) if supplier_id else None
-                })
-                print(f"[Debug] Ítem válido para creación: {sales_order_item.description}, Cantidad: {quantity_requested}, Precio: {price}")
+                # Solo agregar ítem si tiene cantidad solicitada mayor que cero
+                if quantity_requested > 0:
+                    supplier_id = request.POST.get(f"items-{sales_order_item_id}-supplier")
+                    notes = request.POST.get(f"items-{sales_order_item_id}-notes", "")
+                    file_attachment = request.FILES.get(f"items-{sales_order_item_id}-file_attachment")
 
-        # Verificar si hay ítems válidos
+                    items_to_create.append({
+                        "sales_order_item": sales_order_item,
+                        "quantity_requested": quantity_requested,
+                        "price": price,
+                        "notes": notes,
+                        "file_attachment": file_attachment,
+                        "supplier": Suppliers.objects.get(id=supplier_id) if supplier_id else None
+                    })
+                    print(f"[Debug] Ítem válido para creación: {sales_order_item.description}, Cantidad: {quantity_requested}, Precio: {price}")
+
+        # Verificar si hay ítems válidos para crear
         print("[Debug] Ítems válidos para crear:", items_to_create)
         if not items_to_create:
             print("[Error] No se pueden crear órdenes sin ítems válidos")
             return JsonResponse({"message": "Error: No se puede crear una orden de requerimiento sin ítems válidos.", "type": "error"}, status=400)
+
+        # Si alguna validación falló (como cantidad disponible <= 0 o cantidad solicitada > remaining_requirement), no permitimos crear la orden
+        if order_has_errors:
+            return JsonResponse({"message": "Error: No se puede crear la orden debido a los errores en los ítems.", "type": "error"}, status=400)
 
         # Crear la orden de requerimiento
         requirement_order = RequirementOrder(
@@ -308,6 +351,9 @@ def create_requirement_order(request, order_id):
     except Exception as e:
         print(f"[Error] Excepción al crear la orden de requerimiento: {str(e)}")
         return JsonResponse({"message": f"Error inesperado: {str(e)}", "type": "error"}, status=400)
+
+
+
 
 from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl import Workbook

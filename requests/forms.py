@@ -7,27 +7,27 @@ from django.core.exceptions import ValidationError
 from datetime import date, timedelta
 
 # Formulario para la creación de RequirementOrder (sin estado)
+
 class CreateRequirementOrderForm(forms.ModelForm):
     class Meta:
         model = RequirementOrder
-        fields = ['sales_order', 'requested_date', 'notes']  # El campo 'estado' se elimina
+        fields = ['sales_order', 'requested_date', 'notes']
         widgets = {
-            'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=3)).isoformat()}),
+            # 'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=0)).isoformat()}),
             'notes': forms.Textarea(attrs={'required': 'required'})
         }
 
-    def clean_requested_date(self):
-        requested_date = self.cleaned_data.get('requested_date')
-        min_date = date.today() + timedelta(days=3) 
-        if requested_date and requested_date < min_date:
-            raise ValidationError(f"La fecha solicitada no puede ser anterior a {min_date.isoformat()}.")
-        return requested_date
-    
-    def clean_notes(self):
-        notes = self.cleaned_data.get('notes')
-        if not notes.strip():
-            raise ValidationError("El campo de notas es obligatorio.")
-        return notes
+    # def clean_requested_date(self):
+    #     requested_date = self.cleaned_data.get('requested_date')
+
+    #     # Validar solo martes y miercoles (weekday 1 y 2), bloquearlos
+    #     if requested_date.weekday() == 1:  # Martes
+    #         raise forms.ValidationError("No se permiten pedidos los martes. Selecciona otra fecha.")
+    #     if requested_date.weekday() == 2:  # Miércoles
+    #         raise forms.ValidationError("No se permiten pedidos los miércoles. Selecciona otra fecha.")
+
+    #     return requested_date
+
 
 # Formulario para la creación de RequirementOrderItem (sin estado)
 class CreateRequirementOrderItemForm(forms.ModelForm):
@@ -60,7 +60,11 @@ class CreateRequirementOrderItemForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if sales_order:
-            self.fields['sales_order_item'].queryset = SalesOrderItem.objects.filter(salesorder=sales_order)
+            # Excluir ítems con remaining_requirement <= 0
+            self.fields['sales_order_item'].queryset = SalesOrderItem.objects.filter(
+                salesorder=sales_order,
+                remaining_requirement__gt=0  # Filtramos para que solo se muestren los ítems disponibles
+            )
         
         self.fields['supplier'].queryset = Suppliers.objects.all()
 

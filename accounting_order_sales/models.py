@@ -100,17 +100,14 @@ class PurchaseOrder(models.Model):
     requested_by = models.CharField(max_length=20, verbose_name="Encargado", blank=True, null=True)
     acepted = models.BooleanField(default=True)
 
-    # @property
-    # def total_purchase_order(self):
-    #     # Suma el campo `price_total` de todos los PurchaseOrderItem asociados a esta orden
-    #     return self.items.aggregate(total=Sum('price_total'))['total'] or 0
-
     @property
     def total_purchase_order(self):
-        return self.items.aggregate(
+        total = self.items.aggregate(
             total=Coalesce(Sum('price_total'), Decimal(0), output_field=DecimalField())
         )['total']
-
+        # Redondear el total a 2 decimales
+        return total.quantize(Decimal('0.01'))
+    
     def __str__(self):
         return f"Orden de Compra {self.id} para la Orden de Venta {self.salesorder.sapcode} - Solicitada el {self.requested_date}"
 

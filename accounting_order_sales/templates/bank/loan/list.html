@@ -20,7 +20,15 @@
             </thead>
             <tbody>
                 {% for item in loan_credito %}
-                    <tr>
+                    {% if item.expiration == "warning" %}
+                        <tr class="bg-yellow-300">
+                    {% elif item.expiration == "last" %}
+                        <tr class="bg-red-700 text-white">
+                    {% elif item.expiration == "expire" %}
+                        <tr class="bg-red-900 text-white">
+                    {% else %}
+                        <tr>
+                    {% endif %}
                         <td>{{ item.start_date }}</td>
                         <td>{{ item.desembols_date }}</td>
                         <td>{{ item.bank }}</td>
@@ -87,7 +95,17 @@
             </thead>
             <tbody>
                 {% for item in loan_prestamo %}
-                    <tr class="rounded-3">
+                    {% if item.is_paid %}
+                        <tr class="bg-green-200">
+                    {% elif item.expiration == "warning" %}
+                        <tr class="bg-yellow-300">
+                    {% elif item.expiration == "last" %}
+                        <tr class="bg-red-700 text-white">
+                    {% elif item.expiration == "expire" %}
+                        <tr class="bg-red-900 text-white">
+                    {% else %}
+                        <tr>
+                    {% endif %}
                         <td>{{ item.start_date }}</td>
                         <td>{{ item.desembols_date }}</td>
                         <td>{{ item.bank }}</td>

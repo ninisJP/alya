@@ -1,60 +1,69 @@
 {% extends 'base_requests.html' %}
 {% load widget_tweaks %}
 
+        
+<!-- Estilos CSS opcionales -->
+<style>
+    .bg-danger {
+        background-color: red; /* Fondo rojo para la fila */
+    }
+
+    .text-white {
+        color: white; /* Cambia el texto a blanco para mejorar la visibilidad sobre el fondo rojo */
+    }
+</style>        
+
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <!-- Columna para el formulario, expandida a 9 columnas -->
         <div class="col-md-9">
             <div class="p-4 bg-white rounded shadow">
                 <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">CREAR NUEVO PEDIDO</h1>
-
+                <div class="alert alert-warning" role="alert">
+                    <strong>Atención:</strong> Solo se pueden hacer pedidos los lunes. Para los pedidos de la siguiente semana, puedes hacerlos a partir del jueves.
+                </div>
                 {% if messages %}
                 <div class="alert alert-danger" role="alert">
                     <ul>
-                    {% for message in messages %}
+                        {% for message in messages %}
                         <li>{{ message }}</li>
-                    {% endfor %}
+                        {% endfor %}
                     </ul>
                 </div>
                 {% endif %}
 
-                <!-- Formulario para RequirementOrder -->
+                <!-- Formulario -->
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="p-3 mb-4">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <div class="form-group">
-                                    <label for="id_sales_order">Orden de Venta</label>
-                                    <input type="text" readonly class="form-control" value="{{ sales_order }}" />
-                                    <input type="hidden" name="sales_order" value="{{ sales_order.id }}" />
-                                </div>
+                                <label for="id_sales_order">Orden de Venta</label>
+                                <input type="text" readonly class="form-control" value="{{ sales_order }}" />
+                                <input type="hidden" name="sales_order" value="{{ sales_order.id }}" />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <div class="form-group">
-                                    <label for="id_requested_date">Fecha Solicitada</label>
-                                    {{ order_form.requested_date|add_class:"form-control" |attr:"type:date" }}
-                                </div>
+                                <label for="id_requested_date">Fecha Solicitada</label>
+                                {{ order_form.requested_date|add_class:"form-control" |attr:"type:date" }}
                             </div>
                         </div>
                         <div class="form-group">
-                            {{ order_form.notes|add_class:"form-control form-control-sm" |attr:"placeholder=Detalles notas (opcional)" |attr:"rows:2" }}
+                            {{ order_form.notes|add_class:"form-control" |attr:"placeholder=Detalles notas (opcional)" |attr:"rows:2" }}
                         </div>
                     </div>
 
-                    <!-- Formset de Ítems del pedido -->
+                    <!-- Tabla de ítems -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover table-sm">
                             <thead class="table-dark text-center">
                                 <tr>
-                                    <th style="width: 15%;">ITEM</th>
-                                    <th style="width: 15%;">PROVEEDOR</th>
-                                    <th style="width: 10%;">PRECIO U.</th>
-                                    <th style="width: 20%;">DETALLES</th>
-                                    <th style="width: 10%;">CANTIDAD</th>
-                                    <th style="width: 15%;">ARCHIVO</th>
-                                    <th style="width: 5%;">ACT</th>
+                                    <th>ITEM</th>
+                                    <th>PROVEEDOR</th>
+                                    <th style="width: 15%;">PRECIO U.</th>
+                                    <th style="width: 5%;">DETALLES</th>
+                                    <th style="width: 5%;">CANTIDAD</th>
+                                    <th style="width: 5%;">ARCHIVO</th>
+                                    <th>ACT</th>
                                 </tr>
                             </thead>
                             <tbody id="formset-tbody">
@@ -69,7 +78,7 @@
                                         {{ form.quantity_requested|add_class:"form-control text-center quantity-input" |attr:"min:0.01" }}
                                     </td>
                                     <td>{{ form.file_attachment|add_class:"form-control" }}</td>
-                                    <td class="text-center" style="width: 1px; white-space: nowrap;">
+                                    <td class="text-center">
                                         <button type="button" class="btn btn-danger btn-sm" onclick="removeForm(this)">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
@@ -80,7 +89,7 @@
                         </table>
                     </div>
 
-                    <!-- Botones para agregar ítems -->
+                    <!-- Botones -->
                     <div class="d-flex justify-content-between mt-4">
                         <button type="button" class="btn btn-secondary" id="add-item-btn">
                             <i class="fas fa-plus-circle"></i> Agregar Ítem
@@ -98,22 +107,20 @@
             </div>
         </div>
 
-        <!-- Columna para la lista de ítems de la orden de venta, reducida a 3 columnas -->
+        <!-- Columna de referencia de ítems -->
         <div class="col-md-3">
             <div class="p-4 bg-white rounded shadow">
                 <h3 class="text-center mb-4">Ítems de la Orden de Venta</h3>
-
-                <!-- Tabla de ítems de referencia más compacta -->
                 <table class="table table-bordered table-hover table-sm">
                     <thead class="table-dark text-center">
                         <tr>
-                            <th style="width: 80%;">Descripción</th>
-                            <th style="width: 20%;">REST</th>
+                            <th>Descripción</th>
+                            <th>REST</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in referencia_ordenventa %}
-                        <tr data-item-id="{{ item.id }}">
+                        <tr data-item-id="{{ item.id }}" class="{% if item.remaining_requirement == 0 %}bg-danger text-white{% endif %}">
                             <td>{{ item.description }}</td>
                             <td>{{ item.remaining_requirement }}</td>
                         </tr>
@@ -123,6 +130,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <script>
@@ -177,6 +185,40 @@ document.querySelector('form').addEventListener('submit', function(event) {
         }
     }
 });
+
+document.querySelector('form').addEventListener('submit', function(event) {
+    var quantityInputs = document.querySelectorAll('.quantity-input');
+    var itemRows = document.querySelectorAll('#formset-tbody tr');
+
+    for (var i = 0; i < quantityInputs.length; i++) {
+        var input = quantityInputs[i];
+        var value = parseFloat(input.value);
+
+        // Obtener la descripción del ítem para verificar su stock
+        var itemSelected = itemRows[i].querySelector('.item-selector');
+        var selectedItemId = itemSelected.value;
+
+        // Buscar el stock correspondiente en la tabla de referencia
+        var stockCell = document.querySelector(`tr[data-item-id="${selectedItemId}"] td:last-child`);
+        var stockRemaining = parseFloat(stockCell.innerText);
+
+        if (stockRemaining === 0) {
+            event.preventDefault();
+            alert(`El ítem "${itemSelected.options[itemSelected.selectedIndex].text}" no tiene stock disponible.`);
+            input.focus();
+            return false;
+        }
+
+        // Validar que la cantidad ingresada sea mayor a 0.01
+        if (value < 0.01) {
+            event.preventDefault();
+            alert('La cantidad solicitada debe ser mayor que 0.');
+            input.focus();
+            return false;
+        }
+    }
+});
+
 </script>
 
 <!-- Formulario vacío para clonar -->
