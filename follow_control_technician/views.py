@@ -466,6 +466,7 @@ def associate_group_to_card(request, card_id):
                 total_time=group_item.task.time * group_item.quantity,
                 saler_order=group_item.saler_order,
                 order=group_item.order,
+                task_group=group_item.task_group,
             )
 
         return redirect("view_technician_card", card_id=card_id)
