@@ -4,6 +4,16 @@ from accounting_order_sales.models import SalesOrder
 import os
 from datetime import datetime, time
 
+class TechnicianTaskGroup(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+    
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Grupo de Tareas de Técnico"
+        verbose_name_plural = "Grupos de Tareas de Técnicos"
+        
 def rename_file(instance, filename):
     # Extraer información relevante del modelo TechnicianCardTask
     technician_name = instance.technician_card.technician.first_name.replace(' ', '_')
@@ -54,6 +64,8 @@ class TechnicianCardTask(models.Model):
     order = models.PositiveIntegerField()
     photo = models.ImageField(upload_to=rename_file, null=True, blank=True)
     status = models.BooleanField(default=False)
+    task_group = models.ForeignKey(TechnicianTaskGroup, on_delete=models.CASCADE, null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.task.verb} {self.task.object} (Order: {self.order})"
@@ -69,15 +81,7 @@ class TechnicianCardTask(models.Model):
         self.total_time = self.task.time * self.quantity
         super().save(*args, **kwargs)
         
-class TechnicianTaskGroup(models.Model):
-    name = models.CharField(max_length=150, unique=True)
-    
-    def __str__(self):
-        return self.name
 
-    class Meta:
-        verbose_name = "Grupo de Tareas de Técnico"
-        verbose_name_plural = "Grupos de Tareas de Técnicos"
 
 
 class TechnicianTaskGroupItem(models.Model):

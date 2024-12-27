@@ -1,35 +1,42 @@
 <div class="row text-uppercase fw-bold text-secondary border-bottom pb-2 mb-3">
-    <div class="col-md-3">Tarea</div>
-    <div class="col-md-1 text-center">Cantidad</div>
-    <div class="col-md-2 text-center">Orden de Venta</div>
-    <div class="col-md-1 text-center">Foto</div>
-    <div class="col-md-1 text-center">Estado</div>
-    <div class="col-md-2 text-center">Tiempo Total</div>
-    <div class="col-md-1 text-center">Act</div>
-</div>
-<div class="col-12">
-    <h3>Total de minutos: {{ total_minutes }} minutos</h3>
+    <div class="col">Tarea</div>
+    <div class="col">Grupo Asociado</div>
+    <div class="col text-center">Cantidad</div>
+    <div class="col text-center">Orden de Venta</div>
+    <div class="col text-center">Foto</div>
+    <div class="col text-center">Estado</div>
+    <div class="col text-center">Tiempo Total</div>
+    <div class="col text-center">Act</div>
 </div>
 <div class="list-group">
     {% for tarea in tareas_con_foto %}
     <div class="form-row row mb-3 align-items-center bg-light p-2 rounded shadow-sm">
-        <div class="col-md-3">
+        <div class="col">
             <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.task.verb }} {{ tarea.task.object }}</p>
         </div>
-        <div class="col-md-1 text-center">
+        <div class="col">
+            <p class="form-control-sm text-dark fw-bold mb-0">
+                {% if tarea.task_group %}
+                    {{ tarea.task_group.name }}
+                {% else %}
+                    No tiene grupo asociado
+                {% endif %}
+            </p>        
+        </div>
+        <div class="col text-center">
             <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.quantity }}</p>
         </div>
-        <div class="col-md-2 text-center">
+        <div class="col text-center">
             <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.saler_order }}</p>
         </div>
-        <div class="col-md-1 text-center">
+        <div class="col text-center">
             {% if tarea.photo %}
                 <a href="{{ tarea.photo.url }}" target="_blank" class="btn btn-outline-primary btn-sm">Ver Foto</a>
             {% else %}
                 <span class="text-muted fw-bold">(Sin foto)</span>
             {% endif %}
         </div>
-        <div class="col-md-1 text-center">
+        <div class="col text-center">
             <input 
                 class="form-check-input" 
                 type="checkbox" 
@@ -40,10 +47,10 @@
                 {% if tarea.status %}checked{% endif %}
             >
         </div>
-        <div class="col-md-2 text-center">
+        <div class="col text-center">
             <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.total_time }} {{ tarea.task.measurement }}</p>
         </div>   
-        <div class="col-md-1 text-center">
+        <div class="col text-center">
             <button hx-post="{% url 'delete_technician_card_task' tarea.pk %}" 
                     hx-target="#tasks-container" 
                     hx-swap="innerHTML" 
@@ -53,4 +60,7 @@
         </div>
     </div>
     {% endfor %}
+    <div class="col-12">
+        <h3>Total de minutos: {{ total_minutes }} minutos</h3>
+    </div>
 </div>
