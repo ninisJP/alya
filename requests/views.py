@@ -54,8 +54,8 @@ def create_requests(request, order_id):
                 requirement_order.sales_order = sales_order
                 requirement_order.user = request.user
                 
-                # Conjunto para controlar duplicados de items
-                seen_items = set()
+                # Diccionario para almacenar las cantidades solicitadas por ítem
+                item_quantities = {}
                 valid_items = []
 
                 for form in formset:
@@ -65,31 +65,36 @@ def create_requests(request, order_id):
                     if not item.sales_order_item:
                         raise ValidationError(f"El ítem '{item.description}' no tiene un artículo de orden de venta asociado.")
 
-                    # Verificar si el ítem ya ha sido agregado
-                    if item.sales_order_item.id in seen_items:
-                        raise ValidationError(f"El ítem '{item.sales_order_item.description}' ya ha sido agregado al pedido.")
-                    seen_items.add(item.sales_order_item.id)  # Agregar el ID del ítem al conjunto de vistos
+                    # Obtener el ID del sales_order_item
+                    sales_order_item_id = item.sales_order_item.id
 
+                    # Verificar la cantidad total solicitada, sumando las cantidades repetidas
+                    if sales_order_item_id in item_quantities:
+                        total_quantity = item_quantities[sales_order_item_id] + item.quantity_requested
+                    else:
+                        total_quantity = item.quantity_requested
+
+                    # Verificar que la cantidad total solicitada no exceda la cantidad disponible
+                    if total_quantity > item.sales_order_item.remaining_requirement:
+                        raise ValidationError(f"La cantidad solicitada ({total_quantity}) para '{item.sales_order_item.description}' excede la cantidad disponible ({item.sales_order_item.remaining_requirement}).")
+
+                    # Actualizar el diccionario con la cantidad solicitada
+                    item_quantities[sales_order_item_id] = total_quantity
+
+                    # Asegurarse de que el precio se obtiene correctamente
                     item.price = item.price or item.sales_order_item.price
 
                     # Validación de cantidad
-                    if item.sales_order_item.remaining_requirement <= 0:
-                        raise ValidationError(f"No hay cantidad disponible para el ítem '{item.sales_order_item.description}'.")
-
-                    if item.quantity_requested > item.sales_order_item.remaining_requirement:
-                        raise ValidationError(f"La cantidad solicitada ({item.quantity_requested}) para '{item.sales_order_item.description}' excede la cantidad disponible ({item.sales_order_item.remaining_requirement}).")
-                    
-                    # Validar que el ítem no tenga cantidad cero
                     if item.sales_order_item.remaining_requirement <= 0 and item.quantity_requested > 0:
                         raise ValidationError(f"El ítem '{item.sales_order_item.description}' tiene cantidad cero disponible y no puede ser solicitado.")
-
+                    
                     item.clean()  # Limpiar y validar el ítem
                     valid_items.append(item)  # Añadir el ítem válido a la lista
 
                 if not valid_items:
                     raise ValidationError("No hay ítems válidos para agregar al pedido.")
                 
-                # Guardar el pedido si hay al menos un ítem válido
+                # Guardar la orden si hay al menos un ítem válido
                 requirement_order.save()
                 for item in valid_items:
                     item.requirement_order = requirement_order
