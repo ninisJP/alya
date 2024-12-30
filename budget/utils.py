@@ -63,7 +63,7 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
     ws['A1'].alignment = alignment_center
 
     # Encabezados de la tabla
-    headers = ['ITEM', 'DESCRIPCION DE ITEM', 'CATEGORÍA', 'CANTIDAD', 'PRECIO UNITARIO', 'SUBTOTAL']
+    headers = ['ITEM', 'DESCRIPCION DE ITEM', 'CATEGORÍA', 'CANTIDAD', 'MONEDA','PRECIO UNITARIO', 'SUBTOTAL']
     ws.append(headers)
     for cell in ws[2]:  # Segunda fila
         cell.font = header_font
@@ -80,6 +80,7 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
                 item.item.description,
                 item.item.category,
                 item.quantity,
+                item.coin,
                 item.item.price,
                 subtotal
             ]
@@ -132,7 +133,7 @@ def _crear_hoja_resumen(ws, budget, items_by_category):
     ws['A1'].alignment = alignment_center
 
     # Encabezados de la tabla
-    headers = ['ITEM', 'DESCRIPCIÓN', 'CATEGORÍA', 'CANTIDAD', 'PRECIO UNITARIO', 'SUBTOTAL']
+    headers = ['ITEM', 'DESCRIPCIÓN', 'CATEGORÍA', 'CANTIDAD','MONEDA', 'PRECIO UNITARIO', 'SUBTOTAL']
     ws.append(headers)
     for cell in ws[2]:
         cell.font = header_font
@@ -150,8 +151,9 @@ def _crear_hoja_resumen(ws, budget, items_by_category):
                 item.item.description,
                 item.item.category,
                 item.quantity,
+                item.coin,
                 item.item.price,
-                subtotal
+                subtotal,
             ]
             ws.append(row)
             for cell in ws[ws.max_row]:

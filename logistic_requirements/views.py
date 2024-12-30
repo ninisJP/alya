@@ -456,9 +456,9 @@ def export_order_to_excel(request, pk):
 
     # Encabezados de la tabla
     headers = [
-        "SAP","ITEM", "DETALLE", "UNIDAD", 
+        "SAP", "ITEM", "DETALLE", "UNIDAD", 
         "CANTIDAD", "HORAS", 
-        "PROVEEDOR", "ESTADO"
+        "PROVEEDOR", "CUENTA DEL PROVEEDOR", "BANCO DEL PROVEEDOR", "ESTADO"
     ]
     header_fill = PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid")
     header_font = Font(bold=True)
@@ -477,13 +477,17 @@ def export_order_to_excel(request, pk):
         cell.alignment = Alignment(horizontal="center", vertical="center")
 
     # Ajustar el ancho de las columnas
-    column_widths = [15, 20, 25, 30, 10, 20, 15, 15, 25, 15, 10]
+    column_widths = [15, 20, 25, 30, 10, 20, 15, 25, 25, 15]
     for i, width in enumerate(column_widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = width
 
     # Agregar datos de los ítems
     for row_num, item in enumerate(items, start=11):
         sales_order_item = item.sales_order_item
+        supplier = item.supplier
+        supplier_account = supplier.account if supplier else "N/A"  # Obtener la cuenta del proveedor
+        supplier_bank = supplier.bank if supplier else "N/A"  # Obtener el banco del proveedor
+
         data = [
             sales_order_item.sap_code or "N/A",
             sales_order_item.description or "N/A",
@@ -491,13 +495,16 @@ def export_order_to_excel(request, pk):
             sales_order_item.unit_of_measurement or "N/A",
             float(item.quantity_requested) if item.quantity_requested else 0,
             getattr(sales_order_item, "custom_quantity", "N/A"),
-            item.supplier.name if item.supplier and item.supplier.name else "N/A",
+            supplier.name if supplier else "N/A",
+            supplier_account,  # Aquí añadimos la cuenta del proveedor
+            supplier_bank,     # Aquí añadimos el banco del proveedor
             item.get_estado_display() or "N/A",
         ]
+
         for col_num, value in enumerate(data, 1):
             cell = ws.cell(row=row_num, column=col_num, value=value)
             cell.border = border
-            if col_num == 11:  # Estado
+            if col_num == 10:  # Estado
                 cell.alignment = Alignment(horizontal="center")
             else:
                 cell.alignment = Alignment(horizontal="left")
@@ -508,6 +515,7 @@ def export_order_to_excel(request, pk):
     wb.save(response)
 
     return response
+
 
 #caja chica
 def logistic_petty_cash(request):

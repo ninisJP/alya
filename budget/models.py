@@ -108,6 +108,10 @@ class CatalogItem(models.Model):
         verbose_name_plural = "Items de Catálogo"
 
 class BudgetItem(models.Model):
+    COIN =[
+        ('PEN', 'Soles'),
+        ('USD', 'Dólares'),
+    ]
     budget = models.ForeignKey('Budget', on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey('CatalogItem', on_delete=models.CASCADE, related_name='budget_items')
     quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1.00)
@@ -117,6 +121,7 @@ class BudgetItem(models.Model):
     custom_price_per_hour = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
     unit = models.CharField(max_length=100, blank=True, null=True)
+    coin = models.CharField(max_length=3, choices=COIN, default='PEN', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         # Si no se ha especificado una unidad, utilizar la unidad del catálogo
