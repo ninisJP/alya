@@ -24,8 +24,8 @@
                     <td>{{ order.sales_order.sapcode }}</td>
                     <td>{{ order.sales_order.project.name }}</td>
                     <td>{{ order.sales_order.project.client.legal_name }}</td>
-                    <td>{{ order.requested_date }}</td>
-                    <td>{{ order.created_at }}</td>
+                    <td><span class="badge bg-secondary" data-requested-date="{{ order.requested_date }}">{{ order.requested_date }}</span></td>
+                    <td><span class="badge bg-info">{{ order.created_at }}</span></td>
                     <td>{{ order.notes }}</td>
                     <td>
                         {% if order.state == "NO REVISADO" %}
@@ -82,6 +82,17 @@
     .dataTables_filter input[type="search"]::placeholder {
         color: #6c757d;
     }
+
+    /* Estilos personalizados para el semáforo */
+    .semaforo-rojo {
+        background-color: #f8d7da; /* Rojo */
+    }
+    .semaforo-amarillo {
+        background-color: #fff3cd; /* Amarillo */
+    }
+    .semaforo-verde {
+        background-color: #d4edda; /* Verde */
+    }
 </style>
 
 <!-- Incluir jQuery, DataTables y Botones para DataTables -->
@@ -93,7 +104,7 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $('#requirementOrdersTable').DataTable({
+        var table = $('#requirementOrdersTable').DataTable({
             "language": {
                 "url": "//cdn.datatables.net/plug-ins/2.1.8/i18n/es-MX.json"
             },
@@ -127,7 +138,7 @@
                 },
                 {
                     text: '{% if request.GET.filter == "all" %}<i class="fas fa-filter"></i> Mostrar Solo No Revisado{% else %}<i class="fas fa-list"></i> Mostrar Todos{% endif %}',
-                    action: function ( e, dt, node, config ) {
+                    action: function (e, dt, node, config) {
                         const currentUrl = new URL(window.location.href);
                         const filter = currentUrl.searchParams.get("filter");
                         currentUrl.searchParams.set("filter", filter === "all" ? "no_revisado" : "all");
@@ -136,6 +147,32 @@
                     className: 'btn btn-outline-info'
                 }
             ]
+        });
+
+        // funcion para cambiar los colores del span dependiendo de la fecha
+        table.on('draw', function() {
+            $("#requirementOrdersTable tbody tr").each(function() {
+                var requestedDateText = $(this).find("td").eq(4).find("span").data("requested-date");
+                var requestedDate = new Date(requestedDateText);
+                
+                var today = new Date();
+                today.setHours(0, 0, 0, 0); 
+                requestedDate.setHours(0, 0, 0, 0); 
+                
+                var difference = (requestedDate - today) / (1000 * 3600 * 24);
+                console.log(difference);
+                
+                if (difference < 0) {
+                    $(this).find("td").eq(4).find("span").addClass('bg-dark');  // Fecha vencida
+                } else if (difference === 0) {
+                    $(this).find("td").eq(4).find("span").addClass('bg-danger');  // Hoy
+                } else if (difference == 1 || difference == 2) {
+                    $(this).find("td").eq(4).find("span").addClass('bg-warning');  // Dias antes de la fecha
+                }else {
+                    $(this).find("td").eq(4).find("span").addClass('bg-success');  // Dias con anticipacion
+                }
+                
+            });
         });
     });
 </script>

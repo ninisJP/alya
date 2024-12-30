@@ -110,6 +110,12 @@ class PurchaseOrderForm(forms.ModelForm):
             'scheduled_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
 
+class PurchaseOrderSearchForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseOrder
+        fields = ['salesorder','description']  # Campos editables
+
+        
 # Formulario para los ítems de la orden de compra (PurchaseOrderItem)
 class PurchaseOrderItemForm(forms.ModelForm):
     class Meta:
