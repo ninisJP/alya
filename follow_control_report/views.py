@@ -45,7 +45,7 @@ def daily_evaluation_cards(request):
         date = dt.today().strftime('%Y-%m-%d')
 
     # Obtener los usuarios que son supervisores
-    supervisors = Supervisor.objects.all()
+    supervisors = Supervisor.objects.filter(status="active")
 
     # Filtrar las tarjetas (cards) que corresponden a los supervisores
     # Aquí asumo que quieres filtrar por los supervisores específicos
