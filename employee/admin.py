@@ -5,7 +5,7 @@ from .models import *
 
 @admin.register(Supervisor)
 class SupervisorAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'supervisor_position', 'status', 'email')
+    list_display = ('full_name', 'user','supervisor_position', 'status', 'email')
     search_fields = ('first_name', 'last_name', 'position', 'email')
     list_filter = ('status',)
 
