@@ -32,6 +32,11 @@
                 </div>
             </form>
         </div>
+        <div class="mt-3">
+            <form hx-get="{% url 'purchaseorder-search' %}" hx-target="#ordenes-compra-container" hx-trigger="keyup delay:0.2s" hx-debounce="500ms">
+                <input type="text" name="q" placeholder="Buscar por Projecto o Detalle" class="form-control" id="search-input">
+            </form>    
+        </div>
     </header>
 
     <!-- Lista de órdenes de compra reutilizando el partial -->

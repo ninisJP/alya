@@ -27,7 +27,8 @@ from .forms import (
     ItemSalesOrderForm,
     BankForm,
     UploadBankStatementForm,
-    CollectionOrdersForm
+    CollectionOrdersForm,
+    PurchaseOrderSearchForm,
 )
 from .models import (
     Bank,
@@ -196,6 +197,20 @@ def general_purchaseorder(request):
     }
 
     return render(request, 'purchaseorder/general_purchaseorder.html', context)
+
+    
+def purchaseorder_search(request):
+    query = request.GET.get('q', '')
+
+    if query:
+        purchase_orders = PurchaseOrder.objects.filter(
+            Q(salesorder__project__name__icontains=query)| Q(description__icontains=query)).order_by('-id')
+    else:
+        purchase_orders = PurchaseOrder.objects.all().order_by('-id')
+
+    context = {'purchase_orders': purchase_orders , 'form': PurchaseOrderSearchForm()}
+    
+    return render(request, 'purchaseorder/purchaseorder_list_partial.html', context)
 
 # Ordenes de compra
 def purchase_orders(request, salesorder_id):

@@ -1,6 +1,6 @@
 from django.urls import path
 from accounting_order_sales.forms import supplier_autocomplete
-from .views import delete_purchase_order, purchase_renditions, purchase_conciliations, salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder, edit_purchase_order, general_purchaseorder, quick_create_purchaseorder, petty_cash, index_bank,edit_bank,delete_bank,bank_statements,BankStatementUploadView, AccountingRequirementOrderListView, accounting_requirement_order_detail_view, update_requirement_order_items, update_requirement_order_state, report_conciliations, update_field,salesorder_search,LogisticRequirementOrderListView
+from .views import delete_purchase_order, purchase_renditions, purchase_conciliations, salesorder, create_salesorder, edit_salesorder, delete_salesorder, items_salesorder, edit_purchase_order, general_purchaseorder, quick_create_purchaseorder, petty_cash, index_bank,edit_bank,delete_bank,bank_statements,BankStatementUploadView, AccountingRequirementOrderListView, accounting_requirement_order_detail_view, update_requirement_order_items, update_requirement_order_state, report_conciliations, update_field,salesorder_search,LogisticRequirementOrderListView, purchaseorder_search
 from . import views
 from . import views_bank
 
@@ -18,6 +18,7 @@ urlpatterns = [
     # upload statements
     path('banks/upload-statements/', BankStatementUploadView.as_view(), name='upload_bank_statements'),
     path("general_purchaseorder/", general_purchaseorder, name='general_purchaseorder'),
+    path('general_purchaseorder/search/', purchaseorder_search, name='purchaseorder-search'),
     # purchases reconcilations
     path("reconciliations/", purchase_conciliations, name='purchase_conciliations'),
     path("report_conciliations", report_conciliations, name='report_conciliations'),
