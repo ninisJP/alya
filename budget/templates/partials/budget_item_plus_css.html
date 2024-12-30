@@ -5,7 +5,7 @@
         width: 100%;
         table-layout: fixed; /* Controlar el ancho automáticamente */
     }
-
+    
     /* Estilo general para las celdas */
     .excel-table th,
     .excel-table td {
@@ -19,17 +19,17 @@
         word-wrap: break-word; /* Evitar que el texto se desborde fuera de la celda */
         overflow: hidden;
     }
-
+    
     /* Fondo para la cabecera */
     .excel-table thead {
         background-color: #f4f4f4;
     }
-
+    
     /* Hover para filas */
     .excel-table tbody tr:hover {
         background-color: #f9f9f9;
     }
-
+    
     /* Input estilo celda */
     .excel-table input[type="number"],
     .excel-table input[type="text"] {
@@ -41,51 +41,51 @@
         outline: none;
         padding: 2px;
     }
-
+    
     /* Input con bordes al hacer foco */
     .excel-table input:focus {
         border: 1px solid #007bff;
         background-color: #eaf4ff;
     }
-
+    
     /* Botones alineados */
     .excel-table button {
         font-size: 12px;
         padding: 3px 8px;
     }
-
+    
     /* Elimina las flechitas de los inputs tipo número */
     .excel-table input[type="number"]::-webkit-inner-spin-button,
     .excel-table input[type="number"]::-webkit-outer-spin-button {
         -webkit-appearance: none;
         margin: 0;
     }
-
+    
     .excel-table input[type="number"] {
         -moz-appearance: textfield;
         appearance: textfield;
     }
-
+    
     /* Ajuste del ancho de las columnas */
     .excel-table th:nth-child(1), /* # */
     .excel-table td:nth-child(1) {
         width: 5%; /* Ancho para la columna de números */
     }
-
+    
     .excel-table th:nth-child(2), /* SAP */
     .excel-table td:nth-child(2),
     .excel-table th:nth-child(3), /* CAT. */
     .excel-table td:nth-child(3) {
         width: 8%; /* Igual ancho para SAP y CAT. */
     }
-
+    
     .excel-table th:nth-child(4), /* Ítem */
     .excel-table td:nth-child(4) {
         width: 32%; /* Aumentado el ancho de la columna Ítem */
         white-space: normal; /* Permitir texto en varias líneas */
         word-wrap: break-word;
     }
-
+    
     .excel-table th:nth-child(5), /* UND */
     .excel-table td:nth-child(5),
     .excel-table th:nth-child(6), /* CANT */
@@ -98,26 +98,33 @@
     .excel-table td:nth-child(9) {
         width: 8%; /* Ancho igual para las columnas de PRECIO H. y PRECIO D. */
     }
-
+    
     .excel-table th:nth-child(10), /* PRECIO U. */
     .excel-table td:nth-child(10),
     .excel-table th:nth-child(11), /* PRECIO P. */
     .excel-table td:nth-child(11) {
         width: 10%; /* Moderado */
     }
-
-    .excel-table th:nth-child(12), /* ACT */
+    
+    /* Si agregaste una nueva columna antes de "ACT" */
+    .excel-table th:nth-child(12), /* Nueva columna */
     .excel-table td:nth-child(12) {
+        width: 8%; /* Ancho de la nueva columna */
+    }
+    
+    /* Columna ACT */
+    .excel-table th:nth-child(13), /* ACT */
+    .excel-table td:nth-child(13) {
         width: 5%; /* Botones pequeños */
     }
-
+    
     /* Añadir estilo para las cabeceras A, B, C, etc. */
     .excel-table .letter-header {
         font-weight: bold;
         background-color: #eaeaea;
         text-align: center;
     }
-
+    
     /* Añadir estilo para los números de fila */
     .excel-table .row-number {
         font-weight: bold;
@@ -125,11 +132,11 @@
         padding: 10px 0; /* Aumentamos el padding para mayor visibilidad */
         text-align: center;
     }
-
+    
     /* Asegurar que los botones (iconos) estén bien alineados */
     .excel-table .btn {
         padding: 5px 10px;
         font-size: 14px; /* Aumentar el tamaño de los botones */
     }
-
+    
 </style>

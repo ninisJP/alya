@@ -12,7 +12,7 @@
                             <thead>
                                 <tr>
                                     <th class="letter-header"></th>
-                                    {% for col in 'ABCDEFGHIJK' %}
+                                    {% for col in 'ABCDEFGHIJKL' %}
                                     <th class="letter-header">{{ col }}</th>
                                     {% endfor %}
                                 </tr>
@@ -21,6 +21,7 @@
                                     <th>SAP</th>
                                     <th>CAT.</th>
                                     <th>ITEM</th>
+                                    <th>MONEDA</th>
                                     <th>UND</th>
                                     <th>CANT</th>
                                     <th>HORAS</th>
@@ -38,6 +39,7 @@
                                     <td>{{ item.item.sap }}</td>
                                     <td>{{ item.item.category }}</td>
                                     <td>{{ item.item.description }}</td>
+                                    <td>{{ item.coin }}</td>
                                     <td>
                                         <input 
                                             type="text" 
