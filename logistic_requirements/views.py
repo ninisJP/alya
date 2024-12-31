@@ -458,7 +458,7 @@ def export_order_to_excel(request, pk):
     headers = [
         "SAP", "ITEM", "DETALLE", "UNIDAD", 
         "CANTIDAD", "HORAS", 
-        "PROVEEDOR", "CUENTA DEL PROVEEDOR", "BANCO DEL PROVEEDOR", "ESTADO"
+        "PROVEEDOR", "CUENTA DEL PROVEEDOR", "BANCO DEL PROVEEDOR", "ESTADO", "PRECIO"
     ]
     header_fill = PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid")
     header_font = Font(bold=True)
@@ -477,7 +477,7 @@ def export_order_to_excel(request, pk):
         cell.alignment = Alignment(horizontal="center", vertical="center")
 
     # Ajustar el ancho de las columnas
-    column_widths = [15, 20, 25, 30, 10, 20, 15, 25, 25, 15]
+    column_widths = [15, 20, 25, 30, 10, 20, 15, 25, 25, 15, 10]  # Añadir columna para el precio
     for i, width in enumerate(column_widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = width
 
@@ -499,6 +499,7 @@ def export_order_to_excel(request, pk):
             supplier_account,  # Aquí añadimos la cuenta del proveedor
             supplier_bank,     # Aquí añadimos el banco del proveedor
             item.get_estado_display() or "N/A",
+            float(item.total_price) if item.total_price is not None else 0  # Añadir el precio del ítem
         ]
 
         for col_num, value in enumerate(data, 1):
@@ -515,6 +516,7 @@ def export_order_to_excel(request, pk):
     wb.save(response)
 
     return response
+
 
 
 #caja chica
