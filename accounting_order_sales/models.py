@@ -101,13 +101,22 @@ class PurchaseOrder(models.Model):
     acepted = models.BooleanField(default=True)
 
     @property
-    def total_purchase_order(self):
-        total = self.items.aggregate(
+    def total_purchase_order_estimed(self):
+        total = self.items.all().aggregate(
             total=Coalesce(Sum('price_total'), Decimal(0), output_field=DecimalField())
         )['total']
         # Redondear el total a 2 decimales
         return total.quantize(Decimal('0.01'))
-    
+
+    @property
+    def total_purchase_order(self):
+        total = self.items.filter(payment_status="Pagado").aggregate(
+            total=Coalesce(Sum('price_total'), Decimal(0), output_field=DecimalField())
+        )['total']
+        # Redondear el total a 2 decimales
+        return total.quantize(Decimal('0.01'))
+
+
     def __str__(self):
         return f"Orden de Compra {self.id} para la Orden de Venta {self.salesorder.sapcode} - Solicitada el {self.requested_date}"
 
