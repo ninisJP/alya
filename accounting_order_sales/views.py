@@ -198,7 +198,6 @@ def general_purchaseorder(request):
 
     return render(request, 'purchaseorder/general_purchaseorder.html', context)
 
-    
 def purchaseorder_search(request):
     query = request.GET.get('q', '')
 
@@ -223,6 +222,15 @@ def purchase_orders(request, salesorder_id):
     }
 
     return render(request, 'purchaseorder/purchaseorder_list.html', context)
+
+def purchase_orders_detail(request, purchaseorder_id):
+    salesorder = get_object_or_404(SalesOrder, id=purchaseorder_id)
+    items = salesorder.items.all()
+    context = {
+        'salesorder': salesorder,
+        'items': items,
+    }
+    return render(request, 'purchaseorder/purchase_order_detail.html', context)
 
 def edit_purchase_order(request, order_id):
     order = get_object_or_404(PurchaseOrder, id=order_id)

@@ -19,6 +19,8 @@ urlpatterns = [
     path('banks/upload-statements/', BankStatementUploadView.as_view(), name='upload_bank_statements'),
     path("general_purchaseorder/", general_purchaseorder, name='general_purchaseorder'),
     path('general_purchaseorder/search/', purchaseorder_search, name='purchaseorder-search'),
+    # purchase orders detail
+    path('general_purchaseorder/detail/<int:purchaseorder_id>/', views.purchase_orders_detail, name='purchaseorder_detail'),
     # purchases reconcilations
     path("reconciliations/", purchase_conciliations, name='purchase_conciliations'),
     path("report_conciliations", report_conciliations, name='report_conciliations'),
