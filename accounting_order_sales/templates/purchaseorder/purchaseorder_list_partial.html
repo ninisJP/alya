@@ -1,97 +1,100 @@
-<div class="container-fluid">
-    <!-- Lista de Órdenes de Compra -->
-    <section class="list-group" id="ordenes-compra-container">
-        {% for order in purchase_orders %}
-        <article class="list-group-item mb-3" id="orden-{{ order.id }}" style="border: 1px solid #d1d5db; border-radius: 15px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); padding: 20px; background: linear-gradient(135deg, #ffffff, #f2f5f8);">
-            
-            <!-- Información general de la Orden de Compra -->
-            <header class="row mb-2 align-items-center">
-                <div class="col-lg-2">
-                    <label><strong>Descripción:</strong></label>
-                    <div>{{ order.description }}</div>
-                </div>
-
-                <div class="col-lg-2">
-                    <label><strong>Solicitado por:</strong></label>
-                    <span class="badge bg-primary">{{ order.requested_by }}</span>
-                </div>
-
-                <div class="col-lg-2">
-                    <label><strong>Fecha Programada:</strong></label>
-                    <div>{{ order.scheduled_date }}</div>
-                </div>
-
-                <div class="col-lg-2">
-                    <label><strong>Fecha Creación:</strong></label>
-                    <div>{{ order.created_at }}</div>
-                </div>
-
-                <div class="col-lg-2">
-                    <label><strong>Proyecto:</strong></label>
-                    <div>{{ order.salesorder.project.name }}</div> <!-- Proyecto al que pertenece -->
-                </div>
-
-                <!-- Botón para editar la orden de compra usando HTMX -->
-                <div class="col-lg-2 d-flex justify-content-between">
-                    <!-- Botón para editar la orden de compra usando HTMX -->
-                    <button hx-get="{% url 'edit_purchase_order' order.id %}" 
-                            hx-target="#orden-{{ order.id }}" 
-                            hx-swap="outerHTML" 
-                            class="btn btn-primary">Editar</button>            
-                    
-                    <!-- Botón para eliminar la orden de compra usando HTMX -->
-                    <button hx-delete="{% url 'delete_purchase_order' order.id %}" 
-                            hx-target="#orden-{{ order.id }}" 
-                            hx-swap="outerHTM1L" 
-                            class="btn btn-danger ms-2" 
-                            onclick="return confirm('¿Estás seguro de que deseas eliminar esta orden de compra?');">Eliminar</button>
-                </div>
-                
-            </header>
-
-            <!-- Detalles de los ítems relacionados con la Orden de Compra -->
-            <div class="table-responsive">
-                <table class="table table-striped table-hover table-sm">
-                    <thead>
-                        <tr>
-                            <th style="width: 15%">Ítem</th>
-                            <th style="width: 25%">Detalle</th>
-                            <th style="width: 10%">CANT</th>
-                            <th style="width: 10%">Precio U.</th>
-                            <th style="width: 10%">Precio T.</th>
-                            <th style="width: 20%">Proveedor</th>
-                            <th style="width: 10%">Fecha</th>
-                            <th style="width: 10%">Clase</th>
-                            <th style="width: 10%">Tipo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in order.items.all %}
-                        <tr>
-                            <td>{{ item.sales_order_item.description }}</td>
-                            <td>{{ item.notes }}</td>
-                            <td>{{ item.quantity_requested }}</td>
-                            <td>{{ item.price }}</td>
-                            <td>{{ item.price_total }}</td>
-                            <td>{{ item.supplier }}</td>
-                            <td>{{ item.purchase_date }}</td>
-                            <td>{{ item.class_pay }}</td>
-                            <td>{{ item.type_pay }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center">No se encontraron ítems para esta orden de compra.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
+<div class="container-fluid">     
+    <!-- Lista de Órdenes de Compra -->     
+    <section class="list-group" id="ordenes-compra-container">         
+        {% for order in purchase_orders %}         
+        <article class="list-group-item mb-3" id="orden-{{ order.id }}" style="border: 1px solid #d1d5db; border-radius: 15px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); padding: 20px; background: linear-gradient(135deg, #ffffff, #f2f5f8);">                          
+            <!-- Información general de la Orden de Compra -->             
+            <header class="row mb-2 align-items-center">                 
+                <div class="col-lg-2">                     
+                    <label><strong>Descripción:</strong></label>                     
+                    <div>{{ order.description }}</div>                 
+                </div>                  
+                <div class="col-lg-2">                     
+                    <label><strong>Solicitado por:</strong></label>                     
+                    <span class="badge bg-primary">{{ order.requested_by }}</span>                 
+                </div>                  
+                <div class="col-lg-2">                     
+                    <label><strong>Fecha Programada:</strong></label>                     
+                    <div>
+                        <span class="badge {% if order.scheduled_date %}bg-success{% else %}bg-danger{% endif %}">
+                            {% if order.scheduled_date %}
+                                {{ order.scheduled_date }}
+                            {% else %}
+                                NO PROGRAMADO
+                            {% endif %}
+                        </span>
+                    </div>                 
+                </div>                                 
+                <div class="col-lg-2">                     
+                    <label><strong>Fecha Creación:</strong></label>                     
+                    <div>{{ order.created_at }}</div>                 
+                </div>                  
+                <div class="col-lg-2">                     
+                    <label><strong>Proyecto:</strong></label>                     
+                    <div>{{ order.salesorder.project.name }}</div> <!-- Proyecto al que pertenece -->                 
+                </div>                  
+                <div class="col-lg-2">                     
+                    <label><strong>Ver Detalle Presupuesto:</strong></label>                     
+                    <div><span class="badge bg-success">Código SAP - {{ order.salesorder.sapcode }}</span></div>                  
+                </div>              
+            </header>              
+            <!-- Detalles de los ítems relacionados con la Orden de Compra -->             
+            <div class="table-responsive">                 
+                <table class="table table-striped table-hover table-sm">                     
+                    <thead>                         
+                        <tr>                             
+                            <th style="width: 15%">Ítem</th>                             
+                            <th style="width: 25%">Detalle</th>                             
+                            <th style="width: 10%">CANT</th>                             
+                            <th style="width: 10%">Precio U.</th>                             
+                            <th style="width: 10%">Precio T.</th>                             
+                            <th style="width: 20%">Proveedor</th>                             
+                            <th style="width: 10%">Fecha</th>                             
+                            <th style="width: 10%">Clase</th>                             
+                            <th style="width: 10%">Tipo</th>                         
+                        </tr>                     
+                    </thead>                     
+                    <tbody>                         
+                        {% for item in order.items.all %}                         
+                        <tr>                             
+                            <td>{{ item.sales_order_item.description }}</td>                             
+                            <td>{{ item.notes }}</td>                             
+                            <td>{{ item.quantity_requested }}</td>                             
+                            <td>{{ item.price }}</td>                             
+                            <td>{{ item.price_total }}</td>                             
+                            <td>{{ item.supplier }}</td>                             
+                            <td>{{ item.purchase_date }}</td>                             
+                            <td>{{ item.class_pay }}</td>                             
+                            <td>{{ item.type_pay }}</td>                         
+                        </tr>                         
+                        {% empty %}                         
+                        <tr>                             
+                            <td colspan="7" class="text-center">No se encontraron ítems para esta orden de compra.</td>                         
+                        </tr>                         
+                        {% endfor %}                     
+                    </tbody>                 
                 </table>
-            </div>
-            <footer class="row mt-3">
-                <div class="badge bg-primary">
-                    <strong >Total: </strong> {{ order.total_purchase_order }}
-                </div>
-            </footer>
-        </article>
-        {% endfor %}
-    </section>
+                <div class="d-flex justify-content-end" style="margin-top: 10px;">                     
+                    <!-- Botón para editar la orden de compra usando HTMX -->                     
+                    <button hx-get="{% url 'edit_purchase_order' order.id %}"                             
+                            hx-target="#orden-{{ order.id }}"                             
+                            hx-swap="outerHTML"                             
+                            class="btn btn-primary">Editar</button>                                                      
+                    <!-- Botón para eliminar la orden de compra usando HTMX -->                     
+                    <button hx-delete="{% url 'delete_purchase_order' order.id %}"                             
+                            hx-target="#orden-{{ order.id }}"                             
+                            hx-swap="outerHTML"                             
+                            class="btn btn-danger ms-2"                             
+                            onclick="return confirm('¿Estás seguro de que deseas eliminar esta orden de compra?');">Eliminar</button>                 
+                </div>              
+            </div>             
+            <footer class="row mt-3 d-flex justify-content-reight align-items-center">                 
+                <!-- Total de la compra (espaciado a la izquierda) -->                 
+                <div class="badge bg-primary" style="margin-left: 10px;">                     
+                    <strong>Total: </strong> {{ order.total_purchase_order }}                 
+                </div>                 
+            </footer>         
+        </article>         
+        {% endfor %}     
+    </section> 
 </div>
