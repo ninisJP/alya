@@ -16,9 +16,12 @@
                         <th>SAP</th>
                         <th>Orden de Venta</th>
                         <th>Fecha</th>
-                        <th>Total Orden de Venta</th>
-                        <th>Total Orden de Compra</th>
-                        <th>Utilidad</th>
+                        <th>Total Orden de Venta (Presupuesto)</th>
+                        <th>Orden de Compra (Proyectado)</th>
+                        <th>Orden de Compra (Gastado)</th>
+                        <th>Utilidad (Proyectado)</th>
+                        <th>Facturado</th>
+                        <th>Utilidad (Real)</th>
                         <th>ACT</th>
                     </tr>
                 </thead>
@@ -31,26 +34,34 @@
                         <td>{{ order.total_sales_order|floatformat:2 }}</td>
                         <td>
                             {% for purchase_order in order.purchase_orders.all %}
+                                {{ purchase_order.total_purchase_order_estimed|floatformat:2 }}<br>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for purchase_order in order.purchase_orders.all %}
                                 {{ purchase_order.total_purchase_order|floatformat:2 }}<br>
                             {% endfor %}
                         </td>
                         <td>{{ order.get_utility|floatformat:2 }}</td>
                         <td>
+                        </td>
+                        <td></td>
+                        <td>
                             <!-- Botón de detalles -->
-                            <a href="{% url 'sales_order_detail' order.id %}" 
+                            <a href="{% url 'sales_order_detail' order.id %}"
                             class="bg-blue-500 text-white font-bold py-1 px-3 rounded-full hover:bg-blue-600 inline-flex items-center">
                                 <i class="fas fa-question-circle mr-1"></i> Detalles
                             </a>
                                                     <!-- Botón de detalles -->
-                            <a href="{% url 'project_order_plus' order.id %}" 
+                            <a href="{% url 'project_order_plus' order.id %}"
                             class="bg-blue-500 text-white font-bold py-1 px-3 rounded-full hover:bg-blue-600 inline-flex items-center">
                                 <i class="fas fa-question-circle mr-1"></i> Detalles Plus
                             </a>
                             <!-- Botón de diagrama -->
-                            <button 
-                                hx-get="{% url 'diagram_project_orders' order.id %}" 
-                                hx-target="#table-container-{{ project_data.project.id }}" 
-                                hx-swap="outerHTML" 
+                            <button
+                                hx-get="{% url 'diagram_project_orders' order.id %}"
+                                hx-target="#table-container-{{ project_data.project.id }}"
+                                hx-swap="outerHTML"
                                 class="bg-green-500 text-white font-bold py-1 px-3 rounded-full hover:bg-green-600 inline-flex items-center">
                                 <i class="fas fa-diagram-project mr-1"></i> Diagrama
                             </button>
@@ -61,7 +72,7 @@
                         <td colspan="7">No hay órdenes de venta con órdenes de compra programadas para este proyecto.</td>
                     </tr>
                     {% endfor %}
-                    
+
                     <!-- Fila de Totales -->
                     <tr class="font-bold">
                         <td colspan="3">Totales:</td>
@@ -69,11 +80,13 @@
                         <td>{{ project_data.total_purchase_sum|floatformat:2 }}</td>
                         <td>{{ project_data.total_utility_sum|floatformat:2 }}</td>
                         <td></td>
+                        <td></td>
+                        <td></td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        
+
     </div>
     {% endfor %}
 </div>
