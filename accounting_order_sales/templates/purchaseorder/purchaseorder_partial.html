@@ -1,46 +1,40 @@
 <article class="list-group-item mb-3" id="orden-{{ order.id }}" style="border: 1px solid #d1d5db; border-radius: 15px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); padding: 20px; background: linear-gradient(135deg, #ffffff, #f2f5f8);">
 
     <!-- Información general de la Orden de Compra -->
-    <header class="row mb-2 align-items-center">
-        <div class="col-lg-2">
-            <label><strong>Descripción:</strong></label>
-            <span class="badge bg-primary">{{ order.description }}</span>
-        </div>
-
-        <div class="col-lg-2">
-            <label><strong>Solicitado por:</strong></label>
-            <span class="badge bg-primary">{{ order.requested_by }}</span>
-        </div>
-
-        <div class="col-lg-2">
-            <label><strong>Fecha Programada:</strong></label>
-            <div>{{ order.scheduled_date }}</div>
-        </div>
-
-        <div class="col-lg-2">
-            <label><strong>Fecha Creación:</strong></label>
-            <div>{{ order.created_at }}</div>
-        </div>
-
-        <!-- Mostrar Proyecto y Detalle de la Orden de Venta asociada -->
-        <div class="col-lg-3">
-            <label><strong>Proyecto:</strong></label>
-            <div>{{ order.salesorder.project.name }}</div> <!-- Proyecto al que pertenece -->
-        </div>
-
-        <div class="col-lg-3">
-            <label><strong>Detalle de Orden de Venta:</strong></label>
-            <div>{{ order.salesorder.detail }}</div> <!-- Detalle de la Orden de Venta -->
-        </div>
-
-        <!-- Botón para editar la orden de compra usando HTMX -->
-        <div class="col-lg-2">
-            <button hx-get="{% url 'edit_purchase_order' order.id %}"
-                    hx-target="#orden-{{ order.id }}"
-                    hx-swap="outerHTML"
-                    class="btn btn-primary">Editar</button>
-        </div>
-    </header>
+    <header class="row mb-2 align-items-center">                 
+        <div class="col-lg-2">                     
+            <label><strong>Descripción:</strong></label>                     
+            <div>{{ order.description }}</div>                 
+        </div>                  
+        <div class="col-lg-2">                     
+            <label><strong>Solicitado por:</strong></label>                     
+            <span class="badge bg-primary">{{ order.requested_by }}</span>                 
+        </div>                  
+        <div class="col-lg-2">                     
+            <label><strong>Fecha Programada:</strong></label>                     
+            <div>
+                <span class="badge {% if order.scheduled_date %}bg-success{% else %}bg-danger{% endif %}">
+                    {% if order.scheduled_date %}
+                        {{ order.scheduled_date }}
+                    {% else %}
+                        NO PROGRAMADO
+                    {% endif %}
+                </span>
+            </div>                 
+        </div>                                 
+        <div class="col-lg-2">                     
+            <label><strong>Fecha Creación:</strong></label>                     
+            <div>{{ order.created_at }}</div>                 
+        </div>                  
+        <div class="col-lg-2">                     
+            <label><strong>Proyecto:</strong></label>                     
+            <div>{{ order.salesorder.project.name }}</div> <!-- Proyecto al que pertenece -->                 
+        </div>                  
+        <div class="col-lg-2">                     
+            <label><strong>Ver Detalle Presupuesto:</strong></label>                     
+            <div><span class="badge bg-success">Código SAP - {{ order.salesorder.sapcode }}</span></div>                  
+        </div>              
+    </header>   
 
      <!-- Detalles de los ítems relacionados con la Orden de Compra -->
      <div class="table-responsive">
@@ -78,6 +72,13 @@
                 {% endfor %}
             </tbody>
         </table>
+        <div class="d-flex justify-content-end" style="margin-top: 10px;">                     
+            <!-- Botón para editar la orden de compra usando HTMX -->                     
+            <button hx-get="{% url 'edit_purchase_order' order.id %}"                             
+                    hx-target="#orden-{{ order.id }}"                             
+                    hx-swap="outerHTML"                             
+                    class="btn btn-primary">Editar</button>                                                      
+        </div>      
     </div>
     <footer class="row mt-3">
         <div class="badge bg-primary">
