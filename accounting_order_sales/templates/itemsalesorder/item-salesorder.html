@@ -77,7 +77,7 @@
             </div>
 
             <div class="p-3 bg-light rounded">
-    <h2 class="h5 text-center">Subir Ítemasdsds desde Excel</h2>
+    <h2 class="h5 text-center">Subir Ítems desde Excel</h2>
     <form hx-post="{% url 'item-salesorder' salesorder.id %}" hx-target="#item-salesorder-list" hx-swap="innerHTML" enctype="multipart/form-data" class="w-100">
         {% csrf_token %}
         <div class="row">
