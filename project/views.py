@@ -87,7 +87,7 @@ def search_project(request):
         total_utility_sum = sum(order.get_utility() for order in filtered_sales_orders)
         
         total_purchase_order_estimed_sum = sum(
-            sum(purchase_order.total_purchase_order or 0 for purchase_order in order.purchase_orders.all())
+            sum(purchase_order.total_purchase_order_estimed or 0 for purchase_order in order.purchase_orders.all())
             for order in filtered_sales_orders)
         
         projects_data.append({
