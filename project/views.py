@@ -36,13 +36,19 @@ def project_index(request):
             for order in filtered_sales_orders
         )
         total_utility_sum = sum(order.get_utility() for order in filtered_sales_orders)
+        
+        total_purchase_order_estimed_sum = sum(
+            sum(purchase_order.total_purchase_order_estimed or 0 for purchase_order in order.purchase_orders.all())
+            for order in filtered_sales_orders
+        )
 
         projects_data.append({
             'project': project,
             'filtered_sales_orders': filtered_sales_orders,
             'total_sales_sum': total_sales_sum,
             'total_purchase_sum': total_purchase_sum,
-            'total_utility_sum': total_utility_sum
+            'total_utility_sum': total_utility_sum,
+            'total_purchase_order_estimed_sum': total_purchase_order_estimed_sum,
         })
 
     context = {
@@ -79,13 +85,18 @@ def search_project(request):
             for order in filtered_sales_orders
         )
         total_utility_sum = sum(order.get_utility() for order in filtered_sales_orders)
-
+        
+        total_purchase_order_estimed_sum = sum(
+            sum(purchase_order.total_purchase_order or 0 for purchase_order in order.purchase_orders.all())
+            for order in filtered_sales_orders)
+        
         projects_data.append({
             'project': project,
             'filtered_sales_orders': filtered_sales_orders,
             'total_sales_sum': total_sales_sum,
             'total_purchase_sum': total_purchase_sum,
-            'total_utility_sum': total_utility_sum
+            'total_utility_sum': total_utility_sum,
+            'total_purchase_order_estimed_sum': total_purchase_order_estimed_sum,
         })
 
     context = {
