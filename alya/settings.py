@@ -99,7 +99,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'alya.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',  # El nombre de la base de datos
+        'USER': 'postgres',  # El nombre de usuario
+        'PASSWORD': 'ullnUHkfHWHyoUShqaSTglLsCQFsDflj',  # La contraseña
+        'HOST': 'junction.proxy.rlwy.net',  # El host de la base de datos
+        'PORT': 52416,  # El puerto
+        'CONN_MAX_AGE': 600,  # Mantener la conexión abierta durante 10 minutos
+        'OPTIONS': {
+            'sslmode': 'require',  # Requiere 
+            'connect_timeout': 10,  # Establecer un tiempo de espera de 10 segundos
+        }
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
