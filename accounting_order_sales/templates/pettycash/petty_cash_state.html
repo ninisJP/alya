@@ -61,6 +61,7 @@
             <thead>
                 <tr class="text-center">
                     <th>O. VENTA</th>
+                    <th>D. Pedido</th>
                     <th>PROYECTO</th>
                     <th>PROVEEDOR</th>
                     <th>DESCRIPCIÓN</th>
@@ -77,6 +78,7 @@
                 {% for item in items %}
                 <tr class="align-middle">
                     <td>{{ item.sales_order_item.salesorder.sapcode }}</td>
+                    <td>{{ item.sales_order_item.salesorder.detail }}</td>
                     <td>{{ item.sales_order_item.salesorder.project.name }}</td>
                     <td>{{ item.supplier.name }}</td>
                     <td>{{ item.sales_order_item.description }}</td>
