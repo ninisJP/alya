@@ -513,7 +513,7 @@ def petty_cash_state(request):
 
     # Inicializar el queryset base
     items = PurchaseOrderItem.objects.select_related(
-        'purchaseorder', 'sales_order_item__salesorder', 'supplier'
+        'purchaseorder', 'sales_order_item__salesorder', 'supplier',
     )
 
     # Filtrar por estado de pago si está definido
