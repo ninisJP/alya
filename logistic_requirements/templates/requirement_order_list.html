@@ -14,12 +14,13 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Proyecto</th>
+                    <th>Sapcode</th>
                     <th>Cliente</th>
                     <th>Orden de Venta</th>
+                    <th>D. Presupuesto</th>
                     <th>Fecha Solicitada</th>
                     <th>Fecha Creada</th>
-                    <th>Detalles</th>
+                    <th>D. Pedido</th>
                     <th>Validado</th>
                     <th>Estado de Ítems</th>
                     <th>Acciones</th>
@@ -33,6 +34,7 @@
                             <td>{{ order.sales_order.sapcode }}</td>
                             <td>{{ order.sales_order.project.name }}</td>
                             <td>{{ order.sales_order.project.client.legal_name }}</td>
+                            <td>{{ order.sales_order.detail }}</td>
                             <td>
                                 {% with order.requested_date|date:"l" as day %}
                                     <span class="badge bg-info">{{ day }}</span> {{ order.requested_date|date:"d F Y" }}

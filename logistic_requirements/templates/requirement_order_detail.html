@@ -2,43 +2,52 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="card shadow-sm mb-4 rounded" style="background-color: #f8f9fa;">
+    <div class="card shadow-sm mb-4 rounded" style="background-color: #445760; border-radius: 1rem;">
         <div class="card-body">
             <div class="row align-items-center">
                 <!-- Información de la orden de requerimiento -->
                 <div class="col">
                     <div class="d-flex align-items-center">
-                        <div class="badge bg-danger text-white rounded-pill p-3" style="font-size: 1.5rem; font-weight: 700;">
+                        <div class="badge bg-light text-dark rounded-pill p-3" style="font-size: 1.5rem; font-weight: 700;">
                             <strong>{{ requirement_order.order_number }}</strong>
                         </div>
                     </div>
                 </div>
                 <div class="col">
-                    <span class="text-dark" style="font-weight: 600;">{{ requirement_order.sales_order.project.name }}</span>
+                    <span class="text-white" style="font-weight: 600;">Código:</span>
+                    <span class="text-white" style="font-weight: 600;">{{ requirement_order.sales_order.sapcode }}</span>
                 </div>
                 <div class="col">
-                    <span class="text-dark" style="font-weight: 600;">Detalles: {{ requirement_order.sales_order.detail }}</span>
+                    <span class="text-white" style="font-weight: 600;">Proyecto:</span>
+                    <span class="text-white" style="font-weight: 600;">{{ requirement_order.sales_order.project.name }}</span>
                 </div>
                 <div class="col">
-                    <span class="text-dark" style="font-weight: 600;">{{ requirement_order.notes }}</span>
+                    <span class="text-white" style="font-weight: 600;">D.Presupuesto:</span>
+                    <span class="text-white" style="font-weight: 600;">{{ requirement_order.sales_order.detail }}</span>
                 </div>
                 <div class="col">
-                    <strong style="font-weight: 700;">Días:</strong> <span class="text-dark" style="font-weight: 600;">{{ requirement_order.sales_order.days }}</span>
+                    <span class="text-white" style="font-weight: 600;">D.Pedido:</span>
+                    <span class="text-white" style="font-weight: 600;">{{ requirement_order.notes }}</span>
                 </div>
                 <div class="col">
-                    <strong style="font-weight: 700;">Pedido por:</strong> <span class="text-dark" style="font-weight: 600;">{{ requirement_order.user }}</span>
+                    <strong style="font-weight: 700; color: #ffffff;">Días:</strong> 
+                    <span class="text-white" style="font-weight: 600;">{{ requirement_order.sales_order.days }}</span>
                 </div>
                 <div class="col">
-                    <strong style="font-weight: 700;">Creado el:</strong>
+                    <strong style="font-weight: 700; color: #ffffff;">Pedido por:</strong> 
+                    <span class="text-white" style="font-weight: 600;">{{ requirement_order.user }}</span>
+                </div>
+                <div class="col">
+                    <strong style="font-weight: 700; color: #ffffff;">Creado el:</strong>
                     <span class="badge bg-light text-dark border" style="font-weight: 700;">{{ requirement_order.created_at }}</span>
                 </div>
                 <div class="col">
-                    <strong style="font-weight: 700;">Solicitado el:</strong>
+                    <strong style="font-weight: 700; color: #ffffff;">Solicitado el:</strong>
                     <span class="badge bg-light text-dark border" style="font-weight: 700;">{{ requirement_order.requested_date }}</span>
                 </div>
                 <!-- Botón de volver -->
                 <div class="col text-md-end mt-3 mt-md-0">
-                    <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-secondary">
+                    <a href="{% url 'requirement_order_list' %}" class="btn btn-outline-light">
                         <i class="fas fa-arrow-left"></i> Volver
                     </a>
                 </div>
