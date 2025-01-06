@@ -99,6 +99,17 @@
             color: white;
         }
 
+        .out-of-stock-warning {
+            background-color: yellow !important;
+            color: white;
+        }
+        .out-of-stock-warning .amount{
+            color: black;
+        }
+        .out-of-stock-warning .sap{
+            color: black;
+        }
+
         /* Cambiar color de la descripción cuando la fila es roja */
         .out-of-stock .info{
             color: white; 
@@ -245,8 +256,8 @@
                 </thead>
                 <tbody>
                     {% for item in items %}
-                    <tr class="{% if item.remaining_requirement == 0 %}out-of-stock{% endif %}">
-                        <td>{{ item.sap_code }}</td>
+                    <tr class="{% if item.remaining_requirement == 0 %}out-of-stock{% elif item.diff == 0 %}{% elif item.diff >= 0 %}out-of-stock-warning{% endif %}">
+                        <td class="sap">{{ item.sap_code }}</td>
                         <td class="info">{{ item.description }}</td>
                         <td class="unit">{{ item.unit_of_measurement }}</td>
                         <td class="amount">{{ item.amount }} ({{ item.remaining_requirement }})</td>
