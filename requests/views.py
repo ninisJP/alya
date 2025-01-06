@@ -113,7 +113,7 @@ def create_requests(request, order_id):
                     for field, errors in form.errors.items():
                         for error in errors:
                             messages.error(request, f"Error en {item_name}: {field} - {error}")
-            messages.error(request, "NO PUEDES SOLICITAR UN PEDIDOS PARA LOS DIAS MARTESMIERCOLES.") Y 
+            messages.error(request, "NO PUEDES SOLICITAR UN PEDIDOS PARA LOS DIAS MARTESMIERCOLES.") 
 
     else:
         order_form = CreateRequirementOrderForm(initial={'sales_order': sales_order})
