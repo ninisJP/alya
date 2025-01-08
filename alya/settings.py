@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'project_finance',
     'accounting_sunat',
     'logistic_guides',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -76,6 +77,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'django_browser_reload.middleware.BrowserReloadMiddleware',
     "django_htmx.middleware.HtmxMiddleware",
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'alya.urls'
@@ -101,6 +103,7 @@ WSGI_APPLICATION = 'alya.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -165,3 +168,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+
+INTERNAL_IPS = [
+    '127.0.0.1',  # Dirección IP local (localhost)
+    'localhost',
+]
