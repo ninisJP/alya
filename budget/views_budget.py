@@ -86,6 +86,7 @@ def budget_item_update(request, pk):
                     custom_price_per_day = request.POST.get(f'custom_price_per_day_{item.id}')
                     custom_price = request.POST.get(f'custom_price_{item.id}')
                     coin = request.POST.get(f'coin_{item.id}')
+                    unit = request.POST.get(f'unit_{item.id}')
 
                     if quantity:
                         item.quantity = Decimal(quantity)
@@ -99,6 +100,8 @@ def budget_item_update(request, pk):
                         item.custom_price = Decimal(custom_price)
                     if coin:
                         item.coin = coin
+                    if unit:
+                        item.unit = unit
 
                     if 'HORAS' in item.unit.upper():
                         item.total_price = (item.custom_price_per_day * Decimal(budget.budget_days) * item.quantity).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
