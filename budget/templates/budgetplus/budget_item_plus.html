@@ -39,7 +39,20 @@
                                     <td>{{ item.item.sap }}</td>
                                     <td>{{ item.item.category }}</td>
                                     <td>{{ item.item.description }}</td>
-                                    <td>{{ item.coin }}</td>
+                                    {% comment %} <td>{{ item.coin }}</td> {% endcomment %}
+                                    <td>
+                                        <select 
+                                        name="coin_{{ item.id }}" 
+                                        class="form-control update-trigger"
+                                        hx-post="{% url 'budget_item_update' budget.id %}"
+                                        hx-target="#budget_item_plus"
+                                        hx-swap="innerHTML"
+                                        hx-trigger="change delay:2s">
+                                        <option value="PEN" {% if item.coin == 'PEN' %}selected{% endif %}>PEN</option>
+                                        <option value="USD" {% if item.coin == 'USD' %}selected{% endif %}>USD</option>
+                                        <!-- Añadir más opciones si es necesario -->
+                                        </select>
+                                    </td>
                                     <td>
                                         <input 
                                             type="text" 
