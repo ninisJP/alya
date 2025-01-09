@@ -225,6 +225,8 @@ def purchase_orders(request, salesorder_id):
 
 def purchase_orders_detail(request, purchaseorder_id):
     salesorder = get_object_or_404(SalesOrder, id=purchaseorder_id)
+    
+    # items = salesorder.items.select_related('salesorder').all()    
     items = salesorder.items.all()
     
     for item in items:
