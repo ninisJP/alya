@@ -180,6 +180,9 @@ class BudgetItem(models.Model):
         # Guardar el presupuesto para actualizar sus valores
         self.budget.save()
 
+    def __str__(self):
+        return f'{self.budget} <{self.item}> {self.coin}'
+
     class Meta:
         verbose_name = "Item Presupuesto"
         verbose_name_plural = "Items de Presupuesto"
