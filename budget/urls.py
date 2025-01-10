@@ -29,4 +29,7 @@ urlpatterns = [
     path('budget/<int:item_id>/budget_item_delete/', budget_item_delete, name='budget_item_delete'),
     path('budget/<int:pk>/update/', budget_item_update, name='budget_item_update'),
     path('budget/<int:pk>/update-partial/', update_budget_partial_plus, name='update_budget_partial_plus'),
+    # TEMPLATE MODEL
+    path('descargar-plantilla/', views.download_template, name='descargar_plantilla'),
+
 ]

@@ -275,7 +275,7 @@ def process_sap_excel(excel_file, budget):
     df = pd.read_excel(xls, sheet_name='listado')
 
     # Verificar que las columnas del archivo Excel coincidan con las esperadas
-    expected_columns = ['Número de artículo', 'Descripción del artículo', 'Nombre de unidad de medida', 'Cantidad', 'Precio por unidad', 'Total (ML)']
+    expected_columns = ['Número de artículo', 'Descripción del artículo', 'Nombre de unidad de medida', 'Cantidad', 'Precio por unidad', 'Total (ML)', 'Moneda']
     if not all(col in df.columns for col in expected_columns):
         raise ValueError("El archivo Excel no tiene el formato esperado.")
 
@@ -286,6 +286,7 @@ def process_sap_excel(excel_file, budget):
             if isinstance(value, str):
                 value = value.replace(",", "")  # Eliminar comas
                 value = value.replace("S/", "").strip()  # Eliminar el símbolo S/
+                value = value.replace("US$", "").strip()  # Eliminar el símbolo US$
             return Decimal(value)
         except (ValueError, decimal.InvalidOperation):
             return Decimal(0)
@@ -294,6 +295,12 @@ def process_sap_excel(excel_file, budget):
     df['Cantidad'] = df['Cantidad'].apply(safe_convert_to_decimal)
     df['Precio por unidad'] = df['Precio por unidad'].apply(safe_convert_to_decimal)
     df['Total (ML)'] = df['Total (ML)'].apply(safe_convert_to_decimal)
+
+    # Agregar una columna de categoría al DataFrame usando la función determine_category
+    df['Categoría'] = df['Número de artículo'].apply(determine_category)
+
+    # Ordenar el DataFrame por la columna 'Categoría'
+    df = df.sort_values(by='Categoría')
 
     # Inicializar sumas para los cálculos
     excel_total_sum = Decimal('0.00')
@@ -316,6 +323,7 @@ def process_sap_excel(excel_file, budget):
             description = row['Descripción del artículo']
             unit = row['Nombre de unidad de medida']
             quantity = row['Cantidad']
+            coin = row['Moneda']
             custom_price = row['Precio por unidad']
             total_price = row['Total (ML)']
             excel_total_sum += total_price
@@ -345,6 +353,7 @@ def process_sap_excel(excel_file, budget):
             budget_item, created = BudgetItem.objects.get_or_create(
                 budget=budget,
                 item=catalog_item,
+                coin=coin,
             )
 
             # Actualizar la información del BudgetItem
@@ -352,6 +361,7 @@ def process_sap_excel(excel_file, budget):
             budget_item.custom_price = custom_price
             budget_item.unit = unit
             budget_item.total_price = total_price
+            budget_item.coin = coin  
             budget_item.save()
 
             processed_total_sum += budget_item.total_price
