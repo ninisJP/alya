@@ -11,3 +11,4 @@ django.sqlite3
 media/item_qr/*.png
 *xlsx
 *csv
+!**listado.xlsx
