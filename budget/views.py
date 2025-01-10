@@ -267,6 +267,26 @@ def create_sales_order_from_budget(request, budget_id):
 def export_budget_report(request, pk):
     return export_budget_report_to_excel(request, pk)
 
+from django.conf import settings
+from django.http import FileResponse
+import os
+
+def download_template(request):
+    # La ruta al archivo listado.xlsx en el directorio static
+    file_path = os.path.join(settings.BASE_DIR, 'static', 'listado.xlsx')
+
+    # Verifica si el archivo existe
+    if os.path.exists(file_path):
+        # Devuelve el archivo como respuesta para descarga
+        response = FileResponse(open(file_path, 'rb'), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="listado.xlsx"'
+        return response
+    else:
+        # Si el archivo no existe, puedes manejarlo de alguna forma
+        return HttpResponse("El archivo no se encuentra disponible.", status=404)
+
+
+
 def catalog(request):
     # Formularios de creación y búsqueda
     form = CatalogItemForm()

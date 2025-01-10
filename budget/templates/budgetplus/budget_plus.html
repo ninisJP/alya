@@ -18,7 +18,10 @@
                     <!-- Botones de acción (en una sola línea) -->
                     <div class="d-flex gap-2 align-items-center" style="flex-wrap: nowrap;">
                         <a href="{% url 'export_budget_report' budget.pk %}" class="btn btn-success btn-sm">
-                            <i class="fas fa-file-excel"></i> Descargar Excel
+                            <i class="fas fa-file-excel"></i> Descargar Presupuesto
+                        </a>
+                        <a href="{% url 'descargar_plantilla'  %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-file-excel"></i> Descargar Modelo
                         </a>
                         <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger btn-sm">Eliminar</a>
                         {% if user.is_superuser %}
@@ -26,7 +29,7 @@
                         {% endif %}
                         
                         <!-- Subir archivo Excel (Normal) -->
-                        <form method="POST" enctype="multipart/form-data" action="{% url 'upload_budget_excel' budget.id %}">
+                        <form method="POST" enctype="multipart/form-data" action="{% url 'upload_sap_excel' budget.id %}">
                             {% csrf_token %}
                             <div class="d-flex align-items-center">
                                 <!-- Input de archivo oculto -->
