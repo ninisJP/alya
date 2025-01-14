@@ -65,6 +65,7 @@
                 <th>Cantidad</th>
                 <th>Precio Unitario</th>
                 <th>Precio Total</th>
+                <th>Estado</th>
             </tr>
         </thead>
         <tbody>
@@ -76,6 +77,21 @@
                 <td>{{ item.quantity_requested }}</td>
                 <td>{{ item.price }}</td>
                 <td>{{ item.total_price }}</td>
+                <td>
+                    {% if item.estado == 'L' %}
+                        <span class="badge bg-success">L</span>
+                    {% elif item.estado == 'R' %}
+                        <span class="badge bg-danger">R</span>
+                    {% elif item.estado == 'P' %}
+                    <span class="badge bg-warning">P</span>
+                    {% elif item.estado == 'E' %}
+                    <span class="badge bg-info">E</span>
+                    {% elif item.estado == 'C' %}
+                    <span class="badge bg-primary">C</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">No revisado</span>
+                    {% endif %}
+                </td>
             </tr>
             {% empty %}
             <tr>
