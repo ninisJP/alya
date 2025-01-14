@@ -678,7 +678,7 @@ def update_requirement_order_state(request, pk):
         requirement_order.state = new_state
         requirement_order.save()
         # Mensaje de éxito
-        message = 'La orden ha sido aprobada con éxito.' if new_state == 'APROBADO' else 'La orden ha sido rechazada con éxito.'
+        message = 'La orden ha sido aprobada con éxito.' if new_state == 'APROBADO' else 'La orden ha sido rechazada con éxito.' #! ojito
         response_content = f"<div>{message}</div>"
         return HttpResponse(response_content, content_type="text/html")
     else:

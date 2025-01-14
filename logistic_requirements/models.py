@@ -15,7 +15,6 @@ class RequirementOrder(models.Model):
         ('RECHAZADO', 'Rechazado'),
         ('NO REVISADO', 'No Revisado')
     ]
-    
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="requirement_orders")
     requested_date = models.DateField()
     notes = models.TextField(blank=True, null=True)
