@@ -115,16 +115,14 @@
                     <thead class="table-dark text-center">
                         <tr>
                             <th>Descripción</th>
-                            <th>TOTAL</th>
-                            <th>REST</th>
+                            <th>CANT (DISP)</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in referencia_ordenventa %}
                         <tr data-item-id="{{ item.id }}" class="{% if item.remaining_requirement == 0 %}bg-danger text-white{% endif %}">
                             <td>{{ item.description }}</td>
-                            <td>{{ item.amount }}</td>
-                            <td>{{ item.remaining_requirement }}</td>
+                            <td>{{ item.amount }}({{ item.remaining_requirement }})</td>
                         </tr>
                         {% endfor %}
                     </tbody>

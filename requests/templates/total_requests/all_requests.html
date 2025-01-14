@@ -36,19 +36,24 @@
         background-color: #6c757d;
         color: #fff;
     }
+    .modal-custom {
+        max-width: 70%;
+    }
+    
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid">
     <div class="p-4 bg-white rounded shadow">
-        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">Mis Pedidos</h1>
+        <h1 class="text-center mb-4 display-6 text-dark border-bottom pb-3">Todos los Pedidos</h1>
 
-        {% if my_orders %}
+        {% if total_orders %}
         <div class="table-responsive">
             <table class="table table-bordered table-hover table-striped table-sm text-center" id="myOrdersTable">
                 <thead class="table-dark">
                     <tr>
+                        <th>SAP CODE</th>
                         <th>SAP CODE</th>
                         <th>O. Venta</th>
                         <th>Pedido</th>
@@ -61,8 +66,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for order in my_orders %}
+                    {% for order in total_orders %}
                     <tr id="order-{{ order.id }}">
+                        <th>{{ order.user}}</th>
                         <td>{{ order.sales_order.sapcode }}</td>
                         <td>{{ order.sales_order.detail }}</td>
                         <td>{{ order.notes }}</td>
@@ -77,19 +83,15 @@
                                 <span class="badge bg-warning text-dark">No revisado</span>
                             {% endif %}
                         </td>
-                        <td>{{ order.state }}</td>
+                        <td>
+                            {% if order.estado %}
+                                <span class="badge bg-success">Listo</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pendiente</span>
+                            {% endif %}
+                        </td>
                         <td>{{ order.total_order }}</td>
                         <td>
-                            <a href="{% url 'my_request_detail' order.id %}" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-info-circle"></i>
-                            </a>
-                            <button hx-delete="{% url 'delete_order' order.id %}"
-                                    hx-confirm="¿Estás seguro de que deseas eliminar este pedido?"
-                                    hx-target="#order-{{ order.id }}"
-                                    hx-swap="outerHTML"
-                                    class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
                             <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#previewModal"
                                     onclick="loadOrderPreview('{{ order.id }}')">
                                 <i class="fas fa-eye"></i>
@@ -110,9 +112,8 @@
 
 <!-- Modal para Previsualización -->
 <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
-    {% comment %} <div class="modal-dialog modal-lg"> {% endcomment %}
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
+    <div class="modal-dialog modal-custom">
+        <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="previewModalLabel">Vista Previa del Pedido</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
