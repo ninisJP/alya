@@ -35,11 +35,10 @@
                             <tbody>
                                 {% for item in items %}
                                 <tr id="item-{{ item.id }}">
-                                    <td class="row-number">{{ loop.index }}</td>
+                                    <td class="row-number">{{ forloop.counter }}</td>
                                     <td>{{ item.item.sap }}</td>
                                     <td>{{ item.item.category }}</td>
                                     <td>{{ item.item.description }}</td>
-                                    {% comment %} <td>{{ item.coin }}</td> {% endcomment %}
                                     <td>
                                         <select 
                                         name="coin_{{ item.id }}" 

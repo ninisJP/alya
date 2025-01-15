@@ -8,6 +8,15 @@
 <!-- Eliminar padding y márgenes globalmente -->
 <div class="container-fluid">
     <!-- Fila 1: Formulario para agregar ítem -->
+    {% if messages %}
+    <div class="container mt-4">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-success{% endif %} text-center" role="alert" style="font-size: 1.8em; font-weight: bold;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     <div class="row g-0 mt-4">
         <div class="col-12">
             <div class="card shadow-sm mb-3">
