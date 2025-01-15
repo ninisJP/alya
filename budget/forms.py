@@ -120,6 +120,8 @@ class BudgetEditNewForm(forms.ModelForm):
         ]
         widgets = {
             'budget_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'budget_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'budget_number': forms.TextInput(attrs={'class': 'form-control'}),
             'client': forms.Select(attrs={'class': 'form-control'}),
             'budget_days': forms.NumberInput(attrs={'class': 'form-control'}),
             'budget_expenses': forms.Select(attrs={'class': 'form-control'}),

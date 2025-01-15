@@ -36,6 +36,8 @@ def update_budget_partial_plus(request, pk):
     # Si es GET o si el formulario no es válido, muestra el formulario
     return render(request, "partials/_budget_form.html", {"form": form, "budget": budget})
 
+
+
 def budget_item_plus(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
 

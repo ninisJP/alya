@@ -151,9 +151,15 @@ def duplicate_budget(request, pk):
 def create_sales_order_from_budget(request, budget_id):
     # Obtener el presupuesto seleccionado
     budget = get_object_or_404(Budget, id=budget_id)
-
+    if not budget.budget_number: 
+        messages.error(request, "El presupuesto no tiene un número SAP válido. por favor colocar código SAP") 
+        return redirect('detail_budget_plus', pk=budget_id) 
+ 
     # Verificar si ya existe una orden de venta con el mismo sapcode que el budget_number
     existing_sales_order = SalesOrder.objects.filter(sapcode=budget.budget_number).first()
+    
+    print(existing_sales_order)
+
 
     # Iniciar una transacción atómica para garantizar la consistencia de los datos
     with transaction.atomic():
