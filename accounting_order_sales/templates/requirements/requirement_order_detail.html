@@ -11,7 +11,7 @@
                 hx-vals='{"state": "APROBADO"}' 
                 class="btn btn-lg w-50 shadow-sm text-green"
                 style="background-color: transparent; border: 2px solid #28a745; color: #28a745; transition: all 0.3s;">
-            <i class="fas fa-check-circle me-2"></i> Aprobar
+            <i class="fas fa-check-circle me-2"></i> Validar
         </button>
         <button hx-post="{% url 'update_requirement_order_state' requirement_order.pk %}" 
                 hx-target="#state-response-message" 

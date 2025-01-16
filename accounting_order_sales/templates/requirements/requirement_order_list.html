@@ -31,7 +31,7 @@
                         {% if order.state == "NO REVISADO" %}
                             <span class="badge bg-secondary">No Revisado</span>
                         {% elif order.state == "APROBADO" %}
-                            <span class="badge bg-success">Aprobado</span>
+                            <span class="badge bg-success">Validado</span>
                         {% elif order.state == "RECHAZADO" %}
                             <span class="badge bg-danger">Rechazado</span>
                         {% else %}
@@ -108,13 +108,13 @@
             "language": {
                 "url": "//cdn.datatables.net/plug-ins/2.1.8/i18n/es-MX.json"
             },
-            "paging": true, 
-            "searching": true,  
-            "ordering": true,   
+            "paging": true,
+            "searching": true,
+            "ordering": true,
             "info": true,
             "autoWidth": false,
             "columnDefs": [
-                { "orderable": false, "targets": [8] } 
+                { "orderable": false, "targets": [8] }
             ],
             "dom": 'Bfrtip',
             "buttons": [
@@ -154,14 +154,14 @@
             $("#requirementOrdersTable tbody tr").each(function() {
                 var requestedDateText = $(this).find("td").eq(4).find("span").data("requested-date");
                 var requestedDate = new Date(requestedDateText);
-                
+
                 var today = new Date();
-                today.setHours(0, 0, 0, 0); 
-                requestedDate.setHours(0, 0, 0, 0); 
-                
+                today.setHours(0, 0, 0, 0);
+                requestedDate.setHours(0, 0, 0, 0);
+
                 var difference = (requestedDate - today) / (1000 * 3600 * 24);
                 console.log(difference);
-                
+
                 if (difference < 0) {
                     $(this).find("td").eq(4).find("span").addClass('bg-dark');  // Fecha vencida
                 } else if (difference === 0) {
@@ -171,7 +171,7 @@
                 }else {
                     $(this).find("td").eq(4).find("span").addClass('bg-success');  // Dias con anticipacion
                 }
-                
+
             });
         });
     });
