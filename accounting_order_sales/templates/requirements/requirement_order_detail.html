@@ -5,18 +5,18 @@
     <!-- Div para mostrar el mensaje de respuesta de Aprobar/Rechazar -->
     <div id="state-response-message" class="text-center mt-3"></div>
     <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-4">
-        <button hx-post="{% url 'update_requirement_order_state' requirement_order.pk %}" 
-                hx-target="#state-response-message" 
-                hx-swap="innerHTML" 
-                hx-vals='{"state": "APROBADO"}' 
+        <button hx-post="{% url 'update_requirement_order_state' requirement_order.pk %}"
+                hx-target="#state-response-message"
+                hx-swap="innerHTML"
+                hx-vals='{"state": "APROBADO"}'
                 class="btn btn-lg w-50 shadow-sm text-green"
                 style="background-color: transparent; border: 2px solid #28a745; color: #28a745; transition: all 0.3s;">
-            <i class="fas fa-check-circle me-2"></i> Aprobar
+            <i class="fas fa-check-circle me-2"></i> Validar
         </button>
-        <button hx-post="{% url 'update_requirement_order_state' requirement_order.pk %}" 
-                hx-target="#state-response-message" 
-                hx-swap="innerHTML" 
-                hx-vals='{"state": "RECHAZADO"}' 
+        <button hx-post="{% url 'update_requirement_order_state' requirement_order.pk %}"
+                hx-target="#state-response-message"
+                hx-swap="innerHTML"
+                hx-vals='{"state": "RECHAZADO"}'
                 class="btn btn-lg w-50 shadow-sm text-red ms-2"
                 style="background-color: transparent; border: 2px solid #dc3545; color: #dc3545; transition: all 0.3s;">
             <i class="fas fa-times-circle me-2"></i> Rechazar
@@ -70,7 +70,7 @@
                 <i class="fas fa-truck"></i> Crear Guía de Salida
             </a>
         </div> -->
-    
+
         <!-- Botón: Exportar Excel -->
         <div>
             <a href="{% url 'export_order_to_excel' requirement_order.pk %}" class="btn btn-success text-white">
@@ -91,7 +91,7 @@
             <a href="{% url 'requirement_order_detail' requirement_order.pk %}?filtrar=P"
                class="btn btn-outline-secondary {% if filtrar == 'P' %}active{% endif %}">Ver Pendientes</a>
         </div> {% endcomment %}
-    
+
         <!-- Sección de actualizar la fecha de compra -->
         <div class="d-flex gap-3 align-items-center">
             <!-- Input para seleccionar la fecha -->
@@ -103,7 +103,7 @@
                 <i class="fas fa-calendar-alt"></i> Fecha de Compra
             </button>
         </div>
-    
+
         <!-- Botones: Actualizar estado de los ítems -->
         <div class="btn-group">
             <button type="button" class="btn btn-outline-success fw-bold" onclick="updateAllItemsState('L')">L</button>
@@ -112,9 +112,9 @@
             <button type="button" class="btn btn-outline-danger fw-bold" onclick="updateAllItemsState('R')">R</button>
         </div>
     </div>
-    
+
     </div>
-    
+
     <!-- Formulario para Ítems de la Orden -->
     {% comment %} <form id="requirement-order-form" hx-post="{% url 'logistic_update_requirement_order_items' requirement_order.pk %}" hx-target="#order-response-message" hx-swap="innerHTML">
         <hr>
@@ -162,14 +162,14 @@
                             {% endif %}
                         </td>
                         <td>
-                            <input 
-                                type="date" 
-                                name="date_purchase_order_{{ item.id }}" 
-                                value="{{ item.date_purchase_order|date:'Y-m-d' }}" 
-                                class="form-control" 
+                            <input
+                                type="date"
+                                name="date_purchase_order_{{ item.id }}"
+                                value="{{ item.date_purchase_order|date:'Y-m-d' }}"
+                                class="form-control"
                                 style="width: 150px;"
                             >
-                        </td>   
+                        </td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Estado">
                                 <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
@@ -237,7 +237,7 @@
                         </td>
                         <td>{{ item.sales_order_item.unit_of_measurement }}</td>
                         <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="0.01"></td>
-                        
+
                         <td>
                             {% if item.sales_order_item.custom_quantity %}
                                 {{ item.sales_order_item.custom_quantity }} hrs
@@ -276,14 +276,14 @@
                             {% endif %}
                         </td>
                         <td>
-                            <input 
-                                type="date" 
-                                name="date_purchase_order_{{ item.id }}" 
-                                value="{{ item.date_purchase_order|date:'Y-m-d' }}" 
-                                class="form-control" 
+                            <input
+                                type="date"
+                                name="date_purchase_order_{{ item.id }}"
+                                value="{{ item.date_purchase_order|date:'Y-m-d' }}"
+                                class="form-control"
                                 style="width: 150px;"
                             >
-                        </td>                    
+                        </td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Estado">
                                 <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
@@ -298,10 +298,10 @@
                     {% endfor %}
                 </tbody>
             </table>
-    
+
             <div id="response-message" class="alert-message mt-2"></div>
                 <!-- Botones de Aprobar y Rechazar con Fondo Transparente -->
-    
+
             <!-- Botones Sticky al Final -->
             <div class="d-flex justify-content-between mt-4 bg-light p-3 sticky-bottom" style="position: sticky; bottom: 0; z-index: 1020; border-top: 1px solid #ccc;">
                 <button hx-post="{% url 'logistic_update_and_create_purchase_order' requirement_order.pk %}"
@@ -311,7 +311,7 @@
                     <i class="fas fa-save"></i> Guardar y <i class="fas fa-shopping-cart"></i> Crear Orden de Compra
                 </button>
             </div>
-            
+
         </form>
     </div>
 </div>
@@ -412,7 +412,7 @@
         let worksheet_data = [
             ['SAP', 'CATEGORÍA', 'ITEM', 'DETALLE', 'UND', 'CANT U.', 'CANT H.', 'STOCK', 'PROVEEDOR', 'DOC', 'ESTADO']
         ];
-    
+
         $('#requirement-order-form tbody tr').each(function() {
             let row = [];
             row.push($(this).find('td:eq(0)').text().trim()); // SAP
@@ -428,9 +428,9 @@
             row.push($(this).find('input[name^="estado_"]').val()); // ESTADO
             worksheet_data.push(row);
         });
-    
+
         let worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
-    
+
         // Ajustar el ancho de las columnas
         let columnWidths = [
             { wch: 10 }, // SAP
@@ -446,11 +446,11 @@
             { wch: 10 }  // ESTADO
         ];
         worksheet['!cols'] = columnWidths;
-    
+
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Orden de Requerimiento');
         XLSX.writeFile(workbook, 'Orden_de_Requerimiento.xlsx');
     }
-    
+
     function updateAllItemsState(newState) {
         // Actualizar todos los estados y los botones
         $('input[name^="estado_"]').each(function() {
@@ -462,7 +462,7 @@
     function setEstado(itemId, estado) {
         // Actualizar el valor del input hidden
         $('#estado-input-' + itemId).val(estado);
-    
+
         // Actualizar los estilos de los botones
         const btnGroup = $('#item-row-' + itemId + ' .btn-group');
         btnGroup.find('button').each(function() {
@@ -495,7 +495,7 @@ function updateDateForAllItemsInState(state) {
 
     // Obtener todos los ítems con el estado especificado
     const items = document.querySelectorAll('tr[id^="item-row-"]');
-    
+
     let updated = false;
 
     items.forEach(function(item) {
@@ -516,7 +516,7 @@ function updateDateForAllItemsInState(state) {
     }
 }
 
-    
+
 </script>
 {% endblock %}
 {% endblock %}
