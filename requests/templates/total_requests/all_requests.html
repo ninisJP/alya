@@ -53,14 +53,13 @@
             <table class="table table-bordered table-hover table-striped table-sm text-center" id="myOrdersTable">
                 <thead class="table-dark">
                     <tr>
-                        <th>SAP CODE</th>
+                        <th>USUARIO</th>
                         <th>SAP CODE</th>
                         <th>O. Venta</th>
                         <th>Pedido</th>
                         <th>Fecha Solicitada</th>
                         <th>Fecha de Creación</th>
                         <th>Aprobado</th>
-                        <th>Estado</th>
                         <th>Total</th>
                         <th>Acciones</th>
                     </tr>
@@ -81,13 +80,6 @@
                                 <span class="badge bg-danger">Rechazado</span>
                             {% else %}
                                 <span class="badge bg-warning text-dark">No revisado</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if order.estado %}
-                                <span class="badge bg-success">Listo</span>
-                            {% else %}
-                                <span class="badge bg-warning text-dark">Pendiente</span>
                             {% endif %}
                         </td>
                         <td>{{ order.total_order }}</td>

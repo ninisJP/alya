@@ -54,7 +54,6 @@
                         <th>Pedido</th>
                         <th>Fecha Solicitada</th>
                         <th>Fecha de Creación</th>
-                        <th>Aprobado</th>
                         <th>Estado</th>
                         <th>Total</th>
                         <th>Acciones</th>
@@ -77,7 +76,6 @@
                                 <span class="badge bg-warning text-dark">No revisado</span>
                             {% endif %}
                         </td>
-                        <td>{{ order.state }}</td>
                         <td>{{ order.total_order }}</td>
                         <td>
                             <a href="{% url 'my_request_detail' order.id %}" class="btn btn-outline-primary btn-sm">
