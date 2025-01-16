@@ -22,16 +22,16 @@
             <td>{{ order.created_at|date:"d/m/Y" }}</td>
         </tr>
         <tr>
-            <th>Aprobado:</th>
+            <th>Validado:</th>
             <td>
                 {% if order.state == 'APROBADO' %}
-                    <span>Aprobado</span>
+                    <span>Validado</span>
                 {% elif order.state == 'RECHAZADO' %}
                     <span>Rechazado</span>
                 {% else %}
                     <span>No revisado</span>
                 {% endif %}
-            </td>        
+            </td>
         </tr>
         <tr>
             <th>Estado:</th>
