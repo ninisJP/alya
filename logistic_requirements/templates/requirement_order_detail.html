@@ -121,9 +121,8 @@
                     <th style="width: 100px;">UND</th>
                     <th style="width: 100px;">CANT</th>
                     <th style="width: 100px;">HORAS</th>
-                    <th style="width: 80px;">STOCK</th>
                     {% if not filtrar == 'P' %}
-                        <th style="width: 100px;">UNIT</th>
+                        <th style="width: 100px;">PRECIO U.</th>
                     {% endif %}
                     <th style="width: 100px;">TOTAL</th>
                     <th style="width: 150px;">PROVEEDOR</th>
@@ -153,7 +152,6 @@
                             <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
-                    <td>{{ item.disponible_inventario }}</td>
                     {% if not filtrar == 'P' %}
                         <td>
                             <input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" style="width: 100px;" min="0" step="0.01">
