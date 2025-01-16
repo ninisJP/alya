@@ -36,7 +36,10 @@ def export_budget_report_to_excel(request, pk):
 
     # Crear la hoja de cotización
     _create_quote(plantilla, budget)
-
+    
+    # Plantilla presupuesto
+    _create_budget(plantilla, budget, items_by_category)
+    
     # Crear la respuesta HTTP con el nombre del archivo según el nombre del presupuesto
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename="cotizacion_{budget.budget_name}.xlsx"'
@@ -46,6 +49,7 @@ def export_budget_report_to_excel(request, pk):
 
 def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
     # Estilos generales
+    print("Items by Category:", items_by_category)
     header_font = Font(name="Calibri", bold=True, size=12, color="FFFFFF")
     cell_font = Font(name="Calibri", size=11)
     alignment_center = Alignment(horizontal="center", vertical="center")
@@ -84,6 +88,7 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
                 item.item.price,
                 subtotal
             ]
+            print(f"Adding row: {row}")
             ws.append(row)
             for cell in ws[ws.max_row]:
                 cell.font = cell_font
@@ -92,13 +97,26 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
 
     # Añadir el resumen financiero al final
     ws.append([''])
-    resumen = [
-        ('TOTAL PARCIAL', f'{simbolo} {budget.budget_price:.2f}'),
-        ('GASTOS ADMINISTRATIVOS', f'{simbolo} {budget.budget_expenses:.2f}'),
-        ('UTILIDAD', f'{simbolo} {budget.budget_utility:.2f}'),
-        ('TOTAL FINAL', f'{simbolo} {budget.budget_final_price:.2f}')
-    ]
+    resumen = []
 
+    # Verificar si budget.budget_expenses no es cero para evitar la división por cero
+    if budget.budget_expenses != 0:
+        percent = int(budget.budget_expenses) / 100
+        print(f' heli {percent}')
+        utilidad = budget.budget_price * Decimal(percent)
+        total_final = budget.budget_price - utilidad
+    else:
+        utilidad = 0
+        total_final = budget.budget_price  # En caso de que sea cero, no se calcula la utilidad y el total final es igual al precio
+
+    # Ahora creamos el resumen con los valores calculados
+    resumen = [
+        ('TOTAL PARCIAL', f'S/ {budget.budget_price:.2f}'),
+        ('GASTOS ADMINISTRATIVOS', f'%{budget.budget_expenses}'),
+        ('UTILIDAD', f'S/ {utilidad:.2f}'),
+        ('TOTAL FINAL', f'S/ {total_final:.2f}')
+    ]
+    
     for label, value in resumen:
         ws.append([label, '', '', '', '', value])
         for cell in ws[ws.max_row]:
@@ -113,6 +131,8 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
         max_length = max(len(str(cell.value)) for cell in column if cell.value)  # Evitar valores vacíos
         adjusted_width = max_length + 2
         ws.column_dimensions[column[0].column_letter].width = adjusted_width
+
+from openpyxl.cell.cell import MergedCell 
 
 def _crear_hoja_resumen(ws, budget, items_by_category):
     # Estilos generales
@@ -163,11 +183,24 @@ def _crear_hoja_resumen(ws, budget, items_by_category):
 
     # Añadir el resumen financiero al final
     ws.append([''])
+    resumen = []
+
+    # Verificar si budget.budget_expenses no es cero para evitar la división por cero
+    if budget.budget_expenses != 0:
+        percent = int(budget.budget_expenses) / 100
+        print(f' heli {percent}')
+        utilidad = budget.budget_price * Decimal(percent)
+        total_final = budget.budget_price - utilidad
+    else:
+        utilidad = 0
+        total_final = budget.budget_price  # En caso de que sea cero, no se calcula la utilidad y el total final es igual al precio
+
+    # Ahora creamos el resumen con los valores calculados
     resumen = [
         ('TOTAL PARCIAL', f'S/ {budget.budget_price:.2f}'),
-        ('GASTOS ADMINISTRATIVOS', f'S/ {budget.budget_expenses:.2f}'),
-        ('UTILIDAD', f'S/ {budget.budget_utility:.2f}'),
-        ('TOTAL FINAL', f'S/ {budget.budget_final_price:.2f}')
+        ('GASTOS ADMINISTRATIVOS', f'%{budget.budget_expenses}'),
+        ('UTILIDAD', f'S/ {utilidad:.2f}'),
+        ('TOTAL FINAL', f'S/ {total_final:.2f}')
     ]
 
     for label, value in resumen:
@@ -184,7 +217,119 @@ def _crear_hoja_resumen(ws, budget, items_by_category):
         max_length = max(len(str(cell.value)) for cell in column if cell.value)  # Evitar valores vacíos
         adjusted_width = max_length + 2
         ws.column_dimensions[column[0].column_letter].width = adjusted_width
+        
+        
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
+def _create_budget(plantilla, budget, items_by_category):
+    # Accedemos a la hoja "PRESUPUESTO"
+    sheet = plantilla['PRESUPUESTO']
+
+    # Título del presupuesto
+    title_cell = sheet['B1']
+    title_cell.value = f'PRESUPUESTO: {budget.budget_name}'
+    title_cell.font = Font(name="Calibri", size=6, bold=True)  # Aplicar formato a la celda B1
+    title_cell.alignment = Alignment(horizontal="left", vertical="center")  # Alineación
+    title_cell.border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    
+    # Definir los encabezados de la tabla
+    headers = ['ITEM', 'DESCRIPCION DE PARTIDA', 'UNIDAD', 'CANTIDAD', 'MONEDA', 'P.U.', 'SUB TOTAL', 'TOTAL']
+    
+    # Añadir los encabezados de la tabla en la primera fila
+    for col_num, header in enumerate(headers, 1):
+        cell = sheet.cell(row=2, column=col_num)
+        cell.value = header
+        cell.font = Font(name="Calibri", size=6, bold=True)  # Aplicar formato a los encabezados
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+        cell.fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+        cell.border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+
+    # Empezamos a agregar ítems debajo de los encabezados (en la fila 2)
+    current_row = 3  # Fila donde comenzarán los ítems
+    
+    # Agregar los ítems por categoría
+    for categoria, items in items_by_category.items():
+        # Agregar el nombre de la categoría (puede ser una fila de texto o un título para separar categorías)
+        category_cell = sheet.cell(row=current_row, column=1, value=f'{categoria}')
+        category_cell.font = Font(name="Calibri", size=6, bold=True)  # Formato para la categoría
+        category_cell.alignment = Alignment(horizontal="left", vertical="center")
+        current_row += 1  # Aumentamos la fila para que los ítems vayan debajo de la categoría
+
+        # Añadir los ítems en las filas correspondientes
+        for item in items:
+            subtotal = item.total_price
+            row = [
+                item.item.sap,                # ITEM
+                item.item.description,        # DESCRIPCIÓN DE PARTIDA
+                item.item.unit,               # UNIDAD
+                item.quantity,                # CANTIDAD
+                item.coin,                    # MONEDA
+                item.item.price,              # P.U.
+                subtotal,                     # SUB TOTAL
+                subtotal,                     # TOTAL
+            ]
+            
+            # Añadir la fila del ítem en la hoja
+            for col_num, value in enumerate(row, 1):
+                cell = sheet.cell(row=current_row, column=col_num, value=value)
+                # Aplicar formato a las celdas de los ítems
+                cell.font = Font(name="Calibri", size=6)
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+                cell.border = Border(
+                    left=Side(style='thin'),
+                    right=Side(style='thin'),
+                    top=Side(style='thin'),
+                    bottom=Side(style='thin')
+                )
+            
+            current_row += 1  # Avanzamos a la siguiente fila para el siguiente ítem
+
+    # Ajustar el ancho de las columnas para que los datos sean legibles
+    for col in sheet.columns:
+        max_length = 0
+        column = col[0].column_letter  # Obtener el nombre de la columna (letra)
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = max_length + 2  # Un poco de espacio adicional para mejorar la legibilidad
+        sheet.column_dimensions[column].width = adjusted_width
+
+
+
+    # Ajustar el ancho de las columnas para que los datos sean legibles
+    for col in sheet.columns:
+        max_length = 0
+        column = col[0].column_letter  # Obtener el nombre de la columna (letra)
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = (max_length + 2)
+        sheet.column_dimensions[column].width = adjusted_width
+
+
+    # Ajustar ancho de las columnas
+    for column in sheet.columns:
+        max_length = max(len(str(cell.value)) for cell in column if cell.value)  # Evitar valores vacíos
+        adjusted_width = max_length + 2
+        sheet.column_dimensions[column[0].column_letter].width = adjusted_width
+
+    
 def _create_quote(plantilla, budget):
     sheet = plantilla['COTIZACION']
     # Datos del cliente
