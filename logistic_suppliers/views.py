@@ -6,25 +6,48 @@ from django.shortcuts import render,get_object_or_404
 from django.views.decorators.http import require_POST, require_http_methods
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
+from django.core.paginator import Paginator
 
 # Create your views here.
 # Iniciamos vista y metodos HTMX para tareas
 def index_suppliers(request):
+    # Obtener todos los proveedores
     suppliers = Suppliers.objects.all()
-    context = {'form': SuppliersForm(), 'suppliers': suppliers}
-    return render(request, 'suppliers/suppliers.html', context)
 
+    # Paginación: mostrar 20 proveedores por página
+    paginator = Paginator(suppliers, 1)  # 20 proveedores por página
+    page_number = request.GET.get('page')  # Obtener el número de página desde la solicitud
+    page_obj = paginator.get_page(page_number)  # Obtener los proveedores correspondientes a la página solicitada
+
+    # Pasar los proveedores paginados al contexto
+    context = {
+        'form': SuppliersForm(),
+        'suppliers': page_obj  # Proveedores paginados
+    }
+
+    return render(request, 'suppliers/suppliers.html', context)
 
 # Add Search Supplier
 def supplier_search(request):
-    query = request.GET.get('q','')
+    query = request.GET.get('q', '')
+    suppliers = Suppliers.objects.all()
+
     if query:
-        suppliers=Suppliers.objects.filter(Q(document__icontains=query) | Q(name__icontains=query) | Q(bank__icontains=query)| Q(currency__icontains=query)).order_by('-id')
-    else:
-        suppliers=Suppliers.objects.all().order_by('-id') 
-    
-    context={'suppliers':suppliers , 'form': SuppliersForm()}
-    return render(request,'suppliers/suppliers_list.html', context)
+        suppliers = suppliers.filter(
+            Q(document__icontains=query) | 
+            Q(name__icontains=query) | 
+            Q(bank__icontains=query) |
+            Q(currency__icontains=query)
+        )
+
+    # Paginación
+    paginator = Paginator(suppliers.order_by('-id'), 100)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {'suppliers': page_obj, 'form': SuppliersForm()}
+    return render(request, 'suppliers/suppliers_list.html', context)
+
 
 def create_suppliers(request):
     if request.method == 'POST':
@@ -59,12 +82,12 @@ def edit_suppliers(request, supplier_id):
     return HttpResponse(status=405)
 
 
-def delete_suppliers(request, supplier_id):
-    suppliers = get_object_or_404(Suppliers, id=supplier_id)  
-    if request.method == 'POST':  
-        suppliers.delete()  
-        return render(request, 'suppliers/suppliers_list.html')  
-    return HttpResponse(status=405) 
+def delete_suppliers(request):
+    if request.method == 'POST':
+        supplier_ids = request.POST.getlist('supplier_ids')  # IDs de proveedores a eliminar
+        Suppliers.objects.filter(id__in=supplier_ids).delete()  # Eliminar en un solo query
+        return JsonResponse({'status': 'success'})
+
 
 def supplier_detail(request, supplier_id):
     supplier = get_object_or_404(Suppliers, id=supplier_id)

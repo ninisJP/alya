@@ -60,150 +60,22 @@
             </div>
         </div>
     </div>
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <!-- Botones: Ver Guías de Salida y Crear Guía de Salida -->
-        <div class="d-flex gap-3 align-items-center">
-<!--             <a href="{% url 'list_requirement_order_guides' requirement_order.pk %}" class="btn btn-warning text-white">
-                <i class="fas fa-list"></i> Ver Guías de Salida
-            </a>
-            <a href="{% url 'create_exit_guide' requirement_order.pk %}" class="btn btn-primary text-white">
-                <i class="fas fa-truck"></i> Crear Guía de Salida
-            </a>
-        </div> -->
+    {% comment %} <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-2">
 
-        <!-- Botón: Exportar Excel -->
+        <div class="d-flex gap-3 align-items-center">
         <div>
-            <a href="{% url 'export_order_to_excel' requirement_order.pk %}" class="btn btn-success text-white">
+            <a href="{% url 'export_order_to_excel' requirement_order.pk %}" class="btn btn-success text-white ms-auto">
                 <i class="fas fa-file-excel"></i> Exportar Excel
             </a>
         </div>
-    <!-- Botones para cambiar el estado de todos los ítems masivamente -->
-    {% comment %} <div class="d-flex justify-content-center mb-4 gap-2">
-        <button type="button" class="btn btn-outline-success" onclick="updateAllItemsState('L')">L</button>
-        <button type="button" class="btn btn-outline-primary" onclick="updateAllItemsState('C')">C</button>
-        <button type="button" class="btn btn-outline-warning" onclick="updateAllItemsState('P')">P</button>
-        <button type="button" class="btn btn-outline-danger" onclick="updateAllItemsState('R')">R</button>
-    </div> {% endcomment %}
-    <div class="d-flex gap-2 align-items-center">
-        {% comment %} <div class="d-flex gap-2">
-            <a href="{% url 'requirement_order_detail' requirement_order.pk %}"
-               class="btn btn-outline-secondary {% if not filtrar %}active{% endif %}">Ver Todos</a>
-            <a href="{% url 'requirement_order_detail' requirement_order.pk %}?filtrar=P"
-               class="btn btn-outline-secondary {% if filtrar == 'P' %}active{% endif %}">Ver Pendientes</a>
-        </div> {% endcomment %}
 
-        <!-- Sección de actualizar la fecha de compra -->
-        <div class="d-flex gap-3 align-items-center">
-            <!-- Input para seleccionar la fecha -->
-            <div>
-                <input type="date" id="custom-date" class="form-control" />
-            </div>
-            <!-- Botón para actualizar la fecha de todos los ítems en estado "C" -->
-            <button type="button" class="btn btn-info" onclick="updateDateForAllItemsInState('C')">
-                <i class="fas fa-calendar-alt"></i> Fecha de Compra
-            </button>
-        </div>
-
-        <!-- Botones: Actualizar estado de los ítems -->
-        <div class="btn-group">
-            <button type="button" class="btn btn-outline-success fw-bold" onclick="updateAllItemsState('L')">L</button>
-            <button type="button" class="btn btn-outline-primary fw-bold" onclick="updateAllItemsState('C')">C</button>
-            <button type="button" class="btn btn-outline-warning fw-bold" onclick="updateAllItemsState('P')">P</button>
-            <button type="button" class="btn btn-outline-danger fw-bold" onclick="updateAllItemsState('R')">R</button>
-        </div>
-    </div>
-
-    </div>
-
-    <!-- Formulario para Ítems de la Orden -->
-    {% comment %} <form id="requirement-order-form" hx-post="{% url 'logistic_update_requirement_order_items' requirement_order.pk %}" hx-target="#order-response-message" hx-swap="innerHTML">
-        <hr>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover text-center bg-white">
-                <thead class="bg-light text-dark">
-                    <tr>
-                        <th>SAP</th>
-                        <th>ITEM</th>
-                        <th style="width: 300px;">DETALLE</th>
-                        <th style="width: 100px;">CANT</th>
-                        <th style="width: 100px;">UND</th>
-                        <th>P. UNIT</th>
-                        <th>P. TOT</th>
-                        <th>PROVEEDOR</th>
-                        <th>DOC</th>
-                        <th style="width: 150px;">FECHA PAGO</th>
-                        <th>ESTADO</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in items %}
-                    <tr id="item-row-{{ item.id }}">
-                        <td>{{ item.sap_code }}</td>
-                        <td>{{ item.sales_order_item.description }}</td>
-                        <td>
-                            <textarea name="notes_{{ item.id }}" class="form-control" rows="2" style="resize: none; width: 100%;">{{ item.notes }}</textarea>
-                        </td>
-                        <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="0.01"></td>
-                        <td>{{ item.sales_order_item.unit_of_measurement }}</td>
-                        <td><input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" min="0" step="0.01"></td>
-                        <td><input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" readonly></td>
-                        <td>
-                            <select name="supplier_{{ item.id }}" class="form-select select2-supplier" data-ajax-url="{% url 'ajax_load_suppliers' %}" data-placeholder="Seleccionar proveedor">
-                                {% if item.supplier %}
-                                    <option value="{{ item.supplier.id }}" selected>{{ item.supplier.name }}</option>
-                                {% endif %}
-                            </select>
-                        </td>
-                        <td>
-                            {% if item.file_attachment %}
-                                <a href="{{ item.file_attachment.url }}" target="_blank"><i class="fas fa-book"></i></a>
-                            {% else %}
-                                <i class="fas fa-times text-muted"></i>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <input
-                                type="date"
-                                name="date_purchase_order_{{ item.id }}"
-                                value="{{ item.date_purchase_order|date:'Y-m-d' }}"
-                                class="form-control"
-                                style="width: 150px;"
-                            >
-                        </td>
-                        <td>
-                            <div class="btn-group" role="group" aria-label="Estado">
-                                <input type="hidden" name="estado_{{ item.id }}" value="{{ item.estado }}" id="estado-input-{{ item.id }}">
-                                <button type="button" class="btn btn-sm {% if item.estado == 'L' %}btn-success{% else %}btn-outline-success{% endif %}" onclick="setEstado('{{ item.id }}', 'L')">L</button>
-                                <button type="button" class="btn btn-sm {% if item.estado == 'C' %}btn-primary{% else %}btn-outline-primary{% endif %}" onclick="setEstado('{{ item.id }}', 'C')">C</button>
-                                <button type="button" class="btn btn-sm {% if item.estado == 'P' %}btn-warning{% else %}btn-outline-warning{% endif %}" onclick="setEstado('{{ item.id }}', 'P')">P</button>
-                                <button type="button" class="btn btn-sm {% if item.estado == 'R' %}btn-danger{% else %}btn-outline-danger{% endif %}" onclick="setEstado('{{ item.id }}', 'R')">R</button>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Div para mostrar el mensaje de respuesta de Guardar Cambios/Crear Orden de Compra -->
-        <div id="order-response-message" class="text-center mt-3"></div>
-
-        <!-- Botones de Guardar Cambios y Crear Orden de Compra -->
-        <div class="d-flex justify-content-between mt-4 bg-light p-3 sticky-bottom" style="position: sticky; bottom: 0; z-index: 1020; border-top: 1px solid #ccc;">
-            <button hx-post="{% url 'logistic_update_and_create_purchase_order' requirement_order.pk %}"
-                    hx-target="#response-message"
-                    hx-swap="innerHTML"
-                    class="btn btn-primary flex-grow-1 ms-2">
-                <i class="fas fa-save"></i> Guardar y <i class="fas fa-shopping-cart"></i> Crear Orden de Compra
-            </button>
-        </div>
-    </form> {% endcomment %}
+    </div> {% endcomment %}    
 
     <div class="table-responsive w-100" style="overflow-y: auto; max-height: 750px;">
         <form hx-post="{% url 'logistic_update_requirement_order_items' requirement_order.pk %}"
-              hx-target="#response-message"
-              hx-swap="innerHTML"
-              id="requirement-order-form">
+            hx-target="#response-message"
+            hx-swap="innerHTML"
+            id="requirement-order-form">
             <table class="table table-bordered table-hover align-middle w-100">
                 <thead class="table-dark" style="position: sticky; top: 0; z-index: 1020;">
                     <tr>
@@ -213,9 +85,8 @@
                         <th style="width: 100px;">UND</th>
                         <th style="width: 100px;">CANT</th>
                         <th style="width: 100px;">HORAS</th>
-                        <th style="width: 80px;">STOCK</th>
                         {% if not filtrar == 'P' %}
-                            <th style="width: 100px;">UNIT</th>
+                            <th style="width: 100px;">Precio U.</th>
                         {% endif %}
                         <th style="width: 100px;">TOTAL</th>
                         <th style="width: 150px;">PROVEEDOR</th>
@@ -223,8 +94,8 @@
                         <th style="width: 100px;">
                             <i class="fas fa-check-circle" style="color: green;"></i> PAGADO
                         </th>
-                        <th style="width: 150px;">FECHA PAGO</th>
-                        <th style="width: 100px;">ESTADO</th>
+                        {% comment %} <th style="width: 150px;">FECHA PAGO</th>
+                        <th style="width: 100px;">ESTADO</th> {% endcomment %}
                     </tr>
                 </thead>
                 <tbody>
@@ -236,8 +107,9 @@
                             <input type="text" name="notes_{{ item.id }}" value="{{ item.notes }}" class="form-control" style="min-height: 50px;">
                         </td>
                         <td>{{ item.sales_order_item.unit_of_measurement }}</td>
-                        <td><input type="number" name="quantity_requested_{{ item.id }}" value="{{ item.quantity_requested }}" class="form-control text-center" min="0" step="0.01"></td>
-
+                      
+                        <td>{{ item.quantity_requested }}</td>
+                        
                         <td>
                             {% if item.sales_order_item.custom_quantity %}
                                 {{ item.sales_order_item.custom_quantity }} hrs
@@ -245,11 +117,9 @@
                                 <span class="text-muted">N/A</span>
                             {% endif %}
                         </td>
-                        <td>{{ item.disponible_inventario }}</td>
+                        {% comment %} <td>{{ item.disponible_inventario }}</td> {% endcomment %}
                         {% if not filtrar == 'P' %}
-                            <td>
-                                <input type="number" name="price_{{ item.id }}" value="{{ item.price }}" class="form-control text-center" style="width: 100px;" min="0" step="0.01">
-                            </td>
+                            <td>{{ item.price }}</td>
                         {% endif %}
                         <td>
                             <input type="text" name="total_price_{{ item.id }}" value="{{ item.total_price }}" class="form-control text-center" style="width: 100px;" readonly>
@@ -275,12 +145,13 @@
                                 <span class="badge bg-danger">No</span>
                             {% endif %}
                         </td>
-                        <td>
-                            <input
-                                type="date"
-                                name="date_purchase_order_{{ item.id }}"
-                                value="{{ item.date_purchase_order|date:'Y-m-d' }}"
-                                class="form-control"
+
+                        {% comment %} <td>
+                            <input 
+                                type="date" 
+                                name="date_purchase_order_{{ item.id }}" 
+                                value="{{ item.date_purchase_order|date:'Y-m-d' }}" 
+                                class="form-control" 
                                 style="width: 150px;"
                             >
                         </td>
@@ -293,25 +164,24 @@
                                 <button type="button" class="btn btn-sm {% if item.estado == 'P' %}btn-warning{% else %}btn-outline-warning{% endif %}" onclick="setEstado('{{ item.id }}', 'P')">P</button>
                                 <button type="button" class="btn btn-sm {% if item.estado == 'R' %}btn-danger{% else %}btn-outline-danger{% endif %}" onclick="setEstado('{{ item.id }}', 'R')">R</button>
                             </div>
-                        </td>
+                        </td> {% endcomment %}
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
 
             <div id="response-message" class="alert-message mt-2"></div>
-                <!-- Botones de Validar y Rechazar con Fondo Transparente -->
 
-            <!-- Botones Sticky al Final -->
+            <!-- Botones de Aprobar y Rechazar con Fondo Transparente -->
+
             <div class="d-flex justify-content-between mt-4 bg-light p-3 sticky-bottom" style="position: sticky; bottom: 0; z-index: 1020; border-top: 1px solid #ccc;">
                 <button hx-post="{% url 'logistic_update_and_create_purchase_order' requirement_order.pk %}"
                         hx-target="#response-message"
                         hx-swap="innerHTML"
                         class="btn btn-primary flex-grow-1 ms-2">
-                    <i class="fas fa-save"></i> Guardar y <i class="fas fa-shopping-cart"></i> Crear Orden de Compra
+                    <i class="fas fa-save"></i> Guardar Cambios
                 </button>
             </div>
-
         </form>
     </div>
 </div>
