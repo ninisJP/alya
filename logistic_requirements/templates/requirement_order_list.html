@@ -46,7 +46,7 @@
                                 {% if order.state == "NO REVISADO" %}
                                     <span class="badge bg-warning text-dark">No Revisado</span>
                                 {% elif order.state == "APROBADO" %}
-                                    <span class="badge bg-success">Aprobado</span>
+                                    <span class="badge bg-success">Validado</span>
                                 {% elif order.state == "RECHAZADO" %}
                                     <span class="badge bg-danger">Rechazado</span>
                                 {% else %}
@@ -83,7 +83,7 @@
                         <td colspan="10">No se encontraron resultados para la búsqueda.</td>
                     </tr>
                 {% endif %}
-            </tbody>                        
+            </tbody>
         </table>
     </div>
 </div>

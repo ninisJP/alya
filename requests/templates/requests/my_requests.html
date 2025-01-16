@@ -69,7 +69,7 @@
                         <td>{{ order.created_at|date:"d/m/Y" }}</td>
                         <td>
                             {% if order.state == 'APROBADO' %}
-                                <span class="badge bg-success">Aprobado</span>
+                                <span class="badge bg-success">Validado</span>
                             {% elif order.state == 'RECHAZADO' %}
                                 <span class="badge bg-danger">Rechazado</span>
                             {% else %}
