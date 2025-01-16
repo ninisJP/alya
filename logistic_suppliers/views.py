@@ -77,3 +77,5 @@ def supplier_detail(request, supplier_id):
     }
 
     return render(request, 'suppliers/supplier_detail.html', context)
+
+

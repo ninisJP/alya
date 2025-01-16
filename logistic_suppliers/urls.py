@@ -7,6 +7,8 @@ urlpatterns = [
     path('supplier/<int:supplier_id>/', views.supplier_detail, name='supplier_detail'),
     # view search
     path('supplier/search/', supplier_search, name='supplier_search'),
+    # path('supplier/<int:supplier_id>/items/', views.purchase_order_items_by_supplier, name='purchase_order_items_by_supplier'),
+
 
 ]
 
