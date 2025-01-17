@@ -19,8 +19,22 @@ from django.core.cache import cache
 
 def index_requests(request):
     sales_orders = SalesOrder.objects.filter(is_active=True).order_by('-id')
+
     return render(request, 'index_requests.html', {'sales_orders': sales_orders})
 
+
+def requirement_orders_view(request, sales_order_id):
+    sales_order = get_object_or_404(SalesOrder, id=sales_order_id)
+    
+    requirement_orders = sales_order.requirement_orders.all().order_by('requested_date')
+    
+    context = {
+        'sales_order': sales_order,
+        'requirement_orders': requirement_orders,
+    }
+    
+    return render(request, 'requirement_orders_list.html', context)
+    
 def my_requests(request):
     my_orders = RequirementOrder.objects.filter(user=request.user).order_by('-id')
     return render(request, 'requests/my_requests.html', {'my_orders': my_orders})
@@ -129,13 +143,13 @@ def create_requests(request, order_id):
             queryset=RequirementOrderItem.objects.none(),
             form_kwargs={'sales_order': sales_order}
         )
-
     return render(request, 'requests/create_requests.html', {
         'order_form': order_form,
         'formset': formset,
         'sales_order': sales_order,
-        'referencia_ordenventa': referencia_ordenventa
+        'referencia_ordenventa': referencia_ordenventa,
     })
+    
 
 def create_prepopulated_request(request, order_id):
     sales_order = get_object_or_404(SalesOrder, id=order_id)
