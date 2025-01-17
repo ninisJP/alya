@@ -22,11 +22,11 @@
     }
 
     /* Estilos para los botones */
-    .btn-success, .btn-danger, .btn-warning {
+    .btn-success, .btn-danger, .btn-warning , .btn-info{
         border: none;
         font-weight: bold;
         transition: all 0.3s ease;
-        border-radius: 50px;  /* Aplicamos el estilo ovalado a todos */
+        border-radius: 50px;
     }
 
     .btn-success {
@@ -113,7 +113,12 @@
                                 <a href="{% url 'requests_plus' order.id %}" class="btn btn-warning btn-sm">
                                     <i class="fas fa-star"></i> Pedido ++
                                 </a>
-                            </div>                       
+                            </div>
+                            <div class="btn-group" role="group" aria-label="Acciones" >
+                                <a href="{% url 'requirement_orders_view' order.id %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-star"></i> Ver Ordenes
+                                </a>
+                            </div>                           
                         </td>   
                     </tr>
                 {% endfor %}
