@@ -13,22 +13,22 @@ class CreateRequirementOrderForm(forms.ModelForm):
         model = RequirementOrder
         fields = ['sales_order', 'requested_date', 'notes']
         widgets = {
-            # 'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=0)).isoformat()}),
+            'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (date.today() + timedelta(days=0)).isoformat()}),
             'notes': forms.Textarea(attrs={'required': 'required'})
         }
 
-    # def clean_requested_date(self):
-    #     requested_date = self.cleaned_data.get('requested_date')
+    def clean_requested_date(self):
+        requested_date = self.cleaned_data.get('requested_date')
 
-    #     # Validar solo martes y miercoles (weekday 1 y 2), bloquearlos
-    #     if requested_date.weekday() == 0:  # Lunes
-    #         raise forms.ValidationError("No se permiten pedidos los martes. Selecciona otra fecha.")
-    #     if requested_date.weekday() == 1:  # Martes
-    #         raise forms.ValidationError("No se permiten pedidos los martes. Selecciona otra fecha.")
-    #     if requested_date.weekday() == 2:  # Miércoles
-    #         raise forms.ValidationError("No se permiten pedidos los miércoles. Selecciona otra fecha.")
+        # Validar solo martes y miercoles (weekday 1 y 2), bloquearlos
+        if requested_date.weekday() == 0:  # Lunes
+            raise forms.ValidationError("No se permiten pedidos los martes. Selecciona otra fecha.")
+        if requested_date.weekday() == 1:  # Martes
+            raise forms.ValidationError("No se permiten pedidos los martes. Selecciona otra fecha.")
+        if requested_date.weekday() == 2:  # Miércoles
+            raise forms.ValidationError("No se permiten pedidos los miércoles. Selecciona otra fecha.")
 
-    #     return requested_date
+        return requested_date
 
 
 # Formulario para la creación de RequirementOrderItem (sin estado)
