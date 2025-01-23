@@ -205,9 +205,8 @@ def budget_item_delete(request, item_id):
     budget = item.budget
     item.delete()
     budget.update_budget_price()
-
+    
     items = budget.items.all()
-
     return render(request, 'budgetplus/budget_item_plus.html', {
         'items': items,
         'budget': budget,
