@@ -129,11 +129,20 @@ def budget_item_update(request, pk):
 
 def budget_item_delete(request, item_id):
     with transaction.atomic():
+        # Obtener el item a eliminar
         item = get_object_or_404(BudgetItem, id=item_id)
         budget = item.budget
+
+        # Restar el precio del item eliminado del presupuesto
+        budget.budget_price -= item.total_price
+
+        # Eliminar el item
         item.delete()
-        budget.update_budget_price()
-    
+
+        # Guardar el presupuesto con el precio actualizado
+        budget.save(update_fields=['budget_price'])
+
+    # Obtener los items restantes y renderizar la página con la tabla actualizada
     items = budget.items.all()
     return render(request, 'budgetplus/budget_item_plus.html', {
         'items': items,
