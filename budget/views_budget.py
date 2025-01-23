@@ -126,14 +126,15 @@ def budget_item_update(request, pk):
 
     return redirect('detail_budget_plus', pk=pk)
 
+
 def budget_item_delete(request, item_id):
-    item = get_object_or_404(BudgetItem, id=item_id)
-    budget = item.budget
-    item.delete()
-    budget.update_budget_price()
-
+    with transaction.atomic():
+        item = get_object_or_404(BudgetItem, id=item_id)
+        budget = item.budget
+        item.delete()
+        budget.update_budget_price()
+    
     items = budget.items.all()
-
     return render(request, 'budgetplus/budget_item_plus.html', {
         'items': items,
         'budget': budget,
