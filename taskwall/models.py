@@ -12,14 +12,27 @@ class TaskNote(models.Model):
 
     Parameters
     ----------
-    title(str): Title of the task
-    description(str): Description of the task
-    urgency_level(int): Urgency level of the task
-    created_date(date): Date of the task
-    waiting_time(int): Time waiting
-    due_date(date): Due date of the task
-    status(str): Status of the task
-    rejection_reason(str): Reason for rejection of the task
+    title: str
+        Title of the task
+    description : str
+        Description of the task
+    urgency_level : int, default: medium
+        Urgency level of the task
+    created_date : date
+        Date of the task
+    waiting_time : int
+        Time waiting
+    due_date : date
+        Due date of the task
+    status : str, default: pending
+        Status of the task
+    rejection_reason : str
+        Reason for rejection of the task
+    Choices
+    -------
+    STATUS_CHOICES : List of tuples, default: pending
+        determines the position of the requested requirement,
+        changes are made in the admin panel
     """
 
     STATUS_CHOICES = [
