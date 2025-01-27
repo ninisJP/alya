@@ -1,6 +1,6 @@
 # See LICENSE file for copyright and license details.
 """
-Models to budget
+Budget models.
 """
 from decimal import Decimal
 
@@ -9,12 +9,48 @@ from django.db import models
 
 class Budget(models.Model):
     """
-    Budget mode.
+    Budget model.
 
     Parameters
     ----------
-    client : Client class Foreign Key
-        client of budget
+    client : Client
+    budget_name : str
+    budget_number :str
+        SAP code.
+    budget_days : int
+    budget_date : datetime.date
+    budget_price : decimal.Decimal
+    budget_expenses : decimal.Decimal
+        The available choice is the camp PERCENTAGE_CHOICES.
+    budget_utility : decimal.Decimal
+        The available choice is the camp PERCENTAGE_CHOICES.
+    budget_final_price : decimal.Decimal
+    budget_deliverytime : str
+        The available choice is the camp TIME_CHOICES.
+    budget_servicetime : str
+        TODO: details
+    budget_warrantytime : str
+        TODO: details
+
+    Choices
+    --------
+    PERCENTAGE_CHOICES : list of tuple
+        Available options:
+        - '0.00': 0%
+        - '5.00': 5%
+        - '8.00': 8%
+        - '10.00': 10%
+
+    TIME_CHOICES : list of tuple
+        - '2 days': 2 Días
+        - '1 week': 1 Semana
+        - '2 weeks': 2 Semanas
+        - '1 month': 1 Mes
+        - '2 months': 2 Meses
+        - '6 months': 6 Meses
+        - '1 year': 1 Año
+        - '2 years': 2 Años
+        - '3 years': 3 Años
     """
 
     PERCENTAGE_CHOICES = [
@@ -150,7 +186,28 @@ class Budget(models.Model):
 
 class CatalogItem(models.Model):
     """
-    Class to item from catalog.
+    Catalog item model.
+
+    Parameters
+    ----------
+    category : str
+    description : str
+    price : models.Decimal
+    price_per_day : models.Decimal
+    life_time : models.Decimal
+    sap : str
+    unit : htr
+
+    Choices
+    --------
+    Category : CatalogItem.Category
+        Avaliable options:
+        - 'EQUIPO' : Equipo
+        - 'EPPS' : EPPS
+        - 'MATERIAL' : Material
+        - 'CONSUMIBLE' : Consumible
+        - 'HERRAMIENTA' : Herramienta
+        - 'MANODEOBRA' : Mano de obra
     """
 
     class Category(models.TextChoices):
@@ -189,6 +246,7 @@ class CatalogItem(models.Model):
         """
         Message to show when use the class in print
         """
+
         return f'{self.sap} <{self.description}> precio: {self.price}'
 
     class Meta:
@@ -203,6 +261,25 @@ class CatalogItem(models.Model):
 class BudgetItem(models.Model):
     """
     Class to item from budget.
+
+    budget : Budget
+    item : CatalogItem
+    quantity : decimal.Decimal
+    custom_quantity : decimal.Decimal
+    custom_price : decimal.Decimal
+    custom_price_per_day : decimal.Decimal
+    custom_price_per_hour : decimal.Decimal
+    total_price : decimal.Decimal
+    unit : str
+    coin : str
+        The available choice is the camp COIN.
+
+    Choices
+    --------
+    COIN : list of tuple
+        Available options:
+        - 'PEN': Soles
+        - 'USD': Dólares
     """
 
     COIN = [

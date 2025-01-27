@@ -43,6 +43,11 @@ from .utils import (
 def index_budget(request):
     """
     Budget index
+
+    Returns
+    -------
+    HttpResponse:
+        render budget index.
     """
 
     budgets = Budget.objects.all()
@@ -62,7 +67,18 @@ def index_budget(request):
 
 def edit_budget_item_htmx(request, item_id):
     """
-    Edit budget item with htmx
+    Edit budget item with htmx.
+
+    Parameters
+    ----------
+    item_id : int
+        BudgetItem id.
+
+    Returns
+    -------
+    HttpResponse
+        If it's POST, render 'budget/item_row.html'. Else
+        'budget/edit_item_form.html'.
     """
 
     item = get_object_or_404(BudgetItem, id=item_id)
@@ -102,6 +118,17 @@ def edit_budget_item_htmx(request, item_id):
 def upload_budget_excel(request, budget_id):
     """
     Upload excel in budget
+
+    Parameters
+    ----------
+    budget_id : int
+        Budget id.
+
+    Returns
+    -------
+    HttpResponse
+        If it's POST and upload a excel file, render 'detail_budget'. Else
+        'budget/upload_excel.html'.
     """
 
     if request.method == 'POST' and request.FILES['excel_file']:
@@ -126,6 +153,17 @@ def upload_budget_excel(request, budget_id):
 def upload_sap_excel(request, budget_id):
     """
     Upload excel sap
+
+    Parameters
+    ----------
+    budget_id : int
+        Budget id.
+
+    Returns
+    -------
+    HttpResponse
+        If it's POST and upload a excel file, render 'detail_budget'. Else
+        'budget/upload_excel.html'.
     """
 
     budget = get_object_or_404(Budget, id=budget_id)
@@ -145,6 +183,17 @@ def upload_sap_excel(request, budget_id):
 def delete_budget(request, pk):
     """
     Remove budget.
+
+    Parameters
+    ----------
+    pk : int
+        Budget primary key.
+
+    Returns
+    -------
+    HttpResponse
+        If it's POST, render 'index_budget'. Else
+        'budget/delete_budget.html'.
     """
 
     budget = get_object_or_404(Budget, pk=pk)
@@ -162,6 +211,16 @@ def delete_budget(request, pk):
 def duplicate_budget(request, pk):
     """
     Duplicate a budget. Add duplicate in the name.
+
+    Parameters
+    ----------
+    pk : int
+        Budget primary key.
+
+    Returns
+    -------
+    HttpResponse
+        Render 'detail_budget_plus' page.
     """
 
     original_budget = get_object_or_404(Budget, pk=pk)
@@ -189,6 +248,17 @@ def create_sales_order_from_budget(request, budget_id):
     Create sales order from budget (Duplicate items)
 
     TODO: make a relation beetween budget, included items, and sales order.
+
+    Parameters
+    ----------
+    budget_id : int
+        Budget id.
+
+    Returns
+    -------
+    HttpResponseRedirect
+        Check if budget have a number (SAP code) and redirect to 'index_budget'
+        page. Else redirect 'detail_budget_plus'
     """
 
     budget = get_object_or_404(Budget, id=budget_id)
@@ -303,7 +373,11 @@ def create_sales_order_from_budget(request, budget_id):
 def export_budget_report(request, pk):
     """
     Create excel report of budget
+
+    Returns
+    -------
     """
+    # TODO: details fo return
 
     return export_budget_report_to_excel(request, pk)
 
@@ -311,6 +385,14 @@ def export_budget_report(request, pk):
 def download_template(request):
     """
     Download the excel template for budget
+
+    Returns
+    -------
+    FileResponse
+        Return the template to budger 'listado.xlsx'
+
+    HttpResponse
+        Don't found the template file and return 404.
     """
 
     file_path = os.path.join(settings.BASE_DIR, 'static', 'listado.xlsx')
@@ -331,6 +413,11 @@ def download_template(request):
 def catalog(request):
     """
     Catalog
+
+    Returns
+    -------
+    HttpResponse
+        Render catalog home page.
     """
 
     form = CatalogItemForm()
@@ -360,6 +447,12 @@ def catalog(request):
 def catalog_item_search(request):
     """
     Search catalog item.
+
+    Returns
+    -------
+    JsonResponse
+        If request is a GET and XMLHttpRequest, render a found catalog items.
+        Else return void.
     """
 
     if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -400,6 +493,12 @@ def catalog_item_search(request):
 def catalog_edit(request, catalog_id):
     """
     Edit catalog
+
+    Returns
+    -------
+    HttpResponse
+        If request is POST and form is valid, render only the catalog item.
+        Else, return the form to edit.
     """
 
     catalog = get_object_or_404(CatalogItem, id=catalog_id)
@@ -425,6 +524,11 @@ def catalog_edit(request, catalog_id):
 def catalog_new(request):
     """
     Create a new catalog
+
+    Returns
+    -------
+    HttpResponse
+        Render the catalog form with his status.
     """
 
     context = {}
@@ -444,6 +548,11 @@ def catalog_new(request):
 def catalog_search(request):
     """
     Search catalog
+
+    Returns
+    -------
+    HttpResponse
+        Return the found catalog item.
     """
 
     query = request.GET.get('q', '')
@@ -460,6 +569,14 @@ def catalog_search(request):
 def upload_excel(request):
     """
     Upload excel
+
+    Returns
+    -------
+    HttpResponse
+        Upload the excel/csv file catalog and render 'upload_excel.html'.
+
+    HttpResponseRedirect
+        If happening some error in import catalog items.
     """
 
     if request.method == "POST":
@@ -539,7 +656,7 @@ def upload_excel(request):
                             items_to_create.append(item)
 
                         except Exception as e:
-                            print(f"Error procesando la fila: {e}")
+                            #print(f"Error procesando la fila: {e}")
                             continue
 
                 if items_to_create:
@@ -571,6 +688,11 @@ def upload_excel(request):
 def export_catalog(request):
     """
     Export catalog to excel
+
+    Returns
+    -------
+    HttpResponse
+        Return the all catalog items in excel file.
     """
 
     wb = Workbook()

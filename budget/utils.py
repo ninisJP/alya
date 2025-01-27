@@ -19,7 +19,17 @@ from .models import Budget, BudgetItem, CatalogItem
 
 def export_budget_report_to_excel(request, pk):
     """
-    Export budget report to excel
+    Export budget report to excel.
+
+    Parameters
+    ----------
+    pk : int
+        Budget primary key.
+
+    Returns
+    -------
+    HttpResponse
+        return the excel report.
     """
 
     budget = get_object_or_404(Budget, pk=pk)
@@ -64,6 +74,20 @@ def export_budget_report_to_excel(request, pk):
 def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
     """
     Create budget sheet in excel
+
+    Parameters
+    ----------
+    ws : openpyxl.worksheet.worksheet.Worksheet
+        Excel to create sheet.
+    budget: Budget
+    items_by_category : dict
+        Items in a dterminate category.
+        Example:
+        {
+            'my_category' : [items]
+        }
+    simbolo : str, default: 'S/'
+        Money prefix simbol.
     """
 
     header_font = Font(name="Calibri", bold=True, size=12, color="FFFFFF")
@@ -128,7 +152,6 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
     # Zero division
     if budget.budget_expenses != 0:
         percent = int(budget.budget_expenses) / 100
-        print(f' heli {percent}')
         utilidad = budget.budget_price * Decimal(percent)
         total_final = budget.budget_price - utilidad
     else:
@@ -168,6 +191,18 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
 def _crear_hoja_resumen(ws, budget, items_by_category):
     """
     Make resumen sheet
+
+    Parameters
+    ----------
+    ws : openpyxl.worksheet.worksheet.Worksheet
+        Excel to create summary sheet.
+    budget: Budget
+    items_by_category : dict
+        Items in a dterminate category.
+        Example:
+        {
+            'my_category' : [items]
+        }
     """
 
     header_font = Font(name="Calibri", bold=True, size=12, color="FFFFFF")
@@ -272,6 +307,17 @@ def _crear_hoja_resumen(ws, budget, items_by_category):
 def _create_budget(plantilla, budget, items_by_category):
     """
     Create budget in excel.
+
+    Parameters
+    ----------
+    pantilla: openpyxl.worksheet.worksheet.Worksheet
+    budget: Budget
+    items_by_category : dict
+        Items in a dterminate category.
+        Example:
+        {
+            'my_category' : [items]
+        }
     """
 
     sheet = plantilla['PRESUPUESTO']
@@ -392,7 +438,12 @@ def _create_budget(plantilla, budget, items_by_category):
 
 def _create_quote(plantilla, budget):
     """
-    Create quote in excel
+    Create quote template in excel
+
+    Parameters
+    ----------
+    pantilla : openpyxl.worksheet.worksheet.Worksheet
+        Excel to create the quote template
     """
 
     sheet = plantilla['COTIZACION']
@@ -415,6 +466,13 @@ def _create_quote(plantilla, budget):
 def process_budget_excel(excel_file, budget_id):
     """
     Add budget process.
+
+    Parameters
+    ----------
+    excel_file : str
+        Route to excel file.
+    budget_id : int
+        Budget id.
     """
 
     budget = Budget.objects.get(id=budget_id)
@@ -454,7 +512,17 @@ def process_budget_excel(excel_file, budget_id):
 
 def determine_category(sap_code):
     """
-    Return the category by SAP code
+    Determine the category by SAP code
+
+    Parameters
+    ----------
+    sap_code : str
+        Catalog Item SAP code.
+
+    Returns
+    -------
+    str
+        Category from Catalog Item's Category
     """
 
     if sap_code.startswith('HER'):
@@ -490,6 +558,12 @@ def safe_convert_to_decimal(value):
 def process_sap_excel(excel_file, budget):
     """
     Process excel to SAP.
+
+    Parameters
+    ----------
+    excel_file : str
+        Route to excel file.
+    budget : Budget
     """
 
     xls = pd.ExcelFile(excel_file)

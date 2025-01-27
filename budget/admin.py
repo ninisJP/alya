@@ -1,10 +1,11 @@
 # See LICENSE file for copyright and license details.
 """
-Models budget to see by admin
+Budget models to see by admin
 """
 from django.contrib import admin
 
 from .models import Budget, CatalogItem, BudgetItem
+
 
 admin.site.register(CatalogItem)
 admin.site.register(BudgetItem)
