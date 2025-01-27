@@ -117,6 +117,14 @@ class Budget(models.Model):
         self.budget_price = self.calculate_budget_price()
         self.save(update_fields=['budget_price'])
 
+    def remove_single_item_price(self, item):
+        """
+        Updates `budget_price` by subtracting the price of the deleted item
+        """
+        price_to_remove = item.total_price
+        self.budget_price -= price_to_remove
+        self.save(update_fields=['budget_price'])
+
     def save(self, *args, **kwargs):
         """
         Custom save.
