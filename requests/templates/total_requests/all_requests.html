@@ -55,6 +55,7 @@
                     <tr>
                         <th>USUARIO</th>
                         <th>SAP CODE</th>
+                        <th>Orden</th>
                         <th>O. Venta</th>
                         <th>Pedido</th>
                         <th>Fecha Solicitada</th>
@@ -69,6 +70,7 @@
                     <tr id="order-{{ order.id }}">
                         <th>{{ order.user}}</th>
                         <td>{{ order.sales_order.sapcode }}</td>
+                        <td>{{ order.order_number }}</td>
                         <td>{{ order.sales_order.detail }}</td>
                         <td>{{ order.notes }}</td>
                         <td>{{ order.requested_date }}</td>
