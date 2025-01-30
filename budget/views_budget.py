@@ -195,7 +195,6 @@ def budget_item_update(request, pk):
 
     return redirect('detail_budget_plus', pk=pk)
 
-
 def budget_item_delete(request, item_id):
     """Remove budget item"""
     with transaction.atomic():

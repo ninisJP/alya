@@ -333,6 +333,9 @@ class BudgetItem(models.Model):
         super().save(*args, **kwargs)
         self.budget.save()
 
+    def __str__(self):
+        return f'{self.budget} <{self.item}> {self.coin}'
+
     class Meta:
         """
         Add versobe name in singular an plural
