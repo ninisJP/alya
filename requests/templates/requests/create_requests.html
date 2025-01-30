@@ -121,7 +121,7 @@
                     <tbody>
                         {% for item in referencia_ordenventa %}
                         <tr data-item-id="{{ item.id }}" class="{% if item.remaining_requirement == 0 %}bg-danger text-white{% endif %}">
-                            <td>{{ item.description }}</td>
+                            <td>{{ item.description }}  - Precio U. + igv: ({{ item.price}})</td>
                             <td>{{ item.amount }}({{ item.remaining_requirement }})</td>
                         </tr>
                         {% endfor %}
