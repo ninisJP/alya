@@ -72,7 +72,7 @@ class Budget(models.Model):
         choices=TIME_CHOICES,
         blank=True,
         null=True
-     )
+    )
     budget_servicetime = models.CharField(
         max_length=100,
         blank=True,
