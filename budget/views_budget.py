@@ -33,14 +33,27 @@ def detail_budget_plus(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
     form = AddBudgetItemPlus()
     items = budget.items.all()
+    context = {'budget': budget, 'items': items, 'form': form}
 
     return render(
         request,
-        'budgetplus/budget_plus.html', {
-            'budget': budget,
-            'items': items,
-            'form': form
-        }
+        'budgetplus/budget_plus.html',
+        context
+    )
+
+
+def only_detail_budget_plus(request, pk):
+    """
+    Show budget detail no edition
+    """
+    budget = get_object_or_404(Budget, pk=pk)
+    items = budget.items.all()
+    context = {'budget': budget, 'items': items}
+
+    return render(
+        request,
+        'budgetplus/budget_only_detail_plus.html',
+        context
     )
 
 
