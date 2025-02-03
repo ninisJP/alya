@@ -87,6 +87,10 @@ urlpatterns = [
         name='detail_budget_plus'
     ),
     path(
+        'only_detail_budget_plus/<int:pk>/',
+        views_budget.only_detail_budget_plus,
+        name='only_detail_budget_plus'),
+    path(
         'budget/<int:pk>/add-item-plus/',
         views_budget.budget_item_plus,
         name='budget_item_plus'
