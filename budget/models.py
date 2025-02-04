@@ -5,6 +5,7 @@ Models to budget
 from decimal import Decimal
 
 from django.db import models
+from django.db.models import F
 
 
 class Budget(models.Model):
@@ -122,8 +123,8 @@ class Budget(models.Model):
         Updates `budget_price` by subtracting the price of the deleted item
         """
         price_to_remove = item.total_price
-        self.budget_price -= price_to_remove
-        self.save(update_fields=['budget_price'])
+        Budget.objects.filter(id=self.id).update(budget_price=F(
+            'budget_price') - price_to_remove)
 
     def save(self, *args, **kwargs):
         """
