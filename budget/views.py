@@ -217,14 +217,10 @@ def create_sales_order_from_budget(request, budget_id):
                 sap_code = str(budget_item.item.sap).strip().upper()
                 sap_codes_in_budget.add(sap_code)
 
-                print("importante")
-                print(budget_item.item.sap)
                 if budget_item.item.sap in ('SVT00060', 'SVT00061'):
-                    print("entro")
                     price_with_igv = (budget_item.custom_price or budget_item.item.price)
                     total_price_with_igv = budget_item.total_price if budget_item.total_price else Decimal('0.00')
                 else:
-                    print("igv")
                     price_with_igv = (budget_item.custom_price or budget_item.item.price) * Decimal('1.18')
                     total_price_with_igv = budget_item.total_price * Decimal('1.18') if budget_item.total_price else Decimal('0.00')
 
@@ -289,14 +285,10 @@ def create_sales_order_from_budget(request, budget_id):
             for budget_item in budget.items.all():
                 sap_code = str(budget_item.item.sap).strip().upper()
 
-                print("importante 2")
-                print(budget_item.item.sap)
                 if budget_item.item.sap in ('SVT00060', 'SVT00061'):
-                    print("entro")
                     price_with_igv = (budget_item.custom_price or budget_item.item.price)
                     total_price_with_igv = budget_item.total_price if budget_item.total_price else Decimal('0.00')
                 else:
-                    print("igv")
                     price_with_igv = (budget_item.custom_price or budget_item.item.price) * Decimal('1.18')
                     total_price_with_igv = budget_item.total_price * Decimal('1.18') if budget_item.total_price else Decimal('0.00')
 
