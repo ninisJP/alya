@@ -12,14 +12,5 @@
             <p class="mb-2"><i class="fas fa-building"></i> Precio: <span class="font-bold">{{ catalog.price }}</span></p>
             <p class="mb-2"><i class="fas fa-id-card"></i> Precio por dia: <span class="font-bold">{{ catalog.price_per_day }}</span></p>
         </div>
-        <div class="w-full sm:w-1/6">
-            <!-- Botón Editar con HTMX -->
-            <button class="btn btn-warning btn-sm offset-1g-4 d-flex align-items-end"
-                    hx-get="{% url 'catalog_edit' catalog.id %}"
-                    hx-target="#catalog-{{ catalog.id }}"
-                    hx-swap="outerHTML">
-                Editar
-            </button>
-        </div>
     </div>
 </li>
