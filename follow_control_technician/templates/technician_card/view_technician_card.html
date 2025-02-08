@@ -4,68 +4,78 @@
 {% block title %}Tarjeta de Técnico{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-3">
-    <div class="row justify-content-center">
-        <div class="col-md-12">
-            <div class="p-4 bg-white shadow-sm rounded">
-                <!-- Encabezado con Asociar Grupo y Descargar Excel -->
-                <div class="row mb-4 border-bottom pb-2 align-items-center">
-                    <div class="col-lg-6">
-                        <h1 class="h4 text-primary fw-bold mb-0">TC - {{ tecnico.first_name }} {{ tecnico.last_name }}</h1>
+<div class="container-fluid px-0 pt-0">
+    <div class="row g-3">
+        <div class="col-12">
+            <div class="bg-white rounded-3 shadow-sm p-3">
+                <!-- Encabezado compacto -->
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary text-white rounded-2 px-3 py-2">
+                            <h1 class="h5 mb-0 fw-semibold">Técnico - {{ tecnico.first_name }} {{ tecnico.last_name }}</h1>
+                        </div>
                     </div>
-                    <div class="col-lg-6 d-flex justify-content-end align-items-center">
-                        <!-- Formulario para Asociar Grupo -->
-                        <form method="post" action="{% url 'associate_group_to_card' tarjeta.id %}" class="d-flex align-items-center me-3">
+                    
+                    <div class="d-flex flex-wrap gap-2 w-100" style="max-width: 700px;">
+                        <!-- Formulario Grupo compacto -->
+                        <form method="post" action="{% url 'associate_group_to_card' tarjeta.id %}" 
+                              class="d-flex flex-grow-1 gap-1">
                             {% csrf_token %}
-                            <select name="task_group" class="form-select me-2" required>
-                                <option value="" disabled selected>Seleccionar Grupo</option>
+                            <select name="task_group" class="form-select form-select-sm border-primary rounded-2" required>
+                                <option value="" disabled selected>Grupo</option>
                                 {% for group in grupos_tareas %}
                                 <option value="{{ group.id }}">{{ group.name }}</option>
                                 {% endfor %}
                             </select>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-link"></i> Asociar Grupo
+                            <button type="submit" class="btn btn-primary btn-sm px-3 py-2 d-flex align-items-center gap-1 rounded-2">
+                                <i class="fas fa-link fs-6"></i>
+                                <span class="d-none d-sm-inline">Asociar</span>
                             </button>
                         </form>
 
-                        <!-- Botón Descargar Excel -->
-                        <button onclick="downloadExcel()" type="button" class="btn btn-success">
-                            <i class="fas fa-file-excel"></i> Descargar Excel
+                        <!-- Botón Excel compacto -->
+                        <button onclick="downloadExcel()" type="button" 
+                                class="btn btn-success btn-sm px-3 py-2 d-flex align-items-center gap-1 rounded-2 btn-hover-lift">
+                            <i class="fas fa-file-excel fs-6"></i>
+                            <span class="d-none d-sm-inline">Excel</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Formulario para agregar tareas con HTMX -->
+                <!-- Formulario Tareas compacto -->
                 <form method="post" action="{% url 'add_technician_task' tarjeta.id %}"
-                      hx-post="{% url 'add_technician_task' tarjeta.id %}" hx-target="#tasks-container"
-                      hx-swap="innerHTML" class="border p-3 rounded mb-4">
+                      hx-post="{% url 'add_technician_task' tarjeta.id %}" 
+                      hx-target="#tasks-container"
+                      hx-swap="innerHTML" 
+                      class="border rounded-2 p-3 mb-3 bg-light-subtle">
                     {% csrf_token %}
-                    <div class="row g-3 align-items-center">
-                        <div class="col-md-5">
-                            <label for="task" class="form-label fw-semibold text-secondary">Tarea</label>
-                            {{ form.task|add_class:"form-control select2"|attr:"id=task placeholder='Seleccionar tarea'" }}
+                    <div class="row g-2 align-items-end">
+                        <div class="col-xl-6 col-lg-4 col-md-6">
+                            <label class="form-label text-uppercase fw-bold text-muted small mb-1">Tarea</label>
+                            {{ form.task|add_class:"form-select form-select-sm border-primary rounded-1"|attr:"data-placeholder='Seleccionar tarea'" }}
                         </div>
-                        <div class="col-md-2">
-                            <label for="quantity" class="form-label fw-semibold text-secondary">Cantidad</label>
-                            {{ form.quantity|add_class:"form-control text-center"|attr:"id=quantity placeholder='Cantidad'" }}
+                        
+                        <div class="col-xl-2 col-lg-2 col-md-3">
+                            <label class="form-label text-uppercase fw-bold text-muted small mb-1">Cantidad</label>
+                            {{ form.quantity|add_class:"form-control form-control-sm text-center border-primary rounded-1"|attr:"placeholder='0'" }}
                         </div>
-                        <div class="col-md-3">
-                            <label for="saler_order" class="form-label fw-semibold text-secondary">Orden de Venta</label>
-                            {{ form.saler_order|add_class:"form-control select2"|attr:"id=saler_order placeholder='Seleccionar orden de venta'" }}
+                        
+                        <div class="col-xl-3 col-lg-3 col-md-6">
+                            <label class="form-label text-uppercase fw-bold text-muted small mb-1">Orden Venta</label>
+                            {{ form.saler_order|add_class:"form-select form-select-sm border-primary rounded-1"|attr:"data-placeholder='Seleccionar orden'" }}
                         </div>
-                    </div>
-                    <div class="mt-3 d-grid">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-plus-circle"></i> Agregar Tarea
-                        </button>
+                        
+                        <div class="col-xl-1 col-lg-2 col-md-3">
+                            <button type="submit" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-1 rounded-1 py-2 btn-hover-lift">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>Agregar</span>
+                            </button>
+                        </div>
                     </div>
                 </form>
 
-                <!-- Contenedor de notificaciones -->
-                <div id="notification-container" class="alert alert-success d-none mt-3 mb-3"></div>
-
                 <!-- Lista de tareas -->
-                <div id="tasks-container" class="mt-4">
+                <div id="tasks-container" class="mt-2">
                     {% include 'partials/technician_tasks_list.html' %}
                 </div>
             </div>
@@ -79,18 +89,50 @@
 
 {% include 'partials/technician_card_scripts.html' %}
 
+<style>
+    .btn-hover-lift {
+        transition: all 0.15s ease;
+        transform: translateY(0);
+    }
+    .btn-hover-lift:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.5rem !important;
+        height: calc(2rem + 2px) !important;
+        padding: 0.25rem 1rem !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 2rem !important;
+        right: 0.5rem !important;
+    }
+    .form-control-sm, .form-select-sm {
+        padding: 0.35rem 0.75rem !important;
+        font-size: 0.875rem !important;
+        border-radius: 0.5rem !important;
+    }
+    .form-label.small {
+        font-size: 0.75rem !important;
+    }
+</style>
+
 <script>
     $(document).ready(function() {
         $('.select2').select2({
             width: '100%',
-            placeholder: "Seleccionar una opción",
-            allowClear: true
+            placeholder: function() {
+                return $(this).data('placeholder');
+            },
+            allowClear: true,
+            dropdownParent: $('.bg-light-subtle'),
+            minimumResultsForSearch: 3
         });
     });
 
     function downloadExcel() {
-        // Implementa aquí la lógica para descargar el archivo Excel
-        alert("Descarga de Excel en progreso...");
+        showNotification('Generando Excel...', 'success');
     }
 </script>
 {% endblock %}

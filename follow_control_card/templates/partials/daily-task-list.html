@@ -14,6 +14,8 @@
                                     <th scope="col">Orden de Venta</th>
                                     <th scope="col">Cliente</th>
                                     <th scope="col">Hora</th>
+                                    <th scope="col">Rutina</th>
+                                    <th scope="col">Frecuencia</th>
                                     <th scope="col">Estado</th>
                                     <th scope="col">Eliminar</th>
                                 </tr>
@@ -35,6 +37,8 @@
                                                 <span class="start-time">08:00</span> - <span class="end-time"></span>
                                             </div>
                                         </td>
+                                        <td>{{ task_order.task.rutine }}</td>
+                                        <td>{{ task_order.task.frecuency }}</td>
                                         <td>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox"

@@ -3,7 +3,6 @@
 {% block content %}
 <!-- CSS de Select2 -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
-
 <div class="container-fluid py-4">
     <div class="row align-items-center mb-4">
         <div class="col-lg-6 text-lg-start text-center">
@@ -22,7 +21,7 @@
                         {% endfor %}
                     </select>
                 </div>
-            </form>            
+            </form>
         </div>
     </div>
 
@@ -32,7 +31,7 @@
 
     <!-- Modal para mostrar detalles de tareas -->
     <div class="modal fade" id="taskDetailsModal" tabindex="-1" aria-labelledby="taskDetailsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="taskDetailsModalLabel">Detalles de las Tareas</h5>
@@ -89,32 +88,15 @@
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
                 events: [
-                    {% for event in all_day_events %}
-                    {
-                        title: "{{ event.title }}",
-                        start: "{{ event.start }}",
-                        allDay: true,
-                        extendedProps: { tasks: {{ event.tasks|safe }} }
-                    },
-                    {% endfor %}
-                    {% for date, tasks in tasks_by_date.items %}
-                    {% for task in tasks %}
-                    {
-                        title: "{{ task.title }}",
-                        start: "{{ task.start }}",
-                        end: "{{ task.end }}",
-                        backgroundColor: "{{ task.color }}",
-                        borderColor: "{{ task.color }}",
-                        extendedProps: {
-                            description: "{{ task.description }}",
-                            technician: "{{ task.technician }}",
-                            quantity: {{ task.quantity }},
-                            measurement: "{{ task.measurement }}",
-                            status: "{{ task.status }}"
-                        }
-                    },
-                    {% endfor %}
-                    {% endfor %}
+                {% for event in all_day_events %}
+                {
+                    title: "{{ event.title|escapejs }}",  <!-- Añadir filtro escapejs -->
+                    start: "{{ event.start }}",
+                    allDay: true,
+                    extendedProps: { tasks: {{ event.tasks|safe }} }
+                },
+                {% endfor %}
+
                 ],
                 eventClick: function(info) {
                     const modalBodyContent = document.getElementById('modalBodyContent');

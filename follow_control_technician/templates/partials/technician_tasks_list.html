@@ -1,66 +1,82 @@
-<div class="row text-uppercase fw-bold text-secondary border-bottom pb-2 mb-3">
-    <div class="col">Tarea</div>
-    <div class="col">Grupo Asociado</div>
-    <div class="col text-center">Cantidad</div>
-    <div class="col text-center">Orden de Venta</div>
-    <div class="col text-center">Foto</div>
-    <div class="col text-center">Estado</div>
-    <div class="col text-center">Tiempo Total</div>
-    <div class="col text-center">Act</div>
+<div class="row text-uppercase fw-semibold text-muted border-bottom pb-2 mb-4 bg-light rounded-top py-3 px-2">
+    <div class="col-5">Tarea</div> <!-- Ampliado a col-5 -->
+    <div class="col-1">Grupo</div>
+    <div class="col-1 text-center">Cantidad</div>
+    <div class="col-2 text-center">Orden</div>
+    <div class="col-1 text-center">Estado</div>
+    <div class="col-1 text-center">Duración</div>
+    <div class="col-1 text-center">Acciones</div>
 </div>
-<div class="list-group">
+
+<div class="list-group gap-2">
     {% for tarea in tareas_con_foto %}
-    <div class="form-row row mb-3 align-items-center bg-light p-2 rounded shadow-sm">
-        <div class="col">
-            <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.task.verb }} {{ tarea.task.object }}</p>
+    <div class="row align-items-center mb-2 p-3 bg-white rounded shadow-sm-hover transition-all position-relative border-start border-4 border-primary">
+        <!-- Columna Tarea ampliada -->
+        <div class="col-5 pe-4"> <!-- Añadido padding derecho -->
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <i class="fas fa-tasks text-primary fs-5"></i> <!-- Icono más grande -->
+                </div>
+                <div class="d-flex flex-column">
+                    <span class="text-dark fw-medium text-wrap"><strong>{{ tarea.task.verb }}</strong></span>
+                    <span class="text-dark small text-wrap">{{ tarea.task.object }}</span>
+                </div>
+            </div>
         </div>
-        <div class="col">
-            <p class="form-control-sm text-dark fw-bold mb-0">
+        
+        <!-- Resto de columnas (se mantienen igual) -->
+        <div class="col-1">
+            <span class="badge bg-light text-dark border py-2 px-3">
                 {% if tarea.task_group %}
                     {{ tarea.task_group.name }}
                 {% else %}
-                    No tiene grupo asociado
+                    <span class="text-muted">Sin grupo</span>
                 {% endif %}
-            </p>        
+            </span>
         </div>
-        <div class="col text-center">
-            <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.quantity }}</p>
+        
+        <div class="col-1 text-center">
+            <span class="badge bg-info text-white rounded-pill fs-6 px-3 py-1">{{ tarea.quantity }}</span>
         </div>
-        <div class="col text-center">
-            <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.saler_order }}</p>
+        
+        <div class="col-2 text-center">
+            <span class="text-dark fw-medium">#{{ tarea.saler_order }}</span>
         </div>
-        <div class="col text-center">
-            {% if tarea.photo %}
-                <a href="{{ tarea.photo.url }}" target="_blank" class="btn btn-outline-primary btn-sm">Ver Foto</a>
-            {% else %}
-                <span class="text-muted fw-bold">(Sin foto)</span>
-            {% endif %}
+        
+        <div class="col-1 text-center">
+            <div class="form-switch d-inline-block">
+                <input 
+                    class="form-check-input custom-switch" 
+                    type="checkbox" 
+                    role="switch"
+                    hx-patch="{% url 'technician-task-state' tarea.pk %}" 
+                    hx-trigger="change"
+                    hx-swap="none"
+                    hx-on="htmx:afterOnLoad: showNotification('{{ tarea.pk }}')"
+                    {% if tarea.status %}checked{% endif %}
+                >
+            </div>
         </div>
-        <div class="col text-center">
-            <input 
-                class="form-check-input" 
-                type="checkbox" 
-                hx-patch="{% url 'technician-task-state' tarea.pk %}" 
-                hx-trigger="change"
-                hx-swap="none"
-                hx-on="htmx:afterOnLoad: showNotification('{{ tarea.pk }}')"
-                {% if tarea.status %}checked{% endif %}
+        
+        <div class="col-1 text-center">
+            <div class="d-inline-flex align-items-center bg-light rounded-pill px-3 py-1">
+                <i class="fas fa-clock text-muted me-2 small"></i>
+                <span class="text-dark fw-medium">{{ tarea.total_time }}min</span>
+            </div>
+        </div>
+        
+        <div class="col-1 text-center">
+            <button 
+                class="btn btn-sm btn-icon btn-hover-danger"
+                hx-post="{% url 'delete_technician_card_task' tarea.pk %}" 
+                hx-target="#tasks-container" 
+                hx-swap="innerHTML"
             >
-        </div>
-        <div class="col text-center">
-            <p class="form-control-sm text-dark fw-bold mb-0">{{ tarea.total_time }} {{ tarea.task.measurement }}</p>
-        </div>   
-        <div class="col text-center">
-            <button hx-post="{% url 'delete_technician_card_task' tarea.pk %}" 
-                    hx-target="#tasks-container" 
-                    hx-swap="innerHTML" 
-                    class="btn btn-outline-danger btn-sm">
-                <i class="fas fa-trash-alt"></i>
+                <i class="fas fa-trash-alt text-muted transition-all"></i>
             </button>
         </div>
     </div>
     {% endfor %}
-    <div class="col-12">
-        <h3>Total de minutos: {{ total_minutes }} minutos</h3>
-    </div>
 </div>
+
+<!-- Total tiempo se mantiene igual -->

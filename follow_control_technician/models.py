@@ -6,14 +6,14 @@ from datetime import datetime, time
 
 class TechnicianTaskGroup(models.Model):
     name = models.CharField(max_length=150, unique=True)
-    
+
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = "Grupo de Tareas de Técnico"
         verbose_name_plural = "Grupos de Tareas de Técnicos"
-        
+
 def rename_file(instance, filename):
     # Extraer información relevante del modelo TechnicianCardTask
     technician_name = instance.technician_card.technician.first_name.replace(' ', '_')
@@ -21,21 +21,34 @@ def rename_file(instance, filename):
     order = instance.order
     current_date = datetime.now().strftime("%Y-%m-%d")
     current_time = datetime.now().strftime("%H-%M-%S")
-    
+
     # Generar el nuevo nombre del archivo
     base_name, extension = os.path.splitext(filename)
     new_filename = f"{technician_name}_{task_description}_order{order}_{current_date}_{current_time}{extension}"
-    
+
     return os.path.join('technician_tasks_photos', new_filename)
-    
+
 class TechnicianTask(models.Model):
+    TYPE_RUTINE = [
+        ('NO RUTINARIA', 'NO RUTINARIA'),
+        ('RUTINARIA', 'RUTINARIA'),
+    ]
+    TYPE_FRECUENCY = [
+        ('UNICA', 'UNICA'),
+        ('DIARIA', 'DIARIA'),
+        ('INTERDIARIA', 'INTERDIARIA'),
+        ('SEMANAL', 'SEMANAL'),
+        ('MENSUAL', 'MENSUAL'),
+    ]
     verb = models.CharField(max_length=150)
     object = models.CharField(max_length=350)
     measurement = models.CharField(max_length=50)
     time = models.DecimalField(max_digits=5, decimal_places=2)
+    rutine = models.CharField(max_length=20, choices=TYPE_RUTINE, default='NO RUTINARIA')
+    frecuency = models.CharField(max_length=20, choices=TYPE_FRECUENCY, default='UNICA' )
 
     def __str__(self):
-        return f"{self.verb} {self.object} ({self.time} {self.measurement})"
+        return f"{self.verb} {self.object} ({self.time} {self.measurement} {self.rutine} {self.frecuency})"
 
     class Meta:
         verbose_name = "Tarea de Técnico"
@@ -50,7 +63,7 @@ class TechnicianCard(models.Model):
 
     def __str__(self):
         return f"{self.technician.first_name} - ({self.date})"
-    
+
     class Meta:
         verbose_name = "Tarjeta de Técnico"
         verbose_name_plural = "Tarjetas de técnicos"
@@ -80,8 +93,6 @@ class TechnicianCardTask(models.Model):
         # Calcular total_time como time * quantity
         self.total_time = self.task.time * self.quantity
         super().save(*args, **kwargs)
-        
-
 
 
 class TechnicianTaskGroupItem(models.Model):

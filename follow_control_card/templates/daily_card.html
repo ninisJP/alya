@@ -91,7 +91,20 @@
                         <option value="{{ sale_order.id }}">{{ sale_order.detail }} - {{ sale_order.project.client.legal_name }}</option>
                     {% endfor %}
                 </select>
-                <input type="text" name="measurement" class="form-control-sm" placeholder="Medición" value="minutos" /> 
+                <select name="rutine" class="form-control-sm">
+                    <option value="">Selecciona una rutina</option>
+                    <option value="NO RUTINARIA">NO RUTINARIA</option>
+                    <option value="RUTINARIA">RUTINARIA</option>
+                </select>
+                <select name="frecuency" class="form-control-sm">
+                    <option value="">Selecciona una frecuencia</option>
+                    <option value="UNICA">UNICA</option>
+                    <option value="DIARIA">DIARIA</option>
+                    <option value="INTERDIARIA">INTERDIARIA</option>
+                    <option value="SEMANAL">SEMANAL</option>
+                    <option value="MENSUAL">MENSUAL</option>
+                </select>
+                <input type="text" name="measurement" class="form-control-sm" placeholder="Medición" value="minutos" />
                 <input type="number" name="task_time" class="form-control-sm" placeholder="Tiempo" step="0.01" />
                 <button type="submit" class="btn btn-success btn-sm">
                     <i class="fa-solid fa-otter" style="color: #000000;"></i>
