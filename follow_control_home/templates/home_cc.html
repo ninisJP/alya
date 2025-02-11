@@ -4,6 +4,13 @@
 
 {% block content %}
 <div class="background-blur"></div> <!-- Fondo con efecto blur -->
+
+<div>
+    <a href="{% url 'follow_control_export2excel' %}" style="position: relative; float: right; background-color: #4CAF50; color: white; border: none; padding: 10px 15px; border-radius: 5px; z-index: 10;">
+            <i class="fas fa-file-excel"></i> Exportar Excel
+    </a>
+</div>
+
 <div class="calendar-container">
     <h1 class="calendar-title">Calendario de Tareas del Mes</h1>
     <div id="calendar"></div>
