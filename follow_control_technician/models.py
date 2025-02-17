@@ -104,7 +104,7 @@ class TechnicianTaskGroupItem(models.Model):
     saler_order = models.ForeignKey(
         SalesOrder, on_delete=models.CASCADE, null=True, blank=True
     )  # Orden de venta puede ser opcional
-    order = models.PositiveIntegerField(default=0)  # Orden de la tarea dentro del grupo
+    order = models.PositiveIntegerField(default=1)  # Orden de la tarea dentro del grupo
 
     def __str__(self):
         return f"{self.task} en {self.task_group} (Cantidad: {self.quantity}, Orden: {self.order})"

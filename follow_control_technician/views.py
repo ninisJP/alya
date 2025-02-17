@@ -515,10 +515,6 @@ from django.http import HttpResponse
 from .models import TechnicianTaskGroup
 import pandas as pd
 
-import pandas as pd
-
-import pandas as pd
-
 def process_task_group_excel(file, sale_order=None):
     try:
         print("Iniciando lectura del archivo Excel...")
@@ -531,11 +527,14 @@ def process_task_group_excel(file, sale_order=None):
         print("Encabezados del archivo:", df.columns)
 
         # Verificamos que el archivo tenga al menos las columnas necesarias
-        if df.shape[1] < 6:
+        if df.shape[1] < 7:
             print("Archivo no tiene las columnas necesarias.")
-            raise ValueError("El archivo debe tener al menos 6 columnas: Grupo, Verbo, Objeto, Medida, Tiempo, Rutina, Frecuencia")
+            raise ValueError("El archivo debe tener al menos 6 columnas: Subprocesos, Verbo, Objeto, Medida, Tiempo, Rutina, Frecuencia")
 
         print("Archivo leído correctamente. Procesando filas...")
+
+        current_date = datetime.now().strftime("%d-%m-%Y")
+
 
         task_groups = {}  # Diccionario para almacenar los grupos de tareas por nombre
         errors = []  # Lista para almacenar errores por fila
@@ -544,8 +543,16 @@ def process_task_group_excel(file, sale_order=None):
         for index, row in df.iterrows():
             try:
                 # Asignar el grupo actual si es necesario
+                if pd.notna(row['Proceso']):
+                    proceso = str(row['Proceso']).strip()
+
                 if pd.notna(row['Subprocesos']):
-                    current_group = row['Subprocesos']  # Actualizar el grupo solo si no es nulo
+                    original_group = str(row['Subprocesos']).strip()
+                    current_group = f"{proceso}_{original_group}_{current_date}"
+
+                # Validar que current_group esté definido
+                if current_group is None:
+                    raise ValueError("La primera fila debe definir un Subproceso")
 
                 # Usamos el grupo actual para todas las filas
                 group_name = current_group
@@ -599,6 +606,7 @@ def process_task_group_excel(file, sale_order=None):
             return False, "Errores en algunas filas. Revísalos en los detalles de la salida."
 
         print("Todas las tareas y grupos fueron procesados correctamente.")
+        print(task_groups)
         return True, None
     except Exception as e:
         print("Error durante el procesamiento del archivo:", str(e))
