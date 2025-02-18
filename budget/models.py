@@ -218,7 +218,10 @@ class BudgetItem(models.Model):
         ('PEN', 'Soles'),
         ('USD', 'Dólares'),
     ]
-
+    IGV = [
+        (True, 'SI'),
+        (False, 'NO')
+    ]
     budget = models.ForeignKey(
         'Budget',
         on_delete=models.CASCADE,
@@ -272,6 +275,7 @@ class BudgetItem(models.Model):
         blank=True,
         null=True
     )
+    igv = models.BooleanField(choices=IGV,default=True)
 
     def save(self, *args, **kwargs):
         """
