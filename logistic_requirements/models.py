@@ -15,7 +15,6 @@ class RequirementOrder(models.Model):
         ('RECHAZADO', 'Rechazado'),
         ('NO REVISADO', 'No Revisado')
     ]
-    
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name="requirement_orders")
     requested_date = models.DateField()
     notes = models.TextField(blank=True, null=True)
@@ -84,12 +83,26 @@ class RequirementOrderItem(models.Model):
         upload_to='attachments/',
         blank=True,
         null=True,
-        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'jpeg', 'png'])],
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=[
+                    'pdf',
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'zip',
+                    'rar',
+                    'docx',
+                    'xlsx',
+                    'csv'
+                ]
+            )
+        ],
         help_text="Sube un archivo PDF o una imagen (JPG, PNG)."
     )
     date_purchase_order = models.DateField(null=True, blank=True)
     purchase_order_created = models.BooleanField(default=False)
-   
+
 
     @property
     def is_paid(self):
@@ -109,16 +122,16 @@ class RequirementOrderItem(models.Model):
             total_sent=Sum('quantity')
         )['total_sent'] or Decimal(0)  # Considera 0 si no hay envíos
         return self.quantity_requested - sent_quantity
-    
+
     def clean(self):
         """Validación personalizada para el precio total."""
         # Validar que el total solicitado no exceda el total permitido por el `SalesOrderItem`
         if self.sales_order_item:
-            total_permitido = self.sales_order_item.price_total 
+            total_permitido = self.sales_order_item.price_total
             total_solicitado = self.total_price
 
             # TODO: Revisar si es necesario agregar un margen de tolerancia, hablar con el inge.
-            if float(total_solicitado) > (float(total_permitido)+0.10): 
+            if float(total_solicitado) > (float(total_permitido)+0.10):
                 raise ValidationError(
                     f"El total solicitado ({total_solicitado}) excede el total permitido ({total_permitido}) para el ítem '{self.sales_order_item.description}'."
                 )

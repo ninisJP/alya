@@ -1,6 +1,9 @@
 # Env
 venv
 .venv
+__pycache__
+db.sqlite3
+django.sqlite3
 .env
 
 # Python
@@ -23,3 +26,5 @@ Dockerfile
 Dockerfile.prod
 entrypoint.prod.sh
 entrypoint.sh
+
+!**listado.xlsx

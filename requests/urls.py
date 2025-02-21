@@ -11,6 +11,8 @@ urlpatterns = [
     path('ajax/load-suppliers/', views.ajax_load_suppliers, name='ajax_load_suppliers'),
     path('requirement_order_preview/', views.requirement_order_preview, name='requirement_order_preview'),
     path('exportar/orden-requerimiento/<int:order_id>/', views.export_requirement_order, name='export_requirement_order'),
+    path('total-requests/', views.total_requests, name='total_requests'),
+    path('sales_order/<int:sales_order_id>/requirements/', views.requirement_orders_view, name='requirement_orders_view'),
 ]
 
 htmxpatterms = [

@@ -37,61 +37,47 @@
                 {% include 'itemsalesorder/item-salesorder-list.html' %}
             </div>
         </div>
-        
-        <div class="col-md-3"> <!-- Cambiado a col-md-3 para reducir el ancho del formulario -->
-            <div class="p-3 bg-light rounded mb-4">
-                <h2 class="h5 text-center">Agregar Nuevo Ítem</h2>
-                <form hx-post="{% url 'item-salesorder' salesorder.id %}" hx-target="#item-salesorder-list" hx-swap="innerHTML" class="w-100 mb-4">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-12 mb-3">
-                            <label for="{{ form.sap_code.id_for_label }}" class="form-label visually-hidden">{{ form.sap_code.label }}</label>
-                            {{ form.sap_code }}
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label for="{{ form.description.id_for_label }}" class="form-label visually-hidden">{{ form.description.label }}</label>
-                            {{ form.description }}
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label for="{{ form.amount.id_for_label }}" class="form-label visually-hidden">{{ form.amount.label }}</label>
-                            {{ form.amount }}
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label for="{{ form.price.id_for_label }}" class="form-label visually-hidden">{{ form.price.label }}</label>
-                            {{ form.price }}
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label for="{{ form.price_total.id_for_label }}" class="form-label visually-hidden">{{ form.price_total.label }}</label>
-                            {{ form.price_total }}
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label for="{{ form.unit_of_measurement.id_for_label }}" class="form-label visually-hidden">{{ form.unit_of_measurement.label }}</label>
-                            {{ form.unit_of_measurement }}
-                        </div>
-                        <div class="col-12 mb-3 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">Agregar</button>
-                        </div>
-                        
-                    </div>
-                </form>
-            </div>
 
-            <div class="p-3 bg-light rounded">
-    <h2 class="h5 text-center">Subir Ítemasdsds desde Excel</h2>
-    <form hx-post="{% url 'item-salesorder' salesorder.id %}" hx-target="#item-salesorder-list" hx-swap="innerHTML" enctype="multipart/form-data" class="w-100">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-12 mb-3">
-                <label for="{{ excel_form.archivo_excel.id_for_label }}" class="form-label visually-hidden">{{ excel_form.archivo_excel.label }}</label>
-                {{ excel_form.archivo_excel }}
-            </div>
-            <div class="col-12 mb-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">Subir Excel</button>
-            </div>
-        </div>
-    </form>
-</div>
+        {% if user.username == "admin" %}
+            <div class="col-md-3"> <!-- Cambiado a col-md-3 para reducir el ancho del formulario -->
+                <div class="p-3 bg-light rounded mb-4">
+                    <h2 class="h5 text-center">Agregar Nuevo Ítem</h2>
+                    <form hx-post="{% url 'item-salesorder' salesorder.id %}" hx-target="#item-salesorder-list" hx-swap="innerHTML" class="w-100 mb-4">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.sap_code.id_for_label }}" class="form-label visually-hidden">{{ form.sap_code.label }}</label>
+                                {{ form.sap_code }}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label visually-hidden">{{ form.description.label }}</label>
+                                {{ form.description }}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.amount.id_for_label }}" class="form-label visually-hidden">{{ form.amount.label }}</label>
+                                {{ form.amount }}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.price.id_for_label }}" class="form-label visually-hidden">{{ form.price.label }}</label>
+                                {{ form.price }}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.price_total.id_for_label }}" class="form-label visually-hidden">{{ form.price_total.label }}</label>
+                                {{ form.price_total }}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.unit_of_measurement.id_for_label }}" class="form-label visually-hidden">{{ form.unit_of_measurement.label }}</label>
+                                {{ form.unit_of_measurement }}
+                            </div>
+                            <div class="col-12 mb-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Agregar</button>
+                            </div>
 
-        </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        {% endif %}
     </div>
 </div>

@@ -27,6 +27,12 @@
             </div>
             <div class="d-flex flex-column align-items-end">
                 <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-outline-success d-flex align-items-center"
+                    hx-get="{% url 'supplier_detail' supplier.id %}"
+                    hx-target="#supplier-{{ supplier.id }}"
+                    hx-swap="outerHTML">
+                    <i class="fas fa-edit me-1"></i> Ver
+                    </button>
                     <button class="btn btn-outline-warning d-flex align-items-center"
                             hx-get="{% url 'edit-supplier' supplier.id %}"
                             hx-target="#supplier-{{ supplier.id }}"

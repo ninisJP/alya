@@ -12,7 +12,7 @@
                             <thead>
                                 <tr>
                                     <th class="letter-header"></th>
-                                    {% for col in 'ABCDEFGHIJK' %}
+                                    {% for col in 'ABCDEFGHIJKL' %}
                                     <th class="letter-header">{{ col }}</th>
                                     {% endfor %}
                                 </tr>
@@ -21,6 +21,7 @@
                                     <th>SAP</th>
                                     <th>CAT.</th>
                                     <th>ITEM</th>
+                                    <th>MONEDA</th>
                                     <th>UND</th>
                                     <th>CANT</th>
                                     <th>HORAS</th>
@@ -34,10 +35,22 @@
                             <tbody>
                                 {% for item in items %}
                                 <tr id="item-{{ item.id }}">
-                                    <td class="row-number">{{ loop.index }}</td>
+                                    <td class="row-number">{{ forloop.counter }}</td>
                                     <td>{{ item.item.sap }}</td>
                                     <td>{{ item.item.category }}</td>
                                     <td>{{ item.item.description }}</td>
+                                    <td>
+                                        <select 
+                                        name="coin_{{ item.id }}" 
+                                        class="form-control update-trigger"
+                                        hx-post="{% url 'budget_item_update' budget.id %}"
+                                        hx-target="#budget_item_plus"
+                                        hx-swap="innerHTML"
+                                        hx-trigger="change delay:2s">
+                                        <option value="PEN" {% if item.coin == 'PEN' %}selected{% endif %}>PEN</option>
+                                        <option value="USD" {% if item.coin == 'USD' %}selected{% endif %}>USD</option>
+                                        </select>
+                                    </td>
                                     <td>
                                         <input 
                                             type="text" 
@@ -112,12 +125,16 @@
                                     </td>
                                     <td><span class="total-price" id="total-price-{{ item.id }}">{{ item.total_price }}</span></td>
                                     <td>
-                                        <button 
-                                            class="btn btn-danger btn-sm" 
-                                            hx-delete="{% url 'budget_item_delete' item.id %}" 
-                                            hx-target="#budget_item_plus" 
-                                            hx-swap="innerHTML">
-                                            <i class="fas fa-trash-alt"></i>
+                                        <button
+                                            class="btn btn-danger btn-sm"
+                                            hx-delete="{% url 'budget_item_delete' item.id %}"
+                                            hx-target="#budget_item_plus"
+                                            hx-swap="innerHTML"
+                                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                            hx-confirm="¿Eliminar este ítem?"
+                                            hx-indicator="#loading-indicator"
+                                            hx-http-version="1.1" <!-- Forzar HTTP/1.1 temporalmente -->
+                                        <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </td>
                                 </tr>

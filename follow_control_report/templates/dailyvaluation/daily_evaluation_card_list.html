@@ -50,6 +50,7 @@
                             <thead class="table-secondary text-dark">
                                 <tr>
                                     <th>Tarea</th>
+                                    <th>N° Orden de Venta</th>
                                     <th>Orden de Venta</th>
                                     <th>Horas</th> <!-- Columna combinada de hora de inicio y fin -->
                                     <th>Marcado</th>
@@ -60,6 +61,7 @@
                                 {% for task_order in card.cardtaskorder_set.all %}
                                 <tr class="bg-white">
                                     <td><strong>{{ task_order.task.verb }}</strong> {{ task_order.task.object }}</td>
+                                    <td>{{ task_order.task.sale_order.sapcode }}</td>
                                     <td>{{ task_order.task.sale_order.detail }}</td>
                                     <td>
                                         <!-- Badge con hora de inicio y fin -->

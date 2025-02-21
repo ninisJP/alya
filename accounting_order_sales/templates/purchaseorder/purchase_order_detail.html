@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de la Orden de Venta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background-color: white;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.2rem;
+            margin: 0;
+            display: block;
+            text-align: center;
+        }
+
+        .sap-code {
+            color: white;
+            background-color: #0066cc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .custom-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .custom-table th {
+            background-color: #333;
+            color: white;
+            text-align: left;
+            padding: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .custom-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .custom-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .custom-table tr:hover {
+            background-color: #f0f0f0;
+        }
+
+        .info {
+            color: #0066cc;
+        }
+
+        .unit {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .amount {
+            text-align: right;
+        }
+
+        .price {
+            text-align: right;
+            color: #333;
+        }
+
+        /* Estilo para filas con remaining_requirement == 0 */
+        .out-of-stock {
+            background-color: red !important;
+            color: white;
+        }
+
+        .out-of-stock-warning {
+            background-color: yellow !important;
+            color: white;
+        }
+        .out-of-stock-warning .amount{
+            color: black;
+        }
+        .out-of-stock-warning .sap{
+            color: black;
+        }
+
+        /* Cambiar color de la descripción cuando la fila es roja */
+        .out-of-stock .info{
+            color: white; 
+        }
+        .out-of-stock .unit{
+            color: white; 
+        }
+        .out-of-stock .price{
+            color: white; 
+        }
+        
+        .header-title {
+            display: flex;
+            justify-content: center;  /* Centra el <h1> horizontalmente */
+            align-items: center;      /* Centra el <h1> verticalmente */
+            width: 100%;              /* Asegura que el contenedor ocupe todo el ancho disponible */
+        }
+        
+        /* Estilos generales del header */
+        .header {
+            background-color: #f4f4f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-family: 'Arial', sans-serif;
+            margin-bottom: 20px;
+        }
+
+        /* Título principal */
+        .header h1 {
+            color: #2a4d80;
+            font-size: 2em;
+            margin: 0 0 10px 0;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        /* Resaltado del código SAP */
+        .sap-code {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* Subtítulo de la lista de ítems */
+        .subtitle {
+            color: #7b8c99;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        /* Estilo de las secciones */
+        .section-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2a4d80;
+            border-bottom: 2px solid #e66d5d;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        /* Detalles de la orden */
+        .details {
+            display: flex;
+            justify-content: space-between;  /* Distribuye el espacio entre las dos secciones */
+            gap: 40px;  /* Espacio entre las columnas */
+        }
+
+        /* Columna de la izquierda */
+        .details-left {
+            flex: 1;  /* Toma un 50% del espacio disponible */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Columna de la derecha */
+        .details-right {
+            flex: 1;  /* Toma un 50% del espacio disponible */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Detalles de los párrafos */
+        .details p {
+            font-size: 1.1em;
+            color: #555;
+            margin: 8px 0;
+        }
+
+        .details p span {
+            font-weight: normal;
+            color: #333;
+        }
+
+        /* Resaltar los campos con valores importantes */
+        .details p strong {
+            color: #2a4d80;
+        }
+
+        /* Añadir estilo en los campos con fechas o valores dinámicos */
+        .details p span {
+            font-weight: bold;
+            color: #e66d5d;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title">
+                <h1>SAP CODE <span class="sap-code">{{ salesorder.sapcode }}</span></h1>
+            </div>
+            <div class="subtitle">Lista de ítems - Orden basada en el presupuesto RESERVA</div>
+            
+            <h1 class="section-title">Detalles de la Orden de Venta</h1>
+            
+            <div class="details">
+                <div class="details-left">
+                    <p><strong>Código SAP:</strong> <span>{{ salesorder.sapcode }}</span></p>
+                    <p><strong>Proyecto:</strong> <span>{{ salesorder.project.name }}</span></p>
+                    <p><strong>Descripción:</strong> <span>{{ salesorder.detail }}</span></p>
+                </div>
+                
+                <div class="details-right">
+                    <p><strong>Fecha:</strong> <span>{{ salesorder.date }}</span></p>
+                    <p><strong>Total:</strong> <span>${{ salesorder.total_sales_order }}</span></p>
+                    <p><strong>Días:</strong> <span>{{ salesorder.days }}</span></p>
+                </div>
+            </div>
+        </div>          
+
+        <div class="custom-table-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>CODIGO</th>
+                        <th>DESC</th>
+                        <th>UND</th>
+                        <th>CANT (REST)</th>
+                        <th>PRECIO</th>
+                        <th>PRECIO T.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr class="{% if item.remaining_requirement == 0 %}out-of-stock{% elif item.diff == 0 %}{% elif item.diff >= 0 %}out-of-stock-warning{% endif %}">
+                        <td class="sap">{{ item.sap_code }}</td>
+                        <td class="info">{{ item.description }}</td>
+                        <td class="unit">{{ item.unit_of_measurement }}</td>
+                        <td class="amount">{{ item.amount }} ({{ item.remaining_requirement }})</td>
+                        <td class="price">{{ item.price }}</td>
+                        <td class="price">{{ item.price_total }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -32,10 +32,10 @@ class RequirementOrderListView(ListView):
         show_pending = self.request.GET.get('show_pending') == 'true'
         show_comprando = self.request.GET.get('show_comprando') == 'true'
         show_all = self.request.GET.get('show_all') == 'true'
-        
+
         # Iniciar queryset con todas las órdenes APROBADAS por contabilidad
         queryset = RequirementOrder.objects.order_by('-id').prefetch_related('items') # filter(state='APROBADO')
-        
+
         if show_all:
             queryset = queryset.distinct()
             print(show_all)
@@ -55,8 +55,8 @@ class RequirementOrderListView(ListView):
             queryset = queryset.filter(state='APROBADO').filter(
                 items__estado='P' #items__estado__in=['P', 'C']
             ).distinct()
-         
-        
+
+
         # Calcular el estado general de cada orden
         for order in queryset:
             items = order.items.all()
@@ -92,7 +92,7 @@ def search_requirement_order_list_view(request):
                                                             | Q(notes__icontains=query)).order_by('-id')
     else:
         requirement_orders = RequirementOrder.objects.all().order_by('-id')
-    
+
     print(requirement_orders)
 
     context = {'requirement_orders': requirement_orders, 'form': RequirementOrderListForm()}
@@ -156,7 +156,7 @@ def update_requirement_order_items(request, pk):
 
     # Usar bulk_update para mejorar el rendimiento
     RequirementOrderItem.objects.bulk_update(
-        updated_items, 
+        updated_items,
         ['quantity_requested', 'price', 'notes', 'supplier_id', 'estado', 'date_purchase_order']
     )
 
@@ -207,7 +207,7 @@ def create_purchase_order(request, pk):
 
     # Filtrar ítems en estado 'C' que no han sido procesados
     items_comprando = RequirementOrderItem.objects.filter(
-        requirement_order=requirement_order, 
+        requirement_order=requirement_order,
         estado='C',
         purchase_order_created=False  # Solo ítems no procesados
     )
@@ -267,7 +267,7 @@ def update_and_create_purchase_order(request, pk):
 
     # Usar bulk_update para mejorar el rendimiento
     RequirementOrderItem.objects.bulk_update(
-        updated_items, 
+        updated_items,
         ['quantity_requested', 'price', 'notes', 'supplier_id', 'estado', 'date_purchase_order']
     )
 
@@ -289,7 +289,7 @@ def update_and_create_purchase_order(request, pk):
 
     # Filtrar ítems en estado 'C' que no han sido procesados
     items_comprando = RequirementOrderItem.objects.filter(
-        requirement_order=requirement_order, 
+        requirement_order=requirement_order,
         estado='C',
         purchase_order_created=False
     )
@@ -333,7 +333,7 @@ def requirement_order_approved_list(request):
         requirement_order__state='APROBADO',
         estado='P'  # Filtro adicional para solo obtener los ítems en estado Pendiente
     ).select_related(
-        'sales_order_item', 
+        'sales_order_item',
         'sales_order_item__salesorder',
         'sales_order_item__salesorder__project',
         'supplier'
@@ -401,7 +401,7 @@ def update_approved_items(request):
             else:
                 # Si no tiene la estructura adecuada, añade un error
                 errors.append(f"ID no válido: {parts[1] if len(parts) > 1 else 'desconocido'}")
-        
+
         except Exception as e:
             errors.append(f"Error procesando el ítem: {str(e)}")
             continue
@@ -419,7 +419,7 @@ def update_approved_items(request):
 
 def requirement_order_detail_partial(request, pk):
     requirement_order = get_object_or_404(RequirementOrder, pk=pk)
-    items = requirement_order.items.all() 
+    items = requirement_order.items.all()
     return render(request, 'requirements_approved/requirement_order_detail_partial.html', {
         'requirement_order': requirement_order,
         'items': items,  # Pasamos los ítems a la plantilla parcial
@@ -444,8 +444,6 @@ def export_order_to_excel(request, pk):
 
     details = [
         f"ID Orden: {requirement_order.order_number}",
-        f"Proyecto: {requirement_order.sales_order.project.name}",
-        f"Cliente: {requirement_order.sales_order.project.client.legal_name}",
         f"Fecha Solicitada: {requirement_order.requested_date}",
         f"Fecha Creada: {requirement_order.created_at}",
         f"Pedido: {requirement_order.notes or 'Sin notas'}",
@@ -456,9 +454,9 @@ def export_order_to_excel(request, pk):
 
     # Encabezados de la tabla
     headers = [
-        "SAP","ITEM", "DETALLE", "UNIDAD", 
-        "CANTIDAD", "HORAS", 
-        "PROVEEDOR", "ESTADO"
+        "SAP", "ITEM", "DETALLE", "UNIDAD",
+        "CANTIDAD", "HORAS",
+        "PROVEEDOR", "CUENTA BANCARIA PROVEEDOR", "CUENTA INTERBANCARIA PROVEEDOR", "BANCO DEL PROVEEDOR", "ESTADO", "MONEDA", "PRECIO"
     ]
     header_fill = PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid")
     header_font = Font(bold=True)
@@ -477,13 +475,18 @@ def export_order_to_excel(request, pk):
         cell.alignment = Alignment(horizontal="center", vertical="center")
 
     # Ajustar el ancho de las columnas
-    column_widths = [15, 20, 25, 30, 10, 20, 15, 15, 25, 15, 10]
+    column_widths = [15, 20, 25, 30, 10, 20, 15, 25, 25, 15, 10,20]  # Añadir columna para el precio
     for i, width in enumerate(column_widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = width
 
     # Agregar datos de los ítems
     for row_num, item in enumerate(items, start=11):
         sales_order_item = item.sales_order_item
+        supplier = item.supplier
+        supplier_account = supplier.account if supplier else "N/A" # Obtener la cuenta del proveedor
+        supplier_account_cci = supplier.interbank_currency if supplier else "N/A"
+        supplier_bank = supplier.bank if supplier else "N/A"  # Obtener el banco del proveedor
+
         data = [
             sales_order_item.sap_code or "N/A",
             sales_order_item.description or "N/A",
@@ -491,13 +494,19 @@ def export_order_to_excel(request, pk):
             sales_order_item.unit_of_measurement or "N/A",
             float(item.quantity_requested) if item.quantity_requested else 0,
             getattr(sales_order_item, "custom_quantity", "N/A"),
-            item.supplier.name if item.supplier and item.supplier.name else "N/A",
+            supplier.name if supplier else "N/A",
+            supplier_account,  # Aquí añadimos la cuenta del proveedor
+            supplier_account_cci,
+            supplier_bank,     # Aquí añadimos el banco del proveedor
             item.get_estado_display() or "N/A",
+            supplier.currency if supplier else "N/A",
+            float(item.total_price) if item.total_price is not None else 0,  # Añadir el precio del ítem
         ]
+
         for col_num, value in enumerate(data, 1):
             cell = ws.cell(row=row_num, column=col_num, value=value)
             cell.border = border
-            if col_num == 11:  # Estado
+            if col_num == 10:  # Estado
                 cell.alignment = Alignment(horizontal="center")
             else:
                 cell.alignment = Alignment(horizontal="left")
@@ -508,6 +517,8 @@ def export_order_to_excel(request, pk):
     wb.save(response)
 
     return response
+
+
 
 #caja chica
 def logistic_petty_cash(request):

@@ -1,0 +1,118 @@
+{% include 'partials/budget_item_plus_css.html' %}
+
+<div class="row">
+    <!-- Columna 1: Lista de ítems (70%) -->
+    <div class="col-9">
+        <div id="budget_item_plus">
+            <form method="POST" hx-post="{% url 'budget_item_update' budget.id %}" hx-target="#budget_item_plus" hx-swap="innerHTML">
+                {% csrf_token %}
+                <div class="card mt-4 shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table excel-table">
+                            <thead>
+                                <tr>
+                                    <th class="letter-header"></th>
+                                    {% for col in 'ABCDEFGHIJK' %}
+                                    <th class="letter-header">{{ col }}</th>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="letter-header">#</th>
+                                    <th>SAP</th>
+                                    <th>CAT.</th>
+                                    <th>ITEM</th>
+                                    <th>MONEDA</th>
+                                    <th>UND</th>
+                                    <th>CANT</th>
+                                    <th>HORAS</th>
+                                    <th>PRECIO H.</th>
+                                    <th>PRECIO D.</th>
+                                    <th>PRECIO U.</th>
+                                    <th>PRECIO P.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr id="item-{{ item.id }}">
+                                    <td class="row-number">{{ forloop.counter }}</td>
+                                    <td>{{ item.item.sap }}</td>
+                                    <td>{{ item.item.category }}</td>
+                                    <td>{{ item.item.description }}</td>
+                                    <td>{{ item.coin}}</td>
+                                    <td>{{ item.unit}}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{{ item.custom_quantity |default:0}}</td>
+                                    <td>{{ item.custom_price_per_hour|default:0}}</td>
+                                    <td>{{ item.custom_price_per_day|default:0}}
+                                    </td>
+                                    <td>{{ item.custom_price|default:0}}
+                                    </td>
+                                    <td><span class="total-price" id="total-price-{{ item.id }}">{{ item.total_price }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Columna 2: Detalles del presupuesto (30%) -->
+    <div class="col-3">
+        <div id="budget_detail_plus" class="w-100">
+            <div id="budget-details-container-plus">
+            {% include 'budgetplus/budget_detail_plus.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function initializeTableNavigation() {
+        const cells = document.querySelectorAll('.excel-table input[type="number"], .excel-table input[type="text"]');
+        
+        cells.forEach(cell => {
+            cell.addEventListener('keydown', function (e) {
+                const currentCell = e.target;
+                let nextCell;
+    
+                const colIndex = Array.from(currentCell.parentElement.parentElement.children).indexOf(currentCell.parentElement);
+    
+                // Movimiento hacia la derecha
+                if (e.key === 'ArrowRight') {
+                    nextCell = currentCell.parentElement.nextElementSibling?.querySelector('input');
+                }
+                // Movimiento hacia la izquierda
+                if (e.key === 'ArrowLeft') {
+                    nextCell = currentCell.parentElement.previousElementSibling?.querySelector('input');
+                }
+                // Movimiento hacia abajo
+                if (e.key === 'ArrowDown') {
+                    nextCell = currentCell.closest('tr').nextElementSibling?.children[colIndex]?.querySelector('input');
+                }
+                // Movimiento hacia arriba
+                if (e.key === 'ArrowUp') {
+                    nextCell = currentCell.closest('tr').previousElementSibling?.children[colIndex]?.querySelector('input');
+                }
+    
+                if (nextCell) {
+                    nextCell.focus();
+                    e.preventDefault(); // Prevenir el comportamiento predeterminado de las flechas
+                }
+            });
+        });
+    }
+    
+    // Inicializa la funcionalidad al cargar la página
+    document.addEventListener('DOMContentLoaded', initializeTableNavigation);
+    
+    // Re-inicializa la funcionalidad después de cada actualización de HTMX
+    document.addEventListener('htmx:afterSwap', function () {
+        initializeTableNavigation();
+    });
+    
+</script>
+
+

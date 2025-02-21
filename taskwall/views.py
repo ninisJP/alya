@@ -1,21 +1,21 @@
-from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView
+# See LICENSE file for copyright and license details.
+"""
+Task Note views
+"""
+from django.shortcuts import render, redirect
 from .models import TaskNote
 from .forms import TaskNoteForm
-from django.shortcuts import render, redirect
+
 
 def task_wall(request):
-    # Obtener todos los post-its creados
+    """View to display Task Note"""
     tasks = TaskNote.objects.all()
-    
-    # Procesar el formulario de creación
     if request.method == 'POST':
         form = TaskNoteForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('task-wall')  # Redirigir para evitar resubmission del formulario
+            return redirect('task-wall')
     else:
         form = TaskNoteForm()
-    
-    # Pasar los post-its y el formulario al template
-    return render(request, 'taskwall/task_wall.html', {'tasks': tasks, 'form': form})
+    context = {'tasks': tasks, 'form': form}
+    return render(request, 'taskwall/task_wall.html', context)

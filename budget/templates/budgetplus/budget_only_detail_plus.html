@@ -76,37 +76,12 @@
                         </form>
                     </div>
                 </div>
-
-                <!-- Formulario para agregar ítem -->
-                <div class="card-body">
-                    <form hx-post="{% url 'budget_item_plus' budget.pk %}" hx-target="#budget_item_plus" hx-swap="innerHTML" class="row g-3">
-                        {% csrf_token %}
-                        <div class="col-md-4">
-                            {{ form.item|add_class:"form-control select2-ajax" }}
-                        </div>
-                        <div class="col-md-2">
-                            {{ form.quantity|add_class:"form-control" }}
-                        </div>
-                        <div class="col-md-2">
-                            {{ form.unit|add_class:"form-control" }}
-                        </div>
-                        <div class="col-md-2">
-                            {{ form.custom_price|add_class:"form-control" }}
-                        </div>
-                        <div class="col-md-2">
-                            {{ form.coin|add_class:"form-control" }}
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100" data-htmx-trigger="add-item">Agregar</button>
-                        </div>
-                    </form>                    
-                </div>
             </div>
         </div>
     </div>
 
     <div id="budget_item_plus">
-        {% include 'budgetplus/budget_item_plus.html' %}
+        {% include 'budgetplus/budget_only_detail_item_plus.html' %}
     </div>
 </div>
 

@@ -120,6 +120,8 @@ class BudgetEditNewForm(forms.ModelForm):
         ]
         widgets = {
             'budget_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'budget_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'budget_number': forms.TextInput(attrs={'class': 'form-control'}),
             'client': forms.Select(attrs={'class': 'form-control'}),
             'budget_days': forms.NumberInput(attrs={'class': 'form-control'}),
             'budget_expenses': forms.Select(attrs={'class': 'form-control'}),
@@ -189,13 +191,14 @@ class EditBudgetItemForm(forms.ModelForm):
 class AddBudgetItemPlus(forms.ModelForm):
     class Meta:
         model = BudgetItem
-        fields = ['item', 'quantity', 'unit','custom_price', 'custom_price_per_day']
+        fields = ['item', 'quantity', 'unit','custom_price', 'custom_price_per_day','coin']
         widgets = {
             'item': Select2AjaxWidget(),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad'}),
             'unit': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unidad de medida'}),
             'custom_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio Unitario'}),
-         }
+            'coin': forms.Select(attrs={'class': 'form-control'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(AddBudgetItemPlus, self).__init__(*args, **kwargs)

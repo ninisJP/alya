@@ -8,7 +8,7 @@
 {% if messages %}
     <div class="container mt-4">
         {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-success{% endif %} text-center" role="alert" style="font-size: 1.1em; font-weight: bold;">
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-success{% endif %} text-center" role="alert" style="font-size: 1.8em; font-weight: bold;">
                 {{ message }}
             </div>
         {% endfor %}
@@ -65,6 +65,7 @@
                 <thead class="table-dark text-white">
                     <tr>
                         <th class="rounded-start">Presupuestos</th>
+                        <th>Código SAP</th>
                         <th>Cliente</th>
                         <th>Días</th>
                         <th>Precio Total</th>
@@ -76,6 +77,13 @@
                     {% for budget in budgets %}
                         <tr>
                             <td class="fw-semibold">{{ budget.budget_name }}</td>
+                            <td class="fw-semibold"><span class="badge {% if budget.budget_number %}bg-primary{% else %}bg-danger{% endif %}">
+                                {% if budget.budget_number %}
+                                    {{ budget.budget_number }}
+                                {% else %}
+                                    SIN CÓDIGO SAP
+                                {% endif %}
+                            </span></td>
                             <td>{{ budget.client }}</td>
                             <td>
                                 <span class="badge bg-primary text-white rounded-pill px-2 py-1">
@@ -86,7 +94,7 @@
                             <td>{{ budget.budget_date }}</td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a href="{% url 'detail_budget_plus' budget.id %}" class="btn btn-info btn-sm" title="Ver detalles">
+                                    <a href="{% url 'only_detail_budget_plus' budget.id %}" class="btn btn-info btn-sm" title="Ver detalles">
                                         <i class="fas fa-eye"></i> Ver
                                     </a>
                                     <a href="{% url 'duplicate_budget' pk=budget.pk %}" class="btn btn-warning btn-sm" title="Duplicar">

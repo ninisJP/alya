@@ -1,13 +1,13 @@
 {% extends 'base_logistic.html' %}
 
-{% block title %}O.Requerimiento Aprobadas{% endblock %}
+{% block title %}O.Requerimiento Validadas{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
     <header class="bg-light p-4 rounded shadow-sm mb-2">
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-0 fw-bold" style="font-size: 1.5rem;">
-                Listado de Items aprobados
+                Listado de Items validados
             </h2>
             <div class="d-flex justify-content-end mb-3">
                 <button onclick="exportToExcel()" class="btn btn-success me-2">Descargar Excel</button>
@@ -138,7 +138,7 @@
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             let pdf = new jsPDF();
-            pdf.text("Órdenes de Requerimiento Aprobadas", 10, 10);
+            pdf.text("Órdenes de Requerimiento ", 10, 10);
             let y = 20;
             document.querySelectorAll("table tbody tr").forEach(row => {
                 let rowData = [];
@@ -150,13 +150,13 @@
                     y = 10;
                 }
             });
-            pdf.save("Ordenes_Aprobadas.pdf");
+            pdf.save("Ordenes_Validadas.pdf");
         }
 
         // Exportar a Excel
         function exportToExcel() {
             const workbook = new ExcelJS.Workbook();
-            const sheet = workbook.addWorksheet("Órdenes Aprobadas");
+            const sheet = workbook.addWorksheet("Órdenes Validadas");
 
             const headers = ["Requerimiento", "Proyecto", "Proveedor", "Código SAP", "Descripción", "Cantidad", "Estado", "Total"];
             sheet.addRow(headers);
@@ -165,10 +165,10 @@
                 cell.font = { bold: true, color: { argb: 'FFFFFF' } };
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '4CAF50' } };
                 cell.alignment = { horizontal: 'center', vertical: 'middle' };
-                cell.border = { 
-                    top: { style: 'thin' }, 
-                    left: { style: 'thin' }, 
-                    bottom: { style: 'thin' }, 
+                cell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
                     right: { style: 'thin' }
                 };
             });
@@ -177,10 +177,10 @@
                 const rowData = Array.from(row.querySelectorAll("td")).map(cell => cell.innerText);
                 sheet.addRow(rowData).eachCell(cell => {
                     cell.alignment = { horizontal: 'center', vertical: 'middle' };
-                    cell.border = { 
-                        top: { style: 'thin' }, 
-                        left: { style: 'thin' }, 
-                        bottom: { style: 'thin' }, 
+                    cell.border = {
+                        top: { style: 'thin' },
+                        left: { style: 'thin' },
+                        bottom: { style: 'thin' },
                         right: { style: 'thin' }
                     };
                 });
@@ -198,7 +198,7 @@
                 const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = "Ordenes_Aprobadas.xlsx";
+                link.download = "Ordenes_Validadas.xlsx";
                 link.click();
             });
         }

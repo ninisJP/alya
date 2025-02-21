@@ -92,9 +92,9 @@
         <!-- Nota en amarillo -->
         <div class="alert-custom-warning d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center">
-                <!-- Enlace al listado de ítems aprobados -->
+                <!-- Enlace al listado de ítems validados -->
                 <a href="{% url 'logistic_requirement_order_approved_list' %}" class="btn btn-outline-primary">
-                    <i class="fas fa-tasks"></i> Listado de items Aprobadas
+                    <i class="fas fa-tasks"></i> Listado de items Validados
                 </a>
                 <!-- Botones para alternar entre los tres filtros -->
                 <div class="btn-group ms-3">
@@ -108,7 +108,7 @@
                     </a>
                     <a href="{% url 'requirement_order_list' %}?show_pending=true"class="btn btn-outline-primary">
                         <i class="fas fa-filter"></i> Mostrar Pendientes y Comprando
-                    </a>                    
+                    </a>
                     <!-- Mostrar pendientes y comprando -->
                     {% comment %} <a href="{% url 'requirement_order_list' %}?show_comprando=true" class="btn btn-outline-primary">
                         <i class="fas fa-filter"></i> Mostrar Pendientes y Comprando
@@ -119,7 +119,7 @@
                 </div>
             </div>
         </div>
-        
+
     {% comment %} <!-- La lista de ventas se renderiza aquí y se actualiza con HTMX -->
     <form hx-get="{% url 'requirement-order-search' %}" hx-target="#requirementorder-list" hx-trigger="keyup delay:0.2s" hx-debounce="500ms">
         <input type="text" name="q" placeholder="Buscar por " class="form-control" id="search-input">

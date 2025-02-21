@@ -1,0 +1,55 @@
+{% extends "base_requests.html" %}
+
+{% block title %}Requerimientos de Pedido{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 h-100">
+    <div class="card shadow-sm h-100">
+        <div class="card-header bg-secondary text-white">
+            <h2 class="card-title mb-0 fs-4">
+                Requerimientos para la orden de venta: {{ sales_order.detail }}
+            </h2>
+        </div>
+        
+        <div class="card-body h-100">
+            {% if requirement_orders %}
+            <div class="table-responsive" style="width: 100%; overflow-x: auto;">
+                <table class="table table-hover align-middle w-100">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col" class="text-center">Código</th>
+                            <th scope="col" class="text-center">Descripción</th>
+                            <th scope="col" class="text-center">Fecha Solicitud</th>
+                            <th scope="col" class="text-center">Fecha Creación</th>
+                            <th scope="col" class="text-center">Usuario</th>
+                            <th scope="col" class="text-center">Estado</th>
+                            <th scope="col" class="text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for requirement in requirement_orders %}
+                        <tr class="align-middle">
+                            <td class="text-center fw-bold">{{ requirement.order_number }}</td>
+                            <td class="text-start">{{ requirement.notes }}</td>
+                            <td class="text-center">{{ requirement.requested_date }}</td>
+                            <td class="text-center">{{ requirement.created_at }}</td>
+                            <td class="text-center">{{ requirement.user }}</td>
+                            <td class="text-center">{{ requirement.state }}</td>
+                            <td class="text-center fw-bold">{{ requirement.total_order }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div>
+                    No hay requerimientos asociados a esta orden de venta.
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

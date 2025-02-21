@@ -110,11 +110,31 @@ class PurchaseOrderForm(forms.ModelForm):
             'scheduled_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
 
+class PurchaseOrderSearchForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseOrder
+        fields = ['salesorder','description']  # Campos editables
+
+        
 # Formulario para los ítems de la orden de compra (PurchaseOrderItem)
+# class PurchaseOrderItemForm(forms.ModelForm):
+#     class Meta:
+#         model = PurchaseOrderItem
+#         fields = ['quantity_requested', 'price', 'supplier', 'class_pay', 'type_pay', 'notes', 'purchase_date' ]  # Removed 'sales_order_item'
+#         widgets = {
+#             'quantity_requested': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+#             'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+#             'supplier': SupplierSelect2Widget(),  # Cambiado para usar AJAX
+#             'class_pay': forms.Select(attrs={'class': 'form-select'}),
+#             'type_pay': forms.Select(attrs={'class': 'form-select'}),
+#             'purchase_date ': forms.Select(attrs={'class': 'form-select'}),
+#             'notes': forms.TextInput(attrs={'class': 'form-control'}),
+#         }
+
 class PurchaseOrderItemForm(forms.ModelForm):
     class Meta:
         model = PurchaseOrderItem
-        fields = ['quantity_requested', 'price', 'supplier', 'class_pay', 'type_pay', 'notes', 'purchase_date' ]  # Removed 'sales_order_item'
+        fields = [ 'supplier', 'class_pay', 'type_pay','purchase_date' ]  # Removed 'sales_order_item'
         widgets = {
             'quantity_requested': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
@@ -124,7 +144,6 @@ class PurchaseOrderItemForm(forms.ModelForm):
             'purchase_date ': forms.Select(attrs={'class': 'form-select'}),
             'notes': forms.TextInput(attrs={'class': 'form-control'}),
         }
-
 
 # Form for collection orders
 class CollectionOrdersForm(forms.ModelForm):

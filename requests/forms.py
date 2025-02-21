@@ -21,6 +21,8 @@ class CreateRequirementOrderForm(forms.ModelForm):
     #     requested_date = self.cleaned_data.get('requested_date')
 
     #     # Validar solo martes y miercoles (weekday 1 y 2), bloquearlos
+    #     if requested_date.weekday() == 0:  # Lunes
+    #         raise forms.ValidationError("No se permiten pedidos los martes. Selecciona otra fecha.")
     #     if requested_date.weekday() == 1:  # Martes
     #         raise forms.ValidationError("No se permiten pedidos los martes. Selecciona otra fecha.")
     #     if requested_date.weekday() == 2:  # Miércoles
@@ -50,7 +52,7 @@ class CreateRequirementOrderItemForm(forms.ModelForm):
     # TODO: YOLOLO
     def clean_requested_date(self):
         requested_date = self.cleaned_data.get('requested_date')
-        min_date = date.today() + timedelta(days=3) 
+        min_date = date.today() + timedelta(days=3)
         if requested_date and requested_date < min_date:
             raise ValidationError(f"La fecha solicitada no puede ser anterior a {min_date.isoformat()}.")
         return requested_date
@@ -65,7 +67,7 @@ class CreateRequirementOrderItemForm(forms.ModelForm):
                 salesorder=sales_order,
                 remaining_requirement__gt=0  # Filtramos para que solo se muestren los ítems disponibles
             )
-        
+
         self.fields['supplier'].queryset = Suppliers.objects.all()
 
     def clean(self):

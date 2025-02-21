@@ -27,7 +27,8 @@ from .forms import (
     ItemSalesOrderForm,
     BankForm,
     UploadBankStatementForm,
-    CollectionOrdersForm
+    CollectionOrdersForm,
+    PurchaseOrderSearchForm,
 )
 from .models import (
     Bank,
@@ -197,6 +198,19 @@ def general_purchaseorder(request):
 
     return render(request, 'purchaseorder/general_purchaseorder.html', context)
 
+def purchaseorder_search(request):
+    query = request.GET.get('q', '')
+
+    if query:
+        purchase_orders = PurchaseOrder.objects.filter(
+            Q(salesorder__project__name__icontains=query)| Q(description__icontains=query)).order_by('-id')
+    else:
+        purchase_orders = PurchaseOrder.objects.all().order_by('-id')
+
+    context = {'purchase_orders': purchase_orders , 'form': PurchaseOrderSearchForm()}
+    
+    return render(request, 'purchaseorder/purchaseorder_list_partial.html', context)
+
 # Ordenes de compra
 def purchase_orders(request, salesorder_id):
     salesorder = get_object_or_404(SalesOrder, id=salesorder_id)
@@ -208,6 +222,18 @@ def purchase_orders(request, salesorder_id):
     }
 
     return render(request, 'purchaseorder/purchaseorder_list.html', context)
+
+def purchase_orders_detail(request, purchaseorder_id):
+    salesorder = get_object_or_404(SalesOrder, id=purchaseorder_id)
+    items = salesorder.items.all()
+    
+    for item in items:
+        item.diff = item.amount - item.remaining_requirement
+    context = {
+        'salesorder': salesorder,
+        'items': items,
+    }
+    return render(request, 'purchaseorder/purchase_order_detail.html', context)
 
 def edit_purchase_order(request, order_id):
     order = get_object_or_404(PurchaseOrder, id=order_id)
@@ -490,7 +516,7 @@ def petty_cash_state(request):
 
     # Inicializar el queryset base
     items = PurchaseOrderItem.objects.select_related(
-        'purchaseorder', 'sales_order_item__salesorder', 'supplier'
+        'purchaseorder', 'sales_order_item__salesorder', 'supplier',
     )
 
     # Filtrar por estado de pago si está definido
@@ -652,7 +678,7 @@ def update_requirement_order_state(request, pk):
         requirement_order.state = new_state
         requirement_order.save()
         # Mensaje de éxito
-        message = 'La orden ha sido aprobada con éxito.' if new_state == 'APROBADO' else 'La orden ha sido rechazada con éxito.'
+        message = 'La orden ha sido aprobada con éxito.' if new_state == 'APROBADO' else 'La orden ha sido rechazada con éxito.' #! ojito
         response_content = f"<div>{message}</div>"
         return HttpResponse(response_content, content_type="text/html")
     else:

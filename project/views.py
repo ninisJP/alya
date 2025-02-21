@@ -1,69 +1,100 @@
+# See LICENSE file for copyright and license details.
+"""
+Project views
+"""
 from django.db.models import Prefetch
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView
-from accounting_order_sales.models import PurchaseOrderItem, SalesOrder, PurchaseOrder
+from django.db.models import Q
+
+
+from accounting_order_sales.models import PurchaseOrderItem, SalesOrder
 from logistic_inventory_input.models import InventoryInput
 from logistic_inventory_inputnewitem.models import InventoryInputNewItem
 from logistic_inventory_output.models import InventoryOutputItem
 from logistic_requirements.models import RequirementOrderItem
+
 from .forms import ProjectForm
 from .models import Project
 
+
 def project_index(request):
+    """
+    View to display the project index page
+    """
     if request.method == 'POST':
         form = ProjectForm(request.POST)
+        context = {'form': form}
         if form.is_valid():
             project = form.save()
             print('Proyecto guardado:', project)
             return redirect('project_index')
         else:
             print('Errores del formulario:', form.errors)
-            return render(request, 'partials/project_failure.html', {'form': form})
+            return render(request, 'partials/project_failure.html', context)
 
     form = ProjectForm()
     projects_data = []
 
     # Recorre cada proyecto y calcula los totales de las órdenes de venta
+    # pylint: disable=no-member
     for project in Project.objects.all():
         filtered_sales_orders = project.salesorder_set.filter(
             purchase_orders__scheduled_date__isnull=False
         ).distinct()
 
         # Calcular los totales del proyecto
-        total_sales_sum = sum(order.total_sales_order for order in filtered_sales_orders)
+        total_sales_sum = sum(
+            order.total_sales_order for order in filtered_sales_orders)
         total_purchase_sum = sum(
-            sum(purchase_order.total_purchase_order or 0 for purchase_order in order.purchase_orders.all())
+            sum(
+                purchase_order.total_purchase_order or 0 for purchase_order in order.purchase_orders.all())
             for order in filtered_sales_orders
         )
-        total_utility_sum = sum(order.get_utility() for order in filtered_sales_orders)
+        total_utility_sum = sum(
+            order.get_utility() for order in filtered_sales_orders)
+
+        total_purchase_order_estimed_sum = sum(
+            sum(purchase_order.total_purchase_order_estimed or 0 for purchase_order in order.purchase_orders.all())
+            for order in filtered_sales_orders
+        )
 
         projects_data.append({
             'project': project,
             'filtered_sales_orders': filtered_sales_orders,
             'total_sales_sum': total_sales_sum,
             'total_purchase_sum': total_purchase_sum,
-            'total_utility_sum': total_utility_sum
+            'total_utility_sum': total_utility_sum,
+            'total_purchase_order_estimed_sum': (
+                total_purchase_order_estimed_sum),
         })
 
     context = {
         'form': form,
         'projects_data': projects_data,
-        'purchase_order_items': PurchaseOrderItem.objects.select_related('sales_order_item').all()
+        'purchase_order_items': PurchaseOrderItem.objects.select_related(
+            'sales_order_item').all()
     }
     return render(request, 'project_index.html', context)
 
-from django.db.models import Q
 
 def search_project(request):
-    query = request.GET.get('q', '')  # Obtener la consulta de búsqueda desde el request
+    """
+    Function to search for projects
+    """
+    # Obtener la consulta de búsqueda desde el request
+    query = request.GET.get('q', '')
 
     # Si hay una búsqueda, filtrar los proyectos basados en la consulta
     if query:
+        # pylint: disable=no-member
         projects = Project.objects.filter(
             Q(name__icontains=query)
         ).order_by('-id')
     else:
-        projects = Project.objects.all().order_by('-id')  # Mostrar todos los proyectos si no hay búsqueda
+        # Mostrar todos los proyectos si no hay búsqueda
+        # pylint: disable=no-member
+        projects = Project.objects.all().order_by('-id')
 
     # Preparar los datos de los proyectos (similar a project_index)
     projects_data = []
@@ -79,13 +110,18 @@ def search_project(request):
             for order in filtered_sales_orders
         )
         total_utility_sum = sum(order.get_utility() for order in filtered_sales_orders)
-
+        
+        total_purchase_order_estimed_sum = sum(
+            sum(purchase_order.total_purchase_order_estimed or 0 for purchase_order in order.purchase_orders.all())
+            for order in filtered_sales_orders)
+        
         projects_data.append({
             'project': project,
             'filtered_sales_orders': filtered_sales_orders,
             'total_sales_sum': total_sales_sum,
             'total_purchase_sum': total_purchase_sum,
-            'total_utility_sum': total_utility_sum
+            'total_utility_sum': total_utility_sum,
+            'total_purchase_order_estimed_sum': total_purchase_order_estimed_sum,
         })
 
     context = {
