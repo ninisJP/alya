@@ -102,7 +102,7 @@
                             <div class="btn-group" role="group" aria-label="Acciones">
                                 <a href="{% url 'create_requests' order.id %}" class="btn btn-success btn-sm">
                                     <i class="fas fa-plus-circle"></i> Crear Pedido
-                                </a>   
+                                </a>
                             </div>
                             <div class="btn-group" role="group" aria-label="Acciones" style="margin-left: 10px;">
                                 <a href="{% url 'create_prepopulated_request' order.id %}" class="btn btn-danger btn-sm">
@@ -118,8 +118,8 @@
                                 <a href="{% url 'requirement_orders_view' order.id %}" class="btn btn-info btn-sm">
                                     <i class="fas fa-star"></i> Ver Ordenes
                                 </a>
-                            </div>                           
-                        </td>   
+                            </div>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -146,6 +146,7 @@
             "pageLength": 50,
             "searching": true,
             "ordering": true,
+            "order": [],
             "info": true,
             "autoWidth": false,
             "columnDefs": [
