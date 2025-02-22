@@ -42,14 +42,15 @@ def requirement_orders_view(request, sales_order_id):
     view to see the requirement orders for each order
     """
     sales_order = get_object_or_404(SalesOrder, id=sales_order_id)
-    requirement_orders = sales_order.requirement_orders.all().order_by(
-        'requested_date')
+
+    requirement_orders = sales_order.requirement_orders.all().order_by('requested_date')
+
     context = {
         'sales_order': sales_order,
         'requirement_orders': requirement_orders,
     }
-    return render(request, 'requirement_orders_list.html', context)
 
+    return render(request, 'requirement_orders_list.html', context)
 
 def my_requests(request):
     """
@@ -74,6 +75,7 @@ def total_requests(request):
     # pylint: disable=no-member
     total_orders = RequirementOrder.objects.all().order_by('-id')
     context = {'total_orders': total_orders}
+
     return render(request, 'total_requests/all_requests.html', context)
 
 
@@ -123,7 +125,7 @@ def create_requests(request, order_id):
             try:
                 requirement_order = order_form.save(commit=False)
                 requirement_order.sales_order = sales_order
-                requirement_order.user = request.user
+                requirement_order.user = request.user        # Diccionario para almacenar las cantidades solicitadas por ítem
                 # Diccionario para almacenar las
                 # cantidades solicitadas por ítem
                 item_quantities = {}
