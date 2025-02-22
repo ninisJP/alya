@@ -101,7 +101,7 @@ WSGI_APPLICATION = 'alya.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
-
+# Mike was here!
 
 AUTH_PASSWORD_VALIDATORS = [
     {
