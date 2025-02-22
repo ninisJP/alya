@@ -48,14 +48,27 @@ def detail_budget_plus(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
     form = AddBudgetItemPlus()
     items = budget.items.all()
+    context = {'budget': budget, 'items': items, 'form': form}
 
     return render(
         request,
-        'budgetplus/budget_plus.html', {
-            'budget': budget,
-            'items': items,
-            'form': form
-        }
+        'budgetplus/budget_plus.html',
+        context
+    )
+
+
+def only_detail_budget_plus(request, pk):
+    """
+    Show budget detail no edition
+    """
+    budget = get_object_or_404(Budget, pk=pk)
+    items = budget.items.all()
+    context = {'budget': budget, 'items': items}
+
+    return render(
+        request,
+        'budgetplus/budget_only_detail_plus.html',
+        context
     )
 
 
@@ -263,8 +276,16 @@ def budget_item_delete(request, item_id):
     item.delete()
     budget.update_budget_price()
 
+    """Remove budget item"""
+    with transaction.atomic():
+        item = get_object_or_404(BudgetItem, id=item_id)
+        budget = item.budget
+        item.delete()
+        budget.remove_single_item_price(item)
+        # Recarga el budget desde la base de datos
+        # para obtener los cambios actualizados
+        budget.refresh_from_db()
+
     items = budget.items.all()
-    return render(request, 'budgetplus/budget_item_plus.html', {
-        'items': items,
-        'budget': budget,
-    })
+    context = {'items': items, 'budget': budget}
+    return render(request, 'budgetplus/budget_item_plus.html', context)

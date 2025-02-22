@@ -5,6 +5,7 @@ Budget models.
 from decimal import Decimal
 
 from django.db import models
+from django.db.models import F
 
 
 class Budget(models.Model):
@@ -152,6 +153,14 @@ class Budget(models.Model):
 
         self.budget_price = self.calculate_budget_price()
         self.save(update_fields=['budget_price'])
+
+    def remove_single_item_price(self, item):
+        """
+        Updates `budget_price` by subtracting the price of the deleted item
+        """
+        price_to_remove = item.total_price
+        Budget.objects.filter(id=self.id).update(budget_price=F(
+            'budget_price') - price_to_remove)
 
     def save(self, *args, **kwargs):
         """
@@ -401,6 +410,9 @@ class BudgetItem(models.Model):
 
         super().save(*args, **kwargs)
         self.budget.save()
+
+    def __str__(self):
+        return f'{self.budget} <{self.item}> {self.coin}'
 
     class Meta:
         """

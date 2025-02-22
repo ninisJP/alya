@@ -137,7 +137,7 @@ def _crear_hoja_presupuesto(ws, budget, items_by_category, simbolo='S/'):
                 item.item.category,
                 item.quantity,
                 item.coin,
-                item.item.price,
+                item.custom_price,
                 subtotal
             ]
             ws.append(row)
@@ -251,7 +251,7 @@ def _crear_hoja_resumen(ws, budget, items_by_category):
                 item.item.category,
                 item.quantity,
                 item.coin,
-                item.item.price,
+                item.custom_price,
                 subtotal,
             ]
             ws.append(row)
@@ -383,7 +383,7 @@ def _create_budget(plantilla, budget, items_by_category):
                 item.item.unit,
                 item.quantity,
                 item.coin,
-                item.item.price,
+                item.custom_price,
                 subtotal,
                 subtotal,
             ]

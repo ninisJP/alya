@@ -12,8 +12,8 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
-from django.db import models
-from django.db import transaction
+from django.db import models, transaction
+from django.db.models import Q
 from django.http import FileResponse
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -287,8 +287,12 @@ def create_sales_order_from_budget(request, budget_id):
                 sap_code = str(budget_item.item.sap).strip().upper()
                 sap_codes_in_budget.add(sap_code)
 
-                price_with_igv = (budget_item.custom_price or budget_item.item.price) * Decimal('1.18')
-                total_price_with_igv = budget_item.total_price * Decimal('1.18') if budget_item.total_price else Decimal('0.00')
+                if budget_item.item.sap in ('SVT00060', 'SVT00061'):
+                    price_with_igv = (budget_item.custom_price or budget_item.item.price)
+                    total_price_with_igv = budget_item.total_price if budget_item.total_price else Decimal('0.00')
+                else:
+                    price_with_igv = (budget_item.custom_price or budget_item.item.price) * Decimal('1.18')
+                    total_price_with_igv = budget_item.total_price * Decimal('1.18') if budget_item.total_price else Decimal('0.00')
 
                 sales_order_item = existing_sales_order.items.filter(sap_code__iexact=sap_code).first()
                 if sales_order_item:
@@ -350,8 +354,13 @@ def create_sales_order_from_budget(request, budget_id):
 
             for budget_item in budget.items.all():
                 sap_code = str(budget_item.item.sap).strip().upper()
-                price_with_igv = (budget_item.custom_price or budget_item.item.price) * Decimal('1.18')
-                total_price_with_igv = budget_item.total_price * Decimal('1.18') if budget_item.total_price else Decimal('0.00')
+
+                if budget_item.item.sap in ('SVT00060', 'SVT00061'):
+                    price_with_igv = (budget_item.custom_price or budget_item.item.price)
+                    total_price_with_igv = budget_item.total_price if budget_item.total_price else Decimal('0.00')
+                else:
+                    price_with_igv = (budget_item.custom_price or budget_item.item.price) * Decimal('1.18')
+                    total_price_with_igv = budget_item.total_price * Decimal('1.18') if budget_item.total_price else Decimal('0.00')
 
                 new_item = SalesOrderItem.objects.create(
                     salesorder=sales_order,

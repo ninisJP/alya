@@ -444,8 +444,6 @@ def export_order_to_excel(request, pk):
 
     details = [
         f"ID Orden: {requirement_order.order_number}",
-        f"Proyecto: {requirement_order.sales_order.project.name}",
-        f"Cliente: {requirement_order.sales_order.project.client.legal_name}",
         f"Fecha Solicitada: {requirement_order.requested_date}",
         f"Fecha Creada: {requirement_order.created_at}",
         f"Pedido: {requirement_order.notes or 'Sin notas'}",
@@ -458,7 +456,7 @@ def export_order_to_excel(request, pk):
     headers = [
         "SAP", "ITEM", "DETALLE", "UNIDAD",
         "CANTIDAD", "HORAS",
-        "PROVEEDOR", "CUENTA DEL PROVEEDOR", "BANCO DEL PROVEEDOR", "ESTADO", "MONEDA", "PRECIO"
+        "PROVEEDOR", "CUENTA BANCARIA PROVEEDOR", "CUENTA INTERBANCARIA PROVEEDOR", "BANCO DEL PROVEEDOR", "ESTADO", "MONEDA", "PRECIO"
     ]
     header_fill = PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid")
     header_font = Font(bold=True)
@@ -477,7 +475,7 @@ def export_order_to_excel(request, pk):
         cell.alignment = Alignment(horizontal="center", vertical="center")
 
     # Ajustar el ancho de las columnas
-    column_widths = [15, 20, 25, 30, 10, 20, 15, 25, 25, 15, 10]  # Añadir columna para el precio
+    column_widths = [15, 20, 25, 30, 10, 20, 15, 25, 25, 15, 10,20]  # Añadir columna para el precio
     for i, width in enumerate(column_widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = width
 
@@ -485,7 +483,8 @@ def export_order_to_excel(request, pk):
     for row_num, item in enumerate(items, start=11):
         sales_order_item = item.sales_order_item
         supplier = item.supplier
-        supplier_account = supplier.account if supplier else "N/A"  # Obtener la cuenta del proveedor
+        supplier_account = supplier.account if supplier else "N/A" # Obtener la cuenta del proveedor
+        supplier_account_cci = supplier.interbank_currency if supplier else "N/A"
         supplier_bank = supplier.bank if supplier else "N/A"  # Obtener el banco del proveedor
 
         data = [
@@ -497,6 +496,7 @@ def export_order_to_excel(request, pk):
             getattr(sales_order_item, "custom_quantity", "N/A"),
             supplier.name if supplier else "N/A",
             supplier_account,  # Aquí añadimos la cuenta del proveedor
+            supplier_account_cci,
             supplier_bank,     # Aquí añadimos el banco del proveedor
             item.get_estado_display() or "N/A",
             supplier.currency if supplier else "N/A",

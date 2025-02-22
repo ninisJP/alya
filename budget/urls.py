@@ -53,7 +53,7 @@ urlpatterns = [
         'catalog/search/',
         views.catalog_search,
         name='budget_catalog_search'
-        ),
+    ),
     path(
         'catalog/edit/<int:catalog_id>/',
         views.catalog_edit,
@@ -86,6 +86,10 @@ urlpatterns = [
         views_budget.detail_budget_plus,
         name='detail_budget_plus'
     ),
+    path(
+        'only_detail_budget_plus/<int:pk>/',
+        views_budget.only_detail_budget_plus,
+        name='only_detail_budget_plus'),
     path(
         'budget/<int:pk>/add-item-plus/',
         views_budget.budget_item_plus,
