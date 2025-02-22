@@ -15,6 +15,11 @@ from .forms import AddBudgetItemPlus, BudgetEditNewForm, BudgetPlusForm
 def create_budget_plus(request):
     """
     Create a budget
+
+    Returns
+    -------
+    HttpResponseRedirect
+        if request is a POST redirect to 'detail_budget_plus'. Else return None
     """
 
     if request.method == 'POST':
@@ -28,6 +33,16 @@ def create_budget_plus(request):
 def detail_budget_plus(request, pk):
     """
     Show budget detail
+
+    Parameters
+    ----------
+    pk : int
+        Budget primary key.
+
+    Returns
+    -------
+    HttpResponse
+        render 'budgetplus/budget_plus.html'
     """
 
     budget = get_object_or_404(Budget, pk=pk)
@@ -60,6 +75,16 @@ def only_detail_budget_plus(request, pk):
 def update_budget_partial_plus(request, pk):
     """
     Update the budget
+
+    Parameters
+    ----------
+    pk : int
+        Budget primary key.
+    Returns
+    -------
+    HttpResponse
+        If request is POST render 'budgetplus/budget_detail_plus.html". Else
+        render 'partials/_budget_form.html'
     """
 
     budget = get_object_or_404(Budget, pk=pk)
@@ -83,6 +108,17 @@ def update_budget_partial_plus(request, pk):
 def budget_item_plus(request, pk):
     """
     Show budget items
+
+    Parameters
+    ----------
+    pk : int
+        Budget primary key.
+
+    Returns
+    -------
+    HttpResponse
+        If it's a POST render 'budgetplus/budget_item_plus.html'. Else
+        'detail_budget_plus'.
     """
 
     budget = get_object_or_404(Budget, pk=pk)
@@ -143,6 +179,17 @@ def budget_item_plus(request, pk):
 def budget_item_update(request, pk):
     """
     Update the budget items
+
+    Parameters
+    ----------
+    pk : int
+        Budget primary key.
+
+    Returns
+    -------
+    HttpResponse
+        If it's a POST render 'budgetplus/budget_item_plus.html'. Else
+        'detail_budget_plus'
     """
 
     budget = get_object_or_404(Budget, pk=pk)
@@ -210,6 +257,25 @@ def budget_item_update(request, pk):
 
 
 def budget_item_delete(request, item_id):
+    """
+    Remove budget item
+
+    Parameters
+    ----------
+    item_id : int
+        BudgetItem id.
+
+    Returns
+    -------
+    HttpResponse
+        render 'budgetplus/budget_item_plus.html'
+    """
+
+    item = get_object_or_404(BudgetItem, id=item_id)
+    budget = item.budget
+    item.delete()
+    budget.update_budget_price()
+
     """Remove budget item"""
     with transaction.atomic():
         item = get_object_or_404(BudgetItem, id=item_id)
@@ -219,6 +285,7 @@ def budget_item_delete(request, item_id):
         # Recarga el budget desde la base de datos
         # para obtener los cambios actualizados
         budget.refresh_from_db()
+
     items = budget.items.all()
     context = {'items': items, 'budget': budget}
     return render(request, 'budgetplus/budget_item_plus.html', context)
