@@ -54,7 +54,7 @@
                         <th>Pedido</th>
                         <th>Fecha Solicitada</th>
                         <th>Fecha de Creación</th>
-                        <th>Estado</th>
+                        <th>Pedido</th>
                         <th>Total</th>
                         <th>Acciones</th>
                     </tr>
@@ -81,13 +81,6 @@
                             <a href="{% url 'my_request_detail' order.id %}" class="btn btn-outline-primary btn-sm">
                                 <i class="fas fa-info-circle"></i>
                             </a>
-                            <button hx-delete="{% url 'delete_order' order.id %}"
-                                    hx-confirm="¿Estás seguro de que deseas eliminar este pedido?"
-                                    hx-target="#order-{{ order.id }}"
-                                    hx-swap="outerHTML"
-                                    class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
                             <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#previewModal"
                                     onclick="loadOrderPreview('{{ order.id }}')">
                                 <i class="fas fa-eye"></i>

@@ -15,7 +15,7 @@ urlpatterns = [
         views.upload_sap_excel,
         name='upload_sap_excel'
     ),
-    # Nueva URL para HTMX
+    # New urls to htmx
     path(
         'edit-item/<int:item_id>/',
         views.edit_budget_item_htmx,
@@ -69,7 +69,7 @@ urlpatterns = [
         views.export_catalog,
         name='export_catalog'
     ),
-    # Nueva URL para subir archivo Excel
+    # New url to upload excel
     path(
         'budget/<int:budget_id>/upload_excel/',
         views.upload_budget_excel,
@@ -86,6 +86,10 @@ urlpatterns = [
         views_budget.detail_budget_plus,
         name='detail_budget_plus'
     ),
+    path(
+        'only_detail_budget_plus/<int:pk>/',
+        views_budget.only_detail_budget_plus,
+        name='only_detail_budget_plus'),
     path(
         'budget/<int:pk>/add-item-plus/',
         views_budget.budget_item_plus,
@@ -106,7 +110,7 @@ urlpatterns = [
         views_budget.update_budget_partial_plus,
         name='update_budget_partial_plus'
     ),
-    # TEMPLATE MODEL
+    # Template model
     path(
         'descargar-plantilla/',
         views.download_template,

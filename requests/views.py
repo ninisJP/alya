@@ -205,7 +205,7 @@ def create_requests(request, order_id):
             messages.error(
                 request,
                 "Por favor, corrija los errores en el formulario.")
-
+    
     else:
         order_form = CreateRequirementOrderForm(
             initial={'sales_order': sales_order})

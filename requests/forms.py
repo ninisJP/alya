@@ -34,9 +34,9 @@ class CreateRequirementOrderForm(forms.ModelForm):
         model = RequirementOrder
         fields = ['sales_order', 'requested_date', 'notes']
         widgets = {
-            'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (
-                date.today() + timedelta(days=0)).isoformat()}
-            ),
+            #'requested_date': forms.DateInput(attrs={'type': 'date', 'min': (
+            #    date.today() + timedelta(days=0)).isoformat()}
+            #),
             'notes': forms.Textarea(attrs={'required': 'required'})
         }
 
@@ -64,7 +64,6 @@ class CreateRequirementOrderForm(forms.ModelForm):
             raise forms.ValidationError(
                 "No puedes solicitar el pedido los miercoles." +
                 " Selecciona otra fecha.")
-
         return requested_date
 
 

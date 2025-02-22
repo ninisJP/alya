@@ -1,0 +1,155 @@
+{% extends "base_budget.html" %}
+
+{% block title %}Detalle del Presupuesto{% endblock %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+<!-- Eliminar padding y márgenes globalmente -->
+<div class="container-fluid">
+    <!-- Fila 1: Formulario para agregar ítem -->
+    {% if messages %}
+    <div class="container mt-4">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-success{% endif %} text-center" role="alert" style="font-size: 1.8em; font-weight: bold;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="row g-0 mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center" style="flex-wrap: nowrap;">
+                    <!-- Título -->
+                    <h1 class="mb-0" style="font-size: 2rem;">{{ budget.budget_name }}</h1>
+            
+                    <!-- Botones de acción (en una sola línea) -->
+                    <div class="d-flex gap-2 align-items-center" style="flex-wrap: nowrap;">
+                        <a href="{% url 'export_budget_report' budget.pk %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-file-excel"></i> Descargar Presupuesto
+                        </a>
+                        <a href="{% url 'descargar_plantilla'  %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-file-excel"></i> Descargar Modelo
+                        </a>
+                        <a href="{% url 'delete_budget' budget.id %}" class="btn btn-danger btn-sm">Eliminar</a>
+                        {% if user.is_superuser %}
+                            <a href="#" class="btn btn-primary btn-sm" id="createSalesOrderBtn">Crear Orden</a> <!-- Se traslado la funcion a un script de JS está abajo-->
+                        {% endif %}
+                        
+                        <!-- Subir archivo Excel (Normal) -->
+                        <form method="POST" enctype="multipart/form-data" action="{% url 'upload_sap_excel' budget.id %}">
+                            {% csrf_token %}
+                            <div class="d-flex align-items-center">
+                                <!-- Input de archivo oculto -->
+                                <input type="file" name="excel_file" accept=".xlsx" class="form-control form-control-sm mb-2" id="excelFile" style="display: none;">
+                                
+                                <!-- Botón con icono para abrir el selector de archivo -->
+                                <button type="button" class="btn btn-primary btn-sm w-auto" id="browseButton">
+                                    <i class="fas fa-folder-open"></i> <!-- Icono de carpeta -->
+                                </button>
+                                
+                                <!-- Botón de subida -->
+                                <button type="submit" class="btn btn-success btn-sm w-auto">
+                                    <i class="fas fa-upload"></i> Excel
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Subir archivo Excel (SAP) -->
+                        <form method="POST" enctype="multipart/form-data" action="{% url 'upload_sap_excel' budget.id %}">
+                            {% csrf_token %}
+                            <div class="d-flex align-items-center">
+                                <!-- Input de archivo oculto -->
+                                <input type="file" name="excel_file" accept=".xlsx" class="form-control form-control-sm mb-2" id="sapFile" style="display: none;">
+                                
+                                <!-- Botón con icono para abrir el selector de archivo -->
+                                <button type="button" class="btn btn-primary btn-sm w-auto" id="browseSapButton">
+                                    <i class="fas fa-folder-open"></i> <!-- Icono de carpeta -->
+                                </button>
+                                
+                                <!-- Botón de subida -->
+                                <button type="submit" class="btn btn-success btn-sm w-auto">
+                                    <i class="fas fa-upload"></i> SAP
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="budget_item_plus">
+        {% include 'budgetplus/budget_only_detail_item_plus.html' %}
+    </div>
+</div>
+
+<!-- Librerías de Select2 y jQuery -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    function initializeSelect2(selector) {
+        if (!$(selector).hasClass("select2-hidden-accessible")) {
+            $(selector).select2({
+                placeholder: 'Seleccione un ítem',
+                allowClear: true,
+                ajax: {
+                    url: $(selector).data('ajax--url'),
+                    dataType: 'json',
+                    delay: 150,
+                    data: function(params) {
+                        return { term: params.term };
+                    },
+                    processResults: function(data) {
+                        return { results: data.results };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 1,
+                dropdownCssClass: "form-control", // Clase para el dropdown
+                containerCssClass: "form-control" // Clase para el contenedor
+            });
+        }
+    }
+
+    // Inicializar Select2
+    $('.select2-ajax').each(function() {
+        initializeSelect2(this);
+    });
+
+    // Devolver foco al campo de selección después de agregar un ítem
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+        if (event.target.id === 'budget_item_plus') {
+            // Devolver foco al campo de selección
+            $('#id_item').select2('open');  // Abre el dropdown de Select2
+            $('#id_item').focus(); // También asegura que el campo reciba el foco
+        }
+    });
+
+    // Confirmación antes de crear la orden
+    $('#createSalesOrderBtn').click(function(event) {
+        event.preventDefault(); // Evita que el enlace se siga por defecto
+        const confirmation = confirm("¿Ha verificado que ingresó el número del presupuesto?");
+        if (confirmation) {
+            window.location.href = "{% url 'create_sales_order' budget.id %}"; // Redirigir a la creación de la orden
+        }
+    });
+});
+</script>
+
+<script>
+    // Mostrar el campo de archivo cuando se haga clic en el botón de "Browse"
+    document.getElementById('browseButton').addEventListener('click', function() {
+        document.getElementById('excelFile').click();
+    });
+
+    document.getElementById('browseSapButton').addEventListener('click', function() {
+        document.getElementById('sapFile').click();
+    });
+</script>
+
+{% endblock %}
