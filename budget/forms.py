@@ -1,15 +1,23 @@
+# See LICENSE file for copyright and license details.
+"""
+Form budget to see by admin
+"""
 from django import forms
-from .models import Budget, BudgetItem, CatalogItem
 from django.forms import inlineformset_factory
-from django import forms
 from django.urls import reverse_lazy
-from .models import Budget
-from django import forms
+
+from .models import Budget, BudgetItem, CatalogItem
+
 
 class Select2AjaxWidget(forms.Select):
+    """
+    Ajax to dinamic select in form
+    """
     class Media:
         css = {
-            'all': ('https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css',)
+            'all': ('
+                https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css',
+            )
         }
         js = (
             'https://code.jquery.com/jquery-3.6.0.min.js',
@@ -23,6 +31,7 @@ class Select2AjaxWidget(forms.Select):
         attrs['data-ajax--url'] = reverse_lazy('catalog_item_search')
         attrs['style'] = 'width: 100%;'
         return attrs
+
 
 class BudgetForm(forms.ModelForm):
     class Meta:
@@ -40,7 +49,7 @@ class BudgetForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BudgetForm, self).__init__(*args, **kwargs)
         self.fields['client'].empty_label = 'Seleccione un cliente'
-        
+
         # Etiquetas en español
         self.fields['client'].label = 'Cliente'
         self.fields['budget_name'].label = 'Nombre del Presupuesto'
@@ -97,7 +106,7 @@ class NewBudgetItemForm(forms.ModelForm):
             'custom_price_per_day': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio por Día'}),
             'unit': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unidad de medida'}),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super(NewBudgetItemForm, self).__init__(*args, **kwargs)
         # Configura las etiquetas en español
@@ -130,7 +139,7 @@ class BudgetEditNewForm(forms.ModelForm):
             'budget_servicetime': forms.NumberInput(attrs={'class': 'form-control'}),
             'budget_warrantytime': forms.Select(attrs={'class': 'form-control'}),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Etiquetas personalizadas en español
@@ -148,7 +157,7 @@ class BudgetEditNewForm(forms.ModelForm):
 class CatalogItemForm(forms.ModelForm):
     class Meta:
         model = CatalogItem
-        fields = ('sap', 'description', 'category', 'price', 'price_per_day', 'unit') 
+        fields = ('sap', 'description', 'category', 'price', 'price_per_day', 'unit')
         labels = {
             'sap': 'SAP',
             'description': 'Nombre',
@@ -164,7 +173,7 @@ class SearchCatalogItemForm(forms.Form):
 
 class ExcelUploadForm(forms.Form):
     file = forms.FileField(label="Selecciona el archivo Excel")
-    
+
 class AddBudgetItemForm(forms.ModelForm):
     class Meta:
         model = BudgetItem
@@ -232,5 +241,3 @@ class BudgetPlusForm(forms.ModelForm):
         self.fields['budget_name'].label = 'Nombre del Presupuesto'
         self.fields['budget_days'].label = 'Días del Presupuesto'
         self.fields['budget_date'].label = 'Fecha del Presupuesto'
-
-
