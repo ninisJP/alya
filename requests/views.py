@@ -25,26 +25,24 @@ def index_requests(request):
 
 def requirement_orders_view(request, sales_order_id):
     sales_order = get_object_or_404(SalesOrder, id=sales_order_id)
-    
+
     requirement_orders = sales_order.requirement_orders.all().order_by('requested_date')
-    
+
     context = {
         'sales_order': sales_order,
         'requirement_orders': requirement_orders,
     }
-    
+
     return render(request, 'requirement_orders_list.html', context)
-    
+
 def my_requests(request):
     my_orders = RequirementOrder.objects.filter(user=request.user).order_by('-id')
     return render(request, 'requests/my_requests.html', {'my_orders': my_orders})
 
 def total_requests(request):
     total_orders = RequirementOrder.objects.all().order_by('-id')
-    print(total_orders)
-    
     context = {'total_orders': total_orders}
-    
+
     return render(request, 'total_requests/all_requests.html', context)
 
 def requirement_order_preview(request):
@@ -75,7 +73,7 @@ def create_requests(request, order_id):
                 requirement_order = order_form.save(commit=False)
                 requirement_order.sales_order = sales_order
                 requirement_order.user = request.user
-                
+
                 # Diccionario para almacenar las cantidades solicitadas por ítem
                 item_quantities = {}
                 valid_items = []
@@ -109,13 +107,13 @@ def create_requests(request, order_id):
                     # Validación de cantidad
                     if item.sales_order_item.remaining_requirement <= 0 and item.quantity_requested > 0:
                         raise ValidationError(f"El ítem '{item.sales_order_item.description}' tiene cantidad cero disponible y no puede ser solicitado.")
-                    
+
                     item.clean()  # Limpiar y validar el ítem
                     valid_items.append(item)  # Añadir el ítem válido a la lista
 
                 if not valid_items:
                     raise ValidationError("No hay ítems válidos para agregar al pedido.")
-                
+
                 # Guardar la orden si hay al menos un ítem válido
                 requirement_order.save()
                 for item in valid_items:
@@ -135,7 +133,7 @@ def create_requests(request, order_id):
                     for field, errors in form.errors.items():
                         for error in errors:
                             messages.error(request, f"Error en {item_name}: {field} - {error}")
-            messages.error(request, "NO PUEDES SOLICITAR PEDIDOS PARA LOS DIAS MARTES O MIERCOLES.") 
+            messages.error(request, "NO PUEDES SOLICITAR PEDIDOS PARA LOS DIAS MARTES O MIERCOLES.")
 
     else:
         order_form = CreateRequirementOrderForm(initial={'sales_order': sales_order})
@@ -149,7 +147,7 @@ def create_requests(request, order_id):
         'sales_order': sales_order,
         'referencia_ordenventa': referencia_ordenventa,
     })
-    
+
 
 def create_prepopulated_request(request, order_id):
     sales_order = get_object_or_404(SalesOrder, id=order_id)
@@ -399,7 +397,7 @@ def export_requirement_order(request, order_id):
     ws.title = "Orden de Requerimiento"
 
     # Colores para la información general
-    general_info_fill = PatternFill(start_color="89b5fa", end_color="89b5fa", fill_type="solid") 
+    general_info_fill = PatternFill(start_color="89b5fa", end_color="89b5fa", fill_type="solid")
     general_info_alignment = Alignment(horizontal="left", vertical="center")  # Alineación izquierda
 
     # Agregar información general de la orden de requerimiento
@@ -411,7 +409,7 @@ def export_requirement_order(request, order_id):
         ("Estado de la Orden:", dict(RequirementOrder.STATE_CHOICES).get(order.state, 'Desconocido')),
         ("Total de la Orden:", order.total_order),
     ]
-    
+
     # Escribir la información general en las primeras filas con color y formato
     row_num = 1
     for label, value in general_info:
