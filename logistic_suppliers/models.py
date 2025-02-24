@@ -11,7 +11,7 @@ class Suppliers(models.Model):
     interbank_currency = models.CharField(max_length=50, verbose_name="Cuenta Interbancaria", null=True, blank=True, default='')
 
     def __str__(self):
-        return f"{self.name} - {self.document}"
+        return f"{self.name} - {self.bank} - Cuenta:{self.currency} - {self.document}"
 
     class Meta:
         verbose_name = "Proveedor"
