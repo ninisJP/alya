@@ -15,7 +15,7 @@ class Select2AjaxWidget(forms.Select):
     """
     class Media:
         css = {
-            'all': ('',
+            'all': ('https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css',
             )
         }
         js = (
