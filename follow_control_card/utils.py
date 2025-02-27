@@ -23,7 +23,10 @@ def create_monthly_cards_for_user(user):
 
     for day in range(days_in_month):
         card_date = start_of_month + timedelta(days=day)
-        Card.objects.get_or_create(user=user, date=card_date)
+
+        # Verificar antes de crear
+        if not Card.objects.filter(user=user, date=card_date).exists():
+            Card.objects.create(user=user, date=card_date)
 
 from django.contrib.auth.models import User
 
