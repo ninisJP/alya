@@ -1,18 +1,22 @@
+import os
+from datetime import datetime
+from typing import Any
+
+from django.conf import settings
 from django.db.models.query import QuerySet
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render,get_object_or_404
 from django.views.decorators.http import require_POST, require_http_methods
 from django.views.generic.list import ListView
-from datetime import datetime
-from typing import Any
+from django.db.models import Q
+from django.utils import timezone
+from django.shortcuts import render, redirect
+from django.http import FileResponse
+
 from accounting_order_sales.models import SalesOrder
 from .forms import TaskForm, ExcelUploadForm
 from .models import Card, Task, CardTaskOrder
 from .utils import get_max_order, process_tasks_excel
-from django.db.models import Q
-from django.utils import timezone
-from django.shortcuts import render, redirect
-
 
 
 class DailyCardList(ListView):
@@ -279,3 +283,22 @@ def tasks(request):
         'tasks': technicians_tasks
     }
     return render(request, 'tasks/task.html', context)
+
+def download_process_excel(request):
+    """
+    Download the excel template for follow control card
+    """
+
+    file_path = os.path.join(settings.BASE_DIR, 'static', 'procesos_tc.xlsx')
+    if os.path.exists(file_path):
+        response = FileResponse(
+            open(file_path, 'rb'),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename="procesos_tc.xlsx"'
+        return response
+    else:
+        return HttpResponse(
+            "El archivo no se encuentra disponible.",
+            status=404
+        )
