@@ -52,7 +52,7 @@
                                     <th>Tarea</th>
                                     <th>N° Orden de Venta</th>
                                     <th>Orden de Venta</th>
-                                    <th>Horas</th> <!-- Columna combinada de hora de inicio y fin -->
+                                    <th>Horas</th>
                                     <th>Marcado</th>
                                     <th>Estado</th>
                                 </tr>
@@ -60,8 +60,8 @@
                             <tbody>
                                 {% for task_order in card.cardtaskorder_set.all %}
                                 <tr class="bg-white">
-                                    <td><strong>{{ task_order.task.verb }}</strong> {{ task_order.task.object }}</td>
-                                    <td>{{ task_order.task.sale_order.sapcode }}</td>
+                                    <td><strong>{{ task_order.task.verb }}</strong> {{ task_order.task.object }} <strong>{{task_order.task.rutine}}</strong> Frecuencia: <strong>{{task_order.task.frecuency}}</strong></td>
+                                    <td>{{ task_order.task.sale_order.sapcode }} </td>
                                     <td>{{ task_order.task.sale_order.detail }}</td>
                                     <td>
                                         <!-- Badge con hora de inicio y fin -->

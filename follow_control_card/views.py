@@ -1,17 +1,22 @@
+import os
+from datetime import datetime
+from typing import Any
+
+from django.conf import settings
 from django.db.models.query import QuerySet
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render,get_object_or_404
 from django.views.decorators.http import require_POST, require_http_methods
 from django.views.generic.list import ListView
-from datetime import datetime
-from typing import Any
-from accounting_order_sales.models import SalesOrder
-from .forms import TaskForm
-from .models import Card, Task, CardTaskOrder
-from .utils import get_max_order
 from django.db.models import Q
 from django.utils import timezone
+from django.shortcuts import render, redirect
+from django.http import FileResponse
 
+from accounting_order_sales.models import SalesOrder
+from .forms import TaskForm, ExcelUploadForm
+from .models import Card, Task, CardTaskOrder
+from .utils import get_max_order, process_tasks_excel
 
 
 class DailyCardList(ListView):
@@ -52,6 +57,8 @@ def add_daily_task(request):
     measurement = request.POST.get('measurement', 'minutos')
     task_time = request.POST.get('task_time', None)
     card_id = request.POST.get('card_id')
+    rutine = request.POST.get('rutine', '')
+    frecuency = request.POST.get('frecuency', '')
 
     if not card_id:
         return render(request, 'partials/daily-task-list.html', {'error': 'Card ID is required'})
@@ -68,7 +75,9 @@ def add_daily_task(request):
         sale_order=sale_order,  # Asignar la instancia de SalesOrder
         measurement=measurement,
         task_time=task_time,
-        user=user
+        user=user,
+        rutine=rutine,
+        frecuency=frecuency,
     )
 
     # Obtener el orden máximo actual para las tareas en esta tarjeta
@@ -84,7 +93,7 @@ def add_daily_task(request):
     # Mostrar las horas de inicio y fin para cada tarea
     for task_order in tasks_ordered:
         print(f"Tarea: {task_order.task.verb} | Inicio: {task_order.start_time} | Fin: {task_order.end_time}")
-    
+
     # Renderizar la lista actualizada de tareas
     return render(request, 'partials/daily-task-list.html', {'daily_tasks': tasks_ordered, 'card_id': card.id})
 
@@ -183,10 +192,10 @@ def toggle_task_state(request, pk):
 
 
 # Iniciamos vista y metodos HTMX para tareas
-def tasks(request):
-    user_tasks = Task.objects.filter(user=request.user)
-    context = {'form': TaskForm(), 'tasks': user_tasks}
-    return render(request, 'tasks/task.html', context)
+# def tasks(request):
+#     user_tasks = Task.objects.filter(user=request.user)
+#     context = {'form': TaskForm(), 'tasks': user_tasks}
+#     return render(request, 'tasks/task.html', context)
 
 def task_search(request):
     query = request.GET.get('q', '')  # Obtener la consulta de búsqueda desde el request
@@ -242,3 +251,54 @@ def delete_task(request, task_id):
         task.delete()
         return render(request, 'partials/task-list.html')
     return HttpResponse(status=405)
+
+
+def tasks(request):
+    # technicians_tasks = Task.objects.all()
+    technicians_tasks = Task.objects.filter(user=request.user)
+    excel_form = ExcelUploadForm()
+    form = TaskForm()
+
+    if request.method == "POST":
+        # Si hay un archivo, procesarlo y asignar el sale_order
+        if request.FILES.get("file"):
+            excel_form = ExcelUploadForm(request.POST, request.FILES)
+            if excel_form.is_valid():
+                sale_order = excel_form.cleaned_data["sale_order"]  # Obtener la orden de venta seleccionada
+                file = excel_form.cleaned_data["file"]
+                print("Archivo recibido:", file.name)
+                success, error = process_tasks_excel(file, sale_order)  # Pasar el sale_order al procesar el archivo
+                if success:
+                    print("Tareas guardadas exitosamente.")
+                    return redirect("tasks")
+                else:
+                    print("Error en el procesamiento del archivo:", error)
+                    excel_form.add_error(None, f"Error al procesar el archivo: {error}")
+            else:
+                print("Formulario de Excel no válido.")
+    
+    context = {
+        'excel_form': excel_form,
+        'form': form,
+        'tasks': technicians_tasks
+    }
+    return render(request, 'tasks/task.html', context)
+
+def download_process_excel(request):
+    """
+    Download the excel template for follow control card
+    """
+
+    file_path = os.path.join(settings.BASE_DIR, 'static', 'procesos_tc.xlsx')
+    if os.path.exists(file_path):
+        response = FileResponse(
+            open(file_path, 'rb'),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename="procesos_tc.xlsx"'
+        return response
+    else:
+        return HttpResponse(
+            "El archivo no se encuentra disponible.",
+            status=404
+        )

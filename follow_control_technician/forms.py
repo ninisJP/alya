@@ -7,13 +7,15 @@ from .models import TechnicianCard, TechnicianCardTask, TechnicianTaskGroup, Tec
 class TechnicianTaskForm(forms.ModelForm):
     class Meta:
         model = TechnicianTask
-        fields = ('verb', 'object', 'measurement', 'time')
+        fields = ('verb', 'object', 'measurement', 'time', 'rutine','frecuency')
 
         labels = {
             'verb': 'Verbo',
             'object': 'Objeto',
             'measurement': 'Und. Medida',
             'time': 'Tiempo',
+            'rutine':'Rutina',
+            'frecuency': 'Frecuencia',
         }
 
         widgets = {
@@ -21,6 +23,8 @@ class TechnicianTaskForm(forms.ModelForm):
             'object': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Objeto'}),
             'measurement': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'unidad de medida'}),
             'time': forms.TimeInput(attrs={'class': 'form-control', 'placeholder': 'tiempo'}),
+            'rutine': forms.Select(attrs={'class': 'form-control' , 'placeholder': 'Rutina'}),
+            'frecuency': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Frecuencia'})
         }
 
 class TechnicianCardForm(forms.ModelForm):

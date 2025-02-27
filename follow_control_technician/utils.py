@@ -54,40 +54,45 @@ def informe_tarjetas_del_mes(mes, anio):
 def process_technician_tasks_excel(file):
     try:
         print("Iniciando lectura del archivo Excel...")
-        df = pd.read_excel(file, header=None)
+        # Cargar el archivo con la primera fila como nombres de columna
+        df = pd.read_excel(file, header=0)
 
         # Imprimir las primeras filas para ver cómo están estructurados los datos
         print("Primeras filas del archivo:", df.head().to_string(index=False))
 
-        if df.shape[1] < 4:
+        if df.shape[1] < 6:  # Ahora hay 6 columnas: Verbo, Objeto, Medida, Tiempo, Routine, Frequency
             print("Archivo no tiene las columnas necesarias.")
-            raise ValueError("El archivo debe tener al menos 4 columnas: Verbo, Objeto, Medida, Tiempo")
+            raise ValueError("El archivo debe tener al menos 6 columnas: Verbo, Objeto, Medida, Tiempo, Rutina, Frecuencia")
 
         print("Archivo leído correctamente. Procesando filas...")
 
         # Obtener combinaciones únicas existentes en la base de datos
         existing_tasks_set = set(
-            TechnicianTask.objects.values_list('verb', 'object', 'measurement', 'time')
+            TechnicianTask.objects.values_list('verb', 'object', 'measurement', 'time', 'rutine', 'frecuency')
         )
 
         tasks = []
         errors = []  # Lista para almacenar errores por fila
         for index, row in df.iterrows():
             try:
-                verb = row[0]
-                object_ = row[1]
-                measurement = row[2]
-                time = row[3]
+                verb = row['Verbo']  # Usando el nombre de la columna si lo tienes
+                object_ = row['Objeto']
+                measurement = row['Medida']
+                time = row['Tiempo']
+                rutine = row['Rutina']  # Nueva columna
+                frecuency = row['Frecuencia']  # Nueva columna
 
-                if pd.isna(verb) or pd.isna(object_) or pd.isna(measurement) or pd.isna(time):
+                # Verificar si faltan datos en alguna de las columnas
+                if pd.isna(verb) or pd.isna(object_) or pd.isna(measurement) or pd.isna(time) or pd.isna(rutine) or pd.isna(frecuency):
                     raise ValueError(f"Datos incompletos en la fila {index + 1}")
 
-                task_tuple = (verb, object_, measurement, time)
+                task_tuple = (verb, object_, measurement, time, rutine, frecuency)
                 if task_tuple in existing_tasks_set:
                     print(f"Tarea duplicada en fila {index + 1}. No se guardará.")
                     continue  # Saltar tarea si ya existe
 
-                tasks.append(TechnicianTask(verb=verb, object=object_, measurement=measurement, time=time))
+                # Crear la tarea con los nuevos campos
+                tasks.append(TechnicianTask(verb=verb, object=object_, measurement=measurement, time=time, rutine=rutine, frecuency=frecuency))
                 existing_tasks_set.add(task_tuple)  # Agregar a `existing_tasks_set` para evitar duplicados en la misma carga
             except Exception as row_error:
                 errors.append(f"Fila {index + 1}: {str(row_error)}")
