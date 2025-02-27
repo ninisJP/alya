@@ -1,21 +1,35 @@
 {% extends "follow_control_base.html" %}
+{% load widget_tweaks %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
         <div class="card-body text-center py-2">
             <h1 class="mb-0">Añadir Tareas</h1>
+            <a href="{% url 'download-process-excel'  %}" class="btn btn-success btn-sm">
+                <i class="fas fa-file-excel"></i> Descargar Modelo
+            </a>
         </div>
     </div>
 
-    <div id="tasks-forms" class="w-100 mb-4"> <!-- Añadí mb-4 aquí -->
-        {% include 'partials/task-form.html' %}
+    <div class="col-md-12 mb-3">
+        <div class="card p-3 shadow-sm" style="background-color: #f8f9fa; border-radius: 10px;">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ excel_form.sale_order }}
+                </div>
+                <div class="mb-3">
+                    {{ excel_form.file|add_class:"form-control" }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Subir Archivo de Tareas</button>
+            </form>
+        </div>
     </div>
 
-    <div class="card shadow-sm mb-4 bg-dark text-white w-100">
+    <div class="card shadow-sm rounded mb-4 bg-dark text-white" style="border-radius: 20px;">
         <div class="card-body text-center py-2">
-            <button type="button" class="btn btn-dark text-white w-100" hx-get="{% url 'create-tasks' %}"
-            hx-target="#tasks-forms"
-            hx-swap="beforeend">Crear formulario</button>
+            <h1 class="mb-0">Lista de Tareas</h1>
         </div>
     </div>
     <form hx-get="{% url 'task_search' %}" hx-target="#task-list" hx-trigger="keyup delay:0.2s" hx-debounce="500ms" class="mb-4"> <!-- Añadí mb-4 al formulario -->
@@ -25,6 +39,7 @@
         {% include 'partials/task-list.html' %}
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}

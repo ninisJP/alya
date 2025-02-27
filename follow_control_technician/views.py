@@ -442,7 +442,6 @@ def detail_task_group(request, group_id):
     })
 
 
-        
 def delete_task_group(request, group_id):
     group = get_object_or_404(TechnicianTaskGroup, id=group_id)
     if request.method == "POST":
@@ -471,4 +470,160 @@ def associate_group_to_card(request, card_id):
 
         return redirect("view_technician_card", card_id=card_id)
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.files.storage import FileSystemStorage
+import pandas as pd
+from .models import TechnicianTaskGroup
 
+def upload_task_group_file(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        file = request.FILES['file']
+
+        try:
+            # Aseguramos que el archivo esté disponible y en formato correcto
+            if file.name.endswith('.xlsx') or file.name.endswith('.xls'):
+                # Utilizamos pandas para leer el archivo excel
+                df = pd.read_excel(file)
+
+                # Procesar los datos del archivo Excel y crear los grupos
+                for name in df.iloc[:, 0].dropna():  # Suponiendo que los nombres están en la primera columna
+                    TechnicianTaskGroup.objects.get_or_create(name=name)
+
+                messages.success(request, 'Archivo cargado correctamente.')
+            else:
+                messages.error(request, 'Por favor, sube un archivo Excel válido (.xlsx o .xls).')
+        except Exception as e:
+            messages.error(request, f'Error al procesar el archivo: {str(e)}')
+
+        return redirect('list_task_groups')  # Redirigir a la vista de la lista de grupos de tareas
+
+    # Si no se envía un archivo, redirigir de nuevo
+    messages.error(request, 'No se seleccionó ningún archivo.')
+    return redirect('list_task_groups')
+
+# Excel task - group
+import pandas as pd
+from .models import TechnicianTaskGroup, TechnicianTaskGroupItem, TechnicianTask
+from django.contrib.auth.models import User
+
+import pandas as pd
+from .models import TechnicianTaskGroup, TechnicianTaskGroupItem, TechnicianTask
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from .models import TechnicianTaskGroup
+import pandas as pd
+
+def process_task_group_excel(file, sale_order=None):
+    try:
+        print("Iniciando lectura del archivo Excel...")
+        df = pd.read_excel(file, header=0)
+
+        # Limpiar los encabezados de la columna para eliminar espacios extras
+        df.columns = df.columns.str.strip()
+
+        # Mostrar los encabezados leídos para diagnóstico
+        print("Encabezados del archivo:", df.columns)
+
+        # Verificamos que el archivo tenga al menos las columnas necesarias
+        if df.shape[1] < 7:
+            print("Archivo no tiene las columnas necesarias.")
+            raise ValueError("El archivo debe tener al menos 6 columnas: Subprocesos, Verbo, Objeto, Medida, Tiempo, Rutina, Frecuencia")
+
+        print("Archivo leído correctamente. Procesando filas...")
+
+        current_date = datetime.now().strftime("%d-%m-%Y")
+
+
+        task_groups = {}  # Diccionario para almacenar los grupos de tareas por nombre
+        errors = []  # Lista para almacenar errores por fila
+        current_group = None  # Variable para almacenar el grupo actual
+
+        for index, row in df.iterrows():
+            try:
+                # Asignar el grupo actual si es necesario
+                if pd.notna(row['Proceso']):
+                    proceso = str(row['Proceso']).strip()
+
+                if pd.notna(row['Subprocesos']):
+                    original_group = str(row['Subprocesos']).strip()
+                    current_group = f"{proceso}_{original_group}_{current_date}"
+
+                # Validar que current_group esté definido
+                if current_group is None:
+                    raise ValueError("La primera fila debe definir un Subproceso")
+
+                # Usamos el grupo actual para todas las filas
+                group_name = current_group
+                verb = row['Verbo']
+                object_ = row['Objeto']
+                measurement = row['Medida']
+                time = row['Tiempo']
+                rutine = row['Rutina']
+                frecuency = row['Frecuencia']
+
+                # Verificar que los datos necesarios estén presentes
+                if pd.isna(group_name) or pd.isna(verb) or pd.isna(object_) or pd.isna(measurement) or pd.isna(time) or pd.isna(rutine) or pd.isna(frecuency):
+                    raise ValueError(f"Datos incompletos en la fila {index + 1}")
+
+                # Buscar o crear el grupo de tareas
+                if group_name not in task_groups:
+                    task_group, created = TechnicianTaskGroup.objects.get_or_create(name=group_name)
+                    task_groups[group_name] = task_group  # Guardar el grupo para uso posterior
+
+                # Verificar si la tarea ya existe para evitar duplicados
+                task, created = TechnicianTask.objects.get_or_create(
+                    verb=verb,
+                    object=object_,
+                    measurement=measurement,
+                    time=time,
+                    rutine=rutine,
+                    frecuency=frecuency
+                )
+
+                if created:
+                    print(f"Tarea creada: {task}")
+                else:
+                    print(f"Tarea ya existe: {task}")
+
+                # Crear el elemento del grupo de tareas (asociar la tarea con el grupo)
+                task_group_item = TechnicianTaskGroupItem(
+                    task_group=task_groups[group_name],  # Usamos task_group, que es el nombre correcto
+                    task=task,
+                    quantity=1,  # O tomar otro valor de las columnas del archivo, si es necesario
+                    order=index  # Usamos el índice como orden en el grupo
+                )
+                task_group_item.save()  # Guardar el elemento del grupo en la base de datos
+
+            except Exception as row_error:
+                errors.append(f"Fila {index + 1}: {str(row_error)}")
+
+        # Si no hubo errores, devolver éxito
+        if errors:
+            for error in errors:
+                print("Error:", error)
+            return False, "Errores en algunas filas. Revísalos en los detalles de la salida."
+
+        print("Todas las tareas y grupos fueron procesados correctamente.")
+        print(task_groups)
+        return True, None
+    except Exception as e:
+        print("Error durante el procesamiento del archivo:", str(e))
+        return False, str(e)
+
+
+
+def upload_task_group_excel(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        # Obtener el archivo del formulario de carga
+        file = request.FILES['file']
+
+        # Llamar a la función para procesar el archivo Excel
+        success, message = process_task_group_excel(file)
+
+        if success:
+            return redirect('list_task_groups')
+        else:
+            return HttpResponse(f"Error: {message}")
+    return redirect('list_task_groups')

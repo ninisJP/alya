@@ -1,35 +1,76 @@
 {% extends 'follow_control_base.html' %}
 {% load widget_tweaks %}
 
-{% block title %}Listado de Grupos de Tareas{% endblock %}
+{% block title %}Listado de Procesos{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="p-4 bg-white rounded shadow">
-        <!-- Encabezado con formulario -->
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <h1 class="display-6 text-dark">Grupo de tareas</h1>
-            <form id="new-group-form" hx-post="{% url 'create_task_group' %}" hx-target="#group-list" hx-swap="beforeend" class="d-flex align-items-center">
-                <div class="me-2">
+<div class="container-fluid px-4 pt-4">
+    <div class="bg-white rounded-4 shadow-sm p-4">
+        <!-- Encabezado -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 border-bottom pb-4">
+            <div class="d-flex align-items-center gap-3">
+                <h1 class="h4 text-dark fw-semibold mb-0">
+                    <i class="fas fa-layer-group text-primary me-2"></i>Subprocesos
+                </h1>
+            </div>
+            
+            <!-- Formulario de creación -->
+            <form id="new-group-form" 
+                  hx-post="{% url 'create_task_group' %}" 
+                  hx-target="#group-list" 
+                  hx-swap="beforeend"
+                  class="d-flex flex-column flex-sm-row gap-3 w-100 w-md-auto">
+                {% csrf_token %}
+                <div class="flex-grow-1">
+                    {{ form.name|add_class:"form-control border-primary rounded-3"|attr:"placeholder='Nombre del grupo'" }}
                     {{ form.name.errors }}
-                    {{ form.name|add_class:"form-control form-control-sm" }}
                 </div>
-                <button type="submit" class="btn btn-success btn-sm">
-                    <i class="fas fa-save"></i> Crear grupo
+                <button type="submit" class="btn btn-primary px-4 rounded-3 d-flex align-items-center gap-2 btn-hover-lift">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Crear Subproceso</span>
                 </button>
             </form>
         </div>
 
-        <!-- Tabla de grupos de tareas -->
-        <div class="table-responsive">
-            <table class="table table-hover table-striped rounded shadow-sm">
-                <thead class="table-dark text-center">
+        <!-- Formulario de carga -->
+        <div class="mb-4 border-bottom pb-4">
+            <div class="card border-primary rounded-3">
+                <div class="card-body p-3">
+                    <h2 class="h6 text-muted fw-semibold mb-3">
+                        <i class="fas fa-file-upload text-primary me-2"></i>Cargar archivo de grupos
+                    </h2>
+                    <form id="file-upload-form" 
+                          action="{% url 'upload_task_group_file' %}" 
+                          method="post" 
+                          enctype="multipart/form-data"
+                          class="d-flex flex-column flex-md-row gap-3 align-items-end">
+                        {% csrf_token %}
+                        <div class="flex-grow-1 w-100">
+                            <input type="file" 
+                                   name="file" 
+                                   accept=".xlsx, .xls" 
+                                   class="form-control border-primary rounded-3"
+                                   required>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary px-4 rounded-3 d-flex align-items-center gap-2 btn-hover-lift">
+                            <i class="fas fa-upload"></i>
+                            <span>Subir Archivo</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de grupos -->
+        <div class="table-responsive rounded-3 border shadow-sm">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-uppercase text-muted small">
                     <tr>
-                        <th>Grupo</th>
-                        <th>Acciones</th>
+                        <th class="ps-4 fw-semibold">Subprocesos</th>
+                        <th class="text-end pe-4 fw-semibold">Tareas</th>
                     </tr>
                 </thead>
-                <tbody id="group-list">
+                <tbody id="group-list" class="border-top-0">
                     {% for task_group in task_groups %}
                         {% include 'technician_groups/task_group_row.html' with task_group=task_group %}
                     {% endfor %}
@@ -38,4 +79,21 @@
         </div>
     </div>
 </div>
+
+<style>
+    .btn-hover-lift {
+        transition: all 0.2s ease;
+        transform: translateY(0);
+    }
+    .btn-hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    .rounded-4 {
+        border-radius: 1.25rem;
+    }
+</style>
 {% endblock %}
