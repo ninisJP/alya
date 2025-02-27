@@ -117,7 +117,7 @@ class Task(models.Model):
     ]
     cards = models.ManyToManyField('Card', related_name='tasks', through='CardTaskOrder')
     verb = models.CharField(max_length=100, default='')
-    object = models.CharField(max_length=100, default='')
+    object = models.CharField(max_length=500, default='')
     sale_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, null=True, blank=True)
     measurement = models.CharField(max_length=50, default='minutos')
     task_time = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
